@@ -3,6 +3,7 @@ export def --env start_capture [
     file: path = 'nubook.nu.txt'
 ] {
     $env.nubook.path = $file;
+    $env.backup.hooks.display_output = $env.config.hooks?.display_output? | default {table}
     $env.config.hooks.display_output = {
         let $input = $in;
 
@@ -21,7 +22,7 @@ export def --env start_capture [
 
 # stop capturing commands and their results
 export def --env stop_capture [ ] {
-    $env.config.hooks.display_output = {code: {}}
+    $env.config.hooks.display_output = $env.backup.hooks.display_output
 }
 
 # run nubook
