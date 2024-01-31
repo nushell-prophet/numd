@@ -9,6 +9,8 @@
 # > nubook stop_capture
 # > nubook run my_first_nubook.txt
 
+use nu-utils [confirm]
+
 # start capturing commands and their results into a file
 export def --env start_capture [
     file: path = 'nubook.nu.txt'
@@ -52,7 +54,15 @@ export def run [
         | nu -c $in --env-config $nu.env-path --config $nu.config-path
     )
 
-    if $save_to != '' {$res | ansi strip | save -f $save_to}
-
     if not $quiet {print $res}
+
+    $res
+    | ansi strip
+    | if $save_to != '' {
+        save -f $save_to
+    } else {
+        if (confirm $'would you like to overwrite *($file)*') {
+            save -f $file
+        }
+    }
 }
