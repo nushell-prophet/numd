@@ -1,3 +1,14 @@
+# nubook - jupiter notebooks inspired text-based notebooks for Nushell
+
+# > use nubook.nu
+# > nubook start_capture my_first_nubook.txt
+# > # run some commands to capture in a nubook
+# > ls
+# > date now
+# > print "this is cool"
+# > nubook stop_capture
+# > nubook run my_first_nubook.txt
+
 # start capturing commands and their results into a file
 export def --env start_capture [
     file: path = 'nubook.nu.txt'
