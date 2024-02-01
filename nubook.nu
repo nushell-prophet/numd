@@ -40,9 +40,10 @@ export def --env stop_capture [ ] {
 
 # run nubook
 export def run [
-    file: path
-    --save_to: path = '' # path of file to save
+    file: path # nubook file to run
+    output?: path # path of file to save
     --quiet # don't output results into terminal
+    --overwrite (-o) # owerwrite existing file without confirmation
 ] {
     let $res = (
         open $file
@@ -56,13 +57,22 @@ export def run [
 
     if not $quiet {print $res}
 
-    $res
-    | ansi strip
-    | if $save_to != '' {
-        save -f $save_to
-    } else {
-        if (confirm $'would you like to overwrite *($file)*') {
-            save -f $file
+    mut $path = ( $output | default $file )
+    mut $keep_asking = true
+
+    while $keep_asking {
+        if ($path | path exists) {
+            if $overwrite or (confirm $'would you like to overwrite *($path)*') {
+                $keep_asking = false
+            } else {
+                $path = (input 'Enter the new nubook filename: ')
+            }
+        } else {
+            $keep_asking = false
         }
     }
+
+    $res
+    | ansi strip
+    | save -f $path
 }
