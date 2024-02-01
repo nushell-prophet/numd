@@ -15,8 +15,8 @@ use nu-utils [confirm]
 export def --env start_capture [
     file: path = 'nubook.nu.txt'
 ] {
-    $env.nubook.path = $file;
     $env.backup.hooks.display_output = $env.config.hooks?.display_output? | default {table}
+    $env.nubook.path = ($file | path expand)
     $env.config.hooks.display_output = {
         let $input = $in;
 
