@@ -15,8 +15,8 @@ use nu-utils [confirm]
 export def --env start_capture [
     file: path = 'nubook.nu.txt'
 ] {
-    $env.backup.hooks.display_output = $env.config.hooks?.display_output? | default {table}
     $env.nubook.path = ($file | path expand)
+    $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {table})
     $env.config.hooks.display_output = {
         let $input = $in;
 
@@ -26,10 +26,10 @@ export def --env start_capture [
         | ansi strip
         | '> ' + (history | last | get command) + (char nl) + $in
         | if ($in !~ 'stop_capture') {
-            save -ar $env.nubook.path;
+            save -ar $env.nubook.path
         }
 
-        print -n $input # without -n the new line is added to output
+        print -n $input # without the `-n` flag new line is added to an output
     }
 }
 
