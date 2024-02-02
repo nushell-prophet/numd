@@ -1,21 +1,21 @@
-# nubook - jupiter notebooks inspired text-based notebooks for Nushell
+# numd - R Markdown inspired text-based notebooks for Nushell
 
-# > use nubook.nu
-# > nubook start_capture my_first_nubook.txt
-# > # run some commands to capture in a nubook
+# > use numd.nu
+# > numd start_capture my_first_numd.txt
+# > # run some commands to capture in a numd
 # > ls
 # > date now
 # > print "this is cool"
-# > nubook stop_capture
-# > nubook run my_first_nubook.txt
+# > numd stop_capture
+# > numd run my_first_numd.txt
 
 use nu-utils [confirm]
 
 # start capturing commands and their results into a file
 export def --env start_capture [
-    file: path = 'nubook.nu.txt'
+    file: path = 'numd.nu.txt'
 ] {
-    $env.nubook.path = ($file | path expand)
+    $env.numd.path = ($file | path expand)
     $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {table})
     $env.config.hooks.display_output = {
         let $input = $in;
@@ -27,7 +27,7 @@ export def --env start_capture [
         | default (char nl)
         | '> ' + (history | last | get command) + (char nl) + $in
         | if ($in !~ 'stop_capture') {
-            save -ar $env.nubook.path
+            save -ar $env.numd.path
         }
 
         print -n $input # without the `-n` flag new line is added to an output
@@ -39,9 +39,9 @@ export def --env stop_capture [ ] {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
 }
 
-# run nubook
+# run numd
 export def run [
-    file: path # nubook file to run
+    file: path # numd file to run
     output?: path # path of file to save
     --quiet # don't output results into terminal
     --overwrite (-o) # owerwrite existing file without confirmation
@@ -66,7 +66,7 @@ export def run [
             if $overwrite or (confirm $'would you like to overwrite *($path)*') {
                 $keep_asking = false
             } else {
-                $path = (input 'Enter the new nubook filename: ')
+                $path = (input 'Enter the new numd filename: ')
             }
         } else {
             $keep_asking = false
