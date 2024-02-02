@@ -24,6 +24,7 @@ export def --env start_capture [
         | table -e
         | into string
         | ansi strip
+        | default (char nl)
         | '> ' + (history | last | get command) + (char nl) + $in
         | if ($in !~ 'stop_capture') {
             save -ar $env.nubook.path
