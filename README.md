@@ -1,6 +1,7 @@
 # numd
 
-[R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics) and Jupiter Notebooks inspired text-based notebook for Nushell 🤘
+[R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics) inspired, reproducible, text-based notebooks for Nushell:
+execute chunks of nushell code within markdown documents, output results to terminal or back to your .md document.
 
 ## Quickstart
 
@@ -12,8 +13,8 @@ second, copy the example below and paste into your terminal
 # use the module
 use numd.nu
 
-# start capturing commands and their output into the `my_first_numd.txt` file
-numd start_capture my_first_numd.txt
+# start capturing commands and their output into the `my_first_numd.md` file
+numd start_capture my_first_numd.md
 
 # execute some commands in your terminal, to record them and their output
 ls
@@ -24,5 +25,5 @@ print "this is cool"
 numd stop_capture
 
 # run numd
-numd run my_first_numd.txt
+numd run my_first_numd.md
 ```
