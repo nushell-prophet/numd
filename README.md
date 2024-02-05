@@ -7,11 +7,13 @@ numd is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.htm
 ## Quickstart
 
 
-`> git clone https://github.com/maxim-uvarov/numd; cd numd`
+```
+git clone https://github.com/maxim-uvarov/numd; cd numd
+use numd
+numd run --quiet README.md
+```
 
-`> use numd`
-
-`> numd run --quiet README.md`
+The code above isn't executed and updated by numd, as it lacks an opening '```nushell' specification tag.
 
 ## How it works
 
