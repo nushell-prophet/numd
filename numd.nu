@@ -9,7 +9,7 @@
 # > numd stop_capture
 # > numd run my_first_numd.txt
 
-use nu-utils [confirm]
+use nu-utils [overwrite-or-rename]
 
 # start capturing commands and their results into a file
 export def --env start_capture [
@@ -59,22 +59,7 @@ export def run [
 
     if not $quiet {print $res}
 
-    mut $path = ( $output | default $file )
-    mut $keep_asking = true
-
-    while $keep_asking {
-        if ($path | path exists) {
-            if $overwrite or (confirm $'would you like to overwrite *($path)*') {
-                $keep_asking = false
-            } else {
-                $path = (input 'Enter the new numd filename: ')
-            }
-        } else {
-            $keep_asking = false
-        }
-    }
-
     $res
     | ansi strip
-    | save -f $path
+    | overwrite-or-rename --overwrite=($overwrite) ( $output | default $file )
 }
