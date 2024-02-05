@@ -10,6 +10,7 @@
 # > numd run my_first_numd.txt
 
 use nu-utils [overwrite-or-rename]
+use std iter scan
 
 # start capturing commands and their results into a file
 export def --env start_capture [
@@ -47,14 +48,94 @@ export def run [
     --quiet # don't output results into terminal
     --overwrite (-o) # owerwrite existing file without confirmation
 ] {
-    let $res = (
+    let $md_row_type = (
         open $file
         | lines
-        | where ($it | str starts-with '> ')
-        | str replace -r '^> ' ''
-        | each {|i| $"print `> ($i | nu-highlight)`; (char nl)print \(" + $i + ')'}
+        | wrap line
+        | insert row_type {|i| match ($i.line | str trim) {
+            '```nu' => 'nu-code',
+            '```nushell' => 'nu-code',
+            '```' => 'chunk-end',
+            _ => ''
+        }}
+    )
+
+    let $row_types = (
+        $md_row_type.row_type
+        | scan --noinit '' {|prev curr| if $curr == '' {if $prev == 'chunk-end' {''} else $prev} else {$curr}}
+    )
+
+    let $block_index = (
+        $row_types
+        | window --remainder 2
+        | scan 0 {|prev curr| if ($curr.0? == $curr.1?) {$prev} else {$prev + 1}}
+    )
+
+    let $rows = (
+        $md_row_type
+        | merge ($row_types | wrap row_types)
+        | merge ($block_index | wrap block_index)
+    )
+
+    let $numd_block_const = '###numd-block-'
+
+    let $to_parse = (
+        $rows
+        | where row_types == 'nu-code'
+        | where line =~ '^(>|#)'
+        | group-by block_index
+        | items {|k v| $'($numd_block_const)($k)' | append $v.line}
+        | flatten
+    )
+
+    let $nu_command = (
+        $to_parse
+        | each {|i|
+            if ($i =~ '^>') {
+                let $command = ($i | str replace -r '^>' '')
+                $"print `>($command | nu-highlight)`; (char nl)print \(" + $command + ')'
+            } else {
+                $'print `($i)`'
+            }
+        }
         | str join (char nl)
-        | nu -c $in --env-config $nu.env-path --config $nu.config-path
+    )
+
+    let $nuout = (nu -c $nu_command --env-config $nu.env-path --config $nu.config-path | lines)
+
+    let $groups = (
+        $nuout
+        | each {
+            |i| if $i =~ $numd_block_const {
+                $i | split row '-' | last | into int
+            } else {-1}
+        }
+        | scan --noinit 0 {|prev curr| if $curr == -1 {$prev} else {$curr}}
+        | wrap block_index
+    )
+
+    let $nu_out_with_block_index = (
+        $nuout
+        | wrap 'nu_out'
+        | merge $groups
+        | group-by block_index --to-table
+        | upsert items {
+            |i| $i.items.nu_out
+            | skip
+            | str join (char nl)
+            | '```nushell' + (char nl) + $in + (char nl) + '```'
+        }
+        | rename block_index line
+        | into int block_index
+    )
+
+    let $res = (
+        $rows
+        | where row_types not-in ['nu-code' 'chunk-end']
+        | append $nu_out_with_block_index
+        | sort-by block_index
+        | get line
+        | str join (char nl)
     )
 
     if not $quiet {print $res}
