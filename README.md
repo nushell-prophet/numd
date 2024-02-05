@@ -19,5 +19,14 @@ Execute chunks of nushell code within markdown documents, output results to the 
 # the lines with comments it just prints as it is
 # the lines that start with `>` symbol it prints out as it is and executes, to recive the output
 > ls
+╭───name────┬─type─┬──size──┬────modified────╮
+│ LICENSE   │ file │ 1.1 KB │ 4 days ago     │
+│ README.md │ file │ 1.3 KB │ 12 seconds ago │
+│ examples  │ dir  │  288 B │ 2 hours ago    │
+│ nu-utils  │ dir  │  256 B │ 39 minutes ago │
+│ numd.nu   │ file │ 3.9 KB │ 13 seconds ago │
+╰───────────┴──────┴────────┴────────────────╯
+
 > date now
+Mon, 5 Feb 2024 13:59:28 +0000 (now)
 ```
