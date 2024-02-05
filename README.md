@@ -1,29 +1,23 @@
-# numd
+# numd - reproducible Nushell Markdown Notebooks
 
-[R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics) inspired, reproducible, text-based notebooks for Nushell:
-execute chunks of nushell code within markdown documents, output results to terminal or back to your .md document.
+Execute chunks of nushell code within markdown documents, output results to the terminal or back to your `.md` document.
+[R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics) inspired.
 
 ## Quickstart
 
-First, run `$env.config.bracketed_paste = false`
 
-second, copy the example below and paste into your terminal
+`> git clone https://github.com/maxim-uvarov/numd; cd numd`
+`> use numd`
+`> numd run --quiet README.md`
+
+## How it works
 
 ```nushell
-# use the module
-use numd.nu
-
-# start capturing commands and their output into the `my_first_numd.md` file
-numd start_capture my_first_numd.md
-
-# execute some commands in your terminal, to record them and their output
-ls
-date now
-print "this is cool"
-
-# stop capturing
-numd stop_capture
-
-# run numd
-numd run my_first_numd.md
+# the 'numd run' commands opens a specified file (the path to the file is provided as a first argument)
+# it looks for nushell code chunks
+# it splits text to lines
+# the lines with comments it just prints as it is
+# the lines that start with `>` symbol it prints out as it is and executes, to recive the output
+> ls
+> date now
 ```
