@@ -93,12 +93,13 @@ export def run [
 
     let $res = (
         $rows
-        | where row_types not-in ['nu-code' 'chunk-end']
+        | where row_types not-in ['nu-code']
         | append $nu_out_with_block_index
         | sort-by block_index
         | get line
         | str join (char nl)
         | $in + (char nl)
+        | str replace -ar "```\n```\n" "```\n" # remove double code-chunks ends
     )
 
     if not $quiet {print $res}
