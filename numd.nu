@@ -110,9 +110,16 @@ export def run [
 
 # start capturing commands and their results into a file
 export def --env start_capture [
-    file: path = 'numd.nu.txt'
+    file: path = 'capture.md'
 ] {
+    if $file == 'capture.md' {
+        print $'New lines of the recording will be added to the ($file) file.'
+    }
+
     $env.numd.path = ($file | path expand)
+
+    '```nushell' + (char nl) | save -a $env.numd.path
+
     $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {table})
     $env.config.hooks.display_output = {
         let $input = $in;
@@ -135,4 +142,6 @@ export def --env start_capture [
 # stop capturing commands and their results
 export def --env stop_capture [ ] {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
+
+    '```' + (char nl) | save -a $env.numd.path
 }
