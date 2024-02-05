@@ -25,7 +25,8 @@ export def --env start_capture [
         | into string
         | ansi strip
         | default (char nl)
-        | '> ' + (history | last | get command) + (char nl) + $in
+        | '> ' + (history | last | get command) + (char nl) + $in + (char nl)
+        | str replace -r "\n\n\n$" "\n\n"
         | if ($in !~ 'stop_capture') {
             save -ar $env.numd.path
         }
