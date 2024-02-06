@@ -1,0 +1,1 @@
+{name: numd, type: module, version: "0.0.2", description: "Nushell markdown notebook", license: MIT}
