@@ -1,29 +1,39 @@
-# numd
+# numd - reproducible Nushell Markdown Notebooks
 
-[R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics) inspired, reproducible, text-based notebooks for Nushell:
-execute chunks of nushell code within markdown documents, output results to terminal or back to your .md document.
+Execute chunks of nushell code within markdown documents, output results to the terminal or write them back to your `.md` document.
+
+numd is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
 
 ## Quickstart
 
-First, run `$env.config.bracketed_paste = false`
 
-second, copy the example below and paste into your terminal
+```
+git clone https://github.com/maxim-uvarov/numd; cd numd
+use numd
+numd run --quiet README.md
+```
+
+The code above isn't executed and updated by numd, as it lacks an opening '```nushell' specification tag.
+
+## How it works
 
 ```nushell
-# use the module
-use numd.nu
+# The 'numd run' command opens a specified file.
+# (The path to the file should be provided as the first argument.)
+# It looks for nushell code chunks.
+# It splits text into lines.
+# The lines with comments it just prints as they are.
+# The lines that start with the `>` symbol it prints out as they are and executes, to receive the output.
+# Eventually, the script updates nushell code chunks.
+> ls
+╭───name────┬─type─┬──size──┬────modified────╮
+│ LICENSE   │ file │ 1.1 KB │ 4 days ago     │
+│ README.md │ file │ 1.3 KB │ 12 seconds ago │
+│ examples  │ dir  │  288 B │ 2 hours ago    │
+│ nu-utils  │ dir  │  256 B │ 39 minutes ago │
+│ numd.nu   │ file │ 3.9 KB │ 13 seconds ago │
+╰───────────┴──────┴────────┴────────────────╯
 
-# start capturing commands and their output into the `my_first_numd.md` file
-numd start_capture my_first_numd.md
-
-# execute some commands in your terminal, to record them and their output
-ls
-date now
-print "this is cool"
-
-# stop capturing
-numd stop_capture
-
-# run numd
-numd run my_first_numd.md
+> date now
+Mon, 5 Feb 2024 13:59:28 +0000 (now)
 ```
