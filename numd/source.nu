@@ -12,7 +12,7 @@ export def main [
     | prepend 'mut $prev_ts = (date now)'
     | save -f $out_file
 
-    print $'the file ($out_file) is produced. Source it')
+    print $'the file ($out_file) is produced. Source it'
 
     commandline $'source ($out_file)'
 }
