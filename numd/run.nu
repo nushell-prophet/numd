@@ -1,4 +1,4 @@
-# numd - R Markdown inspired text-based notebooks for Nushell
+# nudoc - R Markdown inspired text-based notebooks for Nushell
 
 use nu-utils [overwrite-or-rename]
 use std iter scan
@@ -17,7 +17,7 @@ export def main [
         | each {|i| match ($i | str trim) {
             '```nu' => 'nu-code',
             '```nushell' => 'nu-code',
-            '```numd-output' => 'numd-output'
+            '```nudoc-output' => 'nudoc-output'
             '```' => 'chunk-end',
             _ => ''
         }}
@@ -40,7 +40,7 @@ export def main [
         | merge ($block_index | wrap block_index)
     )
 
-    let $numd_block_const = '###numd-block-'
+    let $nudoc_block_const = '###nudoc-block-'
 
     let $to_parse = (
         $file_lines_classified
@@ -55,7 +55,7 @@ export def main [
                 }
             )
 
-            $'($numd_block_const)($k)' | append $lines
+            $'($nudoc_block_const)($k)' | append $lines
         }
         | flatten
     )
@@ -65,7 +65,7 @@ export def main [
         | each {|i|
             if $i =~ '^%%' {
                 let $command = ($i | str replace -r '^%%' '')
-                $'print `($command | nu-highlight)`;(char nl)print "```(char nl)```numd-output"(char nl)($command)'
+                $'print `($command | nu-highlight)`;(char nl)print "```(char nl)```nudoc-output"(char nl)($command)'
             } else if ($i =~ '^>') {
                 let $command = ($i | str replace -r '^>' '')
                 $"print `>($command | nu-highlight)`;(char nl)print \(" + $command + ')'
@@ -81,7 +81,7 @@ export def main [
     let $groups = (
         $nu_res_stdout_lines
         | each {
-            |i| if $i =~ $numd_block_const {
+            |i| if $i =~ $nudoc_block_const {
                 $i | split row '-' | last | into int
             } else {-1}
         }
@@ -106,14 +106,14 @@ export def main [
 
     let $res = (
         $file_lines_classified
-        | where row_types not-in ['nu-code' 'numd-output']
+        | where row_types not-in ['nu-code' 'nudoc-output']
         | append $nu_res_with_block_index
         | sort-by block_index
         | get line
         | str join (char nl)
         | $in + (char nl)
         | str replace -ar "```\n(```\n)+" "```\n" # remove double code-chunks ends
-        | str replace -ar "```numd-output(\\s|\n)*```\n" ''
+        | str replace -ar "```nudoc-output(\\s|\n)*```\n" ''
     )
 
     if not $quiet {print $res}

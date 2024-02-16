@@ -13,7 +13,7 @@ export def main [
             if $overwrite or (confirm $'would you like to overwrite *($path)*') {
                 $keep_asking = false
             } else {
-                $path = (input 'Enter the new numd filename: ')
+                $path = (input 'Enter the new nudoc filename: ')
             }
         } else {
             $keep_asking = false

@@ -3,7 +3,7 @@
 export def main [
     file: path
 ] {
-    let $out_file = ($file + '.numdtmp')
+    let $out_file = ($file + '.nudoctmp')
 
     open $file
     | str trim --char (char nl)
