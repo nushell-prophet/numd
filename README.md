@@ -13,17 +13,18 @@ use numd
 numd run --quiet README.md
 ```
 
-The code above isn't executed and updated by numd, as it lacks an opening '```nushell' specification tag.
+🗒 The code above isn't executed and updated by numd, as it lacks an opening ````nushell` language idnetifier in the opening code fence tag.
 
 ## How it works
 
+1. The 'numd run' command opens a file from the first argument.
+2. It looks for ````nushell` code chunks.
+3. In the code chunks, that entirely doesn't have lines starting with `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ````numd-output` chunks, next to the executed code chunks.
+4. In the code chunks, that contain one or more lines starting with `>` symbol, numd filters only lines that start with `>` or `#` symbol, execute those lines one by one and output their results just after the executed line.
+5. Numd output results into the terminal (if the `--queit` flag is not used)
+6. Numd update results in the file, which was provided as the first argument after confirmation.
+
 ```nushell
-# The 'numd run' command opens a specified file.
-# (The path to the file should be provided as the first argument.)
-# It looks for nushell code chunks.
-# It splits text into lines.
-# The lines with comments it just prints as they are.
-# The lines that start with the `>` symbol it prints out as they are and executes, to receive the output.
 # Eventually, the script updates nushell code chunks.
 > ls
 ╭───name────┬─type─┬──size──┬────modified────╮
