@@ -17,7 +17,7 @@ nudoc run --quiet README.md
 
 ## How it works
 
-1. The 'nudoc run' command opens a file from the first argument.
+1. The `nudoc run` command opens a file from the first argument.
 2. It looks for ````nushell` code chunks.
 3. In the code chunks, that entirely doesn't have lines starting with `>` symbol, nudoc executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ````nudoc-output` chunks, next to the executed code chunks.
 4. In the code chunks, that contain one or more lines starting with `>` symbol, nudoc filters only lines that start with `>` or `#` symbol, execute those lines one by one and output their results just after the executed line.
