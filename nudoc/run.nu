@@ -1,5 +1,3 @@
-# nudoc - R Markdown inspired text-based notebooks for Nushell
-
 use nu-utils [overwrite-or-rename]
 use std iter scan
 
