@@ -7,7 +7,7 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 ## Quickstart
 
 ```
-git clone https://github.com/maxim-uvarov/nudoc; cd nudoc
+git clone https://github.com/nushell101/nudoc; cd nudoc
 use nudoc
 nudoc run --quiet README.md
 ```
