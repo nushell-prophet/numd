@@ -4,5 +4,7 @@ open nupm.nuon | update description ($98 | str replace 'nudoc - ' '') | update v
 
 open README.md -r | lines | update 0 ('# ' + $98) | str join (char nl) | $in + (char nl) | save -r README.md -f
 
+prettier  README.md -w
+
 use nupm
 nupm install --force --path .

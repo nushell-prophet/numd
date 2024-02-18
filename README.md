@@ -18,22 +18,27 @@ nudoc run --quiet README.md
 
 1. The `nudoc run` command opens a file from the first argument.
 2. It looks for ` ```nushell ` code chunks.
-3. In the code chunks, that entirely doesn't have lines starting with `>` symbol, nudoc executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ````nudoc-output` chunks, next to the executed code chunks.
-4. In the code chunks, that contain one or more lines starting with `>` symbol, nudoc filters only lines that start with `>` or `#` symbol, execute those lines one by one and output their results just after the executed line.
-5. nudoc output results into the terminal (if the `--quiet` flag is not used)
-6. nudoc update results in the file, which was provided as the first argument after confirmation.
+3. In the code chunks, that entirely don't have lines starting with the `>` symbol, nudoc executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```nudoc-output ` chunks, next to the executed code chunks.
+4. In the code chunks that contain one or more lines starting with `>` symbol, nudoc filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
+5. nudoc outputs results code chunks and results of their execution into the terminal (if the `--quiet` flag is not used).
+6. nudoc updates results in the file, which was provided as the first argument (user needs to confirm overwriting the file, if the `--overwrite` flag wasn't used).
 
 ```nushell
 # Eventually, the script updates nushell code chunks.
 > ls
-╭───name────┬─type─┬──size──┬────modified────╮
-│ LICENSE   │ file │ 1.1 KB │ 4 days ago     │
-│ README.md │ file │ 1.3 KB │ 12 seconds ago │
-│ examples  │ dir  │  288 B │ 2 hours ago    │
-│ nu-utils  │ dir  │  256 B │ 39 minutes ago │
-│ nudoc.nu  │ file │ 3.9 KB │ 13 seconds ago │
-╰───────────┴──────┴────────┴────────────────╯
+╭──────────name──────────┬─type─┬──size──┬─modified──╮
+│ LICENSE                │ file │ 1.1 KB │ a day ago │
+│ README.md              │ file │ 2.2 KB │ now       │
+│ examples               │ dir  │  704 B │ a day ago │
+│ nudoc                  │ dir  │  224 B │ a day ago │
+│ nupm.nuon              │ file │  115 B │ a day ago │
+│ repository-maintenance │ dir  │   96 B │ a day ago │
+╰──────────name──────────┴─type─┴──size──┴─modified──╯
 
 > date now
-Mon, 5 Feb 2024 13:59:28 +0000 (now)
+Sun, 18 Feb 2024 15:32:52 +0000 (now)
+> git rev-list --count HEAD
+41
+> git log -1 --format="%cd" --date=iso
+2024-02-17 05:38:49 +0000
 ```
