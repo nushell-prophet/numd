@@ -46,10 +46,10 @@ export def main [
         | group-by block_index
         | items {|k v|
             let $lines = (
-                if ($v | where line =~ '^>' | is-empty) {
+                if ($v | where line =~ '^\s*>' | is-empty) {
                     $v.line | skip | str join (char nl) | '%%' + $in
                 } else {
-                    $v | where line =~ '^(>|#)' | get line
+                    $v | where line =~ '^\s*(>|#)' | get line
                 }
             )
 
@@ -64,8 +64,8 @@ export def main [
             if $i =~ '^%%' {
                 let $command = ($i | str replace -r '^%%' '')
                 $'print `($command | nu-highlight)`;(char nl)print "```(char nl)```nudoc-output"(char nl)($command)'
-            } else if ($i =~ '^>') {
-                let $command = ($i | str replace -r '^>' '')
+            } else if ($i =~ '^\s*>') {
+                let $command = ($i | str replace -r '^\s*>' '')
                 $"print `>($command | nu-highlight)`;(char nl)print \(" + $command + ')'
             } else {
                 $'print `($i)`'
