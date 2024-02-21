@@ -42,3 +42,11 @@ Sun, 18 Feb 2024 15:32:52 +0000 (now)
 > git log -1 --format="%cd" --date=iso
 2024-02-17 05:38:49 +0000
 ```
+
+## Examples
+
+```
+nudoc run examples/types_of_data.md  examples/types_of_data_out.md --overwrite --intermid_script examples/types_of_data_intermid.nu
+```
+
+The results of the command above are provided in the files of the example folder.
