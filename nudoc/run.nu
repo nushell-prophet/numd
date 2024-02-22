@@ -70,7 +70,7 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute entirely
             skip                                        # skipping code language identifier ```nushell
             | str join (char nl)
-            | $"print \('($in)' | nu-highlight\);(char nl)print '```(char nl)```nudoc-output'(char nl)($in)"
+            | $"print \('($in)' | nu-highlight\)(char nl)print '```(char nl)```nudoc-output'(char nl)($in)"
         } else {
             where $it =~ '^\s*(>|#)'
             | each {|i|
@@ -78,9 +78,9 @@ def assemble-script [
                     let $command = ($i | str replace -r '^\s*>' '' | str replace -r '#.*' '')
 
                     if ($command =~ '\b(export|def|let)\b') {
-                        $"print \('($i)' | nu-highlight\);(char nl)($command)"
+                        $"print \('($i)' | nu-highlight\)(char nl)($command)"
                     } else {
-                        $"print \('($i)' | nu-highlight\);(char nl)($command) | print $in"
+                        $"print \('($i)' | nu-highlight\)(char nl)($command) | print $in"
                     }
                 } else {
                     $"print '($i)'"
