@@ -1,4 +1,3 @@
-use nu-utils [overwrite-or-rename]
 use std iter scan
 
 # run nushell code chunks in .md file, output results to terminal, optionally update the .md file back
@@ -6,7 +5,8 @@ export def main [
     file: path      # a markdown file to run nushell code in
     output?: path   # a path of a file to save results, if ommited the file from first argument will be updated
     --quiet         # don't output results into terminal
-    --overwrite (-o) # owerwrite an existing file without confirmation
+    --dont-save     # don't save the file
+    --overwrite (-o) # owerwrite the existing file without confirmation
     --intermid_script: path # save intermid script into the file, useful for debugging
 ] {
     let $file_lines = open -r $file | lines
@@ -23,11 +23,17 @@ export def main [
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $res = assemble-results $file_lines_classified $nu_res_with_block_index
 
-    if not $quiet {print $res}
+    if not $dont_save {
+        let $path = $output | default $file
 
-    $res
-    | ansi strip
-    | overwrite-or-rename --overwrite=($overwrite) ($output | default $file)
+        if ($path | path exists) and not $overwrite {
+            mv $path $'($path)(date now | format date "%Y%m%d_%H%M%S")'
+        }
+
+        $res | ansi strip | save -f $path
+    }
+
+    if not $quiet {$res}
 }
 
 
