@@ -150,8 +150,10 @@ As with durations, you can make fractional file sizes, and do calculations:
 ```nushell
 > 1Gb / 1b
 1000000000
+
 > 1Gib / 1b
 1073741824
+
 > (1Gib / 1b) == 2 ** 30
 true
 ```
@@ -210,7 +212,6 @@ Length: 1 (0x1) bytes | printable whitespace ascii_other non_ascii
 > 0o[377]    # Octal
 Length: 1 (0x1) bytes | printable whitespace ascii_other non_ascii
 00000000:   ff                                                   ×
-
 ```
 
 Incomplete bytes will be left-padded with zeros.
@@ -259,7 +260,6 @@ You can iterate over records by first transposing it into a table:
 │ 0 │ name │ sam   │
 │ 1 │ rank │    10 │
 ╰───┴──────┴───────╯
-
 ```
 
 Accessing records' data is done by placing a `.` before a string, which is usually a bare string:
@@ -299,7 +299,6 @@ Lists are ordered sequences of data values. List syntax is very similar to array
 │ 1 │ fred   │
 │ 2 │ george │
 ╰───┴────────╯
-
 ```
 
 :::tip
@@ -311,7 +310,6 @@ Lists are equivalent to the individual columns of tables. You can think of a lis
 │ 0 │ bell │
 │ 1 │ book │
 ╰───┴──────╯
-
 ```
 
 :::
@@ -332,7 +330,6 @@ To get a sub-list from a list, you can use the [`range`](/commands/docs/range.md
 │ 1 │ c │
 │ 2 │ d │
 ╰───┴───╯
-
 ```
 
 To append one or more lists together, optionally with values interspersed in between, you can use the
@@ -348,7 +345,6 @@ To append one or more lists together, optionally with values interspersed in bet
 │ 3 │ 4 │
 │ 4 │ 5 │
 ╰───┴───╯
-
 ```
 
 ## Tables
@@ -365,7 +361,6 @@ We can create our own tables similarly to how we create a list. Because tables a
 │ 0 │ Value1  │ Value2  │
 │ 1 │ Value3  │ Value4  │
 ╰───┴─────────┴─────────╯
-
 ```
 
 You can also create a table as a list of records, JSON-style:
@@ -378,7 +373,6 @@ You can also create a table as a list of records, JSON-style:
 │ 0 │ sam  │   10 │
 │ 1 │ bob  │    7 │
 ╰───┴──────┴──────╯
-
 ```
 
 :::tip
@@ -421,7 +415,6 @@ Moreover, you can also access entire columns of a table by name, to obtain lists
 │ 1 │  4 │
 │ 2 │  2 │
 ╰───┴────╯
-
 ```
 
 Of course, these resulting lists don't have the column names of the table. To remove columns from a table while leaving it as a table, you'll commonly use the [`select`](/commands/docs/select.md) command with column names:
@@ -435,7 +428,6 @@ Of course, these resulting lists don't have the column names of the table. To re
 │ 1 │ 7 │ 3 │
 │ 2 │ 2 │ 0 │
 ╰───┴───┴───╯
-
 ```
 
 To remove rows from a table, you'll commonly use the [`select`](/commands/docs/select.md) command with row numbers, as you would with a list:
@@ -448,7 +440,6 @@ To remove rows from a table, you'll commonly use the [`select`](/commands/docs/s
 │ 0 │ 4 │ 7 │ 3 │
 │ 1 │ 2 │ 2 │ 0 │
 ╰───┴───┴───┴───╯
-
 ```
 
 #### Optional cell paths
@@ -461,7 +452,6 @@ By default, cell path access will fail if it can't access the requested row or c
 │ 0 │ 123 │
 │ 1 │     │
 ╰───┴─────╯
-
 ```
 
 When using optional cell path members, missing data is replaced with `null`.
@@ -531,6 +521,15 @@ git checkout featurebranch | null
 ╰───┴────┴───╯
 
 > [{a:1 b:2} {b:1}].1.a
+Error: nu::shell::column_not_found
+
+  × Cannot find column
+   ╭─[source:1:1]
+ 1 │  [{a:1 b:2} {b:1}].1.a
+   ·             ──┬──    ┬
+   ·               │      ╰── cannot find column 'a'
+   ·               ╰── value originates here
+   ╰────
 ```
 
 If you would prefer this to return `null`, mark the cell path member as _optional_ like `.1.a?`.
