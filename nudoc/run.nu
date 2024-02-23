@@ -92,10 +92,18 @@ def assemble-script [
     | group-by block_index
     | items {|k v|
         $v.line
-        | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute entirely
-            skip                                        # skipping code language identifier ```nushell
-            | str join (char nl)
-            | $"print \('($in)' | nu-highlight\)(char nl)print '```(char nl)```nudoc-output'(char nl)($in)"
+        | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
+            let $command = ( skip | str join (char nl) ) # skip is for code language identifier ```nushell
+
+            let $command_to_print_output = (
+                $command
+                | str replace -arm '\s*#.*$' '' # remove comments. Might spoil code blocks whith the # symbol, used not for commenting
+                | if ($in =~ '(print \$in|;|\))$') {} else { # check if we can add print $in
+                    $in + ' | print $in'
+                }
+            )
+
+            $"(highlight-command $command)print '```(char nl)```nudoc-output'(char nl)($command_to_print_output)"
         } else {
             where $it =~ '^\s*(>|#)'
             | each {|i|
@@ -103,13 +111,13 @@ def assemble-script [
                     let $command = ($i | str replace -r '^\s*>' '' | str replace -r '#.*' '')
 
                     if ($command =~ '\b(export|def|let)\b') {
-                        $"print \('($i)' | nu-highlight\)(char nl)($command)"
+                        $"(highlight-command $i)($command)"
                     } else {
-                        ($"print \('($i)' | nu-highlight\)(char nl)" +
+                        ($"(highlight-command $i)" +
                         (if $command =~ '\$' { # whether the command has variables in it
                             $"try {($command) | $in} catch {|e| $e} | print $in"
                         } else {
-                            $"do {nu -c '($command)'} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
+                            $"do {nu -c \"($command | escape-quotes)\"} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
                         }))
                     }
                 } else {
