@@ -76,6 +76,14 @@ def escape-quotes [ ] {
     str replace -ar '([^\\]?)"' '$1\"'
 }
 
+def highlight-command [
+    $command
+] {
+    $command
+    | escape-quotes
+    | $"print \(\"($in)\" | nu-highlight\)(char nl)"
+}
+
 def assemble-script [
     $file_lines_classified
 ] {
