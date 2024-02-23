@@ -1,4 +1,3 @@
-use nu-utils [overwrite-or-rename]
 use std iter scan
 
 # run nushell code chunks in .md file, output results to terminal, optionally update the .md file back
@@ -6,7 +5,8 @@ export def main [
     file: path      # a markdown file to run nushell code in
     output?: path   # a path of a file to save results, if ommited the file from first argument will be updated
     --quiet         # don't output results into terminal
-    --overwrite (-o) # owerwrite an existing file without confirmation
+    --dont-save     # don't save the file
+    --overwrite (-o) # owerwrite the existing file without confirmation
     --intermid_script: path # save intermid script into the file, useful for debugging
 ] {
     let $file_lines = open -r $file | lines
@@ -18,33 +18,46 @@ export def main [
 
     assemble-script $file_lines_classified | save -f $temp_script
 
-    let $nu_res_stdout_lines = nu -l $temp_script | lines
+    let $nu_out = do {nu -l $temp_script} | complete
+    let $nu_res_stdout_lines = $nu_out | get stdout | lines
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $res = assemble-results $file_lines_classified $nu_res_with_block_index
 
-    if not $quiet {print $res}
+    if not $dont_save {
+        let $path = $output | default $file
 
-    $res
-    | ansi strip
-    | overwrite-or-rename --overwrite=($overwrite) ($output | default $file)
+        if ($path | path exists) and not $overwrite {
+            mv $path $'($path)(date now | format date "%Y%m%d_%H%M%S")'
+        }
+
+        $res | ansi strip | save -f $path
+    }
+
+    if $nu_out.exit_code != 0 {
+        echo ($nu_out | select exit_code stderr)
+    };
+
+    if not $quiet {$res}
 }
 
 
 def classify-lines [
     $file_lines: list
 ] {
-    let $row_types = ($file_lines
-    | each {|i| match ($i | str trim) {
-        '```nu' => 'nu-code',
-        '```nushell' => 'nu-code',
-        '```nudoc-output' => 'nudoc-output'
-        '```' => 'chunk-end',
-        _ => ''
-    }}
-    | scan --noinit '' {|prev curr|
-        if ($curr == '' and $prev != 'chunk-end') {$prev} else {$curr}
-    })
+    let $row_types = (
+        $file_lines
+        | each {|i| match ($i | str trim) {
+            '```nu' => 'nu-code',
+            '```nushell' => 'nu-code',
+            '```nudoc-output' => 'nudoc-output'
+            '```' => 'chunk-end',
+            _ => ''
+        }}
+        | scan --noinit '' {|prev curr|
+            if ($curr == '' and $prev != 'chunk-end') {$prev} else {$curr}
+        }
+    )
 
     let $block_index = (
         $row_types
@@ -70,7 +83,7 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute entirely
             skip                                        # skipping code language identifier ```nushell
             | str join (char nl)
-            | $"print \('($in)' | nu-highlight\);(char nl)print '```(char nl)```nudoc-output'(char nl)($in)"
+            | $"print \('($in)' | nu-highlight\)(char nl)print '```(char nl)```nudoc-output'(char nl)($in)"
         } else {
             where $it =~ '^\s*(>|#)'
             | each {|i|
@@ -78,9 +91,14 @@ def assemble-script [
                     let $command = ($i | str replace -r '^\s*>' '' | str replace -r '#.*' '')
 
                     if ($command =~ '\b(export|def|let)\b') {
-                        $"print \('($i)' | nu-highlight\);(char nl)($command)"
+                        $"print \('($i)' | nu-highlight\)(char nl)($command)"
                     } else {
-                        $"print \('($i)' | nu-highlight\);(char nl)($command) | print $in"
+                        ($"print \('($i)' | nu-highlight\)(char nl)" +
+                        (if $command =~ '\$' { # whether the command has variables in it
+                            $"try {($command) | $in} catch {|e| $e} | print $in"
+                        } else {
+                            $"do {nu -c '($command)'} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
+                        }))
                     }
                 } else {
                     $"print '($i)'"
@@ -134,5 +152,7 @@ def assemble-results [
     | str join (char nl)
     | $in + (char nl)
     | str replace -ar "```\n(```\n)+" "```\n" # remove double code-chunks ends
-    | str replace -ar "```nudoc-output(\\s|\n)*```\n" ''
+    | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # remove empty nudoc-output blocks
+    | str replace -ar "\n\n+```\n" "\n```\n"
+    | str replace -ar "\n\n+\n" "\n\n" # remove multiple new lines
 }
