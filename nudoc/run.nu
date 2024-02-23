@@ -72,6 +72,10 @@ def classify-lines [
     | merge ($block_index | wrap block_index)
 }
 
+def escape-quotes [ ] {
+    str replace -ar '([^\\]?)"' '$1\"'
+}
+
 def assemble-script [
     $file_lines_classified
 ] {
