@@ -93,7 +93,12 @@ def assemble-script [
                     if ($command =~ '\b(export|def|let)\b') {
                         $"print \('($i)' | nu-highlight\)(char nl)($command)"
                     } else {
-                        $"print \('($i)' | nu-highlight\)(char nl)($command) | print $in"
+                        ($"print \('($i)' | nu-highlight\)(char nl)" +
+                        (if $command =~ '\$' { # whether the command has variables in it
+                            $"try {($command) | $in} catch {|e| $e} | print $in"
+                        } else {
+                            $"do {nu -c '($command)'} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
+                        }))
                     }
                 } else {
                     $"print '($i)'"
