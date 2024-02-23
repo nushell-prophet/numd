@@ -45,17 +45,19 @@ export def main [
 def classify-lines [
     $file_lines: list
 ] {
-    let $row_types = ($file_lines
-    | each {|i| match ($i | str trim) {
-        '```nu' => 'nu-code',
-        '```nushell' => 'nu-code',
-        '```nudoc-output' => 'nudoc-output'
-        '```' => 'chunk-end',
-        _ => ''
-    }}
-    | scan --noinit '' {|prev curr|
-        if ($curr == '' and $prev != 'chunk-end') {$prev} else {$curr}
-    })
+    let $row_types = (
+        $file_lines
+        | each {|i| match ($i | str trim) {
+            '```nu' => 'nu-code',
+            '```nushell' => 'nu-code',
+            '```nudoc-output' => 'nudoc-output'
+            '```' => 'chunk-end',
+            _ => ''
+        }}
+        | scan --noinit '' {|prev curr|
+            if ($curr == '' and $prev != 'chunk-end') {$prev} else {$curr}
+        }
+    )
 
     let $block_index = (
         $row_types
