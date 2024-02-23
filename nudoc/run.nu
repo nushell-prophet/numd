@@ -18,7 +18,8 @@ export def main [
 
     assemble-script $file_lines_classified | save -f $temp_script
 
-    let $nu_res_stdout_lines = nu -l $temp_script | lines
+    let $nu_out = do {nu -l $temp_script} | complete
+    let $nu_res_stdout_lines = $nu_out | get stdout | lines
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $res = assemble-results $file_lines_classified $nu_res_with_block_index
@@ -32,6 +33,10 @@ export def main [
 
         $res | ansi strip | save -f $path
     }
+
+    if $nu_out.exit_code != 0 {
+        echo ($nu_out | select exit_code stderr)
+    };
 
     if not $quiet {$res}
 }
