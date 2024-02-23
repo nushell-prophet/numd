@@ -173,6 +173,6 @@ def assemble-results [
     | $in + (char nl)
     | str replace -ar "```\n(```\n)+" "```\n" # remove double code-chunks ends
     | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # remove empty nudoc-output blocks
-    | str replace -ar "\n\n+```\n" "\n```\n"
+    | str replace -ar "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace -ar "\n\n+\n" "\n\n" # remove multiple new lines
 }
