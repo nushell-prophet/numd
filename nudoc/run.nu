@@ -106,7 +106,7 @@ def assemble-script [
             let $command_to_execute = (
                 $command
                 | str replace -arm '\s*#.*$' '' # remove comments. Might spoil code blocks whith the # symbol, used not for commenting
-                | if ($in =~ '(print \$in|;|\))$') {} else { # check if we can add print $in
+                | if ($in =~ '(;|\))$') {} else { # check if we can add print $in
                     $in + ' | print $in'
                 }
             )
@@ -114,14 +114,14 @@ def assemble-script [
             $"(highlight-command --nudoc-out $command)($command_to_execute)"
         } else {
             where $it =~ '^\s*(>|#)'
-            | each {|i|
-                if ($i =~ '^\s*>') {
-                    let $command = ($i | str replace -r '^\s*>' '' | str replace -r '#.*' '')
+            | each {|line|
+                if ($line =~ '^\s*>') {
+                    let $command = ($line | str replace -r '^\s*>\s*' '' | str replace -r '#.*' '')
 
                     if ($command =~ '\b(export|def|let)\b') {
-                        $"(highlight-command $i)($command)"
+                        $"(highlight-command $line)($command)"
                     } else {
-                        ((highlight-command $i) +
+                        ((highlight-command $line) +
                         (if $command =~ '\$' { # whether the command has variables in it
                             $"try {($command)} catch {|e| $e} | print $in"
                         } else {
@@ -129,7 +129,7 @@ def assemble-script [
                         }))
                     }
                 } else {
-                    $"print '($i)'"
+                    highlight-command $line
                 }
             }
             | str join (char nl)
