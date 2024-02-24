@@ -1,6 +1,6 @@
 use std iter scan
 
-# run nushell code chunks in .md file, output results to terminal, optionally update the .md file back
+# run nushell code chunks in a .md file, output results to terminal, optionally update the .md file back
 export def main [
     file: path      # a markdown file to run nushell code in
     output?: path   # a path of a file to save results, if ommited the file from first argument will be updated
@@ -40,7 +40,7 @@ export def main [
 
     if $nu_out.exit_code != 0 {
         echo ($nu_out | select exit_code stderr)
-    };
+    }
 
     if not $quiet {$res}
 }
@@ -97,9 +97,9 @@ def assemble-script [
     | items {|k v|
         $v.line
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            let $command = ( skip | str join (char nl) ) # skip is for code language identifier ```nushell
+            let $command = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            let $command_to_print_output = (
+            let $command_to_execute = (
                 $command
                 | str replace -arm '\s*#.*$' '' # remove comments. Might spoil code blocks whith the # symbol, used not for commenting
                 | if ($in =~ '(print \$in|;|\))$') {} else { # check if we can add print $in
@@ -107,7 +107,7 @@ def assemble-script [
                 }
             )
 
-            $"(highlight-command $command)print '```(char nl)```nudoc-output'(char nl)($command_to_print_output)"
+            $"(highlight-command $command)print '```(char nl)```nudoc-output'(char nl)($command_to_execute)"
         } else {
             where $it =~ '^\s*(>|#)'
             | each {|i|
@@ -117,9 +117,9 @@ def assemble-script [
                     if ($command =~ '\b(export|def|let)\b') {
                         $"(highlight-command $i)($command)"
                     } else {
-                        ($"(highlight-command $i)" +
+                        ((highlight-command $i) +
                         (if $command =~ '\$' { # whether the command has variables in it
-                            $"try {($command) | $in} catch {|e| $e} | print $in"
+                            $"try {($command)} catch {|e| $e} | print $in"
                         } else {
                             $"do {nu -c \"($command | escape-quotes)\"} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
                         }))
@@ -175,8 +175,8 @@ def assemble-results [
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace -ar "```\n(```\n)+" "```\n" # remove double code-chunks ends
-    | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # remove empty nudoc-output blocks
+    | str replace -ar "```\n(```\n)+" "```\n" # multiple code-fences
+    | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
     | str replace -ar "\n\n+```\n" "\n```\n" # empty lines before closing code fences
-    | str replace -ar "\n\n+\n" "\n\n" # remove multiple new lines
+    | str replace -ar "\n\n+\n" "\n\n" # multiple new lines
 }
