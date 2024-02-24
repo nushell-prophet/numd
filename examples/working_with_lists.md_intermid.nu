@@ -1,11 +1,13 @@
 print `###nudoc-block-1`
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
-do {nu -c " [1, 2, 3, 4] | insert 2 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print $in
-print '# [1, 2, 10, 3, 4]'
+do {nu -c "[1, 2, 3, 4] | insert 2 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print $in
+print ("# [1, 2, 10, 3, 4]" | nu-highlight)
+
 print `###nudoc-block-4`
 print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
-do {nu -c " [1, 2, 3, 4] | update 1 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print $in
-print '# [1, 10, 3, 4]'
+do {nu -c "[1, 2, 3, 4] | update 1 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print $in
+print ("# [1, 10, 3, 4]" | nu-highlight)
+
 print `###nudoc-block-7`
 print ("let colors = [yellow green]
 let colors = ($colors | prepend red)
