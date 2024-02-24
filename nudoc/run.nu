@@ -101,34 +101,33 @@ def assemble-script [
     | items {|k v|
         $v.line
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            let $command = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
+            let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            let $command_to_execute = (
-                $command
+            let $command = (
+                $chunk
                 | str replace -arm '\s*#.*$' '' # remove comments. Might spoil code blocks whith the # symbol, used not for commenting
-                | if ($in =~ '(;|\))$') {} else { # check if we can add print $in
+                | if ($in =~ '(;|\))$') {} else { # check if we can add print $in to the last line
                     $in + ' | print $in'
                 }
             )
 
-            $"(highlight-command --nudoc-out $command)($command_to_execute)"
+            $"(highlight-command --nudoc-out $chunk)($command)"
         } else {
-            where $it =~ '^\s*(>|#)'
-            | each {|line|
-                if ($line =~ '^\s*>') {
+            each {|line|
+                if $line =~ '^\s*>' {
                     let $command = ($line | str replace -r '^\s*>\s*' '' | str replace -r '#.*' '')
 
                     if ($command =~ '\b(export|def|let)\b') {
                         $"(highlight-command $line)($command)"
                     } else {
                         ((highlight-command $line) +
-                        (if $command =~ '\$' { # whether the command has variables in it
+                        (if $command =~ '\$' { # whether the command has no variables in it, we can execute it outside to have nice error message
                             $"try {($command)} catch {|e| $e} | print $in"
                         } else {
                             $"do {nu -c \"($command | escape-quotes)\"} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
                         }))
                     }
-                } else {
+                } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
             }
