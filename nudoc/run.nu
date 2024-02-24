@@ -28,7 +28,11 @@ export def main [
         let $path = $output | default $file
 
         if ($path | path exists) and not $overwrite {
-            mv $path $'($path)(date now | format date "%Y%m%d_%H%M%S")'
+            mv $path (
+                $path | path parse
+                | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
+                | path join
+            )
         }
 
         $res | ansi strip | save -f $path
