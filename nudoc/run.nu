@@ -82,10 +82,14 @@ def escape-quotes [ ] {
 
 def highlight-command [
     $command
+    --nudoc-out
 ] {
     $command
     | escape-quotes
     | $"print \(\"($in)\" | nu-highlight\)(char nl)"
+    | if $nudoc_out {
+        $"($in)print '```(char nl)```nudoc-output'(char nl)"
+    } else {}
 }
 
 def assemble-script [
@@ -107,7 +111,7 @@ def assemble-script [
                 }
             )
 
-            $"(highlight-command $command)print '```(char nl)```nudoc-output'(char nl)($command_to_execute)"
+            $"(highlight-command --nudoc-out $command)($command_to_execute)"
         } else {
             where $it =~ '^\s*(>|#)'
             | each {|i|
