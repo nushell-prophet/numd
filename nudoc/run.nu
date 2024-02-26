@@ -105,8 +105,9 @@ def assemble-script [
 
             let $command = (
                 $chunk
-                | str replace -arm '\s*#.*$' '' # remove comments. Might spoil code blocks whith the # symbol, used not for commenting
-                | if ($in =~ '(;|\))$') {} else { # check if we can add print $in to the last line
+                | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+                | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
+                | if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
                     $in + ' | print $in'
                 }
             )
