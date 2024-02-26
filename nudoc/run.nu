@@ -92,6 +92,14 @@ def highlight-command [
     } else {}
 }
 
+def try-append-print-in []: string -> string {
+    str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+    | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
+    | if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
+        $in + ' | print $in'
+    }
+}
+
 def assemble-script [
     $file_lines_classified
 ] {
