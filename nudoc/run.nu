@@ -104,6 +104,22 @@ def try-append-echo-in []: string -> string {
     }
 }
 
+def try-handle-errors []: string -> string {
+    let $command = $in
+
+    if ($command =~ '\b(def|let)\b') { # if command has definitions, so it can't be scoped
+        $command
+    } else {
+        if ($command | str replace -a '$in' '' | $in !~ '\$') { # whether the command has no variables in it
+            # so we can execute it outside to have nice error message
+            ($"do {nu -c \"($command | escape-quotes)\"} " +
+            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | echo $in")
+        } else {
+            $"try {($command)} catch {|e| $e} | echo $in"
+        }
+    }
+}
+
 def assemble-script [
     $file_lines_classified
 ] {
@@ -119,19 +135,12 @@ def assemble-script [
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
-                    let $command = ($line | trim-comments-plus)
-
                     (highlight-command $line) + (
-                    if ($command =~ '\b(def|let)\b') {
-                        $command | try-append-echo-in
-                    } else {
-                        if ($command | str replace -a '$in' '' | $in =~ '\$') { # whether the command has no variables in it, we can execute it outside to have nice error message
-                            $"try {($command)} catch {|e| $e} | print $in"
-                        } else {
-                            ($"do {nu -c \"($command | escape-quotes)\"} " +
-                            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in")
-                        }
-                    })
+                        $line
+                        | trim-comments-plus
+                        | try-handle-errors
+                        | try-append-echo-in
+                    )
                 } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
