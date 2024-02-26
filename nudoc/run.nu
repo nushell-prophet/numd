@@ -92,11 +92,15 @@ def highlight-command [
     } else {}
 }
 
-def try-append-print-in []: string -> string {
-    str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+def trim-comments-plus []: string -> string  {
+    str replace -r '^[>\s]+' '' # trim starting `>`
+    | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
-    | if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
-        $in + ' | print $in'
+}
+
+def try-append-echo-in []: string -> string {
+    if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
+        $in + ' | echo $in'
     }
 }
 
@@ -111,17 +115,17 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            $"(highlight-command --nudoc-out $chunk)($chunk | try-append-print-in)"
+            $"(highlight-command --nudoc-out $chunk)($chunk | trim-comments-plus | try-append-echo-in)"
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
-                    let $command = ($line | str replace -r '^\s*>\s*' '' | str replace -r '#.*' '')
+                    let $command = ($line | trim-comments-plus)
 
-                    ((highlight-command $line) +
+                    (highlight-command $line) + (
                     if ($command =~ '\b(def|let)\b') {
-                        $command
+                        $command | try-append-echo-in
                     } else {
-                        if $command =~ '\$' { # whether the command has no variables in it, we can execute it outside to have nice error message
+                        if ($command | str replace -a '$in' '' | $in =~ '\$') { # whether the command has no variables in it, we can execute it outside to have nice error message
                             $"try {($command)} catch {|e| $e} | print $in"
                         } else {
                             ($"do {nu -c \"($command | escape-quotes)\"} " +
