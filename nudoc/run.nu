@@ -117,16 +117,17 @@ def assemble-script [
                 if $line =~ '^\s*>' {
                     let $command = ($line | str replace -r '^\s*>\s*' '' | str replace -r '#.*' '')
 
-                    if ($command =~ '\b(export|def|let)\b') {
-                        $"(highlight-command $line)($command)"
+                    ((highlight-command $line) +
+                    if ($command =~ '\b(def|let)\b') {
+                        $command
                     } else {
-                        ((highlight-command $line) +
-                        (if $command =~ '\$' { # whether the command has no variables in it, we can execute it outside to have nice error message
+                        if $command =~ '\$' { # whether the command has no variables in it, we can execute it outside to have nice error message
                             $"try {($command)} catch {|e| $e} | print $in"
                         } else {
-                            $"do {nu -c \"($command | escape-quotes)\"} | complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in"
-                        }))
-                    }
+                            ($"do {nu -c \"($command | escape-quotes)\"} " +
+                            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | print $in")
+                        }
+                    })
                 } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
