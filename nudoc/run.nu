@@ -101,7 +101,7 @@ def trim-comments-plus []: string -> string  {
 }
 
 def try-append-echo-in []: string -> string {
-    if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
+    if ($in =~ '(;|(?>[^\r\n]*\b(let|def)\b.*[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
         $in + ' | echo $in'
     }
 }
