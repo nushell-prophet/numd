@@ -73,7 +73,7 @@ def classify-lines [
         }
     )
 
-    $file_lines | wrap line
+    $file_lines | wrap lines
     | merge ($row_types | wrap row_types)
     | merge ($block_index | wrap block_index)
 }
@@ -130,7 +130,7 @@ def assemble-script [
     | where row_types == 'nu-code'
     | group-by block_index
     | items {|k v|
-        $v.line
+        $v.lines
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
@@ -180,7 +180,7 @@ def parse-block-index [
         | str join (char nl)
         | '```nushell' + (char nl) + $in + (char nl) + '```'
     }
-    | rename block_index line
+    | rename block_index lines
     | into int block_index
 }
 
@@ -192,7 +192,7 @@ def assemble-results [
     | where row_types not-in ['nu-code' 'nudoc-output']
     | append $nu_res_with_block_index
     | sort-by block_index
-    | get line
+    | get lines
     | str join (char nl)
     | $in + (char nl)
     | str replace -ar "```\n(```\n)+" "```\n" # multiple code-fences
