@@ -11,11 +11,11 @@ print `###nudoc-block-10`
 print ("> let mybool = 2 > 1" | nu-highlight)
 let mybool = 2 > 1
 print ("> $mybool" | nu-highlight)
-try {$mybool} catch {|e| $e} | echo $in | echo $in
+try {$mybool} catch {|e| $e} | echo $in
 print ("> let mybool = ($env.HOME | path exists)" | nu-highlight)
 let mybool = ($env.HOME | path exists)
 print ("> $mybool" | nu-highlight)
-try {$mybool} catch {|e| $e} | echo $in | echo $in
+try {$mybool} catch {|e| $e} | echo $in
 print `###nudoc-block-13`
 print ("> 3.14day" | nu-highlight)
 do {nu -c "3.14day"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
@@ -55,13 +55,13 @@ print `###nudoc-block-40`
 print ("> let data = { name: alice, age: 50 }" | nu-highlight)
 let data = { name: alice, age: 50 }
 print ("> { ...$data, hobby: cricket }" | nu-highlight)
-try {{ ...$data, hobby: cricket }} catch {|e| $e} | echo $in | echo $in
+try {{ ...$data, hobby: cricket }} catch {|e| $e} | echo $in
 print `###nudoc-block-43`
 print ("> [sam fred george]" | nu-highlight)
 do {nu -c "[sam fred george]"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
 print `###nudoc-block-46`
 print ("> [bell book candle] | where ($it =~ 'b')" | nu-highlight)
-try {[bell book candle] | where ($it =~ 'b')} catch {|e| $e} | echo $in | echo $in
+try {[bell book candle] | where ($it =~ 'b')} catch {|e| $e} | echo $in
 print `###nudoc-block-49`
 print ("> [a b c].1" | nu-highlight)
 do {nu -c "[a b c].1"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
@@ -72,7 +72,7 @@ print `###nudoc-block-55`
 print ("> let x = [1 2]" | nu-highlight)
 let x = [1 2]
 print ("> [...$x 3 ...(4..7 | take 2)]" | nu-highlight)
-try {[...$x 3 ...(4..7 | take 2)]} catch {|e| $e} | echo $in | echo $in
+try {[...$x 3 ...(4..7 | take 2)]} catch {|e| $e} | echo $in
 print `###nudoc-block-58`
 print ("> [[column1, column2]; [Value1, Value2] [Value3, Value4]]" | nu-highlight)
 do {nu -c "[[column1, column2]; [Value1, Value2] [Value3, Value4]]"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
