@@ -7,7 +7,8 @@ export def main [
     --quiet         # don't output results into terminal
     --dont-save     # don't save the file
     --overwrite (-o) # owerwrite the existing file without confirmation
-    --intermid_script: path # save intermid script into the file, useful for debugging
+    --intermid-script: path # save intermid script into the file, useful for debugging
+    --dont-handle-errors # enclose `>` commands into `try` to avoid errors and output their messages
 ] {
     let $file_lines = open -r $file | lines
     let $file_lines_classified = classify-lines $file_lines
@@ -16,7 +17,8 @@ export def main [
         | default ($nu.temp-path | path join (date now | format date "%Y%m%d_%H%M%S" | $in + '.nu'))
     )
 
-    assemble-script $file_lines_classified | save -f $temp_script
+    assemble-script --dont-handle-errors=$dont_handle_errors $file_lines_classified
+    | save -f $temp_script
 
     let $nu_out = do {nu -l $temp_script} | complete
     let $nu_res_stdout_lines = $nu_out | get stdout | lines
@@ -122,6 +124,7 @@ def try-handle-errors []: string -> string {
 
 def assemble-script [
     $file_lines_classified
+    --dont-handle-errors
 ] {
     $file_lines_classified
     | where row_types == 'nu-code'
@@ -138,7 +141,7 @@ def assemble-script [
                     (highlight-command $line) + (
                         $line
                         | trim-comments-plus
-                        | try-handle-errors
+                        | if $dont_handle_errors {} else {try-handle-errors}
                         | try-append-echo-in
                     )
                 } else if $line =~ '^\s*#' {
