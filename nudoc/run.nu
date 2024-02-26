@@ -107,17 +107,12 @@ def try-append-echo-in []: string -> string {
 }
 
 def try-handle-errors []: string -> string {
-    let $command = $in
-
-    if ($command =~ '\b(def|let)\b') { # if command has definitions, so it can't be scoped
-        $command
-    } else {
-        if ($command | str replace -a '$in' '' | $in !~ '\$') { # whether the command has no variables in it
-            # so we can execute it outside to have nice error message
-            ($"do {nu -c \"($command | escape-quotes)\"} " +
-            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout} | echo $in")
+    if ($in =~ '\b(def|let)\b') { } else { # weather the command has definitions, so it can be scoped
+        if ($in | str replace -a '$in' '') !~ '\$' { # whether the command has no variables in it
+            ($"do {nu -c \"($in | escape-quotes)\"} " + # so we can execute it outside to have nice error message
+            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
         } else {
-            $"try {($command)} catch {|e| $e} | echo $in"
+            $"try {($in)} catch {|e| $e}"
         }
     }
 }
@@ -134,7 +129,7 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            $"(highlight-command --nudoc-out $chunk)($chunk | trim-comments-plus | try-append-echo-in)"
+            (highlight-command --nudoc-out $chunk) + ($chunk | trim-comments-plus | try-append-echo-in)
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
