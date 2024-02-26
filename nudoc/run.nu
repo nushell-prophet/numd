@@ -111,16 +111,7 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            let $command = (
-                $chunk
-                | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
-                | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
-                | if ($in =~ '(;|(?>[^\r\n]*(let|def)[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
-                    $in + ' | print $in'
-                }
-            )
-
-            $"(highlight-command --nudoc-out $chunk)($command)"
+            $"(highlight-command --nudoc-out $chunk)($chunk | try-append-print-in)"
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
