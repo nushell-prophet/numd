@@ -39,7 +39,9 @@ export def main [
     if not $quiet {$res}
 }
 
-def backup-file [$path]: nothing -> nothing {
+def backup-file [
+    $path: path
+]: nothing -> nothing {
     if ($path | path exists) {
         let $backup_path = (
             $path
@@ -53,7 +55,7 @@ def backup-file [$path]: nothing -> nothing {
 
 def classify-lines [
     $file_lines: list
-] {
+]: nothing -> table {
     let $row_types = (
         $file_lines
         | each {|i| match ($i | str trim) {
@@ -81,20 +83,20 @@ def classify-lines [
     | merge ($block_index | wrap block_index)
 }
 
-def escape-quotes [ ] {
+def escape-quotes []: string -> string {
     str replace -ar '([^\\]?)"' '$1\"'
 }
 
 def nudoc-block [
     index?: int
-] {
+]: nothing -> string {
     ['###nudoc-block-' $index] | str join
 }
 
 def highlight-command [
-    $command
+    $command: string
     --nudoc-out
-] {
+]: nothing -> string {
     $command
     | escape-quotes
     | $"print \(\"($in)\" | nu-highlight\)(char nl)"
@@ -103,7 +105,7 @@ def highlight-command [
     } else {}
 }
 
-def trim-comments-plus []: string -> string  {
+def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
@@ -140,9 +142,9 @@ def execute-code [
 }
 
 def assemble-script [
-    $file_lines_classified
+    $file_lines_classified: table
     --dont-handle-errors
-] {
+]: nothing -> string {
     $file_lines_classified
     | where row_types == 'nu-code'
     | group-by block_index
@@ -173,8 +175,8 @@ def assemble-script [
 }
 
 def parse-block-index [
-    $nu_res_stdout_lines
-] {
+    $nu_res_stdout_lines: list
+]: nothing -> table {
     let $block_index = (
         $nu_res_stdout_lines
         | each {
@@ -201,9 +203,9 @@ def parse-block-index [
 }
 
 def assemble-results [
-    $file_lines_classified
-    $nu_res_with_block_index
-] {
+    $file_lines_classified: table
+    $nu_res_with_block_index: table
+]: nothing -> string {
     $file_lines_classified
     | where row_types not-in ['nu-code' 'nudoc-output']
     | append $nu_res_with_block_index
