@@ -123,6 +123,19 @@ def try-handle-errors []: string -> string {
     }
 }
 
+def execute-code [
+    code: string
+    --dont-handle-errors
+]: string -> string {
+    let $input = $in
+
+    $code
+    | trim-comments-plus
+    | if $dont_handle_errors {} else {try-handle-errors}
+    | try-append-echo-in
+    | $input + $in + (char nl)
+}
+
 def assemble-script [
     $file_lines_classified
     --dont-handle-errors
