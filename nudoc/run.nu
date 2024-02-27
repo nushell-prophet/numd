@@ -82,6 +82,12 @@ def escape-quotes [ ] {
     str replace -ar '([^\\]?)"' '$1\"'
 }
 
+def nudoc-block [
+    index?: int
+] {
+    ['###nudoc-block-' $index] | str join
+}
+
 def highlight-command [
     $command
     --nudoc-out
