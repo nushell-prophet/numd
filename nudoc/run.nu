@@ -28,15 +28,7 @@ export def main [
 
     if not $dont_save {
         let $path = $output | default $file
-
-        if ($path | path exists) and not $overwrite {
-            mv $path (
-                $path | path parse
-                | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
-                | path join
-            )
-        }
-
+        if not $overwrite { backup-file $path }
         $res | ansi strip | save -f $path
     }
 
@@ -47,6 +39,17 @@ export def main [
     if not $quiet {$res}
 }
 
+def backup-file [$path]: nothing -> nothing {
+    if ($path | path exists) {
+        let $backup_path = (
+            $path
+            | path parse
+            | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
+            | path join)
+
+        mv $path $backup_path
+    }
+}
 
 def classify-lines [
     $file_lines: list
