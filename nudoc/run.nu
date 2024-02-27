@@ -8,7 +8,7 @@ export def main [
     --dont-save     # don't save the `.md` file
     --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
     --intermid-script: path # save intermid script into the file, useful for debugging
-    --dont-handle-errors # enclose `>` commands into `try` to avoid errors and output their messages
+    --dont-handle-errors # Enclose `>` commands in `try` blocks to avoid errors and output their messages
 ] {
     let $file_lines = open -r $file | lines
     let $file_lines_classified = classify-lines $file_lines
@@ -52,6 +52,7 @@ def backup-file [
         mv $path $backup_path
     }
 }
+
 
 def classify-lines [
     $file_lines: list
