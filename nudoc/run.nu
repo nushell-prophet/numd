@@ -148,23 +148,20 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            (highlight-command --nudoc-out $chunk) + ($chunk | trim-comments-plus | try-append-echo-in)
+            highlight-command --nudoc-out $chunk
+            | execute-code --dont-handle-errors $chunk
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
-                    (highlight-command $line) + (
-                        $line
-                        | trim-comments-plus
-                        | if $dont_handle_errors {} else {try-handle-errors}
-                        | try-append-echo-in
-                    )
+                    highlight-command $line
+                    | execute-code --dont-handle-errors=$dont_handle_errors $line
                 } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
             }
             | str join (char nl)
         }
-        | prepend $'print `###nudoc-block-($k)`'
+        | prepend $'print `(nudoc-block $k)`'
     }
     | flatten
     | str join (char nl)
@@ -176,7 +173,7 @@ def parse-block-index [
     let $block_index = (
         $nu_res_stdout_lines
         | each {
-            |i| if $i =~ '#nudoc-block-' {
+            |i| if $i =~ (nudoc-block) {
                 $i | split row '-' | last | into int
             } else {-1}
         }
