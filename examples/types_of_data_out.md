@@ -525,10 +525,10 @@ Error: nu::shell::column_not_found
 
   × Cannot find column
    ╭─[source:1:1]
- 1 │  [{a:1 b:2} {b:1}].1.a
-   ·             ──┬──    ┬
-   ·               │      ╰── cannot find column 'a'
-   ·               ╰── value originates here
+ 1 │ [{a:1 b:2} {b:1}].1.a
+   ·            ──┬──    ┬
+   ·              │      ╰── cannot find column 'a'
+   ·              ╰── value originates here
    ╰────
 ```
 

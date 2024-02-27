@@ -1,4 +1,4 @@
-# nudoc - reproducible Nushell Markdown documents
+<h1 align="center">nudoc - reproducible Nushell Markdown documents</h1>
 
 Execute chunks of nushell code within markdown documents, output results to the terminal or write them back to your `.md` document.
 
