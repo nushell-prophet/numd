@@ -3,10 +3,10 @@ use std iter scan
 # run nushell code chunks in a .md file, output results to terminal, optionally update the .md file back
 export def main [
     file: path      # a markdown file to run nushell code in
-    output?: path   # a path of a file to save results, if ommited the file from first argument will be updated
+    output?: path   # a path to a `.md` file to save results, if ommited the file from the first argument will be updated
     --quiet         # don't output results into terminal
-    --dont-save     # don't save the file
-    --overwrite (-o) # owerwrite the existing file without confirmation
+    --dont-save     # don't save the `.md` file
+    --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
     --intermid-script: path # save intermid script into the file, useful for debugging
     --dont-handle-errors # enclose `>` commands into `try` to avoid errors and output their messages
 ] {
@@ -163,6 +163,8 @@ def assemble-script [
         }
         | prepend $'print `(nudoc-block $k)`'
     }
+    | prepend ( '# this script was generated automatically using nudoc'
+        + 'https://github.com/nushell-prophet/nudoc' + (char nl))
     | flatten
     | str join (char nl)
 }
