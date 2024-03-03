@@ -8,6 +8,7 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 
 ```
 git clone https://github.com/nushell101/nudoc; cd nudoc
+# nupm install --force --path . # optionally you can install this module via nupm
 use nudoc
 nudoc run --quiet README.md
 ```
