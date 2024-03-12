@@ -12,8 +12,8 @@ git clone https://github.com/nushell101/nudoc; cd nudoc
 use nudoc
 nudoc run --quiet README.md
 ```
-
-🗒 The code above isn't executed and updated by nudoc, as it lacks an opening ` ```nushell ` language idnetifier in the opening code fence tag.
+> **Note**
+> The code above isn't executed and updated by nudoc, as it lacks an opening ` ```nushell ` language idnetifier in the opening code fence tag.
 
 ## How it works
 
