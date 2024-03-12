@@ -63,8 +63,10 @@ def classify-lines [
     let $row_types = (
         $file_lines
         | each {|i| match ($i | str trim) {
-            $type if $type =~ '```(nu\b|nushell\b)' => (
-                ['nu-code' ($type | split row ' ' | get 1?)] | str join ' '
+            $type if $type =~ '```(nu|nushell)(\s|$)' => (
+                $type | split row ' ' | get 1?
+                | prepend 'nu-code'
+                | str join ' '
             ),
             $type if $type == '```nudoc-output' => 'nudoc-output'
             $type if $type ==  '```' => 'chunk-end',
