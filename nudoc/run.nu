@@ -63,10 +63,11 @@ def classify-lines [
     let $row_types = (
         $file_lines
         | each {|i| match ($i | str trim) {
-            '```nu' => 'nu-code',
-            '```nushell' => 'nu-code',
-            '```nudoc-output' => 'nudoc-output'
-            '```' => 'chunk-end',
+            $type if $type =~ '```(nu\b|nushell\b)' => (
+                ['nu-code' ($type | split row ' ' | get 1?)] | str join ' '
+            ),
+            $type if $type == '```nudoc-output' => 'nudoc-output'
+            $type if $type ==  '```' => 'chunk-end',
             _ => ''
         }}
         | scan --noinit '' {|prev curr|
@@ -150,7 +151,7 @@ def assemble-script [
     --dont-handle-errors
 ]: nothing -> string {
     $file_lines_classified
-    | where row_types == 'nu-code'
+    | where row_types =~ '^nu-code'
     | group-by block_index
     | items {|k v|
         $v.lines
@@ -211,7 +212,7 @@ def assemble-results [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $file_lines_classified
-    | where row_types not-in ['nu-code' 'nudoc-output']
+    | where row_types !~ '^(nu-code|nudoc-output)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
