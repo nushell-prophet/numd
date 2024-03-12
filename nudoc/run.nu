@@ -182,6 +182,10 @@ def assemble-script [
 def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
+    if $nu_res_stdout_lines == [] {
+        return []
+    }
+
     let $block_index = (
         $nu_res_stdout_lines
         | each {
