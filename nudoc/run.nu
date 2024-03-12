@@ -21,6 +21,12 @@ export def main [
     | save -f $temp_script
 
     let $nu_out = do {nu -l $temp_script} | complete
+
+    if $nu_out.exit_code != 0 {
+        echo ($nu_out | select exit_code stderr)
+        error make {msg: 'fail'}
+    }
+
     let $nu_res_stdout_lines = $nu_out | get stdout | lines
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
@@ -30,10 +36,6 @@ export def main [
         let $path = $output | default $file
         if not $overwrite { backup-file $path }
         $res | ansi strip | save -f $path
-    }
-
-    if $nu_out.exit_code != 0 {
-        echo ($nu_out | select exit_code stderr)
     }
 
     if not $quiet {$res}
