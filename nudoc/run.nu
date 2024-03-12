@@ -89,7 +89,7 @@ def classify-lines [
 }
 
 def escape-quotes []: string -> string {
-    str replace -ar '([^\\]?)"' '$1\"'
+    str replace -ar '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
 }
 
 def nudoc-block [
