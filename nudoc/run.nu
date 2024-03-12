@@ -49,7 +49,8 @@ def backup-file [
             $path
             | path parse
             | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
-            | path join)
+            | path join
+        )
 
         mv $path $backup_path
     }
