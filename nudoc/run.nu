@@ -118,6 +118,9 @@ def trim-comments-plus []: string -> string {
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
+# Use a regular expression to check if the last line of the input ends with a semicolon,
+# or contains certain keywords ('let', 'def', 'use') followed by potential characters
+# This is to determine if appending ' | echo $in' is possible.
 def try-append-echo-in []: string -> string {
     if ($in =~ '(;|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
         $in + ' | echo $in'
@@ -125,15 +128,26 @@ def try-append-echo-in []: string -> string {
 }
 
 def try-handle-errors []: string -> string {
-    if ($in =~ '\b(def|let)\b') { } else { # weather the command has definitions, so it can be scoped
-        if ($in | str replace -a '$in' '') !~ '\$' { # whether the command has no variables in it
-            ($"do {nu -c \"($in | escape-quotes)\"} " + # so we can execute it outside to have nice error message
+    # check whether the command includes 'def' or 'let' keywords, if no, it means it can be scoped in try or outside
+    if ($in =~ '\b(def|let)\b') { } else {
+        # check if the command does not contain any variables except for $in
+        if ($in | str replace -a '$in' '') !~ '\$' {
+            # execute the command outside to obtain a clear error message if any
+            ($"do {nu -c \"($in | escape-quotes)\"} " +
             "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
         } else {
+            # attempt to execute in try clause, catch errors if they occur
             $"try {($in)} catch {|e| $e}"
         }
     }
 }
+
+# types of handlders
+# - try printing result - print-results(r)
+# - try handling errors - try(t)
+# - execute outside - new-instance(n)
+# - execute outside with all previous steps - roll prev-steps(nr)
+# - output results as an image
 
 def execute-code [
     code: string
