@@ -14,7 +14,7 @@ export def main [
     let $file_lines_classified = classify-lines $file_lines
     let $temp_script = (
         $intermid_script
-        | default ($nu.temp-path | path join (date now | format date "%Y%m%d_%H%M%S" | $in + '.nu'))
+        | default ($nu.temp-path | path join $'nudoc-(date now | format date "%Y%m%d_%H%M%S").nu')
     )
 
     assemble-script --dont-handle-errors=$dont_handle_errors $file_lines_classified
@@ -175,8 +175,8 @@ def assemble-script [
         }
         | prepend $'print `(nudoc-block $k)`'
     }
-    | prepend ( '# this script was generated automatically using nudoc'
-        + 'https://github.com/nushell-prophet/nudoc' + (char nl))
+    | prepend ( '# this script was generated automatically using nudoc ' +
+        (char nl) + '# https://github.com/nushell-prophet/nudoc' + (char nl))
     | flatten
     | str join (char nl)
 }
