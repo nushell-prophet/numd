@@ -97,7 +97,7 @@ def highlight-command [
     $command: string
     --nudoc-out
 ]: nothing -> string {
-    $"print \(\"($command | escape-quotes)\" | nu-highlight\)(char nl)"
+    $"print \(\"($command | escape-quotes)\" | nu-highlight\)\n"
 }
 
 def trim-comments-plus []: string -> string {
@@ -152,10 +152,10 @@ def execute-code [
         | if 'no-output' in $options {} else {
             try-append-echo-in
             | if $whole_chunk {
-                $"print '```(char nl)```nudoc-output'(char nl)($in)"
+                $"print '```\n```nudoc-output'\n($in)"
             } else {}
         }
-        | $in + (char nl)
+        | $"($in)\n"
 
     $highlited_command + $code_execution
 }
@@ -169,7 +169,7 @@ def assemble-script [
     | items {|k v|
         $v.lines
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
+            let $chunk = ( skip | str join "\n" ) # skip the language identifier ```nushell line
 
             execute-code --whole_chunk $chunk $v.row_types.0
         } else {
@@ -180,15 +180,15 @@ def assemble-script [
                     highlight-command $line
                 }
             }
-            | str join (char nl)
+            | str join "\n"
         }
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(nudoc-block $k)\""
     }
-    | prepend ( '# this script was generated automatically using nudoc ' +
-        (char nl) + '# https://github.com/nushell-prophet/nudoc' + (char nl))
+    | prepend ( "# this script was generated automatically using nudoc
+        # https://github.com/nushell-prophet/nudoc\n")
     | flatten
-    | str join (char nl)
+    | str join "\n"
 }
 
 def parse-block-index [
@@ -216,8 +216,8 @@ def parse-block-index [
     | upsert items {
         |i| $i.items.nu_out
         | skip
-        | str join (char nl)
-        | $in + (char nl) + '```'
+        | str join "\n"
+        | $"($in)\n```"
     }
     | rename block_index lines
     | into int block_index
@@ -232,8 +232,8 @@ def assemble-results [
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
-    | str join (char nl)
-    | $in + (char nl)
+    | str join "\n"
+    | $"($in)\n"
     | str replace -ar "```\n(```\n)+" "```\n" # multiple code-fences
     | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
     | str replace -ar "\n\n+```\n" "\n```\n" # empty lines before closing code fences
