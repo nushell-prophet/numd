@@ -144,7 +144,7 @@ print '```
 ```nudoc-output'
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
-do $greet "Julian"
+do $greet "Julian" | echo $in
 
 print `###nudoc-block-85`
 print ("mut x = 1
@@ -158,12 +158,10 @@ mut x = 1
 if true {
     $x += 1000
 }
-print $x
+print $x | echo $in
 
 print `###nudoc-block-88`
 print ("git checkout featurebranch | null" | nu-highlight)
-print '```
-```nudoc-output'
 git checkout featurebranch | null
 
 print `###nudoc-block-91`

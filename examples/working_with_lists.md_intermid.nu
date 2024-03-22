@@ -27,7 +27,7 @@ let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
-$colors
+$colors | echo $in
 
 print `###nudoc-block-10`
 print ("let colors = [red yellow green purple]
@@ -39,7 +39,7 @@ print '```
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors
+$colors | echo $in
 
 print `###nudoc-block-13`
 print ("let colors = [red yellow green purple black magenta]
@@ -49,7 +49,7 @@ print '```
 ```nudoc-output'
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors
+$colors | echo $in
 
 print `###nudoc-block-16`
 print ("let colors = [yellow green purple]
@@ -59,7 +59,7 @@ print '```
 ```nudoc-output'
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors
+$colors | echo $in
 
 print `###nudoc-block-19`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -74,7 +74,7 @@ let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $"Hello, ($it)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
+$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | echo $in
 
 print `###nudoc-block-22`
 print ("let colors = [red orange yellow green blue purple]
@@ -85,7 +85,7 @@ print '```
 ```nudoc-output'
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean.
+# The block passed to `where` must evaluate to a boolean. | echo $in
 
 print `###nudoc-block-25`
 print ("let scores = [7 10 8 6 7]
@@ -93,7 +93,7 @@ $scores | where $it > 7 # [10 8]" | nu-highlight)
 print '```
 ```nudoc-output'
 let scores = [7 10 8 6 7]
-$scores | where $it > 7
+$scores | where $it > 7 | echo $in
 
 print `###nudoc-block-28`
 print ("let scores = [3 8 4]
@@ -113,7 +113,7 @@ $"total = ($scores | math sum)" # easier approach, same result
 
 $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item }
+$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | echo $in
 
 print `###nudoc-block-31`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -121,7 +121,7 @@ $names.1 # gives Tami" | nu-highlight)
 print '```
 ```nudoc-output'
 let names = [Mark Tami Amanda Jeremy]
-$names.1
+$names.1 | echo $in
 
 print `###nudoc-block-34`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -131,7 +131,7 @@ print '```
 ```nudoc-output'
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index
+$names | get $index | echo $in
 
 print `###nudoc-block-37`
 print ("let colors = [red green blue]
@@ -145,7 +145,7 @@ let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty
+$colors | is-empty | echo $in
 
 print `###nudoc-block-40`
 print ("let colors = [red green blue]
@@ -157,7 +157,7 @@ print '```
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors
+'gold' not-in $colors | echo $in
 
 print `###nudoc-block-43`
 print ("let colors = [red green blue]
@@ -187,7 +187,7 @@ let scores = [3 8 4]
 $scores | any {|it| $it > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 }
+$scores | any {|it| $it mod 2 == 1 } | echo $in
 
 print `###nudoc-block-46`
 print ("let colors = [red green blue]
@@ -217,7 +217,7 @@ let scores = [3 8 4]
 $scores | all {|it| $it > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 }
+$scores | all {|it| $it mod 2 == 0 } | echo $in
 
 print `###nudoc-block-49`
 print ("[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
@@ -227,7 +227,7 @@ print '```
 ```nudoc-output'
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | echo $in
 
 print `###nudoc-block-52`
 print ("let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
@@ -239,4 +239,4 @@ print '```
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
+$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | echo $in
