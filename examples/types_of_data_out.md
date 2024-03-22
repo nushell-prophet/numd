@@ -150,10 +150,8 @@ As with durations, you can make fractional file sizes, and do calculations:
 ```nushell
 > 1Gb / 1b
 1000000000
-
 > 1Gib / 1b
 1073741824
-
 > (1Gib / 1b) == 2 ** 30
 true
 ```
@@ -524,7 +522,7 @@ git checkout featurebranch | null
 Error: nu::shell::column_not_found
 
   × Cannot find column
-   ╭─[source:1:1]
+   ╭─[source:1:12]
  1 │ [{a:1 b:2} {b:1}].1.a
    ·            ──┬──    ┬
    ·              │      ╰── cannot find column 'a'

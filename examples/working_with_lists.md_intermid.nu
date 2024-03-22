@@ -1,14 +1,15 @@
-# this script was generated automatically using nudochttps://github.com/nushell-prophet/nudoc
+# this script was generated automatically using nudoc 
+# https://github.com/nushell-prophet/nudoc
 
 print `###nudoc-block-1`
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
-do {nu -c "[1, 2, 3, 4] | insert 2 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
+[1, 2, 3, 4] | insert 2 10 | echo $in
 
 print ("# [1, 2, 10, 3, 4]" | nu-highlight)
 
 print `###nudoc-block-4`
 print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
-do {nu -c "[1, 2, 3, 4] | update 1 10"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
+[1, 2, 3, 4] | update 1 10 | echo $in
 
 print ("# [1, 10, 3, 4]" | nu-highlight)
 
@@ -26,7 +27,7 @@ let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
-$colors | echo $in
+$colors
 
 print `###nudoc-block-10`
 print ("let colors = [red yellow green purple]
@@ -38,7 +39,7 @@ print '```
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors | echo $in
+$colors
 
 print `###nudoc-block-13`
 print ("let colors = [red yellow green purple black magenta]
@@ -48,7 +49,7 @@ print '```
 ```nudoc-output'
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors | echo $in
+$colors
 
 print `###nudoc-block-16`
 print ("let colors = [yellow green purple]
@@ -58,7 +59,7 @@ print '```
 ```nudoc-output'
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors | echo $in
+$colors
 
 print `###nudoc-block-19`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -73,7 +74,7 @@ let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $"Hello, ($it)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | echo $in
+$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 
 print `###nudoc-block-22`
 print ("let colors = [red orange yellow green blue purple]
@@ -84,7 +85,7 @@ print '```
 ```nudoc-output'
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean. | echo $in
+# The block passed to `where` must evaluate to a boolean.
 
 print `###nudoc-block-25`
 print ("let scores = [7 10 8 6 7]
@@ -92,7 +93,7 @@ $scores | where $it > 7 # [10 8]" | nu-highlight)
 print '```
 ```nudoc-output'
 let scores = [7 10 8 6 7]
-$scores | where $it > 7 | echo $in
+$scores | where $it > 7
 
 print `###nudoc-block-28`
 print ("let scores = [3 8 4]
@@ -112,7 +113,7 @@ $"total = ($scores | math sum)" # easier approach, same result
 
 $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | echo $in
+$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item }
 
 print `###nudoc-block-31`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -120,7 +121,7 @@ $names.1 # gives Tami" | nu-highlight)
 print '```
 ```nudoc-output'
 let names = [Mark Tami Amanda Jeremy]
-$names.1 | echo $in
+$names.1
 
 print `###nudoc-block-34`
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -130,7 +131,7 @@ print '```
 ```nudoc-output'
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index | echo $in
+$names | get $index
 
 print `###nudoc-block-37`
 print ("let colors = [red green blue]
@@ -144,7 +145,7 @@ let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty | echo $in
+$colors | is-empty
 
 print `###nudoc-block-40`
 print ("let colors = [red green blue]
@@ -156,7 +157,7 @@ print '```
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors | echo $in
+'gold' not-in $colors
 
 print `###nudoc-block-43`
 print ("let colors = [red green blue]
@@ -186,7 +187,7 @@ let scores = [3 8 4]
 $scores | any {|it| $it > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 } | echo $in
+$scores | any {|it| $it mod 2 == 1 }
 
 print `###nudoc-block-46`
 print ("let colors = [red green blue]
@@ -216,7 +217,7 @@ let scores = [3 8 4]
 $scores | all {|it| $it > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 } | echo $in
+$scores | all {|it| $it mod 2 == 0 }
 
 print `###nudoc-block-49`
 print ("[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
@@ -226,7 +227,7 @@ print '```
 ```nudoc-output'
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | echo $in
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
 
 print `###nudoc-block-52`
 print ("let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
@@ -238,4 +239,4 @@ print '```
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | echo $in
+$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}

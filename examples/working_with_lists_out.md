@@ -51,16 +51,6 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors # [black red yellow green purple blue]
 ```
-```nudoc-output
-╭───┬────────╮
-│ 0 │ black  │
-│ 1 │ red    │
-│ 2 │ yellow │
-│ 3 │ green  │
-│ 4 │ purple │
-│ 5 │ blue   │
-╰───┴────────╯
-```
 
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
 
@@ -70,11 +60,6 @@ let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors # [yellow]
 ```
-```nudoc-output
-╭───┬────────╮
-│ 0 │ yellow │
-╰───┴────────╯
-```
 
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
 
@@ -83,13 +68,6 @@ let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors # [purple black magenta]
 ```
-```nudoc-output
-╭───┬─────────╮
-│ 0 │ purple  │
-│ 1 │ black   │
-│ 2 │ magenta │
-╰───┴─────────╯
-```
 
 And from the beginning of a list,
 
@@ -97,12 +75,6 @@ And from the beginning of a list,
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors # [yellow green]
-```
-```nudoc-output
-╭───┬────────╮
-│ 0 │ yellow │
-│ 1 │ green  │
-╰───┴────────╯
 ```
 
 ## Iterating over lists
@@ -118,14 +90,6 @@ $names | each { |it| $"Hello, ($it)!" }
 
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
-```
-```nudoc-output
-╭───┬────────────╮
-│ 0 │ 1 - Mark   │
-│ 1 │ 2 - Tami   │
-│ 2 │ 3 - Amanda │
-│ 3 │ 4 - Jeremy │
-╰───┴────────────╯
 ```
 
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
@@ -145,12 +109,6 @@ In this example, we keep only values higher than `7`.
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]
 ```
-```nudoc-output
-╭───┬────╮
-│ 0 │ 10 │
-│ 1 │  8 │
-╰───┴────╯
-```
 
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
 It uses a block which takes 2 parameters: the current item (conventionally named `it`) and an accumulator
@@ -168,9 +126,6 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16
 ```
-```nudoc-output
-16
-```
 
 ## Accessing the list
 
@@ -182,9 +137,6 @@ For example, the second element in the list below can be accessed with `$names.1
 let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami
 ```
-```nudoc-output
-Tami
-```
 
 If the index is in some variable `$index` we can use the `get` command to extract the item from the list.
 
@@ -192,9 +144,6 @@ If the index is in some variable `$index` we can use the `get` command to extrac
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index # gives Tami
-```
-```nudoc-output
-Tami
 ```
 
 The [`length`](/commands/docs/length.md) command returns the number of items in a list.
@@ -210,9 +159,6 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty # true
 ```
-```nudoc-output
-true
-```
 
 The `in` and `not-in` operators are used to test whether a value is in a list. For example:
 
@@ -221,9 +167,6 @@ let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
 'gold' not-in $colors # true
-```
-```nudoc-output
-true
 ```
 
 The [`any`](/commands/docs/any.md) command determines if any item in a list
@@ -245,9 +188,6 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } # true
 ```
-```nudoc-output
-true
-```
 
 The [`all`](/commands/docs/all.md) command determines if every item in a list
 matches a given condition.
@@ -268,9 +208,6 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } # false
 ```
-```nudoc-output
-false
-```
 
 ## Converting the list
 
@@ -283,18 +220,6 @@ For example:
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
-```
-```nudoc-output
-╭───┬───╮
-│ 0 │ 1 │
-│ 1 │ 2 │
-│ 2 │ 3 │
-│ 3 │ 4 │
-│ 4 │ 5 │
-│ 5 │ 6 │
-│ 6 │ 7 │
-│ 7 │ 8 │
-╰───┴───╯
 ```
 
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
@@ -310,9 +235,9 @@ $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone |
 ╭───┬────────────────────┬──────────────────╮
 │ # │        Zone        │       Time       │
 ├───┼────────────────────┼──────────────────┤
-│ 0 │ UTC                │ 2024.02.27 07:24 │
-│ 1 │ CET                │ 2024.02.27 08:24 │
-│ 2 │ Europe/Moscow      │ 2024.02.27 10:24 │
-│ 3 │ Asia/Yekaterinburg │ 2024.02.27 12:24 │
+│ 0 │ UTC                │ 2024.03.22 11:34 │
+│ 1 │ CET                │ 2024.03.22 12:34 │
+│ 2 │ Europe/Moscow      │ 2024.03.22 14:34 │
+│ 3 │ Asia/Yekaterinburg │ 2024.03.22 16:34 │
 ╰───┴────────────────────┴──────────────────╯
 ```
