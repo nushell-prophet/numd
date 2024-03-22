@@ -104,12 +104,7 @@ def highlight-command [
     $command: string
     --nudoc-out
 ]: nothing -> string {
-    $command
-    | escape-quotes
-    | $"print \(\"($in)\" | nu-highlight\)(char nl)"
-    | if $nudoc_out {
-        $"($in)print '```(char nl)```nudoc-output'(char nl)"
-    } else {}
+    $"print \(\"($command | escape-quotes)\" | nu-highlight\)(char nl)"
 }
 
 def trim-comments-plus []: string -> string {
@@ -141,6 +136,7 @@ def execute-code [
     code: string
     infostring: string
     --print_results
+    --whole_chunk
 ]: string -> string {
     let $input = $in
 
@@ -151,6 +147,11 @@ def execute-code [
         | where $it != ''
         | compact
         | each {|i| expand-short-options $i}
+
+    let $input = $input
+        | if ($print_results or ('print-results' in $options)) and $whole_chunk {
+            $"($in)print '```(char nl)```nudoc-output'(char nl)"
+        } else {}
 
     $code
     | trim-comments-plus
@@ -179,8 +180,8 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            highlight-command --nudoc-out $chunk
-            | execute-code $chunk $v.row_types.0
+            highlight-command $chunk
+            | execute-code --whole_chunk $chunk $v.row_types.0
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
