@@ -454,7 +454,7 @@ You can also use a pipeline input as `$in` in most closures instead of providing
 Closures itself can be bound to a named variable and passed as a parameter.
 To call a closure directly in your code use the [`do`](/commands/docs/do.md) command.
 
-```nushell p
+```nushell
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
 do $greet "Julian"
@@ -470,7 +470,7 @@ Blocks don't close over variables, don't have parameters, and can't be passed as
 However, unlike closures, blocks can access mutable variable in the parent closure.
 For example, mutating a variable inside the block used in an [`if`](/commands/docs/if.md) call is valid:
 
-```nushell p
+```nushell
 mut x = 1
 if true {
     $x += 1000

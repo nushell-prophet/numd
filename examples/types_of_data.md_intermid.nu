@@ -162,6 +162,8 @@ print $x | echo $in
 
 print `###nudoc-block-88`
 print ("git checkout featurebranch | null" | nu-highlight)
+print '```
+```nudoc-output'
 git checkout featurebranch | null
 
 print `###nudoc-block-91`
