@@ -127,38 +127,43 @@ def try-append-echo-in []: string -> string {
     }
 }
 
-def try-handle-errors []: string -> string {
-    # check whether the command includes 'def' or 'let' keywords, if no, it means it can be scoped in try or outside
-    if ($in =~ '\b(def|let)\b') { } else {
-        # check if the command does not contain any variables except for $in
-        if ($in | str replace -a '$in' '') !~ '\$' {
-            # execute the command outside to obtain a clear error message if any
-            ($"do {nu -c \"($in | escape-quotes)\"} " +
-            "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
-        } else {
-            # attempt to execute in try clause, catch errors if they occur
-            $"try {($in)} catch {|e| $e}"
-        }
-    }
+def handle-error-in-current-instance [] {
+    $"try {($in)} catch {|e| $e}"
 }
 
-# types of handlders
-# - try printing result - print-results(r)
-# - try handling errors - try(t)
-# - execute outside - new-instance(n)
-# - execute outside with all previous steps - roll prev-steps(nr)
-# - output results as an image
+def handle-error-outside [] {
+    # execute the command outside to obtain a clear error message if any
+    ($"do {nu -c \"($in | escape-quotes)\"} " +
+    "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
+}
 
 def execute-code [
     code: string
-    --dont-handle-errors
+    infostring: string
+    --print_results
 ]: string -> string {
     let $input = $in
 
+    let $options = $infostring
+        | str replace -r 'nu-code(\s+)?' ''
+        | split row ','
+        | str trim
+        | where $it != ''
+        | compact
+        | each {|i| expand-short-options $i}
+
     $code
     | trim-comments-plus
-    | if $dont_handle_errors {} else {try-handle-errors}
-    | try-append-echo-in
+    | if 'try' in $options {
+        if 'new-instance' in $options {
+            handle-error-outside
+        } else {
+            handle-error-in-current-instance
+        }
+    } else {}
+    | if $print_results or ('print-results' in $options) {
+        try-append-echo-in
+    } else {}
     | $input + $in + (char nl)
 }
 
@@ -175,12 +180,12 @@ def assemble-script [
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
             highlight-command --nudoc-out $chunk
-            | execute-code --dont-handle-errors $chunk
+            | execute-code $chunk $v.row_types.0
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
                     highlight-command $line
-                    | execute-code --dont-handle-errors=$dont_handle_errors $line
+                    | execute-code --print_results $line $v.row_types.0
                 } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
@@ -242,4 +247,24 @@ def assemble-results [
     | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
     | str replace -ar "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace -ar "\n\n+\n" "\n\n" # multiple new lines
+}
+
+def expand-short-options [
+    $option
+] {
+    # types of handlders
+    let $dict = {
+        p: 'print-results' # try printing result
+        t: 'try' # try handling errors
+        n: 'new-instance' # execute outside
+        # - todo output results as an image using nu_plugin_image - image(i)
+        # - todo execute outside with all previous code included
+    }
+
+    $dict
+    | get -i $option
+    | default $option
+    | if $in not-in ($dict | values) {
+        print $'(ansi red)($in) is unknown option(ansi reset)'
+    } else {}
 }
