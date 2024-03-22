@@ -5,7 +5,7 @@ export def main [
     file: path      # a markdown file to run nushell code in
     output?: path   # a path to a `.md` file to save results, if ommited the file from the first argument will be updated
     --quiet         # don't output results into terminal
-    --dont-save     # don't save the `.md` file
+    --no-save       # don't save the `.md` file
     --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
     --intermid-script: path # save intermid script into the file, useful for debugging
 ] {
@@ -31,7 +31,7 @@ export def main [
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $res = assemble-results $file_lines_classified $nu_res_with_block_index
 
-    if not $dont_save {
+    if not $no_save {
         let $path = $output | default $file
         if not $overwrite { backup-file $path }
         $res | ansi strip | save -f $path
