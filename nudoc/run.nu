@@ -62,11 +62,7 @@ def classify-lines [
     let $row_types = (
         $file_lines
         | each {|i| match ($i | str trim) {
-            $type if $type =~ '```(nu|nushell)(\s|$)' => (
-                $type | split row ' ' | get 1?
-                | prepend 'nu-code'
-                | str join ' '
-            ),
+            $type if $type =~ '```nu(shell)?(\s|$)' => $type,
             $type if $type == '```nudoc-output' => 'nudoc-output'
             $type if $type ==  '```' => 'chunk-end',
             _ => ''
@@ -133,11 +129,11 @@ def handle-error-outside [] {
 
 def execute-code [
     code: string
-    infostring: string
+    fence: string
     --whole_chunk
 ]: nothing -> string {
-    let $options = $infostring
-        | str replace -r 'nu-code(\s+)?' ''
+    let $options = $fence
+        | str replace -r '```nu(shell)?(\s+)?' ''
         | split row ','
         | str trim
         | where $it != ''
@@ -170,7 +166,7 @@ def assemble-script [
     $file_lines_classified: table
 ]: nothing -> string {
     $file_lines_classified
-    | where row_types =~ '^nu-code'
+    | where row_types =~ '```nu(shell)?(\s|$)'
     | group-by block_index
     | items {|k v|
         $v.lines
@@ -188,7 +184,8 @@ def assemble-script [
             }
             | str join (char nl)
         }
-        | prepend $'print `(nudoc-block $k)`'
+        | prepend $"print \"($v.row_types.0)\""
+        | prepend $"print \"(nudoc-block $k)\""
     }
     | prepend ( '# this script was generated automatically using nudoc ' +
         (char nl) + '# https://github.com/nushell-prophet/nudoc' + (char nl))
@@ -222,7 +219,7 @@ def parse-block-index [
         |i| $i.items.nu_out
         | skip
         | str join (char nl)
-        | '```nushell' + (char nl) + $in + (char nl) + '```'
+        | $in + (char nl) + '```'
     }
     | rename block_index lines
     | into int block_index
@@ -233,7 +230,7 @@ def assemble-results [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $file_lines_classified
-    | where row_types !~ '^(nu-code|nudoc-output)'
+    | where row_types !~ '(```nu(shell)?(\s|$)|^nudoc-output)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
