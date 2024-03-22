@@ -145,22 +145,26 @@ def execute-code [
         | compact
         | each {|i| expand-short-options $i}
 
-    $code
-    | trim-comments-plus
-    | if 'try' in $options {
-        if 'new-instance' in $options {
-            handle-error-outside
-        } else {
-            handle-error-in-current-instance
-        }
-    } else {}
-    | if 'no-output' in $options {} else {
-        try-append-echo-in
-        | if $whole_chunk {
-            $"print '```(char nl)```nudoc-output'(char nl)($in)"
+    let $highlited_command = highlight-command $code
+
+    let $code_execution = $code
+        | trim-comments-plus
+        | if 'try' in $options {
+            if 'new-instance' in $options {
+                handle-error-outside
+            } else {
+                handle-error-in-current-instance
+            }
         } else {}
-    }
-    | (highlight-command $code) + $in + (char nl)
+        | if 'no-output' in $options {} else {
+            try-append-echo-in
+            | if $whole_chunk {
+                $"print '```(char nl)```nudoc-output'(char nl)($in)"
+            } else {}
+        }
+        | $in + (char nl)
+
+    $highlited_command + $code_execution
 }
 
 def assemble-script [
