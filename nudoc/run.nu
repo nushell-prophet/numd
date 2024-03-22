@@ -8,7 +8,6 @@ export def main [
     --dont-save     # don't save the `.md` file
     --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
     --intermid-script: path # save intermid script into the file, useful for debugging
-    --dont-handle-errors # Enclose `>` commands in `try` blocks to avoid errors and output their messages
 ] {
     let $file_lines = open -r $file | lines
     let $file_lines_classified = classify-lines $file_lines
@@ -17,7 +16,7 @@ export def main [
         | default ($nu.temp-path | path join $'nudoc-(date now | format date "%Y%m%d_%H%M%S").nu')
     )
 
-    assemble-script --dont-handle-errors=$dont_handle_errors $file_lines_classified
+    assemble-script $file_lines_classified
     | save -f $temp_script
 
     let $nu_out = do {nu -l $temp_script} | complete
@@ -169,7 +168,6 @@ def execute-code [
 
 def assemble-script [
     $file_lines_classified: table
-    --dont-handle-errors
 ]: nothing -> string {
     $file_lines_classified
     | where row_types =~ '^nu-code'
