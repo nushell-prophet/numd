@@ -509,7 +509,7 @@ git checkout featurebranch | null
 
 `null` is not the same as the absence of a value! It is possible for a table to be produced that has holes in some of its rows. Attempting to access this value will not produce `null`, but instead cause an error:
 
-```nushell
+```nushell try,new-instance
 > [{a:1 b:2} {b:1}]
 ╭───┬────┬───╮
 │ # │ a  │ b │
