@@ -117,7 +117,7 @@ def trim-comments-plus []: string -> string {
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
 # This is to determine if appending ' | echo $in' is possible.
 def try-append-echo-in []: string -> string {
-    if ($in =~ '(;|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
+    if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
         $in + ' | echo $in'
     }
 }
@@ -135,11 +135,8 @@ def handle-error-outside [] {
 def execute-code [
     code: string
     infostring: string
-    --print_results
     --whole_chunk
-]: string -> string {
-    let $input = $in
-
+]: nothing -> string {
     let $options = $infostring
         | str replace -r 'nu-code(\s+)?' ''
         | split row ','
@@ -147,11 +144,6 @@ def execute-code [
         | where $it != ''
         | compact
         | each {|i| expand-short-options $i}
-
-    let $input = $input
-        | if ($print_results or ('print-results' in $options)) and $whole_chunk {
-            $"($in)print '```(char nl)```nudoc-output'(char nl)"
-        } else {}
 
     $code
     | trim-comments-plus
@@ -162,10 +154,13 @@ def execute-code [
             handle-error-in-current-instance
         }
     } else {}
-    | if $print_results or ('print-results' in $options) {
+    | if 'no-output' in $options {} else {
         try-append-echo-in
-    } else {}
-    | $input + $in + (char nl)
+        | if $whole_chunk {
+            $"print '```(char nl)```nudoc-output'(char nl)($in)"
+        } else {}
+    }
+    | (highlight-command $code) + $in + (char nl)
 }
 
 def assemble-script [
@@ -180,13 +175,11 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            highlight-command $chunk
-            | execute-code --whole_chunk $chunk $v.row_types.0
+            execute-code --whole_chunk $chunk $v.row_types.0
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
-                    highlight-command $line
-                    | execute-code --print_results $line $v.row_types.0
+                    execute-code $line $v.row_types.0
                 } else if $line =~ '^\s*#' {
                     highlight-command $line
                 }
@@ -255,7 +248,7 @@ def expand-short-options [
 ] {
     # types of handlders
     let $dict = {
-        p: 'print-results' # try printing result
+        O: 'no-output' # don't try printing result
         t: 'try' # try handling errors
         n: 'new-instance' # execute outside
         # - todo output results as an image using nu_plugin_image - image(i)
@@ -263,7 +256,7 @@ def expand-short-options [
     }
 
     $dict
-    | get -i $option
+    | get -is $option
     | default $option
     | if $in not-in ($dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
