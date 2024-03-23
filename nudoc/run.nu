@@ -59,16 +59,14 @@ def backup-file [
 def classify-lines [
     $file_lines: list
 ]: nothing -> table {
-    let $row_types = (
-        $file_lines
-        | each {|i| match ($i | str trim) {
-            $type if $type =~ '^```' => $type
-            _ => ''
-        }}
-        | scan --noinit '' {|prev curr|
-            if ($curr == '' and $prev != '```') {$prev} else {$curr}
+    let $row_types = $file_lines
+        | each {
+            str trim
+            | if $in =~ '^```' {} else {''}
         }
-    )
+        | scan --noinit '' {|prev curr|
+            if $curr == '' and $prev != '```' {$prev} else {$curr}
+        }
 
     let $block_index = (
         $row_types
