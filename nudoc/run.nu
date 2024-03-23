@@ -11,10 +11,11 @@ export def main [
 ] {
     let $file_lines = open -r $file | lines
     let $file_lines_classified = classify-lines $file_lines
-    let $temp_script = (
-        $intermid_script
-        | default ($nu.temp-path | path join $'nudoc-(date now | format date "%Y%m%d_%H%M%S").nu')
-    )
+    let $temp_script = $intermid_script
+        | default (
+            $nu.temp-path
+            | path join $'nudoc-(date now | format date "%Y%m%d_%H%M%S").nu'
+        )
 
     assemble-script $file_lines_classified
     | save -f $temp_script
@@ -44,12 +45,10 @@ def backup-file [
     $path: path
 ]: nothing -> nothing {
     if ($path | path exists) {
-        let $backup_path = (
-            $path
+        let $backup_path = $path
             | path parse
             | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
             | path join
-        )
 
         mv $path $backup_path
     }
@@ -68,13 +67,11 @@ def classify-lines [
             if $curr == '' and $prev != '```' {$prev} else {$curr}
         }
 
-    let $block_index = (
-        $row_types
+    let $block_index = $row_types
         | window --remainder 2
         | scan 0 {|prev curr|
             if ($curr.0? == $curr.1?) {$prev} else {$prev + 1}
         }
-    )
 
     $file_lines | wrap lines
     | merge ($row_types | wrap row_types)
@@ -108,7 +105,8 @@ def trim-comments-plus []: string -> string {
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
 # This is to determine if appending ' | echo $in' is possible.
 def try-append-echo-in []: string -> string {
-    if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else { # check if we can add print $in to the last line
+    # check if we can add echo $in to the last line
+    if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else {
         $in + ' | echo $in'
     }
 }
@@ -196,16 +194,18 @@ def parse-block-index [
         return []
     }
 
-    let $block_index = (
-        $nu_res_stdout_lines
+    let $block_index = $nu_res_stdout_lines
         | each {
-            |i| if $i =~ (nudoc-block) {
-                $i | split row '-' | last | into int
-            } else {-1}
+            if $in =~ (nudoc-block) {
+                split row '-' | last | into int
+            } else {
+                -1
+            }
         }
-        | scan --noinit 0 {|prev curr| if $curr == -1 {$prev} else {$curr}}
+        | scan --noinit 0 {|prev curr|
+            if $curr == -1 {$prev} else {$curr}
+        }
         | wrap block_index
-    )
 
     $nu_res_stdout_lines
     | wrap 'nu_out'
