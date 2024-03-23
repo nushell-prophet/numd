@@ -4,9 +4,9 @@ use std iter scan
 export def main [
     file: path      # a markdown file to run nushell code in
     output?: path   # a path to a `.md` file to save results, if ommited the file from the first argument will be updated
-    --quiet         # don't output results into terminal
-    --no-save       # don't save the `.md` file
+    --echo          # output the resulted markdown into terminal
     --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
+    --no-save       # don't save the `.md` file
     --intermid-script: path # save intermid script into the file, useful for debugging
 ] {
     let $file_lines = open -r $file | lines
@@ -38,7 +38,7 @@ export def main [
         $res | ansi strip | save -f $path
     }
 
-    if not $quiet {$res}
+    if $echo {$res}
 }
 
 def backup-file [
