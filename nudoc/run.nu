@@ -1,20 +1,21 @@
 use std iter scan
 
-# run nushell code chunks in a .md file, output results to terminal, optionally update the .md file back
+# run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 export def main [
-    file: path      # a markdown file to run nushell code in
-    output?: path   # a path to a `.md` file to save results, if ommited the file from the first argument will be updated
-    --echo          # output the resulted markdown into terminal
-    --overwrite (-o) # owerwrite the existing `.md` file without confirmation and backup
-    --no-save       # don't save the `.md` file
-    --intermid-script: path # save intermid script into the file, useful for debugging
+    file: path # path to a `.md` file containing nushell code to be executed
+    --output-md: path # path to a resulting `.md` file; if omitted, updates the original file
+    --echo # output resulting markdown to the terminal
+    --no-backup (-o) # overwrite the existing `.md` file without backup
+    --no-save # do not save changes to the `.md` file
+    --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
 ] {
     let $file_lines = open -r $file | lines
     let $file_lines_classified = classify-lines $file_lines
     let $temp_script = $intermid_script
         | default (
             $nu.temp-path
-            | path join $'nudoc-(date now | format date "%Y%m%d_%H%M%S").nu'
+            | path join $'nudoc-(
+                date now | format date "%Y%m%d_%H%M%S").nu'
         )
 
     assemble-script $file_lines_classified
@@ -28,17 +29,16 @@ export def main [
     }
 
     let $nu_res_stdout_lines = $nu_out | get stdout | lines
-
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-    let $res = assemble-results $file_lines_classified $nu_res_with_block_index
+    let $md_res = assemble-markdown $file_lines_classified $nu_res_with_block_index
 
     if not $no_save {
-        let $path = $output | default $file
-        if not $overwrite { backup-file $path }
-        $res | ansi strip | save -f $path
+        let $path = $output_md | default $file
+        if not $no_backup { backup-file $path }
+        $md_res | ansi strip | save -f $path
     }
 
-    if $echo {$res}
+    if $echo {$md_res}
 }
 
 def backup-file [
@@ -85,10 +85,10 @@ def escape-quotes []: string -> string {
 def nudoc-block [
     index?: int
 ]: nothing -> string {
-    ['###nudoc-block-' $index] | str join
+    $"###nudoc-block-($index)"
 }
 
-def highlight-command [
+def gen-highlight-command [
     $command: string
 ]: nothing -> string {
     $"print \(\"($command | escape-quotes)\" | nu-highlight\)(char nl)"
@@ -103,24 +103,24 @@ def trim-comments-plus []: string -> string {
 # Use a regular expression to check if the last line of the input ends with a semicolon,
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
 # This is to determine if appending ' | echo $in' is possible.
-def try-append-echo-in []: string -> string {
+def gen-append-echo-in []: string -> string {
     # check if we can add echo $in to the last line
     if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else {
         $in + ' | echo $in'
     }
 }
 
-def handle-error-in-current-instance [] {
+def gen-catch-error-in-current-instance [] {
     $"try {($in)} catch {|e| $e}"
 }
 
-def handle-error-outside [] {
+def gen-catch-error-outside [] {
     # execute the command outside to obtain a clear error message if any
     ($"do {nu -c \"($in | escape-quotes)\"} " +
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
-def execute-code [
+def gen-execute-code [
     code: string
     fence: string
     --whole_chunk
@@ -133,19 +133,19 @@ def execute-code [
         | compact
         | each {|i| expand-short-options $i}
 
-    let $highlited_command = highlight-command $code
+    let $highlited_command = gen-highlight-command $code
 
     let $code_execution = $code
         | trim-comments-plus
         | if 'try' in $options {
             if 'new-instance' in $options {
-                handle-error-outside
+                gen-catch-error-outside
             } else {
-                handle-error-in-current-instance
+                gen-catch-error-in-current-instance
             }
         } else {}
         | if 'no-output' in $options {} else {
-            try-append-echo-in
+            gen-append-echo-in
             | if $whole_chunk {
                 $"print '```(char nl)```nudoc-output'(char nl)($in)"
             } else {}
@@ -166,13 +166,13 @@ def assemble-script [
         | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
 
-            execute-code --whole_chunk $chunk $v.row_types.0
+            gen-execute-code --whole_chunk $chunk $v.row_types.0
         } else {
             each {|line|
                 if $line =~ '^\s*>' {
-                    execute-code $line $v.row_types.0
+                    gen-execute-code $line $v.row_types.0
                 } else if $line =~ '^\s*#' {
-                    highlight-command $line
+                    gen-highlight-command $line
                 }
             }
         }
@@ -219,7 +219,7 @@ def parse-block-index [
     | into int block_index
 }
 
-def assemble-results [
+def assemble-markdown [
     $file_lines_classified: table
     $nu_res_with_block_index: table
 ]: nothing -> string {
