@@ -79,7 +79,7 @@ def classify-lines [
 }
 
 def escape-quotes []: string -> string {
-    str replace -ar '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
+    str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
 }
 
 def nudoc-block [
@@ -179,8 +179,8 @@ def assemble-script [
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(nudoc-block $k)\""
     }
-    | prepend ( '# this script was generated automatically using nudoc ' +
-        (char nl) + '# https://github.com/nushell-prophet/nudoc' + (char nl))
+    | prepend ( '# this script was generated automatically using nudoc
+        # https://github.com/nushell-prophet/nudoc' )
     | flatten
     | str join (char nl)
 }
@@ -230,10 +230,10 @@ def assemble-results [
     | get lines
     | str join (char nl)
     | $in + (char nl)
-    | str replace -ar "```\n(```\n)+" "```\n" # multiple code-fences
-    | str replace -ar "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
-    | str replace -ar "\n\n+```\n" "\n```\n" # empty lines before closing code fences
-    | str replace -ar "\n\n+\n" "\n\n" # multiple new lines
+    | str replace --all --regex "```\n(```\n)+" "```\n" # multiple code-fences
+    | str replace --all --regex "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
+    | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
+    | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
 }
 
 def expand-short-options [
@@ -249,7 +249,7 @@ def expand-short-options [
     }
 
     $dict
-    | get -is $option
+    | get --ignore-errors --sensitive $option
     | default $option
     | if $in not-in ($dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
