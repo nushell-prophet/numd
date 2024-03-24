@@ -90,7 +90,6 @@ def nudoc-block [
 
 def highlight-command [
     $command: string
-    --nudoc-out
 ]: nothing -> string {
     $"print \(\"($command | escape-quotes)\" | nu-highlight\)(char nl)"
 }
@@ -176,7 +175,6 @@ def assemble-script [
                     highlight-command $line
                 }
             }
-            | str join (char nl)
         }
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(nudoc-block $k)\""
