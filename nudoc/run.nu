@@ -7,15 +7,16 @@ export def main [
     --echo # output resulting markdown to the terminal
     --no-backup (-o) # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
+    --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
 ] {
-    let $file_lines = open -r $file | lines
+    let $orig_md = open -r $file
+    let $file_lines = $orig_md | lines
     let $file_lines_classified = classify-lines $file_lines
     let $temp_script = $intermid_script
         | default (
             $nu.temp-path
-            | path join $'nudoc-(
-                date now | format date "%Y%m%d_%H%M%S").nu'
+            | path join $'nudoc-( $file | path basename )( date now | format date "%Y%m%d_%H%M%S" ).nu'
         )
 
     assemble-script $file_lines_classified
@@ -38,7 +39,12 @@ export def main [
         $md_res | ansi strip | save -f $path
     }
 
-    if $echo {$md_res}
+    if $no_info {''} else {
+        calc-changes $file $orig_md $md_res
+    }
+    | if $echo {
+        $"($md_res)(char nl)($in | table)"
+    } else {}
 }
 
 def backup-file [
@@ -254,4 +260,28 @@ def expand-short-options [
     | if $in not-in ($dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
     } else {}
+}
+
+def calc-changes [
+    filename: path
+    orig_file: string
+    new_file: string
+] {
+    $new_file | str stats | transpose metric new
+    | merge ($orig_file | str stats | transpose metric old)
+    | insert change {|i|
+        (($i.new - $i.old) / $i.old) * 100
+        | math round --precision 1
+        | if $in < 0 {
+            $"(ansi red)($in)%(ansi reset)"
+        } else if ($in > 0) {
+            $"(ansi blue)+($in)%(ansi reset)"
+        } else {'0%'}
+        | $"($in) from ($i.old)"
+    }
+    | select metric change
+    | transpose --as-record --ignore-titles --header-row
+    | insert filename ($filename | path basename)
+    | insert levenstein ($orig_file | str distance $new_file)
+    | select filename lines words chars levenstein
 }
