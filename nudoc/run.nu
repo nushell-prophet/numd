@@ -10,28 +10,21 @@ export def main [
     --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
 ] {
-    let $orig_md = open -r $file
-    let $file_lines = $orig_md | lines
-    let $file_lines_classified = classify-lines $file_lines
-    let $temp_script = $intermid_script
-        | default (
-            $nu.temp-path
-            | path join $'nudoc-( $file | path basename )( date now | format date "%Y%m%d_%H%M%S" ).nu'
-        )
+    let $md_orig = open -r $file
+    let $md_orig_table = detect-code-chunks $md_orig
 
-    assemble-script $file_lines_classified
-    | save -f $temp_script
+    let $intermid_script = $intermid_script
+        | default ( $nu.temp-path | path join $'nudoc-(tstamp).nu' )
 
-    let $nu_out = do {nu -l $temp_script} | complete
+    assemble-script $md_orig_table $intermid_script
 
-    if $nu_out.exit_code != 0 {
-        echo ($nu_out | select exit_code stderr)
-        error make {msg: 'fail'}
-    }
+    let $nu_res_stdout_lines = do {nu -l $intermid_script}
+        | complete
+        | $'($in.stdout)(char nl)($in.stderr?)'
+        | lines
 
-    let $nu_res_stdout_lines = $nu_out | get stdout | lines
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-    let $md_res = assemble-markdown $file_lines_classified $nu_res_with_block_index
+    let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 
     if not $no_save {
         let $path = $output_md | default $file
@@ -40,7 +33,7 @@ export def main [
     }
 
     if $no_info {''} else {
-        calc-changes $file $orig_md $md_res
+        calc-changes $file $md_orig $md_res
     }
     | if $echo {
         $"($md_res)(char nl)($in | table)"
@@ -56,9 +49,10 @@ def backup-file [
 }
 
 
-def classify-lines [
-    $file_lines: list
+def detect-code-chunks [
+    md: string
 ]: nothing -> table {
+    let $file_lines = $md | lines
     let $row_types = $file_lines
         | each {
             str trim
@@ -157,8 +151,9 @@ def gen-execute-code [
 }
 
 def assemble-script [
-    $file_lines_classified: table
-]: nothing -> string {
+    file_lines_classified: table
+    save_path: path
+]: nothing -> nothing {
     $file_lines_classified
     | where row_types =~ '```nu(shell)?(\s|$)'
     | group-by block_index
@@ -184,6 +179,7 @@ def assemble-script [
         # https://github.com/nushell-prophet/nudoc' )
     | flatten
     | str join (char nl)
+    | save -f $save_path
 }
 
 def parse-block-index [
