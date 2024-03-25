@@ -119,11 +119,11 @@ def gen-append-echo-in []: string -> string {
     }
 }
 
-def gen-catch-error-in-current-instance [] {
+def gen-catch-error-in-current-instance []: string -> string {
     $"try {($in)} catch {|e| $e}"
 }
 
-def gen-catch-error-outside [] {
+def gen-catch-error-outside []: string -> string {
     # execute the command outside to obtain a clear error message if any
     ($"do {nu -c \"($in | escape-quotes)\"} " +
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
@@ -243,7 +243,7 @@ def assemble-markdown [
 
 def expand-short-options [
     $option
-] {
+]: nothing -> string {
     # types of handlders
     let $dict = {
         O: 'no-output' # don't try printing result
@@ -265,7 +265,7 @@ def calc-changes [
     filename: path
     orig_file: string
     new_file: string
-] {
+]: nothing -> record {
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
