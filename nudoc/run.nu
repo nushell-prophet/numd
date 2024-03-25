@@ -19,19 +19,7 @@ export def main [
 
     assemble-script $md_orig_table $intermid_script
 
-    let $nu_res_stdout_lines = do {nu -l $intermid_script}
-        | complete
-        | if $in.exit_code == 0 {
-            get stdout
-        } else {
-            if $stop_on_error {
-                error make {msg: $in.stdout}
-            } else {
-                $'($in.stdout)(char nl)($in.stderr?)'
-            }
-        }
-        | lines
-
+    let $nu_res_stdout_lines = run-intermid-script $intermid_script $stop_on_error
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 
@@ -85,6 +73,24 @@ def detect-code-chunks [
 
 def escape-quotes []: string -> string {
     str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
+}
+
+def run-intermid-script [
+    intermid_script: path
+    stop_on_error: bool
+] {
+    do {nu -l $intermid_script}
+    | complete
+    | if $in.exit_code == 0 {
+        get stdout
+    } else {
+        if $stop_on_error {
+            error make {msg: $in.stdout}
+        } else {
+            $'($in.stdout)(char nl)($in.stderr?)'
+        }
+    }
+    | lines
 }
 
 def nudoc-block [
