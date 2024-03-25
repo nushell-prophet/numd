@@ -51,12 +51,7 @@ def backup-file [
     $path: path
 ]: nothing -> nothing {
     if ($path | path exists) {
-        let $backup_path = $path
-            | path parse
-            | upsert stem {|i| $i.stem + '_back' + (date now | format date "%Y%m%d_%H%M%S")}
-            | path join
-
-        mv $path $backup_path
+        mv $path ($path | path-modify --suffix $'-backup-(tstamp)')
     }
 }
 
