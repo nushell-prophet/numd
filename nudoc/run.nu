@@ -129,6 +129,10 @@ def gen-catch-error-outside []: string -> string {
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
+def gen-fence-nudoc-output []: string -> string {
+    $"print '```(char nl)```nudoc-output'(char nl)($in)"
+}
+
 def gen-execute-code [
     --fence: string # opening code fence string with options for executing current chunk
     --whole_chunk
@@ -150,7 +154,7 @@ def gen-execute-code [
         | if 'no-output' in $options {} else {
             gen-append-echo-in
             | if $whole_chunk {
-                $"print '```(char nl)```nudoc-output'(char nl)($in)"
+                gen-fence-nudoc-output
             } else {}
         }
         | $in + (char nl)
