@@ -293,6 +293,15 @@ def calc-changes [
     | select filename lines words chars levenstein
 }
 
+def parse-options-from-fence []: string -> list {
+    str replace -r '```nu(shell)?\s*' ''
+    | split row ','
+    | str trim
+    | where $it != ''
+    | compact
+    | each {|i| expand-short-options $i}
+}
+
 def path-modify [
     --prefix: string
     --suffix: string
