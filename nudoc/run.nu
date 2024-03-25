@@ -87,7 +87,7 @@ def run-intermid-script [
         if $stop_on_error {
             error make {msg: $in.stdout}
         } else {
-            $'($in.stdout)(char nl)($in.stderr?)'
+            $'($in.stdout)(char nl)($in.stderr)'
         }
     }
     | lines
