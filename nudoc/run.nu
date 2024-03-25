@@ -132,19 +132,13 @@ def gen-catch-error-outside [] {
 }
 
 def gen-execute-code [
-    code: string
-    fence: string
+    --fence: string # opening code fence string with options for executing current chunk
     --whole_chunk
-]: nothing -> string {
-    let $options = $fence
-        | str replace -r '```nu(shell)?\s*' ''
-        | split row ','
-        | str trim
-        | where $it != ''
-        | compact
-        | each {|i| expand-short-options $i}
+]: string -> string {
+    let $code = $in
+    let $options = $fence | parse-options-from-fence
 
-    let $highlited_command = gen-highlight-command $code
+    let $highlited_command = $code | gen-highlight-command
 
     let $code_execution = $code
         | trim-comments-plus
