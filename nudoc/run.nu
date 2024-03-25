@@ -99,10 +99,8 @@ def nudoc-block [
     $"###nudoc-block-($index)"
 }
 
-def gen-highlight-command [
-    $command: string
-]: nothing -> string {
-    $"print \(\"($command | escape-quotes)\" | nu-highlight\)(char nl)"
+def gen-highlight-command [ ]: string -> string {
+    $"print \(\"($in | escape-quotes)\" | nu-highlight\)(char nl)"
 }
 
 def trim-comments-plus []: string -> string {
