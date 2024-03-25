@@ -8,20 +8,22 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 
 ```
 git clone https://github.com/nushell101/nudoc; cd nudoc
+# nupm install --force --path . # optionally you can install this module via nupm
 use nudoc
 nudoc run --quiet README.md
 ```
-
-🗒 The code above isn't executed and updated by nudoc, as it lacks an opening ` ```nushell ` language idnetifier in the opening code fence tag.
+> **Note**
+> The code above isn't executed and updated by nudoc, as it lacks an opening ` ```nushell ` language idnetifier in the opening code fence tag.
 
 ## How it works
 
-1. The `nudoc run` command opens a file from the first argument.
-2. It looks for ` ```nushell ` code chunks.
+`nudoc run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly and output the resulting document into terminal.
+
+### Details of parsing
+
+2. `nudoc` looks for ` ```nushell ` or ` ```nu ` code chunks.
 3. In the code chunks, that entirely don't have lines starting with the `>` symbol, nudoc executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```nudoc-output ` chunks, next to the executed code chunks.
 4. In the code chunks that contain one or more lines starting with `>` symbol, nudoc filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
-5. nudoc outputs results code chunks and results of their execution into the terminal (if the `--quiet` flag is not used).
-6. nudoc updates results in the file, which was provided as the first argument (user needs to confirm overwriting the file, if the `--overwrite` flag wasn't used).
 
 ```nushell
 # Eventually, the script updates nushell code chunks.
@@ -46,7 +48,7 @@ Sun, 18 Feb 2024 15:32:52 +0000 (now)
 ## Examples
 
 ```
-nudoc run examples/types_of_data.md  examples/types_of_data_out.md --overwrite --intermid_script examples/types_of_data_intermid.nu
+nudoc run examples/types_of_data.md  examples/types_of_data_out.md --overwrite --intermid_script examples/types_of_data.md_intermid.nu
 ```
 
 The results of the command above are provided in the files of the example folder.
