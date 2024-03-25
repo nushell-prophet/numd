@@ -285,3 +285,7 @@ def calc-changes [
     | insert levenstein ($orig_file | str distance $new_file)
     | select filename lines words chars levenstein
 }
+
+def tstamp []: nothing -> string {
+    date now | format date "%Y%m%d_%H%M%S"
+}
