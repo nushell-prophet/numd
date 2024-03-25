@@ -3,37 +3,37 @@ use std iter scan
 # run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 export def main [
     file: path # path to a `.md` file containing nushell code to be executed
-    --output-md: path # path to a resulting `.md` file; if omitted, updates the original file
+    --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
-    --no-backup (-o) # overwrite the existing `.md` file without backup
+    --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
-    --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
+    --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
     --stop-on-error # don't update markdown if error occures, otherwise all incompleted blocks will have blank output
 ] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
-    let $intermid_script = $intermid_script
+    let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'nudoc-(tstamp).nu' )
 
-    assemble-script $md_orig_table $intermid_script
+    gen-intermid-script $md_orig_table $intermid_script_path
 
-    let $nu_res_stdout_lines = run-intermid-script $intermid_script $stop_on_error
+    let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 
     if not $no_save {
-        let $path = $output_md | default $file
+        let $path = $output_md_path | default $file
         if not $no_backup { backup-file $path }
         $md_res | ansi strip | save -f $path
     }
 
-    if $no_info {''} else {
+    if $no_info { null } else {
         calc-changes $file $md_orig $md_res
     }
     | if $echo {
-        $"($md_res)(char nl)($in | table)"
+        $"($md_res)(char nl)($in | table)" # output changes table below the resulted markdown
     } else {}
 }
 
@@ -76,10 +76,10 @@ def escape-quotes []: string -> string {
 }
 
 def run-intermid-script [
-    intermid_script: path
+    intermid_script_path: path
     stop_on_error: bool
 ] {
-    do {nu -l $intermid_script}
+    do {nu -l $intermid_script_path}
     | complete
     | if $in.exit_code == 0 {
         get stdout
@@ -225,10 +225,10 @@ def parse-block-index [
 }
 
 def assemble-markdown [
-    $file_lines_classified: table
+    $md_classified: table
     $nu_res_with_block_index: table
 ]: nothing -> string {
-    $file_lines_classified
+    $md_classified
     | where row_types !~ '(```nu(shell|doc-output)?(\s|$))'
     | append $nu_res_with_block_index
     | sort-by block_index
