@@ -9,6 +9,7 @@ export def main [
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
+    --stop-on-error # don't update markdown if error occures, otherwise all incompleted blocks will have blank output
 ] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -20,7 +21,15 @@ export def main [
 
     let $nu_res_stdout_lines = do {nu -l $intermid_script}
         | complete
-        | $'($in.stdout)(char nl)($in.stderr?)'
+        | if $in.exit_code == 0 {
+            get stdout
+        } else {
+            if $stop_on_error {
+                error make {msg: $in.stdout}
+            } else {
+                $'($in.stdout)(char nl)($in.stderr?)'
+            }
+        }
         | lines
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
@@ -68,6 +77,7 @@ def detect-code-chunks [
             if ($curr.0? == $curr.1?) {$prev} else {$prev + 1}
         }
 
+    # We wrap lists into columns here because previously we needed to use the `window` command
     $file_lines | wrap lines
     | merge ($row_types | wrap row_types)
     | merge ($block_index | wrap block_index)
@@ -121,7 +131,7 @@ def gen-execute-code [
     --whole_chunk
 ]: nothing -> string {
     let $options = $fence
-        | str replace -r '```nu(shell)?(\s+)?' ''
+        | str replace -r '```nu(shell)?\s*' ''
         | split row ','
         | str trim
         | where $it != ''
