@@ -158,33 +158,33 @@ def gen-execute-code [
     $highlited_command + $code_execution
 }
 
-def assemble-script [
-    file_lines_classified: table
+def gen-intermid-script [
+    md_classified: table
     save_path: path
 ]: nothing -> nothing {
-    $file_lines_classified
+    $md_classified
     | where row_types =~ '```nu(shell)?(\s|$)'
     | group-by block_index
     | items {|k v|
         $v.lines
-        | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            let $chunk = ( skip | str join (char nl) ) # skip the language identifier ```nushell line
-
-            gen-execute-code --whole_chunk $chunk $v.row_types.0
+        | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
+            skip # skip the opening code fence ```nushell
+            | str join (char nl)
+            | gen-execute-code --whole_chunk --fence $v.row_types.0
         } else {
-            each {|line|
-                if $line =~ '^\s*>' {
-                    gen-execute-code $line $v.row_types.0
-                } else if $line =~ '^\s*#' {
-                    gen-highlight-command $line
+            each { # here we define what to do with each line of the current chunk one by one
+                if $in =~ '^\s*>' { # if it starts with `>` we execute it
+                    gen-execute-code --fence $v.row_types.0
+                } else if $in =~ '^\s*#' {
+                    gen-highlight-command
                 }
             }
         }
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(nudoc-block $k)\""
     }
-    | prepend ( '# this script was generated automatically using nudoc
-        # https://github.com/nushell-prophet/nudoc' )
+    | prepend ( '# this script was generated automatically using nudoc' +
+        "\n# https://github.com/nushell-prophet/nudoc" )
     | flatten
     | str join (char nl)
     | save -f $save_path
