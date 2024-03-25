@@ -1,6 +1,5 @@
-# this script was generated automatically using nudoc 
+# this script was generated automatically using nudoc
 # https://github.com/nushell-prophet/nudoc
-
 print "###nudoc-block-1"
 print "```nu"
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)

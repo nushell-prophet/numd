@@ -1,6 +1,5 @@
-# this script was generated automatically using nudoc 
+# this script was generated automatically using nudoc
 # https://github.com/nushell-prophet/nudoc
-
 print "###nudoc-block-1"
 print "```nushell"
 print ("> 42 | describe" | nu-highlight)
