@@ -1,6 +1,6 @@
 use nudoc
 def nudocr [file: path] {
-    nudoc run $file --output-md ($file | str replace '.md' '_out.md' ) --no-backup --intermid-script $'($file)_intermid.nu'
+    nudoc run $file --output-md-path ($file | str replace '.md' '_out.md' ) --no-backup --intermid-script-path $'($file)_intermid.nu'
 }
 
 [
