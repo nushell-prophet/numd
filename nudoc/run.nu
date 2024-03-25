@@ -123,8 +123,8 @@ def gen-catch-error-in-current-instance []: string -> string {
     $"try {($in)} catch {|e| $e}"
 }
 
+# execute the command outside to obtain a formatted error message if any
 def gen-catch-error-outside []: string -> string {
-    # execute the command outside to obtain a clear error message if any
     ($"do {nu -c \"($in | escape-quotes)\"} " +
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
