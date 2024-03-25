@@ -286,6 +286,15 @@ def calc-changes [
     | select filename lines words chars levenstein
 }
 
+def path-modify [
+    --prefix: string
+    --suffix: string
+]: path -> path {
+    path parse
+    | upsert stem {|i| $'($prefix)($i.stem)($suffix)'}
+    | path join
+}
+
 def tstamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
