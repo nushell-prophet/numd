@@ -12,7 +12,9 @@ export def --env start [
 
     '```nushell' + (char nl) | save -a $env.nudoc.path
 
-    $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {table})
+    $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {
+        if (term size).columns >= 100 { table -e } else { table }
+    })
     $env.config.hooks.display_output = {
         let $input = $in;
 
