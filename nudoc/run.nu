@@ -20,6 +20,14 @@ export def main [
     gen-intermid-script $md_orig_table $intermid_script_path
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
+
+    if $nu_res_stdout_lines == [] { # if nushell won't output anything
+        return {
+            filename: $file,
+            comment: "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
+        }
+    }
+
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
     let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 
@@ -197,9 +205,7 @@ def gen-intermid-script [
 def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-    if $nu_res_stdout_lines == [] {
-        return []
-    }
+
 
     let $block_index = $nu_res_stdout_lines
         | each {
