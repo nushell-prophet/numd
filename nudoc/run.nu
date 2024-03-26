@@ -9,8 +9,10 @@ export def main [
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
     --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
-    --stop-on-error # don't update markdown if error occures, otherwise all incompleted blocks will have blank output
+    --skip-error # don't update markdown if error occures, otherwise all incompleted blocks will have blank output
 ] {
+    mut $output_info = {filename: $file}
+
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
@@ -19,13 +21,18 @@ export def main [
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
-    let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
+    let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $skip_error
 
+    # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything
-        return {
-            filename: $file,
-            comment: "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
-        }
+        return (
+            $output_info
+            | insert comment "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
+        )
+    }
+
+    if ($nu_res_stdout_lines.0?.error? != null) {
+        return ($output_info | merge $nu_res_stdout_lines.0)
     }
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
@@ -85,16 +92,20 @@ def escape-quotes []: string -> string {
 
 def run-intermid-script [
     intermid_script_path: path
-    stop_on_error: bool
+    skip_error: bool
 ] {
     do {^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path}
     | complete
     | if $in.exit_code == 0 {
         get stdout
+        | lines
     } else {
-        error make {msg: $in.stderr}
+        if $skip_error {
+            [{error: $in.stderr}]
+        } else {
+            error make {msg: $in.stderr}
+        }
     }
-    | lines
 }
 
 def nudoc-block [
