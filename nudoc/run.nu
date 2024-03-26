@@ -79,7 +79,7 @@ def run-intermid-script [
     intermid_script_path: path
     stop_on_error: bool
 ] {
-    do {nu -l $intermid_script_path}
+    do {^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path}
     | complete
     | if $in.exit_code == 0 {
         get stdout
