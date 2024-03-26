@@ -92,11 +92,7 @@ def run-intermid-script [
     | if $in.exit_code == 0 {
         get stdout
     } else {
-        if $stop_on_error {
-            error make {msg: $in.stdout}
-        } else {
-            $'($in.stdout)(char nl)($in.stderr)'
-        }
+        error make {msg: $in.stderr}
     }
     | lines
 }
