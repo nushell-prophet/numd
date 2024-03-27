@@ -11,7 +11,6 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 > nupm install --force --path . # optionally you can install this module via nupm
 > use nudoc
 > nudoc run README.md --no-save
-> nudoc run --help
 ```
 
 ## How it works
@@ -26,6 +25,31 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 
 ```nushell
 # Eventually, the script updates nushell code chunks.
+> use nudoc
+> nudoc run --help
+run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
+
+Usage:
+  > run {flags} <file> 
+
+Flags:
+  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  --echo - output resulting markdown to the terminal
+  --no-backup - overwrite the existing `.md` file without backup
+  --no-save - do not save changes to the `.md` file
+  --no-info - do not output stats of changes in `.md` file
+  --intermid-script-path <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
+  --stop-on-error - don't update markdown if error occures, otherwise all incompleted blocks will have blank output
+  -h, --help - Display the help message for this command
+
+Parameters:
+  file <path>: path to a `.md` file containing nushell code to be executed
+
+Input/output types:
+  ╭─input─┬─output─╮
+  │ any   │ any    │
+  ╰─input─┴─output─╯
+
 > ls
 ╭───────────────name───────────────┬─type─┬──size──┬────modified────╮
 │ LICENSE                          │ file │ 1.1 KB │ a month ago    │
@@ -40,12 +64,12 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 ╰───────────────name───────────────┴─type─┴──size──┴────modified────╯
 
 > date now
-Wed, 27 Mar 2024 11:34:43 +0000 (now)
+Wed, 27 Mar 2024 14:13:23 +0000 (now)
 > git rev-list --count HEAD
-164
+171
 
 > git log -1 --format="%cd" --date=iso
-2024-03-27 08:12:19 +0000
+2024-03-27 14:05:47 +0000
 ```
 
 ## Examples
