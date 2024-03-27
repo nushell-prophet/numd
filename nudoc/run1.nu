@@ -148,21 +148,24 @@ def gen-execute-code [
     let $highlited_command = $code | gen-highlight-command
 
     let $code_execution = $code
-        | trim-comments-plus
-        | if 'try' in $options {
-            if 'new-instance' in $options {
-                gen-catch-error-outside
-            } else {
-                gen-catch-error-in-current-instance
-            }
-        } else {}
-        | if 'no-output' in $options {} else {
-            gen-append-echo-in
-            | if $whole_chunk {
-                gen-fence-nudoc-output
+        | if 'no-run' in $options {''} else {
+            trim-comments-plus
+            | if 'try' in $options {
+                if 'new-instance' in $options {
+                    gen-catch-error-outside
+                } else {
+                    gen-catch-error-in-current-instance
+                }
             } else {}
+            | if 'no-output' in $options {} else {
+                if $whole_chunk {
+                    gen-fence-nudoc-output
+                } else {}
+                | gen-append-echo-in
+            }
+            | $in + (char nl)
         }
-        | $in + (char nl)
+
 
     $highlited_command + $code_execution
 }
@@ -256,6 +259,7 @@ def expand-short-options [
         O: 'no-output' # don't try printing result
         t: 'try' # try handling errors
         n: 'new-instance' # execute outside
+        N: 'no-run' # don't execute the code
         # - todo output results as an image using nu_plugin_image - image(i)
         # - todo execute outside with all previous code included
     }
