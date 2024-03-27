@@ -6,14 +6,13 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 
 ## Quickstart
 
+```nushell no-run
+> git clone https://github.com/nushell101/nudoc; cd nudoc
+> nupm install --force --path . # optionally you can install this module via nupm
+> use nudoc
+> nudoc run README.md --no-save
+> nudoc run --help
 ```
-git clone https://github.com/nushell101/nudoc; cd nudoc
-# nupm install --force --path . # optionally you can install this module via nupm
-use nudoc
-nudoc run --quiet README.md
-```
-> **Note**
-> The code above isn't executed and updated by nudoc, as it lacks an opening ` ```nushell ` language idnetifier in the opening code fence tag.
 
 ## How it works
 
@@ -28,21 +27,25 @@ nudoc run --quiet README.md
 ```nushell
 # Eventually, the script updates nushell code chunks.
 > ls
-╭──────────name──────────┬─type─┬──size──┬─modified──╮
-│ LICENSE                │ file │ 1.1 KB │ a day ago │
-│ README.md              │ file │ 2.2 KB │ now       │
-│ examples               │ dir  │  704 B │ a day ago │
-│ nudoc                  │ dir  │  224 B │ a day ago │
-│ nupm.nuon              │ file │  115 B │ a day ago │
-│ repository-maintenance │ dir  │   96 B │ a day ago │
-╰──────────name──────────┴─type─┴──size──┴─modified──╯
+╭───────────────name───────────────┬─type─┬──size──┬────modified────╮
+│ LICENSE                          │ file │ 1.1 KB │ a month ago    │
+│ README.md                        │ file │ 2.5 KB │ a minute ago   │
+│ docs                             │ dir  │   64 B │ 3 weeks ago    │
+│ examples                         │ dir  │  832 B │ 36 minutes ago │
+│ nudoc                            │ dir  │  192 B │ 3 hours ago    │
+│ nupm.nuon                        │ file │  115 B │ 2 days ago     │
+│ repository-maintenance           │ dir  │   96 B │ 3 weeks ago    │
+│ test                             │ dir  │  192 B │ 3 hours ago    │
+│ testing.nu                       │ file │  262 B │ 2 days ago     │
+╰───────────────name───────────────┴─type─┴──size──┴────modified────╯
 
 > date now
-Sun, 18 Feb 2024 15:32:52 +0000 (now)
+Wed, 27 Mar 2024 11:34:43 +0000 (now)
 > git rev-list --count HEAD
-41
+164
+
 > git log -1 --format="%cd" --date=iso
-2024-02-17 05:38:49 +0000
+2024-03-27 08:12:19 +0000
 ```
 
 ## Examples
