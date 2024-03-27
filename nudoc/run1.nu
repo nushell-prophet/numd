@@ -239,7 +239,7 @@ def assemble-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_types !~ '(```nu(shell)?(\s|$))|(^```nudoc-output-\d+$)'
+    | where row_types !~ '(```nu(shell)?(\s|$))|(^```nudoc-output$)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines

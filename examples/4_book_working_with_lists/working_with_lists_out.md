@@ -12,13 +12,13 @@ You can [`update`](/commands/docs/update.md) and [`insert`](/commands/docs/inser
 
 ```nu
 > [1, 2, 3, 4] | insert 2 10
-╭───┬────╮
-│ 0 │  1 │
-│ 1 │  2 │
-│ 2 │ 10 │
-│ 3 │  3 │
-│ 4 │  4 │
-╰───┴────╯
+╭────╮
+│  1 │
+│  2 │
+│ 10 │
+│  3 │
+│  4 │
+╰────╯
 
 # [1, 2, 10, 3, 4]
 ```
@@ -27,12 +27,12 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 
 ```nu
 > [1, 2, 3, 4] | update 1 10
-╭───┬────╮
-│ 0 │  1 │
-│ 1 │ 10 │
-│ 2 │  3 │
-│ 3 │  4 │
-╰───┴────╯
+╭────╮
+│  1 │
+│ 10 │
+│  3 │
+│  4 │
+╰────╯
 
 # [1, 10, 3, 4]
 ```
@@ -52,14 +52,14 @@ let colors = ("black" ++ $colors)
 $colors # [black red yellow green purple blue]
 ```
 ```nudoc-output
-╭───┬────────╮
-│ 0 │ black  │
-│ 1 │ red    │
-│ 2 │ yellow │
-│ 3 │ green  │
-│ 4 │ purple │
-│ 5 │ blue   │
-╰───┴────────╯
+╭────────╮
+│ black  │
+│ red    │
+│ yellow │
+│ green  │
+│ purple │
+│ blue   │
+╰────────╯
 ```
 
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
@@ -71,9 +71,9 @@ let colors = ($colors | drop 2)
 $colors # [yellow]
 ```
 ```nudoc-output
-╭───┬────────╮
-│ 0 │ yellow │
-╰───┴────────╯
+╭────────╮
+│ yellow │
+╰────────╯
 ```
 
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
@@ -84,11 +84,11 @@ let colors = ($colors | last 3)
 $colors # [purple black magenta]
 ```
 ```nudoc-output
-╭───┬─────────╮
-│ 0 │ purple  │
-│ 1 │ black   │
-│ 2 │ magenta │
-╰───┴─────────╯
+╭─────────╮
+│ purple  │
+│ black   │
+│ magenta │
+╰─────────╯
 ```
 
 And from the beginning of a list,
@@ -99,10 +99,10 @@ let colors = ($colors | first 2)
 $colors # [yellow green]
 ```
 ```nudoc-output
-╭───┬────────╮
-│ 0 │ yellow │
-│ 1 │ green  │
-╰───┴────────╯
+╭────────╮
+│ yellow │
+│ green  │
+╰────────╯
 ```
 
 ## Iterating over lists
@@ -120,12 +120,12 @@ $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
 ```
 ```nudoc-output
-╭───┬────────────╮
-│ 0 │ 1 - Mark   │
-│ 1 │ 2 - Tami   │
-│ 2 │ 3 - Amanda │
-│ 3 │ 4 - Jeremy │
-╰───┴────────────╯
+╭────────────╮
+│ 1 - Mark   │
+│ 2 - Tami   │
+│ 3 - Amanda │
+│ 4 - Jeremy │
+╰────────────╯
 ```
 
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
@@ -146,10 +146,10 @@ let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]
 ```
 ```nudoc-output
-╭───┬────╮
-│ 0 │ 10 │
-│ 1 │  8 │
-╰───┴────╯
+╭────╮
+│ 10 │
+│  8 │
+╰────╯
 ```
 
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
@@ -285,16 +285,16 @@ For example:
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
 ```
 ```nudoc-output
-╭───┬───╮
-│ 0 │ 1 │
-│ 1 │ 2 │
-│ 2 │ 3 │
-│ 3 │ 4 │
-│ 4 │ 5 │
-│ 5 │ 6 │
-│ 6 │ 7 │
-│ 7 │ 8 │
-╰───┴───╯
+╭───╮
+│ 1 │
+│ 2 │
+│ 3 │
+│ 4 │
+│ 5 │
+│ 6 │
+│ 7 │
+│ 8 │
+╰───╯
 ```
 
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
@@ -307,12 +307,10 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
 ```
 ```nudoc-output
-╭───┬────────────────────┬──────────────────╮
-│ # │        Zone        │       Time       │
-├───┼────────────────────┼──────────────────┤
-│ 0 │ UTC                │ 2024.03.25 04:31 │
-│ 1 │ CET                │ 2024.03.25 05:31 │
-│ 2 │ Europe/Moscow      │ 2024.03.25 07:31 │
-│ 3 │ Asia/Yekaterinburg │ 2024.03.25 09:31 │
-╰───┴────────────────────┴──────────────────╯
+╭────────Zone────────┬───────Time───────╮
+│ UTC                │ 2024.03.27 13:59 │
+│ CET                │ 2024.03.27 14:59 │
+│ Europe/Moscow      │ 2024.03.27 16:59 │
+│ Asia/Yekaterinburg │ 2024.03.27 18:59 │
+╰────────Zone────────┴───────Time───────╯
 ```

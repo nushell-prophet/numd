@@ -47,8 +47,8 @@ Sun, 18 Feb 2024 15:32:52 +0000 (now)
 
 ## Examples
 
-```
-nudoc run examples/types_of_data.md  examples/types_of_data_out.md --overwrite --intermid_script examples/types_of_data.md_intermid.nu
+```nushell no-run
+nudoc run examples/3_book_types_of_data/types_of_data.md --output-md-path examples/3_book_types_of_data/types_of_data_out.md --no-backup --intermid-script-path examples/3_book_types_of_data/types_of_data.md_intermid.nu
 ```
 
 The results of the command above are provided in the files of the example folder.

@@ -5,7 +5,7 @@
 the chunk below will be executed as it is, but won't yeld any output
 
 ```nu
-let $var1 = pwd
+let $var1 = 'foo'
 ```
 
 ## Example 2
@@ -13,10 +13,10 @@ let $var1 = pwd
 ```nu
 # This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
-$var1 | path join 'nonsense'
+$var1 | path join 'baz' 'bar'
 ```
 ```nudoc-output
-/Users/user/git/nudoc/nonsense
+foo/baz/bar
 ```
 
 ## Example 3
@@ -26,5 +26,5 @@ $var1 | path join 'nonsense'
 > whoami
 user
 > date now
-Tue, 26 Mar 2024 13:57:15 +0000 (now)
+Wed, 27 Mar 2024 13:59:37 +0000 (now)
 ```
