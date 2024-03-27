@@ -1,7 +1,7 @@
 use std iter scan
 
 # run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
-export def main [
+export def run [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
@@ -236,7 +236,7 @@ def assemble-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_types !~ '(```nu(shell|doc-output)?(\s|$))'
+    | where row_types !~ '(```nu(shell)?(\s|$))|(^```nudoc-output-\d+$)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
