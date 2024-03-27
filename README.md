@@ -41,7 +41,7 @@ Flags:
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
   --intermid-script-path <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
-  --stop-on-error - don't update markdown if error occures, otherwise all incompleted blocks will have blank output
+  --no-fail-on-error - skip errors (and don't update markdown anyway)
   -h, --help - Display the help message for this command
 
 Parameters:

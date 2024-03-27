@@ -9,7 +9,7 @@ export def run [
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
     --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
-    --stop-on-error # don't update markdown if error occures, otherwise all incompleted blocks will have blank output
+    --no-fail-on-error # skip errors (and don't update markdown anyway)
 ] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -19,7 +19,7 @@ export def run [
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
-    let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
+    let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
     # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything
@@ -86,16 +86,20 @@ def escape-quotes []: string -> string {
 
 def run-intermid-script [
     intermid_script_path: path
-    stop_on_error: bool
+    no_fail_on_error: bool
 ] {
     do {^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path}
     | complete
     | if $in.exit_code == 0 {
         get stdout
+        | lines
     } else {
-        error make {msg: $in.stderr}
+        if $no_fail_on_error {
+            []
+        } else {
+            error make {msg: $in.stderr}
+        }
     }
-    | lines
 }
 
 def nudoc-block [
