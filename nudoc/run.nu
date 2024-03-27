@@ -1,7 +1,7 @@
 use std iter scan
 
 # run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
-export def run [
+export def main [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
@@ -21,8 +21,7 @@ export def run [
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
 
-    # the purpose of the part with 2 ifs below is to enable returning info about failing scripts
-    # needs to rewritten
+    # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything
         return {
             filename: $file,
