@@ -207,7 +207,7 @@ def parse-block-index [
 
     let $block_index = $nu_res_stdout_lines
         | each {
-            if $in =~ (nudoc-block) {
+            if $in =~ $"^(nudoc-block)\\d+$" {
                 split row '-' | last | into int
             } else {
                 -1
