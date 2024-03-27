@@ -179,13 +179,13 @@ def gen-intermid-script [
     | group-by block_index
     | items {|k v|
         $v.lines
-        | if ($in | where $it =~ '^\s*>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
+        | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
             skip # skip the opening code fence ```nushell
             | str join (char nl)
             | gen-execute-code --whole_chunk --fence $v.row_types.0
         } else {
             each { # here we define what to do with each line of the current chunk one by one
-                if $in =~ '^\s*>' { # if it starts with `>` we execute it
+                if $in =~ '^>' { # if it starts with `>` we execute it
                     gen-execute-code --fence $v.row_types.0
                 } else if $in =~ '^\s*#' {
                     gen-highlight-command
