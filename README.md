@@ -17,6 +17,8 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 
 `nudoc run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly and output the resulting document into terminal.
 
+Expirienced nushell users can undersand the logic better looking on [examples](./examples/). Especially, seing [nudoc in action describing it's own commands](./examples/2_nudocs_commands_explanations/nudoc_commands_explanations_out.md)
+
 ### Details of parsing
 
 2. `nudoc` looks for ` ```nushell ` or ` ```nu ` code chunks.
@@ -30,7 +32,7 @@ nudoc is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.ht
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file> 
+  > run {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
