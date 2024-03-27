@@ -1,1 +1,1 @@
-{name: nudoc, type: module, version: "0.0.6", description: "reproducible Nushell Markdown documents", license: MIT}
+{name: nudoc, type: module, version: "0.0.7", description: "reproducible Nushell Markdown documents", license: MIT}
