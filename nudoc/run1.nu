@@ -34,7 +34,7 @@ export def run [
 
     if not $no_save {
         let $path = $output_md_path | default $file
-        if not $no_backup { backup-file $path }
+        if not ($no_backup or $no_save) { backup-file $path }
         $md_res | ansi strip | save -f $path
     }
 
@@ -49,8 +49,8 @@ export def run [
 def backup-file [
     $path: path
 ]: nothing -> nothing {
-    if ($path | path exists) {
-        mv $path ($path | path-modify --suffix $'-backup-(tstamp)')
+    if ($path | path exists) and ($path | path type) == 'file' {
+        mv $path ($path | path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)')
     }
 }
 
@@ -308,9 +308,17 @@ def parse-options-from-fence []: string -> list {
 def path-modify [
     --prefix: string
     --suffix: string
+    --parent_dir: string
 ]: path -> path {
     path parse
     | upsert stem {|i| $'($prefix)($i.stem)($suffix)'}
+    | if $parent_dir != null {
+        upsert parent {|i|
+            $i.parent
+            | path join $parent_dir
+            | $'(mkdir $in)($in)' # The author doesn't like that, but tee in 0.91 somehow consumes and produces list here
+        }
+    } else {}
     | path join
 }
 
