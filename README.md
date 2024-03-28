@@ -29,7 +29,7 @@ Experienced nushell users can understand the logic better by looking at [example
 ### `numd run` flags and params
 
 ```nushell
-use numd
+use ($init_numd_pwd_const | path join numd) # this pwd const is avalible in the intermid-script
 numd run --help
 ```
 ```numd-output
