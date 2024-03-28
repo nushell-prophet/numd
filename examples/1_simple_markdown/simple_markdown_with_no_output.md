@@ -15,16 +15,11 @@ let $var1 = 'foo'
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 $var1 | path join 'baz' 'bar'
 ```
-```nudoc-output
-foo/baz/bar
-```
 
 ## Example 3
 
 ```nu
 # This chunk will output results inline
 > whoami
-user
 > date now
-Thu, 28 Mar 2024 05:52:06 +0000 (now)
 ```

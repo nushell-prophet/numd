@@ -36,7 +36,7 @@ nudoc run --help
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -81,16 +81,53 @@ nudoc code-block-options --list
 By default nudoc provides basic stats on changes made.
 
 ```nushell
-nudoc run examples/1_simple_markdown/simple_markdown.md --no-save
+nudoc run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
 ```nudoc-output
-╭────────────┬────────────────────╮
-│ filename   │ simple_markdown.md │
-│ lines      │ 0% from 30         │
-│ words      │ 0% from 88         │
-│ chars      │ 0% from 512        │
-│ levenstein │ 3                  │
-╰────────────┴────────────────────╯
+╭────────────┬───────────────────────────────────╮
+│ filename   │ simple_markdown_with_no_output.md │
+│ lines      │ +20% from 25                      │
+│ words      │ +20.5% from 73                    │
+│ chars      │ +17.2% from 437                   │
+│ levenstein │ 75                                │
+╰────────────┴───────────────────────────────────╯
+```
+
+### `nudoc catpure`
+
+Nudoc can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are according commands `nudoc capture start` and `nudoc capture stop`.
+
+```nushell
+> nudoc capture start --help
+start capturing commands and their results in the current session into a file
+
+Usage:
+  > start (file) 
+
+Flags:
+  -h, --help - Display the help message for this command
+
+Parameters:
+  file <path>:  (optional, default: 'capture.md')
+
+Input/output types:
+  ╭──input──┬─output──╮
+  │ nothing │ nothing │
+  ╰──input──┴─output──╯
+
+> nudoc capture stop --help
+stop capturing commands and their results
+
+Usage:
+  > stop 
+
+Flags:
+  -h, --help - Display the help message for this command
+
+Input/output types:
+  ╭──input──┬─output──╮
+  │ nothing │ nothing │
+  ╰──input──┴─output──╯
 ```
 
 ### Some random familiar examples
@@ -99,21 +136,21 @@ nudoc run examples/1_simple_markdown/simple_markdown.md --no-save
 > ls
 ╭──────────name──────────┬─type─┬──size──┬────modified────╮
 │ LICENSE                │ file │ 1.1 KB │ a month ago    │
-│ README.md              │ file │ 4.0 KB │ 12 hours ago   │
-│ examples               │ dir  │  224 B │ 12 hours ago   │
-│ nudoc                  │ dir  │  224 B │ 12 hours ago   │
-│ nupm.nuon              │ file │  115 B │ 12 hours ago   │
-│ repository-maintenance │ dir  │   96 B │ 12 hours ago   │
-│ testing.nu             │ file │  421 B │ 19 seconds ago │
+│ README.md              │ file │ 6.5 KB │ 13 seconds ago │
+│ examples               │ dir  │  224 B │ 15 hours ago   │
+│ nudoc                  │ dir  │  224 B │ 31 minutes ago │
+│ nupm.nuon              │ file │  115 B │ 15 hours ago   │
+│ repository-maintenance │ dir  │   96 B │ 15 hours ago   │
+│ testing.nu             │ file │  421 B │ 2 hours ago    │
 ╰──────────name──────────┴─type─┴──size──┴────modified────╯
 
 > date now
-Thu, 28 Mar 2024 03:11:17 +0000 (now)
+Thu, 28 Mar 2024 05:52:06 +0000 (now)
 > git rev-list --count HEAD
-174
+181
 
 > git log -1 --format="%cd" --date=iso
-2024-03-27 15:08:50 +0000
+2024-03-28 05:34:58 +0000
 ```
 
 ## Examples
