@@ -20,7 +20,7 @@ $var1 | path join 'baz' 'bar' | echo $in
 
 print "###nudoc-block-9"
 print "```nu"
-print ("# This chunk will write results into itself" | nu-highlight)
+print ("# This chunk will output results inline" | nu-highlight)
 
 print ("> whoami" | nu-highlight)
 whoami | echo $in

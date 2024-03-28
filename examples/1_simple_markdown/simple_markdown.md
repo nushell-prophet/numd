@@ -22,9 +22,9 @@ foo/baz/bar
 ## Example 3
 
 ```nu
-# This chunk will write results into itself
+# This chunk will output results inline
 > whoami
 user
 > date now
-Thu, 28 Mar 2024 03:18:56 +0000 (now)
+Thu, 28 Mar 2024 04:18:53 +0000 (now)
 ```

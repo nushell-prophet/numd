@@ -4,21 +4,17 @@
 $env.config.table.abbreviated_row_count = 100
 
 # I source run here to export it's internal commands
-source '/Users/user/git/nudoc/nudoc/run1.nu'
-let $file = '/Users/user/git/nudoc/examples/1_simple_markdown/simple_markdown.md'
+source ('nudoc' | path join run1.nu)
+let $file = ('examples' | path join 1_simple_markdown simple_markdown.md)
 let $output_md_path = null
-let $echo = false
-let $no_backup = false
-let $no_save = false
-let $no_info = false
 let $intermid_script_path = null
-let $stop_on_error = false
+let $no_fail_on_error = false
 ```
 
 ```nu
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
-$md_orig_table | table | lines | each {$'//  ($in)'} | str join (char nl)
+$md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str join (char nl)
 ```
 ```nudoc-output
 //  ╭──────────────────────────────────────────lines──────────────────────────────────────────┬────row_types────┬─block_index─╮
@@ -46,11 +42,11 @@ $md_orig_table | table | lines | each {$'//  ($in)'} | str join (char nl)
 //  │ ## Example 3                                                                            │                 │           8 │
 //  │                                                                                         │                 │           8 │
 //  │ ```nu                                                                                   │ ```nu           │           9 │
-//  │ # This chunk will write results into itself                                             │ ```nu           │           9 │
+//  │ # This chunk will output results inline                                                 │ ```nu           │           9 │
 //  │ > whoami                                                                                │ ```nu           │           9 │
 //  │ user                                                                                    │ ```nu           │           9 │
 //  │ > date now                                                                              │ ```nu           │           9 │
-//  │ Thu, 28 Mar 2024 03:18:56 +0000 (now)                                                   │ ```nu           │           9 │
+//  │ Thu, 28 Mar 2024 04:18:53 +0000 (now)                                                   │ ```nu           │           9 │
 //  │ ```                                                                                     │ ```             │          10 │
 //  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴────row_types────┴─block_index─╯
 ```
@@ -61,7 +57,7 @@ let $intermid_script_path = $intermid_script_path
 
 gen-intermid-script $md_orig_table $intermid_script_path
 
-open $intermid_script_path | lines | each {$'//  ($in)'} | str join (char nl)
+open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 ```
 ```nudoc-output
 //  # this script was generated automatically using nudoc
@@ -72,7 +68,7 @@ open $intermid_script_path | lines | each {$'//  ($in)'} | str join (char nl)
 //  print '```
 //  ```nudoc-output'
 //  let $var1 = 'foo'
-//  
+//
 //  print "###nudoc-block-4"
 //  print "```nu"
 //  print ("# This chunk will produce some output in the separate block
@@ -83,21 +79,21 @@ open $intermid_script_path | lines | each {$'//  ($in)'} | str join (char nl)
 //  # This chunk will produce some output in the separate block
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 //  $var1 | path join 'baz' 'bar' | echo $in
-//  
+//
 //  print "###nudoc-block-9"
 //  print "```nu"
-//  print ("# This chunk will write results into itself" | nu-highlight)
-//  
+//  print ("# This chunk will output results inline" | nu-highlight)
+//
 //  print ("> whoami" | nu-highlight)
 //  whoami | echo $in
-//  
+//
 //  print ("> date now" | nu-highlight)
 //  date now | echo $in
 ```
 
 ```nu
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $stop_on_error
-$nu_res_stdout_lines | table | lines | each {$'//  ($in)'} | str join (char nl)
+let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+$nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 ```
 ```nudoc-output
 //  ╭─────────────────────────────────────────────────────────────────────────────────────────╮
@@ -116,17 +112,17 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)'} | str join (char nl)
 //  │ foo/baz/bar                                                                             │
 //  │ ###nudoc-block-9                                                                        │
 //  │ ```nu                                                                                   │
-//  │ # This chunk will write results into itself                                             │
+//  │ # This chunk will output results inline                                                 │
 //  │ > whoami                                                                                │
 //  │ user                                                                                    │
 //  │ > date now                                                                              │
-//  │ Thu, 28 Mar 2024 03:18:57 +0000 (now)                                                   │
+//  │ Thu, 28 Mar 2024 04:18:54 +0000 (now)                                                   │
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ```nu
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | lines | each {$'//  ($in)'} | str join (char nl)
+$nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 ```
 ```nudoc-output
 //  ╭─block_index─┬──────────────────────────────────────────lines──────────────────────────────────────────╮
@@ -144,32 +140,32 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)'} | str join (char 
 //  │             │ foo/baz/bar                                                                             │
 //  │             │ ```                                                                                     │
 //  │           9 │ ```nu                                                                                   │
-//  │             │ # This chunk will write results into itself                                             │
+//  │             │ # This chunk will output results inline                                                 │
 //  │             │ > whoami                                                                                │
 //  │             │ user                                                                                    │
 //  │             │ > date now                                                                              │
-//  │             │ Thu, 28 Mar 2024 03:18:57 +0000 (now)                                                   │
+//  │             │ Thu, 28 Mar 2024 04:18:54 +0000 (now)                                                   │
 //  │             │ ```                                                                                     │
 //  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
 ```
 
 ```nu
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
-$md_res | lines | each {$'//  ($in)'} | str join (char nl)
+$md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 ```
 ```nudoc-output
 //  # This is a simple markdown example
-//  
+//
 //  ## Example 1
-//  
+//
 //  the chunk below will be executed as it is, but won't yeld any output
-//  
+//
 //  ```nu
 //  let $var1 = 'foo'
 //  ```
-//  
+//
 //  ## Example 2
-//  
+//
 //  ```nu
 //  # This chunk will produce some output in the separate block
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
@@ -178,37 +174,25 @@ $md_res | lines | each {$'//  ($in)'} | str join (char nl)
 //  ```nudoc-output
 //  foo/baz/bar
 //  ```
-//  
+//
 //  ## Example 3
-//  
+//
 //  ```nu
-//  # This chunk will write results into itself
+//  # This chunk will output results inline
 //  > whoami
 //  user
 //  > date now
-//  Thu, 28 Mar 2024 03:18:57 +0000 (now)
+//  Thu, 28 Mar 2024 04:18:54 +0000 (now)
 //  ```
 ```nu
-calc-changes 'in-nudoc-demo' $md_orig $md_res
+calc-changes 'simple_markdown.md' $md_orig $md_res
 ```
 ```nudoc-output
-╭────────────┬─────────────────╮
-│ filename   │ in-nudoc-demo   │
-│ lines      │ 0% from 30      │
-│ words      │ +21.3% from 89  │
-│ chars      │ +27.1% from 516 │
-│ levenstein │ 141             │
-╰────────────┴─────────────────╯
-```
-```nu
-calc-changes 'in-nudoc-demo' 'abcd efg' 'abcd efgh'
-```
-```nudoc-output
-╭────────────┬───────────────╮
-│ filename   │ in-nudoc-demo │
-│ lines      │ 0% from 1     │
-│ words      │ 0% from 2     │
-│ chars      │ +12.5% from 8 │
-│ levenstein │ 1             │
-╰────────────┴───────────────╯
+╭────────────┬────────────────────╮
+│ filename   │ simple_markdown.md │
+│ lines      │ 0% from 30         │
+│ words      │ +21.6% from 88     │
+│ chars      │ +27.3% from 512    │
+│ levenstein │ 141                │
+╰────────────┴────────────────────╯
 ```
