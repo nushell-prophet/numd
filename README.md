@@ -25,14 +25,18 @@ Expirienced nushell users can undersand the logic better looking on [examples](.
 3. In the code chunks, that entirely don't have lines starting with the `>` symbol, nudoc executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```nudoc-output ` chunks, next to the executed code chunks.
 4. In the code chunks that contain one or more lines starting with `>` symbol, nudoc filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
 
+### `nudoc run` flags and params
+
 ```nushell
 # Eventually, the script updates nushell code chunks.
-> use nudoc
-> nudoc run --help
+use nudoc
+nudoc run --help
+```
+```nudoc-output
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file> 
+  > run {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -48,15 +52,54 @@ Parameters:
   file <path>: path to a `.md` file containing nushell code to be executed
 
 Input/output types:
-  ╭─input─┬─output─╮
-  │ any   │ any    │
-  ╰─input─┴─output─╯
+  ╭──input──┬─output──╮
+  │ nothing │ nothing │
+  │ nothing │ string  │
+  │ nothing │ record  │
+  ╰──input──┴─output──╯
+```
 
+### Supported nushell code block options
+
+Nudoc understands the folowing coma separated block options.
+They should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
+
+```nushell
+nudoc code-block-options --list
+```
+```nudoc-output
+╭─────long─────┬─short─┬────────description────────╮
+│ no-output    │ O     │ don't try printing result │
+│ try          │ t     │ try handling errors       │
+│ new-instance │ n     │ execute outside           │
+│ no-run       │ N     │ dont execute the code     │
+╰─────long─────┴─short─┴────────description────────╯
+```
+
+### Stats of changes
+
+By default nudoc provides basic stats on changes made.
+
+```nushell
+nudoc run examples/1_simple_markdown/simple_markdown.md --no-save
+```
+```nudoc-output
+╭────────────┬────────────────────╮
+│ filename   │ simple_markdown.md │
+│ lines      │ 0% from 30         │
+│ words      │ 0% from 88         │
+│ chars      │ 0% from 512        │
+│ levenstein │ 3                  │
+╰────────────┴────────────────────╯
+```
+
+### Some random familiar examples
+
+```nushell
 > ls
 ╭──────────name──────────┬─type─┬──size──┬────modified────╮
 │ LICENSE                │ file │ 1.1 KB │ a month ago    │
 │ README.md              │ file │ 4.0 KB │ 12 hours ago   │
-│ docs                   │ dir  │   64 B │ 3 weeks ago    │
 │ examples               │ dir  │  224 B │ 12 hours ago   │
 │ nudoc                  │ dir  │  224 B │ 12 hours ago   │
 │ nupm.nuon              │ file │  115 B │ 12 hours ago   │
