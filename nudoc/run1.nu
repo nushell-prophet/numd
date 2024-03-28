@@ -255,18 +255,28 @@ def assemble-markdown [
     | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
 }
 
+export def code-block-options [
+    --list # show options as a table
+] {
+    [
+        ["long" "short" "description"];
+
+        ["no-output" "O" "don't try printing result"]
+        ["try" "t" "try handling errors"]
+        ["new-instance" "n" "execute outside"]
+        ["no-run" "N" "dont execute the code"]
+    ]
+    | if $list {} else {
+        select short long
+        | transpose --as-record --ignore-titles --header-row
+    }
+
+}
+
 def expand-short-options [
     $option
 ]: nothing -> string {
-    # types of handlders
-    let $dict = {
-        O: 'no-output' # don't try printing result
-        t: 'try' # try handling errors
-        n: 'new-instance' # execute outside
-        N: 'no-run' # don't execute the code
-        # - todo output results as an image using nu_plugin_image - image(i)
-        # - todo execute outside with all previous code included
-    }
+    let $dict = code-block-options
 
     $dict
     | get --ignore-errors --sensitive $option
