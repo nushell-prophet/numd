@@ -15,15 +15,15 @@ Execute chunks of nushell code within markdown documents, write results back to 
 
 ## How it works
 
-`numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/our outputs the resulting document into the terminal together with basic changes [stats](#stats-of-changes).
+`numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
 Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations_out.md).
 
 ### Details of parsing
 
-2. `numd` looks for ` ```nushell ` or ` ```nu ` code chunks.
-3. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```numd-output ` chunks, next to the executed code chunks.
-4. In the code chunks that contain one or more lines starting with `>` symbol, numd filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
+1. `numd` looks for ` ```nushell ` or ` ```nu ` code chunks.
+2. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```numd-output ` chunks, next to the executed code chunks.
+3. In the code chunks that contain one or more lines starting with `>` symbol, numd filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
 
 ### `numd run` flags and params
 
@@ -35,7 +35,7 @@ numd run --help
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file> 
+  > run {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -101,7 +101,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 start capturing commands and their results into a file
 
 Usage:
-  > start (file) 
+  > start (file)
 
 Flags:
   -h, --help - Display the help message for this command
@@ -118,7 +118,7 @@ Input/output types:
 stop capturing commands and their results
 
 Usage:
-  > stop 
+  > stop
 
 Flags:
   -h, --help - Display the help message for this command
