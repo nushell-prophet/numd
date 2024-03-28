@@ -1,11 +1,11 @@
 use nu-utils/ [cprint]
 
-# start capturing commands and their results in the current session into a file
+# start capturing commands and their results into a file
 export def --env start [
-    file: path = 'capture.md'
-] {
+    file: path = 'nudoc_capture.md'
+]: nothing -> nothing {
     cprint $'nudoc commands capture has been started.
-        New lines of the recording will be added to the *($file)* file.'
+        New lines of the recording will be appended to the *($file)* file.'
 
     $env.nudoc.status = 'running'
     $env.nudoc.path = ($file | path expand)
@@ -34,7 +34,7 @@ export def --env start [
 }
 
 # stop capturing commands and their results
-export def --env stop [ ] {
+export def --env stop [ ]: nothing -> nothing {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
 
     let $file = $env.nudoc.path
