@@ -16,7 +16,7 @@ ls; # mind that this ls won't print in the markdown as it is used without `echo`
 $var1 | path join 'baz' 'bar'
 ```
 ```nudoc-output
-/Users/user/git/nudoc/nonsense
+foo/baz/bar
 ```
 
 ## Example 3
@@ -26,5 +26,5 @@ $var1 | path join 'baz' 'bar'
 > whoami
 user
 > date now
-Tue, 26 Mar 2024 13:57:15 +0000 (now)
+Thu, 28 Mar 2024 03:18:56 +0000 (now)
 ```

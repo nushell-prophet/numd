@@ -31,7 +31,7 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors | echo $in
 
-print "###nudoc-block-10"
+print "###nudoc-block-12"
 print "```nu"
 print ("let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
@@ -44,7 +44,7 @@ let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors | echo $in
 
-print "###nudoc-block-13"
+print "###nudoc-block-17"
 print "```nu"
 print ("let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
@@ -55,7 +55,7 @@ let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors | echo $in
 
-print "###nudoc-block-16"
+print "###nudoc-block-22"
 print "```nu"
 print ("let colors = [yellow green purple]
 let colors = ($colors | first 2)
@@ -66,7 +66,7 @@ let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors | echo $in
 
-print "###nudoc-block-19"
+print "###nudoc-block-27"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $\"Hello, ($it)!\" }
@@ -82,7 +82,7 @@ $names | each { |it| $"Hello, ($it)!" }
 
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | echo $in
 
-print "###nudoc-block-22"
+print "###nudoc-block-32"
 print "```nu"
 print ("let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
@@ -94,7 +94,7 @@ let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
 # The block passed to `where` must evaluate to a boolean. | echo $in
 
-print "###nudoc-block-25"
+print "###nudoc-block-35"
 print "```nu"
 print ("let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]" | nu-highlight)
@@ -103,7 +103,7 @@ print '```
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 | echo $in
 
-print "###nudoc-block-28"
+print "###nudoc-block-40"
 print "```nu"
 print ("let scores = [3 8 4]
 $\"total = ($scores | reduce { |it, acc| $acc + $it })\" # total = 15
@@ -124,7 +124,7 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | echo $in
 
-print "###nudoc-block-31"
+print "###nudoc-block-45"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami" | nu-highlight)
@@ -133,7 +133,7 @@ print '```
 let names = [Mark Tami Amanda Jeremy]
 $names.1 | echo $in
 
-print "###nudoc-block-34"
+print "###nudoc-block-50"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
 let index = 1
@@ -144,7 +144,7 @@ let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index | echo $in
 
-print "###nudoc-block-37"
+print "###nudoc-block-55"
 print "```nu"
 print ("let colors = [red green blue]
 $colors | is-empty # false
@@ -159,7 +159,7 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty | echo $in
 
-print "###nudoc-block-40"
+print "###nudoc-block-60"
 print "```nu"
 print ("let colors = [red green blue]
 'blue' in $colors # true
@@ -172,7 +172,7 @@ let colors = [red green blue]
 'yellow' in $colors # false
 'gold' not-in $colors | echo $in
 
-print "###nudoc-block-43"
+print "###nudoc-block-65"
 print "```nu"
 print ("let colors = [red green blue]
 # Do any color names end with \"e\"?
@@ -203,7 +203,7 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } | echo $in
 
-print "###nudoc-block-46"
+print "###nudoc-block-70"
 print "```nu"
 print ("let colors = [red green blue]
 # Do all color names end with \"e\"?
@@ -234,7 +234,7 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } | echo $in
 
-print "###nudoc-block-49"
+print "###nudoc-block-75"
 print "```nu"
 print ("[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
@@ -245,7 +245,7 @@ print '```
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | echo $in
 
-print "###nudoc-block-52"
+print "###nudoc-block-80"
 print "```nu"
 print ("let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 

@@ -32,7 +32,7 @@ Expirienced nushell users can undersand the logic better looking on [examples](.
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -53,25 +53,24 @@ Input/output types:
   ╰─input─┴─output─╯
 
 > ls
-╭───────────────name───────────────┬─type─┬──size──┬────modified────╮
-│ LICENSE                          │ file │ 1.1 KB │ a month ago    │
-│ README.md                        │ file │ 2.5 KB │ a minute ago   │
-│ docs                             │ dir  │   64 B │ 3 weeks ago    │
-│ examples                         │ dir  │  832 B │ 36 minutes ago │
-│ nudoc                            │ dir  │  192 B │ 3 hours ago    │
-│ nupm.nuon                        │ file │  115 B │ 2 days ago     │
-│ repository-maintenance           │ dir  │   96 B │ 3 weeks ago    │
-│ test                             │ dir  │  192 B │ 3 hours ago    │
-│ testing.nu                       │ file │  262 B │ 2 days ago     │
-╰───────────────name───────────────┴─type─┴──size──┴────modified────╯
+╭──────────name──────────┬─type─┬──size──┬────modified────╮
+│ LICENSE                │ file │ 1.1 KB │ a month ago    │
+│ README.md              │ file │ 4.0 KB │ 12 hours ago   │
+│ docs                   │ dir  │   64 B │ 3 weeks ago    │
+│ examples               │ dir  │  224 B │ 12 hours ago   │
+│ nudoc                  │ dir  │  224 B │ 12 hours ago   │
+│ nupm.nuon              │ file │  115 B │ 12 hours ago   │
+│ repository-maintenance │ dir  │   96 B │ 12 hours ago   │
+│ testing.nu             │ file │  421 B │ 19 seconds ago │
+╰──────────name──────────┴─type─┴──size──┴────modified────╯
 
 > date now
-Wed, 27 Mar 2024 14:13:23 +0000 (now)
+Thu, 28 Mar 2024 03:11:17 +0000 (now)
 > git rev-list --count HEAD
-171
+174
 
 > git log -1 --format="%cd" --date=iso
-2024-03-27 14:05:47 +0000
+2024-03-27 15:08:50 +0000
 ```
 
 ## Examples

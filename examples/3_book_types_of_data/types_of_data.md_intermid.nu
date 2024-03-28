@@ -173,7 +173,7 @@ print '```
 let greet = { |name| print $"Hello ($name)"}
 do $greet "Julian" | echo $in
 
-print "###nudoc-block-85"
+print "###nudoc-block-87"
 print "```nushell"
 print ("mut x = 1
 if true {
@@ -188,14 +188,14 @@ if true {
 }
 print $x | echo $in
 
-print "###nudoc-block-88"
+print "###nudoc-block-92"
 print "```nushell"
 print ("git checkout featurebranch | null" | nu-highlight)
 print '```
 ```nudoc-output'
 git checkout featurebranch | null
 
-print "###nudoc-block-91"
+print "###nudoc-block-95"
 print "```nushell try,new-instance"
 print ("> [{a:1 b:2} {b:1}]" | nu-highlight)
 do {nu -c "[{a:1 b:2} {b:1}]"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
