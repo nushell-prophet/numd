@@ -1,26 +1,26 @@
-# this script was generated automatically using nudoc
-# https://github.com/nushell-prophet/nudoc
-print "###nudoc-block-1"
+# this script was generated automatically using numd
+# https://github.com/nushell-prophet/numd
+print "###numd-block-1"
 print "```nu"
 print ("let $var1 = 'foo'" | nu-highlight)
 print '```
-```nudoc-output'
+```numd-output'
 let $var1 = 'foo'
 
-print "###nudoc-block-4"
+print "###numd-block-4"
 print "```nu"
 print ("# This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 $var1 | path join 'baz' 'bar'" | nu-highlight)
 print '```
-```nudoc-output'
+```numd-output'
 # This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 $var1 | path join 'baz' 'bar' | echo $in
 
-print "###nudoc-block-9"
+print "###numd-block-9"
 print "```nu"
-print ("# This chunk will write results into itself" | nu-highlight)
+print ("# This chunk will output results inline" | nu-highlight)
 
 print ("> whoami" | nu-highlight)
 whoami | echo $in

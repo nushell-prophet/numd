@@ -10,12 +10,12 @@ export def run [
     --no-info # do not output stats of changes in `.md` file
     --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
-] {
+]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
     let $intermid_script_path = $intermid_script_path
-        | default ( $nu.temp-path | path join $'nudoc-(tstamp).nu' )
+        | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
@@ -30,19 +30,19 @@ export def run [
     }
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-    let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
+    let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_index
 
     if not $no_save {
         let $path = $output_md_path | default $file
         if not ($no_backup or $no_save) { backup-file $path }
-        $md_res | ansi strip | save -f $path
+        $md_res_ansi | ansi strip | save -f $path
     }
 
     if $no_info { null } else {
-        calc-changes $file $md_orig $md_res
+        calc-changes $file $md_orig ($md_res_ansi | ansi strip)
     }
     | if $echo {
-        $"($md_res)(char nl)($in | table)" # output changes table below the resulted markdown
+        $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
     } else {}
 }
 
@@ -102,10 +102,10 @@ def run-intermid-script [
     }
 }
 
-def nudoc-block [
+def numd-block [
     index?: int
 ]: nothing -> string {
-    $"###nudoc-block-($index)"
+    $"###numd-block-($index)"
 }
 
 def gen-highlight-command [ ]: string -> string {
@@ -138,8 +138,8 @@ def gen-catch-error-outside []: string -> string {
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
-def gen-fence-nudoc-output []: string -> string {
-    $"print '```(char nl)```nudoc-output'(char nl)($in)"
+def gen-fence-numd-output []: string -> string {
+    $"print '```(char nl)```numd-output'(char nl)($in)"
 }
 
 def gen-execute-code [
@@ -163,7 +163,7 @@ def gen-execute-code [
             } else {}
             | if 'no-output' in $options {} else {
                 if $whole_chunk {
-                    gen-fence-nudoc-output
+                    gen-fence-numd-output
                 } else {}
                 | gen-append-echo-in
             }
@@ -197,10 +197,10 @@ def gen-intermid-script [
             }
         }
         | prepend $"print \"($v.row_types.0)\""
-        | prepend $"print \"(nudoc-block $k)\""
+        | prepend $"print \"(numd-block $k)\""
     }
-    | prepend ( '# this script was generated automatically using nudoc' +
-        "\n# https://github.com/nushell-prophet/nudoc" )
+    | prepend ( '# this script was generated automatically using numd' +
+        "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
     | save -f $save_path
@@ -213,7 +213,7 @@ def parse-block-index [
 
     let $block_index = $nu_res_stdout_lines
         | each {
-            if $in =~ $"^(nudoc-block)\\d+$" {
+            if $in =~ $"^(numd-block)\\d+$" {
                 split row '-' | last | into int
             } else {
                 -1
@@ -243,30 +243,40 @@ def assemble-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_types !~ '(```nu(shell)?(\s|$))|(^```nudoc-output$)'
+    | where row_types !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
     | str join (char nl)
     | $in + (char nl)
     | str replace --all --regex "```\n(```\n)+" "```\n" # multiple code-fences
-    | str replace --all --regex "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
+    | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
+}
+
+export def code-block-options [
+    --list # show options as a table
+] {
+    [
+        ["long" "short" "description"];
+
+        ["no-output" "O" "don't try printing result"]
+        ["try" "t" "try handling errors"]
+        ["new-instance" "n" "execute outside"]
+        ["no-run" "N" "dont execute the code"]
+    ]
+    | if $list {} else {
+        select short long
+        | transpose --as-record --ignore-titles --header-row
+    }
+
 }
 
 def expand-short-options [
     $option
 ]: nothing -> string {
-    # types of handlders
-    let $dict = {
-        O: 'no-output' # don't try printing result
-        t: 'try' # try handling errors
-        n: 'new-instance' # execute outside
-        N: 'no-run' # don't execute the code
-        # - todo output results as an image using nu_plugin_image - image(i)
-        # - todo execute outside with all previous code included
-    }
+    let $dict = code-block-options
 
     $dict
     | get --ignore-errors --sensitive $option

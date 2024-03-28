@@ -12,6 +12,14 @@ You can [`update`](/commands/docs/update.md) and [`insert`](/commands/docs/inser
 
 ```nu
 > [1, 2, 3, 4] | insert 2 10
+╭────╮
+│  1 │
+│  2 │
+│ 10 │
+│  3 │
+│  4 │
+╰────╯
+
 # [1, 2, 10, 3, 4]
 ```
 
@@ -19,6 +27,13 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 
 ```nu
 > [1, 2, 3, 4] | update 1 10
+╭────╮
+│  1 │
+│ 10 │
+│  3 │
+│  4 │
+╰────╯
+
 # [1, 10, 3, 4]
 ```
 
@@ -36,6 +51,16 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors # [black red yellow green purple blue]
 ```
+```numd-output
+╭────────╮
+│ black  │
+│ red    │
+│ yellow │
+│ green  │
+│ purple │
+│ blue   │
+╰────────╯
+```
 
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
 
@@ -45,6 +70,11 @@ let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors # [yellow]
 ```
+```numd-output
+╭────────╮
+│ yellow │
+╰────────╯
+```
 
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
 
@@ -53,6 +83,13 @@ let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors # [purple black magenta]
 ```
+```numd-output
+╭─────────╮
+│ purple  │
+│ black   │
+│ magenta │
+╰─────────╯
+```
 
 And from the beginning of a list,
 
@@ -60,6 +97,12 @@ And from the beginning of a list,
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors # [yellow green]
+```
+```numd-output
+╭────────╮
+│ yellow │
+│ green  │
+╰────────╯
 ```
 
 ## Iterating over lists
@@ -75,6 +118,14 @@ $names | each { |it| $"Hello, ($it)!" }
 
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
+```
+```numd-output
+╭────────────╮
+│ 1 - Mark   │
+│ 2 - Tami   │
+│ 3 - Amanda │
+│ 4 - Jeremy │
+╰────────────╯
 ```
 
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
@@ -94,6 +145,12 @@ In this example, we keep only values higher than `7`.
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]
 ```
+```numd-output
+╭────╮
+│ 10 │
+│  8 │
+╰────╯
+```
 
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
 It uses a block which takes 2 parameters: the current item (conventionally named `it`) and an accumulator
@@ -111,6 +168,9 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16
 ```
+```numd-output
+16
+```
 
 ## Accessing the list
 
@@ -122,6 +182,9 @@ For example, the second element in the list below can be accessed with `$names.1
 let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami
 ```
+```numd-output
+Tami
+```
 
 If the index is in some variable `$index` we can use the `get` command to extract the item from the list.
 
@@ -129,6 +192,9 @@ If the index is in some variable `$index` we can use the `get` command to extrac
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index # gives Tami
+```
+```numd-output
+Tami
 ```
 
 The [`length`](/commands/docs/length.md) command returns the number of items in a list.
@@ -144,6 +210,9 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty # true
 ```
+```numd-output
+true
+```
 
 The `in` and `not-in` operators are used to test whether a value is in a list. For example:
 
@@ -152,6 +221,9 @@ let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
 'gold' not-in $colors # true
+```
+```numd-output
+true
 ```
 
 The [`any`](/commands/docs/any.md) command determines if any item in a list
@@ -173,6 +245,9 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } # true
 ```
+```numd-output
+true
+```
 
 The [`all`](/commands/docs/all.md) command determines if every item in a list
 matches a given condition.
@@ -193,6 +268,9 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } # false
 ```
+```numd-output
+false
+```
 
 ## Converting the list
 
@@ -206,6 +284,18 @@ For example:
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
 ```
+```numd-output
+╭───╮
+│ 1 │
+│ 2 │
+│ 3 │
+│ 4 │
+│ 5 │
+│ 6 │
+│ 7 │
+│ 8 │
+╰───╯
+```
 
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
 be converted to a separate row with a single column:
@@ -215,4 +305,12 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
+```
+```numd-output
+╭────────Zone────────┬───────Time───────╮
+│ UTC                │ 2024.03.28 06:09 │
+│ CET                │ 2024.03.28 07:09 │
+│ Europe/Moscow      │ 2024.03.28 09:09 │
+│ Asia/Yekaterinburg │ 2024.03.28 11:09 │
+╰────────Zone────────┴───────Time───────╯
 ```
