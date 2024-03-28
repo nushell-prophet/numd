@@ -1,6 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
 cd /Users/user/git/nudoc
+const init_numd_pwd_const = '/Users/user/git/nudoc'
 print "###numd-block-1"
 print "```nu"
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
@@ -8,6 +9,7 @@ print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
 
 print ("# [1, 2, 10, 3, 4]" | nu-highlight)
 
+print "```"
 print "###numd-block-4"
 print "```nu"
 print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
@@ -15,6 +17,7 @@ print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
 
 print ("# [1, 10, 3, 4]" | nu-highlight)
 
+print "```"
 print "###numd-block-7"
 print "```nu"
 print ("let colors = [yellow green]
@@ -32,6 +35,7 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors | echo $in
 
+print "```"
 print "###numd-block-12"
 print "```nu"
 print ("let colors = [red yellow green purple]
@@ -45,6 +49,7 @@ let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors | echo $in
 
+print "```"
 print "###numd-block-17"
 print "```nu"
 print ("let colors = [red yellow green purple black magenta]
@@ -56,6 +61,7 @@ let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors | echo $in
 
+print "```"
 print "###numd-block-22"
 print "```nu"
 print ("let colors = [yellow green purple]
@@ -67,6 +73,7 @@ let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors | echo $in
 
+print "```"
 print "###numd-block-27"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -83,6 +90,7 @@ $names | each { |it| $"Hello, ($it)!" }
 
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | echo $in
 
+print "```"
 print "###numd-block-32"
 print "```nu"
 print ("let colors = [red orange yellow green blue purple]
@@ -95,6 +103,7 @@ let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
 # The block passed to `where` must evaluate to a boolean. | echo $in
 
+print "```"
 print "###numd-block-35"
 print "```nu"
 print ("let scores = [7 10 8 6 7]
@@ -104,6 +113,7 @@ print '```
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 | echo $in
 
+print "```"
 print "###numd-block-40"
 print "```nu"
 print ("let scores = [3 8 4]
@@ -125,6 +135,7 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | echo $in
 
+print "```"
 print "###numd-block-45"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -134,6 +145,7 @@ print '```
 let names = [Mark Tami Amanda Jeremy]
 $names.1 | echo $in
 
+print "```"
 print "###numd-block-50"
 print "```nu"
 print ("let names = [Mark Tami Amanda Jeremy]
@@ -145,6 +157,7 @@ let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index | echo $in
 
+print "```"
 print "###numd-block-55"
 print "```nu"
 print ("let colors = [red green blue]
@@ -160,6 +173,7 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty | echo $in
 
+print "```"
 print "###numd-block-60"
 print "```nu"
 print ("let colors = [red green blue]
@@ -173,6 +187,7 @@ let colors = [red green blue]
 'yellow' in $colors # false
 'gold' not-in $colors | echo $in
 
+print "```"
 print "###numd-block-65"
 print "```nu"
 print ("let colors = [red green blue]
@@ -204,6 +219,7 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } | echo $in
 
+print "```"
 print "###numd-block-70"
 print "```nu"
 print ("let colors = [red green blue]
@@ -235,6 +251,7 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } | echo $in
 
+print "```"
 print "###numd-block-75"
 print "```nu"
 print ("[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
@@ -246,6 +263,7 @@ print '```
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | echo $in
 
+print "```"
 print "###numd-block-80"
 print "```nu"
 print ("let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
@@ -258,3 +276,5 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | echo $in
+
+print "```"
