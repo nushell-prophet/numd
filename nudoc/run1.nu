@@ -30,19 +30,19 @@ export def run [
     }
 
     let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-    let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
+    let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_index
 
     if not $no_save {
         let $path = $output_md_path | default $file
         if not ($no_backup or $no_save) { backup-file $path }
-        $md_res | ansi strip | save -f $path
+        $md_res_ansi | ansi strip | save -f $path
     }
 
     if $no_info { null } else {
-        calc-changes $file $md_orig $md_res
+        calc-changes $file $md_orig ($md_res_ansi | ansi strip)
     }
     | if $echo {
-        $"($md_res)(char nl)($in | table)" # output changes table below the resulted markdown
+        $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
     } else {}
 }
 
