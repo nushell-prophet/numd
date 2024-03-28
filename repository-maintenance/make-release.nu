@@ -1,9 +1,9 @@
 let $git_info = (gh repo view --json description,name | from json);
 let $git_tag = (git tag | lines | sort -n | last | inc -p)
 let $desc = ($git_info | get description)
- 
+
 open nupm.nuon
-| update description ($desc | str replace 'nudoc - ' '')
+| update description ($desc | str replace 'numd - ' '')
 | update version $git_tag
 | save -f nupm.nuon
 

@@ -15,7 +15,7 @@ export def run [
     let $md_orig_table = detect-code-chunks $md_orig
 
     let $intermid_script_path = $intermid_script_path
-        | default ( $nu.temp-path | path join $'nudoc-(tstamp).nu' )
+        | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
@@ -102,10 +102,10 @@ def run-intermid-script [
     }
 }
 
-def nudoc-block [
+def numd-block [
     index?: int
 ]: nothing -> string {
-    $"###nudoc-block-($index)"
+    $"###numd-block-($index)"
 }
 
 def gen-highlight-command [ ]: string -> string {
@@ -138,8 +138,8 @@ def gen-catch-error-outside []: string -> string {
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
-def gen-fence-nudoc-output []: string -> string {
-    $"print '```(char nl)```nudoc-output'(char nl)($in)"
+def gen-fence-numd-output []: string -> string {
+    $"print '```(char nl)```numd-output'(char nl)($in)"
 }
 
 def gen-execute-code [
@@ -163,7 +163,7 @@ def gen-execute-code [
             } else {}
             | if 'no-output' in $options {} else {
                 if $whole_chunk {
-                    gen-fence-nudoc-output
+                    gen-fence-numd-output
                 } else {}
                 | gen-append-echo-in
             }
@@ -197,10 +197,10 @@ def gen-intermid-script [
             }
         }
         | prepend $"print \"($v.row_types.0)\""
-        | prepend $"print \"(nudoc-block $k)\""
+        | prepend $"print \"(numd-block $k)\""
     }
-    | prepend ( '# this script was generated automatically using nudoc' +
-        "\n# https://github.com/nushell-prophet/nudoc" )
+    | prepend ( '# this script was generated automatically using numd' +
+        "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
     | save -f $save_path
@@ -213,7 +213,7 @@ def parse-block-index [
 
     let $block_index = $nu_res_stdout_lines
         | each {
-            if $in =~ $"^(nudoc-block)\\d+$" {
+            if $in =~ $"^(numd-block)\\d+$" {
                 split row '-' | last | into int
             } else {
                 -1
@@ -243,14 +243,14 @@ def assemble-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_types !~ '(```nu(shell)?(\s|$))|(^```nudoc-output$)'
+    | where row_types !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
     | append $nu_res_with_block_index
     | sort-by block_index
     | get lines
     | str join (char nl)
     | $in + (char nl)
     | str replace --all --regex "```\n(```\n)+" "```\n" # multiple code-fences
-    | str replace --all --regex "```nudoc-output(\\s|\n)*```\n" '' # empty nudoc-output blocks
+    | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
 }
