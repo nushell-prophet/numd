@@ -178,6 +178,8 @@ def gen-intermid-script [
     md_classified: table
     save_path: path
 ]: nothing -> nothing {
+    let $pwd = pwd
+
     $md_classified
     | where row_types =~ '```nu(shell)?(\s|$)'
     | group-by block_index
@@ -199,6 +201,7 @@ def gen-intermid-script [
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(numd-block $k)\""
     }
+    | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
