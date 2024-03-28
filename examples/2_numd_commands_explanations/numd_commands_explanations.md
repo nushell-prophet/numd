@@ -184,6 +184,7 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  > date now
 //  Thu, 28 Mar 2024 09:07:27 +0000 (now)
 //  ```
+```
 ```nu
 calc-changes 'simple_markdown.md' $md_orig $md_res
 ```
