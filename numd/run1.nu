@@ -249,7 +249,7 @@ def assemble-markdown [
     | get lines
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```\n(```\n)+" "```\n" # multiple code-fences
+    | str replace --all --regex "(^|\n)```\n(```\n)+" "$1```\n" # multiple code-fences
     | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
