@@ -18,7 +18,7 @@ Execute chunks of nushell code within markdown documents, write results back to 
 
 `numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
-Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations_out.md).
+Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
 ### Details of parsing
 
@@ -32,6 +32,7 @@ Experienced nushell users can understand the logic better by looking at [example
 use ($init_numd_pwd_const | path join numd) # this pwd const is avalible in the intermid-script
 numd run --help
 ```
+
 ```numd-output
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
@@ -67,6 +68,7 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 ```nushell
 numd code-block-options --list
 ```
+
 ```numd-output
 ╭─────long─────┬─short─┬────────description────────╮
 │ no-output    │ O     │ don't try printing result │
@@ -83,6 +85,7 @@ By default `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
+
 ```numd-output
 ╭────────────┬───────────────────────────────────╮
 │ filename   │ simple_markdown_with_no_output.md │
