@@ -4,8 +4,8 @@
 $env.config.table.abbreviated_row_count = 100
 
 # I source run here to export it's internal commands
-source ('numd' | path join run1.nu)
-let $file = ('examples' | path join 1_simple_markdown simple_markdown.md)
+source ($init_numd_pwd_const | path join numd run1.nu)
+let $file = ($init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md)
 let $output_md_path = null
 let $intermid_script_path = null
 let $no_fail_on_error = false
@@ -46,7 +46,7 @@ $md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str
 //  │ > whoami                                                                                │ ```nu          │           9 │
 //  │ user                                                                                    │ ```nu          │           9 │
 //  │ > date now                                                                              │ ```nu          │           9 │
-//  │ Thu, 28 Mar 2024 06:09:16 +0000 (now)                                                   │ ```nu          │           9 │
+//  │ Thu, 28 Mar 2024 12:44:53 +0000 (now)                                                   │ ```nu          │           9 │
 //  │ ```                                                                                     │ ```            │          10 │
 //  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴───row_types────┴─block_index─╯
 ```
@@ -62,6 +62,8 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 ```numd-output
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
+//  cd /Users/user/git/nudoc
+//  const init_numd_pwd_const = '/Users/user/git/nudoc'
 //  print "###numd-block-1"
 //  print "```nu"
 //  print ("let $var1 = 'foo'" | nu-highlight)
@@ -69,6 +71,7 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //  ```numd-output'
 //  let $var1 = 'foo'
 //
+//  print "```"
 //  print "###numd-block-4"
 //  print "```nu"
 //  print ("# This chunk will produce some output in the separate block
@@ -80,6 +83,7 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 //  $var1 | path join 'baz' 'bar' | echo $in
 //
+//  print "```"
 //  print "###numd-block-9"
 //  print "```nu"
 //  print ("# This chunk will output results inline" | nu-highlight)
@@ -89,6 +93,8 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //
 //  print ("> date now" | nu-highlight)
 //  date now | echo $in
+//
+//  print "```"
 ```
 
 ```nu
@@ -102,6 +108,7 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  │ let $var1 = 'foo'                                                                       │
 //  │ ```                                                                                     │
 //  │ ```numd-output                                                                          │
+//  │ ```                                                                                     │
 //  │ ###numd-block-4                                                                         │
 //  │ ```nu                                                                                   │
 //  │ # This chunk will produce some output in the separate block                             │
@@ -110,13 +117,15 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  │ ```                                                                                     │
 //  │ ```numd-output                                                                          │
 //  │ foo/baz/bar                                                                             │
+//  │ ```                                                                                     │
 //  │ ###numd-block-9                                                                         │
 //  │ ```nu                                                                                   │
 //  │ # This chunk will output results inline                                                 │
 //  │ > whoami                                                                                │
 //  │ user                                                                                    │
 //  │ > date now                                                                              │
-//  │ Thu, 28 Mar 2024 06:09:17 +0000 (now)                                                   │
+//  │ Thu, 28 Mar 2024 12:44:54 +0000 (now)                                                   │
+//  │ ```                                                                                     │
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -131,6 +140,7 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str 
 //  │             │ ```                                                                                     │
 //  │             │ ```numd-output                                                                          │
 //  │             │ ```                                                                                     │
+//  │             │ ```                                                                                     │
 //  │           4 │ ```nu                                                                                   │
 //  │             │ # This chunk will produce some output in the separate block                             │
 //  │             │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
@@ -139,12 +149,14 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str 
 //  │             │ ```numd-output                                                                          │
 //  │             │ foo/baz/bar                                                                             │
 //  │             │ ```                                                                                     │
+//  │             │ ```                                                                                     │
 //  │           9 │ ```nu                                                                                   │
 //  │             │ # This chunk will output results inline                                                 │
 //  │             │ > whoami                                                                                │
 //  │             │ user                                                                                    │
 //  │             │ > date now                                                                              │
-//  │             │ Thu, 28 Mar 2024 06:09:17 +0000 (now)                                                   │
+//  │             │ Thu, 28 Mar 2024 12:44:54 +0000 (now)                                                   │
+//  │             │ ```                                                                                     │
 //  │             │ ```                                                                                     │
 //  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
 ```
@@ -182,8 +194,9 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  > whoami
 //  user
 //  > date now
-//  Thu, 28 Mar 2024 06:09:17 +0000 (now)
+//  Thu, 28 Mar 2024 12:44:54 +0000 (now)
 //  ```
+```
 ```nu
 calc-changes 'simple_markdown.md' $md_orig $md_res
 ```
@@ -191,8 +204,8 @@ calc-changes 'simple_markdown.md' $md_orig $md_res
 ╭────────────┬────────────────────╮
 │ filename   │ simple_markdown.md │
 │ lines      │ 0% from 30         │
-│ words      │ +21.6% from 88     │
-│ chars      │ +27.4% from 511    │
-│ levenstein │ 141                │
+│ words      │ 0% from 88         │
+│ chars      │ 0% from 511        │
+│ levenstein │ 1                  │
 ╰────────────┴────────────────────╯
 ```

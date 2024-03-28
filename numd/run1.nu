@@ -39,7 +39,7 @@ export def run [
     }
 
     if $no_info { null } else {
-        calc-changes $file $md_orig ($md_res_ansi | ansi strip)
+        calc-changes $file $md_orig $md_res_ansi
     }
     | if $echo {
         $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
@@ -178,6 +178,8 @@ def gen-intermid-script [
     md_classified: table
     save_path: path
 ]: nothing -> nothing {
+    let $pwd = pwd
+
     $md_classified
     | where row_types =~ '```nu(shell)?(\s|$)'
     | group-by block_index
@@ -198,7 +200,10 @@ def gen-intermid-script [
         }
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(numd-block $k)\""
+        | append $"print \"```\"" # this ending code fence already exists in the original markdown table thus unnecessary here
     }
+    | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
+    | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
@@ -249,7 +254,7 @@ def assemble-markdown [
     | get lines
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```\n(```\n)+" "```\n" # multiple code-fences
+    | str replace --all --regex "(^|\n)```\n(```\n)+" "$1```\n" # multiple code-fences
     | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
@@ -264,7 +269,7 @@ export def code-block-options [
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
         ["new-instance" "n" "execute outside"]
-        ["no-run" "N" "dont execute the code"]
+        ["no-run" "N" "don't execute the code"]
     ]
     | if $list {} else {
         select short long
@@ -291,6 +296,9 @@ def calc-changes [
     orig_file: string
     new_file: string
 ]: nothing -> record {
+    let $orig_file = $orig_file | ansi strip
+    let $new_file = $new_file | ansi strip
+
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
