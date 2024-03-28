@@ -39,7 +39,7 @@ export def run [
     }
 
     if $no_info { null } else {
-        calc-changes $file $md_orig ($md_res_ansi | ansi strip)
+        calc-changes $file $md_orig $md_res_ansi
     }
     | if $echo {
         $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
@@ -291,6 +291,9 @@ def calc-changes [
     orig_file: string
     new_file: string
 ]: nothing -> record {
+    let $orig_file = $orig_file | ansi strip
+    let $new_file = $new_file | ansi strip
+
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
