@@ -1,6 +1,6 @@
 <h1 align="center">numd - reproducible Nushell Markdown documents</h1>
 
-Execute chunks of nushell code within markdown documents,  write results back to your `.md` document or output them to the terminal.
+Execute chunks of nushell code within markdown documents, write results back to your `.md` document or output them to the terminal.
 
 `numd` is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
 
@@ -132,24 +132,24 @@ Input/output types:
 ### Some random familiar examples
 
 ```nushell
-> ls
-╭──────────name──────────┬─type─┬──size──┬────modified────╮
-│ LICENSE                │ file │ 1.1 KB │ a month ago    │
-│ README.md              │ file │ 6.6 KB │ 11 seconds ago │
-│ examples               │ dir  │  224 B │ 2 minutes ago  │
-│ numd                   │ dir  │  224 B │ an hour ago    │
-│ nupm.nuon              │ file │  115 B │ 3 minutes ago  │
-│ repository-maintenance │ dir  │   96 B │ 15 hours ago   │
-│ testing.nu             │ file │  413 B │ 11 seconds ago │
-╰──────────name──────────┴─type─┴──size──┴────modified────╯
+> ls | sort-by name | reject modified size
+╭──────────name──────────┬─type─╮
+│ LICENSE                │ file │
+│ README.md              │ file │
+│ examples               │ dir  │
+│ numd                   │ dir  │
+│ nupm.nuon              │ file │
+│ repository-maintenance │ dir  │
+│ testing.nu             │ file │
+╰──────────name──────────┴─type─╯
 
 > date now
-Thu, 28 Mar 2024 06:09:16 +0000 (now)
+Thu, 28 Mar 2024 09:07:25 +0000 (now)
 > git rev-list --count HEAD
-183
+189
 
 > git log -1 --format="%cd" --date=iso
-2024-03-28 06:05:17 +0000
+2024-03-28 09:00:24 +0000
 ```
 
 ## Real fight examples to try

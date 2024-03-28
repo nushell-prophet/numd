@@ -46,7 +46,7 @@ $md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str
 //  │ > whoami                                                                                │ ```nu          │           9 │
 //  │ user                                                                                    │ ```nu          │           9 │
 //  │ > date now                                                                              │ ```nu          │           9 │
-//  │ Thu, 28 Mar 2024 06:09:16 +0000 (now)                                                   │ ```nu          │           9 │
+//  │ Thu, 28 Mar 2024 09:07:26 +0000 (now)                                                   │ ```nu          │           9 │
 //  │ ```                                                                                     │ ```            │          10 │
 //  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴───row_types────┴─block_index─╯
 ```
@@ -116,7 +116,7 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  │ > whoami                                                                                │
 //  │ user                                                                                    │
 //  │ > date now                                                                              │
-//  │ Thu, 28 Mar 2024 06:09:17 +0000 (now)                                                   │
+//  │ Thu, 28 Mar 2024 09:07:27 +0000 (now)                                                   │
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -144,7 +144,7 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str 
 //  │             │ > whoami                                                                                │
 //  │             │ user                                                                                    │
 //  │             │ > date now                                                                              │
-//  │             │ Thu, 28 Mar 2024 06:09:17 +0000 (now)                                                   │
+//  │             │ Thu, 28 Mar 2024 09:07:27 +0000 (now)                                                   │
 //  │             │ ```                                                                                     │
 //  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
 ```
@@ -182,7 +182,7 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  > whoami
 //  user
 //  > date now
-//  Thu, 28 Mar 2024 06:09:17 +0000 (now)
+//  Thu, 28 Mar 2024 09:07:27 +0000 (now)
 //  ```
 ```nu
 calc-changes 'simple_markdown.md' $md_orig $md_res
@@ -191,8 +191,8 @@ calc-changes 'simple_markdown.md' $md_orig $md_res
 ╭────────────┬────────────────────╮
 │ filename   │ simple_markdown.md │
 │ lines      │ 0% from 30         │
-│ words      │ +21.6% from 88     │
-│ chars      │ +27.4% from 511    │
-│ levenstein │ 141                │
+│ words      │ 0% from 88         │
+│ chars      │ 0% from 511        │
+│ levenstein │ 1                  │
 ╰────────────┴────────────────────╯
 ```
