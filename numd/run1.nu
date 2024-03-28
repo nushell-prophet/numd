@@ -16,6 +16,7 @@ export def run [
 
     let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
+    # well, locating script in $nu.temp-path makes using relative paths in the script broken
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
