@@ -10,7 +10,7 @@ export def run [
     --no-info # do not output stats of changes in `.md` file
     --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
-] {
+]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
