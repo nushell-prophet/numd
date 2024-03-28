@@ -1,13 +1,13 @@
 <h1 align="center">numd - reproducible Nushell Markdown documents</h1>
 
-Execute chunks of nushell code within markdown documents, output results to the terminal or write them back to your `.md` document.
+Execute chunks of nushell code within markdown documents,  write results back to your `.md` document or output them to the terminal.
 
-numd is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
+`numd` is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
 
 ## Quickstart
 
 ```nushell no-run
-> git clone https://github.com/nushell101/numd; cd numd
+> git clone https://github.com/nushell-prophet/numd; cd numd
 > nupm install --force --path . # optionally you can install this module via nupm
 > use numd
 > numd run README.md --no-save
@@ -15,9 +15,9 @@ numd is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.htm
 
 ## How it works
 
-`numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly and output the resulting document into terminal.
+`numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/our outputs the resulting document into the terminal together with basic changes [stats](#stats-of-changes).
 
-Expirienced nushell users can undersand the logic better looking on [examples](./examples/). Especially, seing [numd in action describing it's own commands](./examples/2_numd_commands_explanations/numd_commands_explanations_out.md)
+Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations_out.md).
 
 ### Details of parsing
 
@@ -28,7 +28,6 @@ Expirienced nushell users can undersand the logic better looking on [examples](.
 ### `numd run` flags and params
 
 ```nushell
-# Eventually, the script updates nushell code chunks.
 use numd
 numd run --help
 ```
@@ -61,8 +60,8 @@ Input/output types:
 
 ### Supported nushell code block options
 
-numd understands the folowing coma separated block options.
-They should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
+`numd` understands the following block options. Several commaseparated block options will be combined together.
+The block options should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
 
 ```nushell
 numd code-block-options --list
@@ -72,13 +71,13 @@ numd code-block-options --list
 │ no-output    │ O     │ don't try printing result │
 │ try          │ t     │ try handling errors       │
 │ new-instance │ n     │ execute outside           │
-│ no-run       │ N     │ dont execute the code     │
+│ no-run       │ N     │ don't execute the code    │
 ╰─────long─────┴─short─┴────────description────────╯
 ```
 
 ### Stats of changes
 
-By default numd provides basic stats on changes made.
+By default `numd` provides basic stats on changes made.
 
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
@@ -95,7 +94,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 
 ### `numd catpure`
 
-numd can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are according commands `numd capture start` and `numd capture stop`.
+`numd` can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
 ```nushell
 > numd capture start --help
@@ -153,10 +152,9 @@ Thu, 28 Mar 2024 06:09:16 +0000 (now)
 2024-03-28 06:05:17 +0000
 ```
 
-## Examples
+## Real fight examples to try
 
 ```nushell no-run
+numd run examples/1_simple_markdown/simple_markdown.md --echo --no-save
 numd run examples/3_book_types_of_data/types_of_data.md --output-md-path examples/3_book_types_of_data/types_of_data_out.md --no-backup --intermid-script-path examples/3_book_types_of_data/types_of_data.md_intermid.nu
 ```
-
-The results of the command above are provided in the files of the example folder.

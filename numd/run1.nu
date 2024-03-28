@@ -264,7 +264,7 @@ export def code-block-options [
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
         ["new-instance" "n" "execute outside"]
-        ["no-run" "N" "dont execute the code"]
+        ["no-run" "N" "don't execute the code"]
     ]
     | if $list {} else {
         select short long
