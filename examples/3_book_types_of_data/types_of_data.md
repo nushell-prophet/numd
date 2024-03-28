@@ -78,7 +78,7 @@ There are just two boolean values: `true` and `false`. Rather than writing the v
 > let mybool = 2 > 1
 > $mybool
 true
-> let mybool = ($env.HOME | path exists)
+> let mybool = ($nu.home-path | path exists)
 > $mybool
 true
 ```

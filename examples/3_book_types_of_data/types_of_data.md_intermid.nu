@@ -23,8 +23,8 @@ let mybool = 2 > 1
 print ("> $mybool" | nu-highlight)
 $mybool | echo $in
 
-print ("> let mybool = ($env.HOME | path exists)" | nu-highlight)
-let mybool = ($env.HOME | path exists)
+print ("> let mybool = ($nu.home-path | path exists)" | nu-highlight)
+let mybool = ($nu.home-path | path exists)
 
 print ("> $mybool" | nu-highlight)
 $mybool | echo $in
