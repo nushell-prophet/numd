@@ -1,5 +1,6 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+cd /Users/user/git/nudoc
 print "###numd-block-1"
 print "```nushell"
 print ("> 42 | describe" | nu-highlight)

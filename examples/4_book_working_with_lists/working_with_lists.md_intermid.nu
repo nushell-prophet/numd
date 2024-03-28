@@ -1,5 +1,6 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+cd /Users/user/git/nudoc
 print "###numd-block-1"
 print "```nu"
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)

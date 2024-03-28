@@ -1,5 +1,6 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+cd /Users/user/git/nudoc
 print "###numd-block-1"
 print "```nu"
 print ("$env.config.table.abbreviated_row_count = 100
@@ -76,7 +77,7 @@ print '```
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
-print "###numd-block-27"
+print "###numd-block-28"
 print "```nu"
 print ("calc-changes 'simple_markdown.md' $md_orig $md_res" | nu-highlight)
 print '```

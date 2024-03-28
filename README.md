@@ -7,6 +7,7 @@ Execute chunks of nushell code within markdown documents, write results back to 
 ## Quickstart
 
 ```nushell no-run
+# this block won't run as it has option `no-run` in its code fence
 > git clone https://github.com/nushell-prophet/numd; cd numd
 > nupm install --force --path . # optionally you can install this module via nupm
 > use numd

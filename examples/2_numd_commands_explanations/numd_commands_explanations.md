@@ -46,7 +46,7 @@ $md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str
 //  │ > whoami                                                                                │ ```nu          │           9 │
 //  │ user                                                                                    │ ```nu          │           9 │
 //  │ > date now                                                                              │ ```nu          │           9 │
-//  │ Thu, 28 Mar 2024 09:07:26 +0000 (now)                                                   │ ```nu          │           9 │
+//  │ Thu, 28 Mar 2024 11:38:02 +0000 (now)                                                   │ ```nu          │           9 │
 //  │ ```                                                                                     │ ```            │          10 │
 //  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴───row_types────┴─block_index─╯
 ```
@@ -62,6 +62,7 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 ```numd-output
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
+//  cd /Users/user/git/nudoc
 //  print "###numd-block-1"
 //  print "```nu"
 //  print ("let $var1 = 'foo'" | nu-highlight)
@@ -116,7 +117,7 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  │ > whoami                                                                                │
 //  │ user                                                                                    │
 //  │ > date now                                                                              │
-//  │ Thu, 28 Mar 2024 09:07:27 +0000 (now)                                                   │
+//  │ Thu, 28 Mar 2024 11:38:03 +0000 (now)                                                   │
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -144,7 +145,7 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str 
 //  │             │ > whoami                                                                                │
 //  │             │ user                                                                                    │
 //  │             │ > date now                                                                              │
-//  │             │ Thu, 28 Mar 2024 09:07:27 +0000 (now)                                                   │
+//  │             │ Thu, 28 Mar 2024 11:38:03 +0000 (now)                                                   │
 //  │             │ ```                                                                                     │
 //  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
 ```
@@ -182,7 +183,7 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  > whoami
 //  user
 //  > date now
-//  Thu, 28 Mar 2024 09:07:27 +0000 (now)
+//  Thu, 28 Mar 2024 11:38:03 +0000 (now)
 //  ```
 ```
 ```nu
