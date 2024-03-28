@@ -200,6 +200,7 @@ def gen-intermid-script [
         }
         | prepend $"print \"($v.row_types.0)\""
         | prepend $"print \"(numd-block $k)\""
+        | append $"print \"```\"" # this ending code fence already exists in the original markdown table thus unnecessary here
     }
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
