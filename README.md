@@ -138,24 +138,20 @@ Input/output types:
 ### Some random familiar examples
 
 ```nushell
-> ls | sort-by name | reject modified size
-╭──────────name──────────┬─type─╮
-│ LICENSE                │ file │
-│ README.md              │ file │
-│ examples               │ dir  │
-│ numd                   │ dir  │
-│ nupm.nuon              │ file │
-│ repository-maintenance │ dir  │
-│ testing.nu             │ file │
-╰──────────name──────────┴─type─╯
+> ls examples | sort-by name | reject modified size
+╭─────────────────name──────────────────┬─type─╮
+│ examples/1_simple_markdown            │ dir  │
+│ examples/2_numd_commands_explanations │ dir  │
+│ examples/3_book_types_of_data         │ dir  │
+│ examples/4_book_working_with_lists    │ dir  │
+╰─────────────────name──────────────────┴─type─╯
 
-> date now
-Fri, 29 Mar 2024 03:47:49 +0000 (now)
-> git rev-list --count HEAD
-206
-
-> git log -1 --format="%cd" --date=iso
-2024-03-29 03:11:05 +0000
+> sys | get host.boot_time
+2024-03-27T07:30:08+00:00
+> 2 + 2
+4
+> git tag | lines | sort -n | last
+0.1.0
 ```
 
 ## Real fight examples to try
