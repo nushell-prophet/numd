@@ -59,6 +59,8 @@ Input/output types:
   ╰──input──┴─output──╯
 ```
 
+```
+
 ### Supported nushell code block options
 
 `numd` understands the following block options. Several commaseparated block options will be combined together.
