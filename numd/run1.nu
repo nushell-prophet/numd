@@ -8,18 +8,25 @@ export def run [
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
-    --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
+    --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
-    let $intermid_script_path = $intermid_script_path
-        | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
+    let $intermid_script_path = $intermid_script
+        | default ( $file
+            | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
+        # we don't use temp dir here as code in `md` files might containt relative paths
+        # which only work if we'll execute intrmid script from the same folder
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+
+    if $intermid_script == null {
+        rm $intermid_script_path
+    }
 
     # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything
@@ -29,8 +36,8 @@ export def run [
         }
     }
 
-    let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-    let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_index
+    let $nu_res_with_block_line_in_orig_md = parse-block-index $nu_res_stdout_lines
+    let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_line_in_orig_md
 
     if not $no_save {
         let $path = $output_md_path | default $file
@@ -42,7 +49,7 @@ export def run [
         calc-changes $file $md_orig $md_res_ansi
     }
     | if $echo {
-        $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
+        $"($md_res_ansi)(char nl)($in | table)" # output the changes table below the resulted markdown
     } else {}
 }
 
@@ -59,7 +66,7 @@ def detect-code-chunks [
     md: string
 ]: nothing -> table {
     let $file_lines = $md | lines
-    let $row_types = $file_lines
+    let $row_type = $file_lines
         | each {
             str trim
             | if $in =~ '^```' {} else {''}
@@ -68,16 +75,22 @@ def detect-code-chunks [
             if $curr == '' and $prev != '```' {$prev} else {$curr}
         }
 
-    let $block_index = $row_types
+    let $block_start_in_orig_md = $row_type
+        | enumerate # enumerates start index is 0
         | window --remainder 2
-        | scan 0 {|prev curr|
-            if ($curr.0? == $curr.1?) {$prev} else {$prev + 1}
+        | scan 1 {|prev curr|
+            if ($curr.item.0? == $curr.item.1?) {
+                $prev
+            } else {
+                # here we output the line number with the opening fence of the current block
+                $curr.index.0 + 2
+            }
         }
 
     # We wrap lists into columns here because previously we needed to use the `window` command
-    $file_lines | wrap lines
-    | merge ($row_types | wrap row_types)
-    | merge ($block_index | wrap block_index)
+    $file_lines | wrap line
+    | merge ($row_type | wrap row_type)
+    | merge ($block_start_in_orig_md | wrap block_line_in_orig_md)
 }
 
 def escape-quotes []: string -> string {
@@ -105,7 +118,7 @@ def run-intermid-script [
 def numd-block [
     index?: int
 ]: nothing -> string {
-    $"###numd-block-($index)"
+    $"###code-block-starting-line-in-original-md-($index)"
 }
 
 def gen-highlight-command [ ]: string -> string {
@@ -121,11 +134,18 @@ def trim-comments-plus []: string -> string {
 # Use a regular expression to check if the last line of the input ends with a semicolon,
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
 # This is to determine if appending ' | echo $in' is possible.
-def gen-append-echo-in []: string -> string {
-    # check if we can add echo $in to the last line
-    if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else {
-        $in + ' | echo $in'
-    }
+def ends-with-definition [
+    condition: string
+]: nothing -> bool {
+    $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
+}
+
+def gen-indented-output []: string -> string {
+    $"($in) | table | into string | lines | each {$'//  \($in\)' | str trim} | str join \(char nl\)"
+}
+
+def gen-echo-in []: string -> string {
+    $'($in) | echo $in'
 }
 
 def gen-catch-error-in-current-instance []: string -> string {
@@ -165,7 +185,12 @@ def gen-execute-code [
                 if $whole_chunk {
                     gen-fence-numd-output
                 } else {}
-                | gen-append-echo-in
+                | if (ends-with-definition $in) {} else {
+                    if 'indent-output' in $options {
+                        gen-indented-output
+                    } else {}
+                    | gen-echo-in
+                }
             }
             | $in + (char nl)
         }
@@ -181,24 +206,24 @@ def gen-intermid-script [
     let $pwd = pwd
 
     $md_classified
-    | where row_types =~ '```nu(shell)?(\s|$)'
-    | group-by block_index
+    | where row_type =~ '```nu(shell)?(\s|$)'
+    | group-by block_line_in_orig_md
     | items {|k v|
-        $v.lines
+        $v.line
         | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
             skip # skip the opening code fence ```nushell
             | str join (char nl)
-            | gen-execute-code --whole_chunk --fence $v.row_types.0
+            | gen-execute-code --whole_chunk --fence $v.row_type.0
         } else {
             each { # here we define what to do with each line of the current chunk one by one
                 if $in =~ '^>' { # if it starts with `>` we execute it
-                    gen-execute-code --fence $v.row_types.0
+                    gen-execute-code --fence $v.row_type.0
                 } else if $in =~ '^\s*#' {
                     gen-highlight-command
                 }
             }
         }
-        | prepend $"print \"($v.row_types.0)\""
+        | prepend $"print \"($v.row_type.0)\""
         | prepend $"print \"(numd-block $k)\""
         | append $"print \"```\"" # this ending code fence already exists in the original markdown table thus unnecessary here
     }
@@ -214,9 +239,7 @@ def gen-intermid-script [
 def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-
-
-    let $block_index = $nu_res_stdout_lines
+    let $block_start_in_orig_md = $nu_res_stdout_lines
         | each {
             if $in =~ $"^(numd-block)\\d+$" {
                 split row '-' | last | into int
@@ -227,31 +250,31 @@ def parse-block-index [
         | scan --noinit 0 {|prev curr|
             if $curr == -1 {$prev} else {$curr}
         }
-        | wrap block_index
+        | wrap block_line_in_orig_md
 
     $nu_res_stdout_lines
     | wrap 'nu_out'
-    | merge $block_index
-    | group-by block_index --to-table
+    | merge $block_start_in_orig_md
+    | group-by block_line_in_orig_md --to-table
     | upsert items {
         |i| $i.items.nu_out
         | skip
         | str join (char nl)
         | $in + (char nl) + '```'
     }
-    | rename block_index lines
-    | into int block_index
+    | rename block_line_in_orig_md line
+    | into int block_line_in_orig_md
 }
 
 def assemble-markdown [
     $md_classified: table
-    $nu_res_with_block_index: table
+    $nu_res_with_block_line_in_orig_md: table
 ]: nothing -> string {
     $md_classified
-    | where row_types !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
-    | append $nu_res_with_block_index
-    | sort-by block_index
-    | get lines
+    | where row_type !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
+    | append $nu_res_with_block_line_in_orig_md
+    | sort-by block_line_in_orig_md
+    | get line
     | str join (char nl)
     | $in + (char nl)
     | str replace --all --regex "(^|\n)```\n(```\n)+" "$1```\n" # multiple code-fences
@@ -268,8 +291,9 @@ export def code-block-options [
 
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
-        ["new-instance" "n" "execute outside"]
-        ["no-run" "N" "don't execute the code"]
+        ["new-instance" "n" "execute the chunk in the new nushell instance"]
+        ["no-run" "N" "don't execute the code in chunk"]
+        ["indent-output" "i" "indent the output visually" ]
     ]
     | if $list {} else {
         select short long

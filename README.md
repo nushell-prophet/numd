@@ -29,15 +29,14 @@ Experienced nushell users can understand the logic better by looking at [example
 ### `numd run` flags and params
 
 ```nushell
-use ($init_numd_pwd_const | path join numd) # this pwd const is avalible in the intermid-script
+use numd
 numd run --help
 ```
-
 ```numd-output
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -45,7 +44,7 @@ Flags:
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
-  --intermid-script-path <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
+  --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown anyway)
   -h, --help - Display the help message for this command
 
@@ -60,6 +59,8 @@ Input/output types:
   ╰──input──┴─output──╯
 ```
 
+```
+
 ### Supported nushell code block options
 
 `numd` understands the following block options. Several commaseparated block options will be combined together.
@@ -68,14 +69,16 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 ```nushell
 numd code-block-options --list
 ```
-
 ```numd-output
-╭─────long─────┬─short─┬────────description────────╮
-│ no-output    │ O     │ don't try printing result │
-│ try          │ t     │ try handling errors       │
-│ new-instance │ n     │ execute outside           │
-│ no-run       │ N     │ don't execute the code    │
-╰─────long─────┴─short─┴────────description────────╯
+╭─────long──────┬─short─┬──────────────────description──────────────────╮
+│ no-output     │ O     │ don't try printing result                     │
+│ try           │ t     │ try handling errors                           │
+│ new-instance  │ n     │ execute the chunk in the new nushell instance │
+│ no-run        │ N     │ don't execute the code in chunk               │
+│ indent-output │ i     │ indent the output visually                    │
+╰─────long──────┴─short─┴──────────────────description──────────────────╯
+```
+
 ```
 
 ### Stats of changes
@@ -85,7 +88,6 @@ By default `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
-
 ```numd-output
 ╭────────────┬───────────────────────────────────╮
 │ filename   │ simple_markdown_with_no_output.md │
@@ -105,7 +107,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 start capturing commands and their results into a file
 
 Usage:
-  > start (file)
+  > start (file) 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -122,7 +124,7 @@ Input/output types:
 stop capturing commands and their results
 
 Usage:
-  > stop
+  > stop 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -136,24 +138,20 @@ Input/output types:
 ### Some random familiar examples
 
 ```nushell
-> ls | sort-by name | reject modified size
-╭──────────name──────────┬─type─╮
-│ LICENSE                │ file │
-│ README.md              │ file │
-│ examples               │ dir  │
-│ numd                   │ dir  │
-│ nupm.nuon              │ file │
-│ repository-maintenance │ dir  │
-│ testing.nu             │ file │
-╰──────────name──────────┴─type─╯
+> ls examples | sort-by name | reject modified size
+╭─────────────────name──────────────────┬─type─╮
+│ examples/1_simple_markdown            │ dir  │
+│ examples/2_numd_commands_explanations │ dir  │
+│ examples/3_book_types_of_data         │ dir  │
+│ examples/4_book_working_with_lists    │ dir  │
+╰─────────────────name──────────────────┴─type─╯
 
-> date now
-Thu, 28 Mar 2024 09:07:25 +0000 (now)
-> git rev-list --count HEAD
-189
-
-> git log -1 --format="%cd" --date=iso
-2024-03-28 09:00:24 +0000
+> sys | get host.boot_time
+2024-03-27T07:30:08+00:00
+> 2 + 2
+4
+> git tag | lines | sort -n | last
+0.1.0
 ```
 
 ## Real fight examples to try

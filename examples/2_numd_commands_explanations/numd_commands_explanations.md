@@ -11,60 +11,60 @@ let $intermid_script_path = null
 let $no_fail_on_error = false
 ```
 
-```nu
+```nu indent-output
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
-$md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str join (char nl)
+$md_orig_table
 ```
 ```numd-output
-//  ╭──────────────────────────────────────────lines──────────────────────────────────────────┬───row_types────┬─block_index─╮
-//  │ # This is a simple markdown example                                                     │                │           0 │
-//  │                                                                                         │                │           0 │
-//  │ ## Example 1                                                                            │                │           0 │
-//  │                                                                                         │                │           0 │
-//  │ the chunk below will be executed as it is, but won't yeld any output                    │                │           0 │
-//  │                                                                                         │                │           0 │
-//  │ ```nu                                                                                   │ ```nu          │           1 │
-//  │ let $var1 = 'foo'                                                                       │ ```nu          │           1 │
-//  │ ```                                                                                     │ ```            │           2 │
-//  │                                                                                         │                │           3 │
-//  │ ## Example 2                                                                            │                │           3 │
-//  │                                                                                         │                │           3 │
-//  │ ```nu                                                                                   │ ```nu          │           4 │
-//  │ # This chunk will produce some output in the separate block                             │ ```nu          │           4 │
-//  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │ ```nu          │           4 │
-//  │ $var1 | path join 'baz' 'bar'                                                           │ ```nu          │           4 │
-//  │ ```                                                                                     │ ```            │           5 │
-//  │ ```numd-output                                                                          │ ```numd-output │           6 │
-//  │ foo/baz/bar                                                                             │ ```numd-output │           6 │
-//  │ ```                                                                                     │ ```            │           7 │
-//  │                                                                                         │                │           8 │
-//  │ ## Example 3                                                                            │                │           8 │
-//  │                                                                                         │                │           8 │
-//  │ ```nu                                                                                   │ ```nu          │           9 │
-//  │ # This chunk will output results inline                                                 │ ```nu          │           9 │
-//  │ > whoami                                                                                │ ```nu          │           9 │
-//  │ user                                                                                    │ ```nu          │           9 │
-//  │ > date now                                                                              │ ```nu          │           9 │
-//  │ Thu, 28 Mar 2024 12:44:53 +0000 (now)                                                   │ ```nu          │           9 │
-//  │ ```                                                                                     │ ```            │          10 │
-//  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴───row_types────┴─block_index─╯
+//  ╭──────────────────────────────────────────line───────────────────────────────────────────┬────row_type────┬─block_line_in_orig_md─╮
+//  │ # This is a simple markdown example                                                     │                │                     1 │
+//  │                                                                                         │                │                     1 │
+//  │ ## Example 1                                                                            │                │                     1 │
+//  │                                                                                         │                │                     1 │
+//  │ the chunk below will be executed as it is, but won't yeld any output                    │                │                     1 │
+//  │                                                                                         │                │                     1 │
+//  │ ```nu                                                                                   │ ```nu          │                     7 │
+//  │ let $var1 = 'foo'                                                                       │ ```nu          │                     7 │
+//  │ ```                                                                                     │ ```            │                     9 │
+//  │                                                                                         │                │                    10 │
+//  │ ## Example 2                                                                            │                │                    10 │
+//  │                                                                                         │                │                    10 │
+//  │ ```nu                                                                                   │ ```nu          │                    13 │
+//  │ # This chunk will produce some output in the separate block                             │ ```nu          │                    13 │
+//  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │ ```nu          │                    13 │
+//  │ $var1 | path join 'baz' 'bar'                                                           │ ```nu          │                    13 │
+//  │ ```                                                                                     │ ```            │                    17 │
+//  │ ```numd-output                                                                          │ ```numd-output │                    18 │
+//  │ foo/baz/bar                                                                             │ ```numd-output │                    18 │
+//  │ ```                                                                                     │ ```            │                    20 │
+//  │                                                                                         │                │                    21 │
+//  │ ## Example 3                                                                            │                │                    21 │
+//  │                                                                                         │                │                    21 │
+//  │ ```nu                                                                                   │ ```nu          │                    24 │
+//  │ # This chunk will output results inline                                                 │ ```nu          │                    24 │
+//  │ > whoami                                                                                │ ```nu          │                    24 │
+//  │ user                                                                                    │ ```nu          │                    24 │
+//  │ > 2 + 2                                                                                 │ ```nu          │                    24 │
+//  │ 4                                                                                       │ ```nu          │                    24 │
+//  │ ```                                                                                     │ ```            │                    30 │
+//  ╰──────────────────────────────────────────line───────────────────────────────────────────┴────row_type────┴─block_line_in_orig_md─╯
 ```
 
-```nu
+```nu indent-output
 let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
 gen-intermid-script $md_orig_table $intermid_script_path
 
-open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+open $intermid_script_path
 ```
 ```numd-output
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
 //  cd /Users/user/git/nudoc
 //  const init_numd_pwd_const = '/Users/user/git/nudoc'
-//  print "###numd-block-1"
+//  print "###code-block-starting-line-in-original-md-7"
 //  print "```nu"
 //  print ("let $var1 = 'foo'" | nu-highlight)
 //  print '```
@@ -72,7 +72,7 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //  let $var1 = 'foo'
 //
 //  print "```"
-//  print "###numd-block-4"
+//  print "###code-block-starting-line-in-original-md-13"
 //  print "```nu"
 //  print ("# This chunk will produce some output in the separate block
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
@@ -84,32 +84,32 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //  $var1 | path join 'baz' 'bar' | echo $in
 //
 //  print "```"
-//  print "###numd-block-9"
+//  print "###code-block-starting-line-in-original-md-24"
 //  print "```nu"
 //  print ("# This chunk will output results inline" | nu-highlight)
 //
 //  print ("> whoami" | nu-highlight)
 //  whoami | echo $in
 //
-//  print ("> date now" | nu-highlight)
-//  date now | echo $in
+//  print ("> 2 + 2" | nu-highlight)
+//  2 + 2 | echo $in
 //
 //  print "```"
 ```
 
-```nu
+```nu indent-output
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
-$nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$nu_res_stdout_lines
 ```
 ```numd-output
 //  ╭─────────────────────────────────────────────────────────────────────────────────────────╮
-//  │ ###numd-block-1                                                                         │
+//  │ ###code-block-starting-line-in-original-md-7                                            │
 //  │ ```nu                                                                                   │
 //  │ let $var1 = 'foo'                                                                       │
 //  │ ```                                                                                     │
 //  │ ```numd-output                                                                          │
 //  │ ```                                                                                     │
-//  │ ###numd-block-4                                                                         │
+//  │ ###code-block-starting-line-in-original-md-13                                           │
 //  │ ```nu                                                                                   │
 //  │ # This chunk will produce some output in the separate block                             │
 //  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
@@ -118,52 +118,52 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  │ ```numd-output                                                                          │
 //  │ foo/baz/bar                                                                             │
 //  │ ```                                                                                     │
-//  │ ###numd-block-9                                                                         │
+//  │ ###code-block-starting-line-in-original-md-24                                           │
 //  │ ```nu                                                                                   │
 //  │ # This chunk will output results inline                                                 │
 //  │ > whoami                                                                                │
 //  │ user                                                                                    │
-//  │ > date now                                                                              │
-//  │ Thu, 28 Mar 2024 12:44:54 +0000 (now)                                                   │
+//  │ > 2 + 2                                                                                 │
+//  │ 4                                                                                       │
 //  │ ```                                                                                     │
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-```nu
+```nu indent-output
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$nu_res_with_block_index
 ```
 ```numd-output
-//  ╭─block_index─┬──────────────────────────────────────────lines──────────────────────────────────────────╮
-//  │           1 │ ```nu                                                                                   │
-//  │             │ let $var1 = 'foo'                                                                       │
-//  │             │ ```                                                                                     │
-//  │             │ ```numd-output                                                                          │
-//  │             │ ```                                                                                     │
-//  │             │ ```                                                                                     │
-//  │           4 │ ```nu                                                                                   │
-//  │             │ # This chunk will produce some output in the separate block                             │
-//  │             │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
-//  │             │ $var1 | path join 'baz' 'bar'                                                           │
-//  │             │ ```                                                                                     │
-//  │             │ ```numd-output                                                                          │
-//  │             │ foo/baz/bar                                                                             │
-//  │             │ ```                                                                                     │
-//  │             │ ```                                                                                     │
-//  │           9 │ ```nu                                                                                   │
-//  │             │ # This chunk will output results inline                                                 │
-//  │             │ > whoami                                                                                │
-//  │             │ user                                                                                    │
-//  │             │ > date now                                                                              │
-//  │             │ Thu, 28 Mar 2024 12:44:54 +0000 (now)                                                   │
-//  │             │ ```                                                                                     │
-//  │             │ ```                                                                                     │
-//  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
+//  ╭─block_line_in_orig_md─┬──────────────────────────────────────────line───────────────────────────────────────────╮
+//  │                     7 │ ```nu                                                                                   │
+//  │                       │ let $var1 = 'foo'                                                                       │
+//  │                       │ ```                                                                                     │
+//  │                       │ ```numd-output                                                                          │
+//  │                       │ ```                                                                                     │
+//  │                       │ ```                                                                                     │
+//  │                    13 │ ```nu                                                                                   │
+//  │                       │ # This chunk will produce some output in the separate block                             │
+//  │                       │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
+//  │                       │ $var1 | path join 'baz' 'bar'                                                           │
+//  │                       │ ```                                                                                     │
+//  │                       │ ```numd-output                                                                          │
+//  │                       │ foo/baz/bar                                                                             │
+//  │                       │ ```                                                                                     │
+//  │                       │ ```                                                                                     │
+//  │                    24 │ ```nu                                                                                   │
+//  │                       │ # This chunk will output results inline                                                 │
+//  │                       │ > whoami                                                                                │
+//  │                       │ user                                                                                    │
+//  │                       │ > 2 + 2                                                                                 │
+//  │                       │ 4                                                                                       │
+//  │                       │ ```                                                                                     │
+//  │                       │ ```                                                                                     │
+//  ╰─block_line_in_orig_md─┴──────────────────────────────────────────line───────────────────────────────────────────╯
 ```
 
-```nu
+```nu indent-output
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
-$md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$md_res
 ```
 ```numd-output
 //  # This is a simple markdown example
@@ -193,19 +193,19 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  # This chunk will output results inline
 //  > whoami
 //  user
-//  > date now
-//  Thu, 28 Mar 2024 12:44:54 +0000 (now)
+//  > 2 + 2
+//  4
 //  ```
 ```
-```nu
+```nu indent-output
 calc-changes 'simple_markdown.md' $md_orig $md_res
 ```
 ```numd-output
-╭────────────┬────────────────────╮
-│ filename   │ simple_markdown.md │
-│ lines      │ 0% from 30         │
-│ words      │ 0% from 88         │
-│ chars      │ 0% from 511        │
-│ levenstein │ 1                  │
-╰────────────┴────────────────────╯
+//  ╭────────────┬────────────────────╮
+//  │ filename   │ simple_markdown.md │
+//  │ lines      │ 0% from 30         │
+//  │ words      │ 0% from 80         │
+//  │ chars      │ 0% from 472        │
+//  │ levenstein │ 0                  │
+//  ╰────────────┴────────────────────╯
 ```
