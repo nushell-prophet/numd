@@ -29,7 +29,7 @@ print ("# This chunk will output results inline" | nu-highlight)
 print ("> whoami" | nu-highlight)
 whoami | echo $in
 
-print ("> date now" | nu-highlight)
-date now | echo $in
+print ("> 2 + 2" | nu-highlight)
+2 + 2 | echo $in
 
 print "```"

@@ -25,6 +25,6 @@ foo/baz/bar
 # This chunk will output results inline
 > whoami
 user
-> date now
-Thu, 28 Mar 2024 12:44:53 +0000 (now)
+> 2 + 2
+4
 ```
