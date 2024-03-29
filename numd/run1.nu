@@ -76,9 +76,15 @@ def detect-code-chunks [
         }
 
     let $block_index = $row_types
+        | enumerate # enumerates start index is 0
         | window --remainder 2
-        | scan 0 {|prev curr|
-            if ($curr.0? == $curr.1?) {$prev} else {$prev + 1}
+        | scan 1 {|prev curr|
+            if ($curr.item.0? == $curr.item.1?) {
+                $prev
+            } else {
+                # here we output the line number with the opening fence of the current block
+                $curr.index.0 + 2
+            }
         }
 
     # We wrap lists into columns here because previously we needed to use the `window` command
