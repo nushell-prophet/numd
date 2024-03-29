@@ -128,11 +128,18 @@ def trim-comments-plus []: string -> string {
 # Use a regular expression to check if the last line of the input ends with a semicolon,
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
 # This is to determine if appending ' | echo $in' is possible.
-def gen-append-echo-in []: string -> string {
-    # check if we can add echo $in to the last line
-    if ($in =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$') {} else {
-        $in + ' | echo $in'
-    }
+def ends-with-definition [
+    condition: string
+]: nothing -> bool {
+    $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
+}
+
+def gen-indented-output []: string -> string {
+    $"($in) | table | into string | lines | each {$'//  \($in\)' | str trim} | str join \(char nl\)"
+}
+
+def gen-echo-in []: string -> string {
+    $'($in) | echo $in'
 }
 
 def gen-catch-error-in-current-instance []: string -> string {
@@ -172,7 +179,12 @@ def gen-execute-code [
                 if $whole_chunk {
                     gen-fence-numd-output
                 } else {}
-                | gen-append-echo-in
+                | if (ends-with-definition $in) {} else {
+                    if 'indent-output' in $options {
+                        gen-indented-output
+                    } else {}
+                    | gen-echo-in
+                }
             }
             | $in + (char nl)
         }
@@ -273,8 +285,9 @@ export def code-block-options [
 
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
-        ["new-instance" "n" "execute outside"]
-        ["no-run" "N" "don't execute the code"]
+        ["new-instance" "n" "execute the chunk in the new nushell instance"]
+        ["no-run" "N" "don't execute the code in chunk"]
+        ["indent-output" "i" "indent the output visually" ]
     ]
     | if $list {} else {
         select short long
