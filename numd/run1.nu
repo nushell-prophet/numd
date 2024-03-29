@@ -49,7 +49,7 @@ export def run [
         calc-changes $file $md_orig $md_res_ansi
     }
     | if $echo {
-        $"($md_res_ansi)(char nl)($in | table)" # output changes table below the resulted markdown
+        $"($md_res_ansi)(char nl)($in | table)" # output the changes table below the resulted markdown
     } else {}
 }
 
@@ -221,8 +221,6 @@ def gen-intermid-script [
 def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-
-
     let $block_index = $nu_res_stdout_lines
         | each {
             if $in =~ $"^(numd-block)\\d+$" {
