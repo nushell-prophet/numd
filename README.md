@@ -29,15 +29,14 @@ Experienced nushell users can understand the logic better by looking at [example
 ### `numd run` flags and params
 
 ```nushell
-use ($init_numd_pwd_const | path join numd) # this pwd const is avalible in the intermid-script
+use numd
 numd run --help
 ```
-
 ```numd-output
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -45,7 +44,7 @@ Flags:
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
-  --intermid-script-path <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
+  --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown anyway)
   -h, --help - Display the help message for this command
 
@@ -60,6 +59,8 @@ Input/output types:
   ╰──input──┴─output──╯
 ```
 
+```
+
 ### Supported nushell code block options
 
 `numd` understands the following block options. Several commaseparated block options will be combined together.
@@ -68,7 +69,6 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 ```nushell
 numd code-block-options --list
 ```
-
 ```numd-output
 ╭─────long─────┬─short─┬────────description────────╮
 │ no-output    │ O     │ don't try printing result │
@@ -78,6 +78,8 @@ numd code-block-options --list
 ╰─────long─────┴─short─┴────────description────────╯
 ```
 
+```
+
 ### Stats of changes
 
 By default `numd` provides basic stats on changes made.
@@ -85,7 +87,6 @@ By default `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
-
 ```numd-output
 ╭────────────┬───────────────────────────────────╮
 │ filename   │ simple_markdown_with_no_output.md │
@@ -105,7 +106,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 start capturing commands and their results into a file
 
 Usage:
-  > start (file)
+  > start (file) 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -122,7 +123,7 @@ Input/output types:
 stop capturing commands and their results
 
 Usage:
-  > stop
+  > stop 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -148,12 +149,12 @@ Input/output types:
 ╰──────────name──────────┴─type─╯
 
 > date now
-Thu, 28 Mar 2024 09:07:25 +0000 (now)
+Fri, 29 Mar 2024 03:03:41 +0000 (now)
 > git rev-list --count HEAD
-189
+205
 
 > git log -1 --format="%cd" --date=iso
-2024-03-28 09:00:24 +0000
+2024-03-29 03:01:19 +0000
 ```
 
 ## Real fight examples to try

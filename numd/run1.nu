@@ -8,19 +8,25 @@ export def run [
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
-    --intermid-script-path: path # optional a path for an intermediate script (useful for debugging purposes)
+    --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
 
-    let $intermid_script_path = $intermid_script_path
-        | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
-    # well, locating script in $nu.temp-path makes using relative paths in the script broken
+    let $intermid_script_path = $intermid_script
+        | default ( $file
+            | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
+        # we don't use temp dir here as code in `md` files might containt relative paths
+        # which only work if we'll execute intrmid script from the same folder
 
     gen-intermid-script $md_orig_table $intermid_script_path
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+
+    if $intermid_script == null {
+        rm $intermid_script_path
+    }
 
     # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything

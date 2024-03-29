@@ -1,6 +1,6 @@
 use numd
 def numdr [file: path] {
-    numd run $file --no-backup --intermid-script-path $'($file)_intermid.nu'
+    numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
 }
 
 [
