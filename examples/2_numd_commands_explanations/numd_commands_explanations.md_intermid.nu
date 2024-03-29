@@ -91,4 +91,3 @@ print '```
 ```numd-output'
 calc-changes 'simple_markdown.md' $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
-print "```"

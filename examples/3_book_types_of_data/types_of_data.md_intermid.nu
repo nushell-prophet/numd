@@ -235,4 +235,3 @@ do {nu -c "[{a:1 b:2} {b:1}]"} | complete | if ($in.exit_code != 0) {get stderr}
 print ("> [{a:1 b:2} {b:1}].1.a" | nu-highlight)
 do {nu -c "[{a:1 b:2} {b:1}].1.a"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | echo $in
 
-print "```"
