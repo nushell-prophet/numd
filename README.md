@@ -70,12 +70,13 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 numd code-block-options --list
 ```
 ```numd-output
-╭─────long─────┬─short─┬────────description────────╮
-│ no-output    │ O     │ don't try printing result │
-│ try          │ t     │ try handling errors       │
-│ new-instance │ n     │ execute outside           │
-│ no-run       │ N     │ don't execute the code    │
-╰─────long─────┴─short─┴────────description────────╯
+╭─────long──────┬─short─┬──────────────────description──────────────────╮
+│ no-output     │ O     │ don't try printing result                     │
+│ try           │ t     │ try handling errors                           │
+│ new-instance  │ n     │ execute the chunk in the new nushell instance │
+│ no-run        │ N     │ don't execute the code in chunk               │
+│ indent-output │ i     │ indent the output visually                    │
+╰─────long──────┴─short─┴──────────────────description──────────────────╯
 ```
 
 ```
@@ -149,12 +150,12 @@ Input/output types:
 ╰──────────name──────────┴─type─╯
 
 > date now
-Fri, 29 Mar 2024 03:03:41 +0000 (now)
+Fri, 29 Mar 2024 03:47:49 +0000 (now)
 > git rev-list --count HEAD
-205
+206
 
 > git log -1 --format="%cd" --date=iso
-2024-03-29 03:01:19 +0000
+2024-03-29 03:11:05 +0000
 ```
 
 ## Real fight examples to try

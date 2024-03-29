@@ -11,10 +11,10 @@ let $intermid_script_path = null
 let $no_fail_on_error = false
 ```
 
-```nu
+```nu indent-output
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
-$md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str join (char nl)
+$md_orig_table
 ```
 ```numd-output
 //  ╭──────────────────────────────────────────lines──────────────────────────────────────────┬───row_types────┬─block_index─╮
@@ -51,13 +51,13 @@ $md_orig_table | table | lines | each {$'//  ($in)' | str trim | str trim} | str
 //  ╰──────────────────────────────────────────lines──────────────────────────────────────────┴───row_types────┴─block_index─╯
 ```
 
-```nu
+```nu indent-output
 let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
 gen-intermid-script $md_orig_table $intermid_script_path
 
-open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+open $intermid_script_path
 ```
 ```numd-output
 //  # this script was generated automatically using numd
@@ -97,9 +97,9 @@ open $intermid_script_path | lines | each {$'//  ($in)' | str trim} | str join (
 //  print "```"
 ```
 
-```nu
+```nu indent-output
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
-$nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$nu_res_stdout_lines
 ```
 ```numd-output
 //  ╭─────────────────────────────────────────────────────────────────────────────────────────╮
@@ -129,9 +129,9 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim} | str join
 //  ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-```nu
+```nu indent-output
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$nu_res_with_block_index
 ```
 ```numd-output
 //  ╭─block_index─┬──────────────────────────────────────────lines──────────────────────────────────────────╮
@@ -161,9 +161,9 @@ $nu_res_with_block_index | table | lines | each {$'//  ($in)' | str trim} | str 
 //  ╰─block_index─┴──────────────────────────────────────────lines──────────────────────────────────────────╯
 ```
 
-```nu
+```nu indent-output
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
-$md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
+$md_res
 ```
 ```numd-output
 //  # This is a simple markdown example
@@ -197,15 +197,15 @@ $md_res | lines | each {$'//  ($in)' | str trim} | str join (char nl)
 //  4
 //  ```
 ```
-```nu
+```nu indent-output
 calc-changes 'simple_markdown.md' $md_orig $md_res
 ```
 ```numd-output
-╭────────────┬────────────────────╮
-│ filename   │ simple_markdown.md │
-│ lines      │ 0% from 30         │
-│ words      │ 0% from 88         │
-│ chars      │ 0% from 511        │
-│ levenstein │ 1                  │
-╰────────────┴────────────────────╯
+//  ╭────────────┬────────────────────╮
+//  │ filename   │ simple_markdown.md │
+//  │ lines      │ 0% from 30         │
+//  │ words      │ 0% from 80         │
+//  │ chars      │ 0% from 472        │
+//  │ levenstein │ 0                  │
+//  ╰────────────┴────────────────────╯
 ```
