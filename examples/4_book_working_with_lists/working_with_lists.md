@@ -51,7 +51,7 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors # [black red yellow green purple blue]
 ```
-```numd-output
+```output-numd
 ╭────────╮
 │ black  │
 │ red    │
@@ -70,7 +70,7 @@ let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors # [yellow]
 ```
-```numd-output
+```output-numd
 ╭────────╮
 │ yellow │
 ╰────────╯
@@ -83,7 +83,7 @@ let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors # [purple black magenta]
 ```
-```numd-output
+```output-numd
 ╭─────────╮
 │ purple  │
 │ black   │
@@ -98,7 +98,7 @@ let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors # [yellow green]
 ```
-```numd-output
+```output-numd
 ╭────────╮
 │ yellow │
 │ green  │
@@ -119,7 +119,7 @@ $names | each { |it| $"Hello, ($it)!" }
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
 ```
-```numd-output
+```output-numd
 ╭────────────╮
 │ 1 - Mark   │
 │ 2 - Tami   │
@@ -145,7 +145,7 @@ In this example, we keep only values higher than `7`.
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]
 ```
-```numd-output
+```output-numd
 ╭────╮
 │ 10 │
 │  8 │
@@ -168,7 +168,7 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16
 ```
-```numd-output
+```output-numd
 16
 ```
 
@@ -182,7 +182,7 @@ For example, the second element in the list below can be accessed with `$names.1
 let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami
 ```
-```numd-output
+```output-numd
 Tami
 ```
 
@@ -193,7 +193,7 @@ let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index # gives Tami
 ```
-```numd-output
+```output-numd
 Tami
 ```
 
@@ -210,7 +210,7 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty # true
 ```
-```numd-output
+```output-numd
 true
 ```
 
@@ -222,7 +222,7 @@ let colors = [red green blue]
 'yellow' in $colors # false
 'gold' not-in $colors # true
 ```
-```numd-output
+```output-numd
 true
 ```
 
@@ -245,7 +245,7 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } # true
 ```
-```numd-output
+```output-numd
 true
 ```
 
@@ -268,7 +268,7 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } # false
 ```
-```numd-output
+```output-numd
 false
 ```
 
@@ -284,7 +284,7 @@ For example:
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
 ```
-```numd-output
+```output-numd
 ╭───╮
 │ 1 │
 │ 2 │
@@ -306,11 +306,11 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
 ```
-```numd-output
+```output-numd
 ╭────────Zone────────┬───────Time───────╮
-│ UTC                │ 2024.03.30 04:37 │
-│ CET                │ 2024.03.30 05:37 │
-│ Europe/Moscow      │ 2024.03.30 07:37 │
-│ Asia/Yekaterinburg │ 2024.03.30 09:37 │
+│ UTC                │ 2024.03.30 13:56 │
+│ CET                │ 2024.03.30 14:56 │
+│ Europe/Moscow      │ 2024.03.30 16:56 │
+│ Asia/Yekaterinburg │ 2024.03.30 18:56 │
 ╰────────Zone────────┴───────Time───────╯
 ```

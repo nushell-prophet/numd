@@ -6,7 +6,7 @@ print "###code-block-starting-line-in-original-md-7"
 print "```nu"
 print ("let $var1 = 'foo'" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $var1 = 'foo'
 
 print "```"
@@ -16,7 +16,7 @@ print ("# This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 $var1 | path join 'baz' 'bar'" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 # This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 $var1 | path join 'baz' 'bar' | echo $in

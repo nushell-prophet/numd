@@ -197,7 +197,7 @@ print ("# Assign a closure to a variable
 let greet = { |name| print $\"Hello ($name)\"}
 do $greet \"Julian\"" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
 do $greet "Julian" | echo $in
@@ -211,7 +211,7 @@ if true {
 }
 print $x" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 mut x = 1
 if true {
     $x += 1000
@@ -223,7 +223,7 @@ print "###code-block-starting-line-in-original-md-494"
 print "```nushell"
 print ("git checkout featurebranch | null" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 git checkout featurebranch | null
 
 print "```"

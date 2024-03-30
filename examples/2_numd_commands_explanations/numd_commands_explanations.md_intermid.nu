@@ -13,7 +13,7 @@ let $output_md_path = null
 let $intermid_script_path = null
 let $no_fail_on_error = false" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 $env.config.table.abbreviated_row_count = 100
 
 # I source run here to export it's internal commands
@@ -30,7 +30,7 @@ print ("let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
 $md_orig_table" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
 $md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
@@ -45,7 +45,7 @@ gen-intermid-script $md_orig_table $intermid_script_path
 
 open $intermid_script_path" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
@@ -59,7 +59,7 @@ print "```nu indent-output"
 print ("let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 $nu_res_stdout_lines" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
@@ -69,7 +69,7 @@ print "```nu indent-output"
 print ("let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
@@ -79,16 +79,16 @@ print "```nu indent-output"
 print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
 print "```"
-print "###code-block-starting-line-in-original-md-197"
+print "###code-block-starting-line-in-original-md-198"
 print "```nu indent-output"
 print ("calc-changes 'simple_markdown.md' $md_orig $md_res" | nu-highlight)
 print '```
-```numd-output'
+```output-numd'
 calc-changes 'simple_markdown.md' $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
 print "```"

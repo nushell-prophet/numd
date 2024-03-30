@@ -23,7 +23,7 @@ Experienced nushell users can understand the logic better by looking at [example
 ### Details of parsing
 
 1. `numd` looks for ` ```nushell ` or ` ```nu ` code chunks.
-2. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```numd-output ` chunks, next to the executed code chunks.
+2. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```output-numd ` chunks, next to the executed code chunks.
 3. In the code chunks that contain one or more lines starting with `>` symbol, numd filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
 
 ### `numd run` flags and params
@@ -32,7 +32,7 @@ Experienced nushell users can understand the logic better by looking at [example
 use numd
 numd run --help
 ```
-```numd-output
+```output-numd
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
@@ -67,7 +67,7 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 ```nushell
 numd code-block-options --list
 ```
-```numd-output
+```output-numd
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
@@ -84,7 +84,7 @@ By default `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
-```numd-output
+```output-numd
 ╭────────────┬───────────────────────────────────╮
 │ filename   │ simple_markdown_with_no_output.md │
 │ lines      │ +20% from 25                      │
