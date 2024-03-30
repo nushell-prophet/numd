@@ -32,3 +32,4 @@ whoami | echo $in
 print ("> 2 + 2" | nu-highlight)
 2 + 2 | echo $in
 
+print "```"

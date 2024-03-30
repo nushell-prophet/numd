@@ -277,3 +277,4 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | echo $in
 
+print "```"
