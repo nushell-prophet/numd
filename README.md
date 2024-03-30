@@ -36,7 +36,7 @@ numd run --help
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file> 
+  > run {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -57,8 +57,6 @@ Input/output types:
   │ nothing │ string  │
   │ nothing │ record  │
   ╰──input──┴─output──╯
-```
-
 ```
 
 ### Supported nushell code block options
@@ -105,7 +103,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 start capturing commands and their results into a file
 
 Usage:
-  > start (file) 
+  > start (file)
 
 Flags:
   -h, --help - Display the help message for this command
@@ -122,7 +120,7 @@ Input/output types:
 stop capturing commands and their results
 
 Usage:
-  > stop 
+  > stop
 
 Flags:
   -h, --help - Display the help message for this command
