@@ -283,9 +283,9 @@ def assemble-markdown [
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
+    | str replace --all --regex "```numd-output[\n\\s]*```\n" '' # empty numd-output blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
-    | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
+    | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
 
 export def code-block-options [
