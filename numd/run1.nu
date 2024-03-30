@@ -53,6 +53,36 @@ export def run [
     } else {}
 }
 
+# remove numd execution outputs from the file
+export def clear-output [
+    file: path # path to a `.md` file containing numd output to be cleared
+    --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --echo # output resulting markdown to the terminal instead of writing to file
+]: [nothing -> nothing, nothing -> string, nothing -> record] {
+    let $md_orig = open -r $file
+    let $md_orig_table = detect-code-chunks $md_orig
+
+    let $output_md_path = $output_md_path | default $file
+
+    $md_orig_table
+    | where row_type =~ '```nu(shell)?(\s|$)'
+    | group-by block_line_in_orig_md
+    | items {|k v|
+        $v.line
+        | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
+        } else {
+            where $it =~ '^(>|#|```)'
+        }
+        | prepend (numd-block $k)
+    }
+    | flatten
+    | parse-block-index $in
+    | assemble-markdown $md_orig_table $in
+    | if $echo {} else {
+        save -f $output_md_path
+    }
+}
+
 def backup-file [
     $path: path
 ]: nothing -> nothing {
