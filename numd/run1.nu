@@ -165,8 +165,8 @@ def gen-catch-error-outside []: string -> string {
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
-def gen-fence-numd-output []: string -> string {
-    $"print '```(char nl)```numd-output'(char nl)($in)"
+def gen-fence-output-numd []: string -> string {
+    $"print '```(char nl)```output-numd'(char nl)($in)"
 }
 
 def gen-execute-code [
@@ -190,7 +190,7 @@ def gen-execute-code [
             } else {}
             | if 'no-output' in $options {} else {
                 if $whole_chunk {
-                    gen-fence-numd-output
+                    gen-fence-output-numd
                 } else {}
                 | if (ends-with-definition $in) {} else {
                     if 'indent-output' in $options {
@@ -277,13 +277,13 @@ def assemble-markdown [
     $nu_res_with_block_line_in_orig_md: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
+    | where row_type !~ '(```nu(shell)?(\s|$))|(^```output-numd$)'
     | append $nu_res_with_block_line_in_orig_md
     | sort-by block_line_in_orig_md
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```numd-output[\n\\s]*```\n" '' # empty numd-output blocks
+    | str replace --all --regex "```output-numd[\n\\s]*```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
