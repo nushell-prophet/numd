@@ -1,7 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
-cd /Users/user/git/nudoc
-const init_numd_pwd_const = '/Users/user/git/nudoc'
+cd /Users/user/git/numd
+const init_numd_pwd_const = '/Users/user/git/numd'
 print "###code-block-starting-line-in-original-md-3"
 print "```nu"
 print ("$env.config.table.abbreviated_row_count = 100

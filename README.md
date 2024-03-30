@@ -79,8 +79,6 @@ numd code-block-options --list
 ╰─────long──────┴─short─┴──────────────────description──────────────────╯
 ```
 
-```
-
 ### Stats of changes
 
 By default `numd` provides basic stats on changes made.
