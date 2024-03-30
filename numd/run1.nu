@@ -211,7 +211,7 @@ def gen-intermid-script [
     | items {|k v|
         $v.line
         | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
-            skip # skip the opening code fence ```nushell
+            skip | drop # skip code fences
             | str join (char nl)
             | gen-execute-code --whole_chunk --fence $v.row_type.0
         } else {
@@ -225,7 +225,7 @@ def gen-intermid-script [
         }
         | prepend $"print \"($v.row_type.0)\""
         | prepend $"print \"(numd-block $k)\""
-        | append $"print \"```\"" # this ending code fence already exists in the original markdown table thus unnecessary here
+        | append $"print \"```\""
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
@@ -260,7 +260,6 @@ def parse-block-index [
         |i| $i.items.nu_out
         | skip
         | str join (char nl)
-        | $in + (char nl) + '```'
     }
     | rename block_line_in_orig_md line
     | into int block_line_in_orig_md
