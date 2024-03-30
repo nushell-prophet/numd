@@ -99,9 +99,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 `numd` can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
 ```nushell
-numd capture start --help
-```
-```numd-output
+> numd capture start --help
 start capturing commands and their results into a file
 
 Usage:
@@ -119,9 +117,7 @@ Input/output types:
   ╰──input──┴─output──╯
 ```
 ```nushell
-numd capture stop --help
-```
-```numd-output
+> numd capture stop --help
 stop capturing commands and their results
 
 Usage:
