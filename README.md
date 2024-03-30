@@ -36,7 +36,7 @@ numd run --help
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -99,11 +99,13 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 `numd` can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
 ```nushell
-> numd capture start --help
+numd capture start --help
+```
+```numd-output
 start capturing commands and their results into a file
 
 Usage:
-  > start (file)
+  > start (file) 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -115,12 +117,15 @@ Input/output types:
   ╭──input──┬─output──╮
   │ nothing │ nothing │
   ╰──input──┴─output──╯
-
-> numd capture stop --help
+```
+```nushell
+numd capture stop --help
+```
+```numd-output
 stop capturing commands and their results
 
 Usage:
-  > stop
+  > stop 
 
 Flags:
   -h, --help - Display the help message for this command
