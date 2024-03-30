@@ -72,14 +72,21 @@ def detect-code-chunks [
             | if $in =~ '^```' {} else {''}
         }
         | scan --noinit '' {|prev curr|
-            if $curr == '' and $prev != '```' {$prev} else {$curr}
+            if $curr == '' {
+                if $prev == 'closing-fence' {''} else {$prev}
+            } else if $curr == '```' {
+                if $prev == '' {'```'} else {'closing-fence'}
+            } else {$curr}
+        }
+        | scan --noinit '' {|prev curr|
+            if $curr == 'closing-fence' {$prev} else {$curr}
         }
 
     let $block_start_in_orig_md = $row_type
         | enumerate # enumerates start index is 0
         | window --remainder 2
         | scan 1 {|prev curr|
-            if ($curr.item.0? == $curr.item.1?) {
+            if $curr.item.0? == $curr.item.1? {
                 $prev
             } else {
                 # here we output the line number with the opening fence of the current block
