@@ -74,7 +74,7 @@ let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
 print "```"
-print "###code-block-starting-line-in-original-md-164"
+print "###code-block-starting-line-in-original-md-161"
 print "```nu indent-output"
 print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res" | nu-highlight)
@@ -84,7 +84,7 @@ let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
 print "```"
-print "###code-block-starting-line-in-original-md-200"
+print "###code-block-starting-line-in-original-md-197"
 print "```nu indent-output"
 print ("calc-changes 'simple_markdown.md' $md_orig $md_res" | nu-highlight)
 print '```

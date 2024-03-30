@@ -26,7 +26,7 @@ $md_orig_table
 //  │                                                                                         │                │                     1 │
 //  │ ```nu                                                                                   │ ```nu          │                     7 │
 //  │ let $var1 = 'foo'                                                                       │ ```nu          │                     7 │
-//  │ ```                                                                                     │ ```            │                     9 │
+//  │ ```                                                                                     │ ```nu          │                     7 │
 //  │                                                                                         │                │                    10 │
 //  │ ## Example 2                                                                            │                │                    10 │
 //  │                                                                                         │                │                    10 │
@@ -34,10 +34,10 @@ $md_orig_table
 //  │ # This chunk will produce some output in the separate block                             │ ```nu          │                    13 │
 //  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │ ```nu          │                    13 │
 //  │ $var1 | path join 'baz' 'bar'                                                           │ ```nu          │                    13 │
-//  │ ```                                                                                     │ ```            │                    17 │
+//  │ ```                                                                                     │ ```nu          │                    13 │
 //  │ ```numd-output                                                                          │ ```numd-output │                    18 │
 //  │ foo/baz/bar                                                                             │ ```numd-output │                    18 │
-//  │ ```                                                                                     │ ```            │                    20 │
+//  │ ```                                                                                     │ ```numd-output │                    18 │
 //  │                                                                                         │                │                    21 │
 //  │ ## Example 3                                                                            │                │                    21 │
 //  │                                                                                         │                │                    21 │
@@ -47,7 +47,7 @@ $md_orig_table
 //  │ user                                                                                    │ ```nu          │                    24 │
 //  │ > 2 + 2                                                                                 │ ```nu          │                    24 │
 //  │ 4                                                                                       │ ```nu          │                    24 │
-//  │ ```                                                                                     │ ```            │                    30 │
+//  │ ```                                                                                     │ ```nu          │                    24 │
 //  ╰──────────────────────────────────────────line───────────────────────────────────────────┴────row_type────┴─block_line_in_orig_md─╯
 ```
 
@@ -140,7 +140,6 @@ $nu_res_with_block_index
 //  │                       │ ```                                                                                     │
 //  │                       │ ```numd-output                                                                          │
 //  │                       │ ```                                                                                     │
-//  │                       │ ```                                                                                     │
 //  │                    13 │ ```nu                                                                                   │
 //  │                       │ # This chunk will produce some output in the separate block                             │
 //  │                       │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
@@ -149,14 +148,12 @@ $nu_res_with_block_index
 //  │                       │ ```numd-output                                                                          │
 //  │                       │ foo/baz/bar                                                                             │
 //  │                       │ ```                                                                                     │
-//  │                       │ ```                                                                                     │
 //  │                    24 │ ```nu                                                                                   │
 //  │                       │ # This chunk will output results inline                                                 │
 //  │                       │ > whoami                                                                                │
 //  │                       │ user                                                                                    │
 //  │                       │ > 2 + 2                                                                                 │
 //  │                       │ 4                                                                                       │
-//  │                       │ ```                                                                                     │
 //  │                       │ ```                                                                                     │
 //  ╰─block_line_in_orig_md─┴──────────────────────────────────────────line───────────────────────────────────────────╯
 ```

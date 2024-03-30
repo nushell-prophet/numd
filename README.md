@@ -116,6 +116,7 @@ Input/output types:
   │ nothing │ nothing │
   ╰──input──┴─output──╯
 ```
+
 ```nushell
 > numd capture stop --help
 stop capturing commands and their results
