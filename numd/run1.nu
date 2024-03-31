@@ -58,6 +58,7 @@ export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal instead of writing to file
+    --strip-markdown # keep only nushell script, strip all markdown tags
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -76,7 +77,14 @@ export def clear-outputs [
     }
     | flatten
     | parse-block-index $in
-    | assemble-markdown $md_orig_table $in
+    | if $strip_markdown {
+        get line
+        | each {lines | update 0 {|i| $'(char nl)# ($i)'} | drop | str join (char nl)}
+        | str join (char nl)
+        | return $in
+    } else {
+        assemble-markdown $md_orig_table $in
+    }
     | if $echo {} else {
         save -f $output_md_path
     }
