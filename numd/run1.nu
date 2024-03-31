@@ -365,6 +365,12 @@ def calc-changes [
     let $orig_file = $orig_file | ansi strip
     let $new_file = $new_file | ansi strip
 
+    let $n_code_bloks = detect-code-chunks $new_file
+        | where row_type =~ '^```nu'
+        | get block_line_in_orig_md
+        | uniq
+        | length
+
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
@@ -383,7 +389,8 @@ def calc-changes [
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenstein ($orig_file | str distance $new_file)
-    | select filename diff-lines diff-words diff-chars levenstein
+    | insert nu_code_blocks $n_code_bloks
+    | select filename nu_code_blocks levenstein diff-lines diff-words diff-chars
 }
 
 def parse-options-from-fence []: string -> list {
