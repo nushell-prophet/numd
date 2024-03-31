@@ -101,12 +101,10 @@ def detect-code-chunks [
             | if $in =~ '^```' {} else {''}
         }
         | scan --noinit '' {|prev curr|
-            if $curr == '' {
-                if $prev == 'closing-fence' {''} else {$prev}
-            } else if $curr == '```' {
-                if $prev == '' {'```'} else {'closing-fence'}
-            } else {
-                $curr
+            match $curr {
+                '' => { if $prev == 'closing-fence' {''} else {$prev} }
+                '```' => { if $prev == '' {'```'} else {'closing-fence'} }
+                _ => { $curr }
             }
         }
         | scan --noinit '' {|prev curr|
