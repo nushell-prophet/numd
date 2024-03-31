@@ -199,11 +199,12 @@ $md_res
 calc-changes $file $md_orig $md_res
 ```
 ```output-numd
-//  ╭────────────┬────────────────────╮
-//  │ filename   │ simple_markdown.md │
-//  │ lines      │ 0% from 30         │
-//  │ words      │ 0% from 80         │
-//  │ chars      │ 0% from 472        │
-//  │ levenstein │ 0                  │
-//  ╰────────────┴────────────────────╯
+//  ╭────────────────┬────────────────────╮
+//  │ filename       │ simple_markdown.md │
+//  │ nu_code_blocks │ 3                  │
+//  │ levenstein     │ 0                  │
+//  │ diff-lines     │ 0%                 │
+//  │ diff-words     │ 0%                 │
+//  │ diff-chars     │ 0%                 │
+//  ╰────────────────┴────────────────────╯
 ```

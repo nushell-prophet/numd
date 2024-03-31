@@ -85,13 +85,14 @@ By default `numd` provides basic stats on changes made.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
 ```output-numd
-╭────────────┬───────────────────────────────────╮
-│ filename   │ simple_markdown_with_no_output.md │
-│ lines      │ +20% from 25                      │
-│ words      │ +20.5% from 73                    │
-│ chars      │ +16.9% from 437                   │
-│ levenstein │ 74                                │
-╰────────────┴───────────────────────────────────╯
+╭────────────────┬───────────────────────────────────╮
+│ filename       │ simple_markdown_with_no_output.md │
+│ nu_code_blocks │ 3                                 │
+│ levenstein     │ 38                                │
+│ diff-lines     │ +20(5%)                           │
+│ diff-words     │ +9.6(7%)                          │
+│ diff-chars     │ +8.8(38%)                         │
+╰────────────────┴───────────────────────────────────╯
 ```
 
 ### `numd catpure`
