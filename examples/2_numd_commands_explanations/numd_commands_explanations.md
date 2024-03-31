@@ -196,7 +196,7 @@ $md_res
 ```
 
 ```nu indent-output
-calc-changes 'simple_markdown.md' $md_orig $md_res
+calc-changes $file $md_orig $md_res
 ```
 ```output-numd
 //  ╭────────────┬────────────────────╮

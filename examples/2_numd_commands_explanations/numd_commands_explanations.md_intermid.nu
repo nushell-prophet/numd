@@ -86,9 +86,9 @@ $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str joi
 print "```"
 print "###code-block-starting-line-in-original-md-198"
 print "```nu indent-output"
-print ("calc-changes 'simple_markdown.md' $md_orig $md_res" | nu-highlight)
+print ("calc-changes $file $md_orig $md_res" | nu-highlight)
 print '```
 ```output-numd'
-calc-changes 'simple_markdown.md' $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
+calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | echo $in
 
 print "```"
