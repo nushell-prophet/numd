@@ -69,8 +69,7 @@ export def clear-outputs [
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
-        | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
-        } else {
+        | if ($in | where $it =~ '^>' | is-empty) {} else {
             where $it =~ '^(>|#|```)'
         }
         | prepend (numd-block $k)
@@ -106,7 +105,9 @@ def detect-code-chunks [
                 if $prev == 'closing-fence' {''} else {$prev}
             } else if $curr == '```' {
                 if $prev == '' {'```'} else {'closing-fence'}
-            } else {$curr}
+            } else {
+                $curr
+            }
         }
         | scan --noinit '' {|prev curr|
             if $curr == 'closing-fence' {$prev} else {$curr}
