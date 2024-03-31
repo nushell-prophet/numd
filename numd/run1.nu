@@ -54,7 +54,7 @@ export def run [
 }
 
 # remove numd execution outputs from the file
-export def clear-output [
+export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal instead of writing to file
