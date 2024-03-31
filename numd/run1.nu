@@ -368,20 +368,22 @@ def calc-changes [
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
-        (($i.new - $i.old) / $i.old) * 100
+        let $change_abs = $i.new - $i.old
+
+        ($change_abs / $i.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"(ansi red)($in)%(ansi reset)"
+            $"(ansi red)($change_abs)\(($in)%\)(ansi reset)"
         } else if ($in > 0) {
-            $"(ansi blue)+($in)%(ansi reset)"
+            $"(ansi blue)+($in)\(($change_abs)%\)(ansi reset)"
         } else {'0%'}
-        | $"($in) from ($i.old)"
     }
+    | update metric {|i| $'diff-($i.metric)'}
     | select metric change
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenstein ($orig_file | str distance $new_file)
-    | select filename lines words chars levenstein
+    | select filename diff-lines diff-words diff-chars levenstein
 }
 
 def parse-options-from-fence []: string -> list {
