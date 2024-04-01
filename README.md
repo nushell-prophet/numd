@@ -46,6 +46,7 @@ Flags:
   --no-info - do not output stats of changes in `.md` file
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown anyway)
+  --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -146,7 +147,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-03-27T07:30:08+00:00
+2024-03-27T07:30:09+00:00
 > 2 + 2
 4
 > git tag | lines | sort -n | last

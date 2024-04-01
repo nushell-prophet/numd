@@ -55,7 +55,8 @@ $md_orig_table
 let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
-gen-intermid-script $md_orig_table $intermid_script_path
+gen-intermid-script $md_orig_table
+| save -f $intermid_script_path
 
 open $intermid_script_path
 ```
