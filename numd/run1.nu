@@ -10,6 +10,7 @@ export def run [
     --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
+    --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -20,7 +21,11 @@ export def run [
         # we don't use temp dir here as code in `md` files might containt relative paths
         # which only work if we'll execute intrmid script from the same folder
 
-    gen-intermid-script $md_orig_table $intermid_script_path
+    gen-intermid-script $md_orig_table
+    | if $prepend_intermid == null {} else {
+        $'($prepend_intermid)(char nl)($in)'
+    }
+    | save -f $intermid_script_path
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
@@ -245,8 +250,7 @@ def gen-execute-code [
 
 def gen-intermid-script [
     md_classified: table
-    save_path: path
-]: nothing -> nothing {
+]: nothing -> string {
     let $pwd = pwd
 
     $md_classified
@@ -277,7 +281,6 @@ def gen-intermid-script [
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
-    | save -f $save_path
 }
 
 def parse-block-index [
