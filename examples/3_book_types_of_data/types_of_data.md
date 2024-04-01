@@ -460,7 +460,7 @@ To call a closure directly in your code use the [`do`](/commands/docs/do.md) com
 let greet = { |name| print $"Hello ($name)"}
 do $greet "Julian"
 ```
-```numd-output
+```output-numd
 Hello Julian
 ```
 
@@ -481,7 +481,7 @@ if true {
 }
 print $x
 ```
-```numd-output
+```output-numd
 1001
 ```
 

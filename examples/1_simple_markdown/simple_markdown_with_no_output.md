@@ -21,5 +21,5 @@ $var1 | path join 'baz' 'bar'
 ```nu
 # This chunk will output results inline
 > whoami
-> date now
+> 2 + 2
 ```

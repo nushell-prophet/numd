@@ -16,7 +16,7 @@ let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
 $md_orig_table
 ```
-```numd-output
+```output-numd
 //  ╭──────────────────────────────────────────line───────────────────────────────────────────┬────row_type────┬─block_line_in_orig_md─╮
 //  │ # This is a simple markdown example                                                     │                │                     1 │
 //  │                                                                                         │                │                     1 │
@@ -26,7 +26,7 @@ $md_orig_table
 //  │                                                                                         │                │                     1 │
 //  │ ```nu                                                                                   │ ```nu          │                     7 │
 //  │ let $var1 = 'foo'                                                                       │ ```nu          │                     7 │
-//  │ ```                                                                                     │ ```            │                     9 │
+//  │ ```                                                                                     │ ```nu          │                     7 │
 //  │                                                                                         │                │                    10 │
 //  │ ## Example 2                                                                            │                │                    10 │
 //  │                                                                                         │                │                    10 │
@@ -34,10 +34,10 @@ $md_orig_table
 //  │ # This chunk will produce some output in the separate block                             │ ```nu          │                    13 │
 //  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │ ```nu          │                    13 │
 //  │ $var1 | path join 'baz' 'bar'                                                           │ ```nu          │                    13 │
-//  │ ```                                                                                     │ ```            │                    17 │
-//  │ ```numd-output                                                                          │ ```numd-output │                    18 │
-//  │ foo/baz/bar                                                                             │ ```numd-output │                    18 │
-//  │ ```                                                                                     │ ```            │                    20 │
+//  │ ```                                                                                     │ ```nu          │                    13 │
+//  │ ```output-numd                                                                          │ ```output-numd │                    18 │
+//  │ foo/baz/bar                                                                             │ ```output-numd │                    18 │
+//  │ ```                                                                                     │ ```output-numd │                    18 │
 //  │                                                                                         │                │                    21 │
 //  │ ## Example 3                                                                            │                │                    21 │
 //  │                                                                                         │                │                    21 │
@@ -47,7 +47,7 @@ $md_orig_table
 //  │ user                                                                                    │ ```nu          │                    24 │
 //  │ > 2 + 2                                                                                 │ ```nu          │                    24 │
 //  │ 4                                                                                       │ ```nu          │                    24 │
-//  │ ```                                                                                     │ ```            │                    30 │
+//  │ ```                                                                                     │ ```nu          │                    24 │
 //  ╰──────────────────────────────────────────line───────────────────────────────────────────┴────row_type────┴─block_line_in_orig_md─╯
 ```
 
@@ -55,11 +55,12 @@ $md_orig_table
 let $intermid_script_path = $intermid_script_path
         | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
 
-gen-intermid-script $md_orig_table $intermid_script_path
+gen-intermid-script $md_orig_table
+| save -f $intermid_script_path
 
 open $intermid_script_path
 ```
-```numd-output
+```output-numd
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
 //  cd /Users/user/git/numd
@@ -68,7 +69,7 @@ open $intermid_script_path
 //  print "```nu"
 //  print ("let $var1 = 'foo'" | nu-highlight)
 //  print '```
-//  ```numd-output'
+//  ```output-numd'
 //  let $var1 = 'foo'
 //
 //  print "```"
@@ -78,7 +79,7 @@ open $intermid_script_path
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 //  $var1 | path join 'baz' 'bar'" | nu-highlight)
 //  print '```
-//  ```numd-output'
+//  ```output-numd'
 //  # This chunk will produce some output in the separate block
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 //  $var1 | path join 'baz' 'bar' | echo $in
@@ -101,13 +102,13 @@ open $intermid_script_path
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 $nu_res_stdout_lines
 ```
-```numd-output
+```output-numd
 //  ╭─────────────────────────────────────────────────────────────────────────────────────────╮
 //  │ ###code-block-starting-line-in-original-md-7                                            │
 //  │ ```nu                                                                                   │
 //  │ let $var1 = 'foo'                                                                       │
 //  │ ```                                                                                     │
-//  │ ```numd-output                                                                          │
+//  │ ```output-numd                                                                          │
 //  │ ```                                                                                     │
 //  │ ###code-block-starting-line-in-original-md-13                                           │
 //  │ ```nu                                                                                   │
@@ -115,7 +116,7 @@ $nu_res_stdout_lines
 //  │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
 //  │ $var1 | path join 'baz' 'bar'                                                           │
 //  │ ```                                                                                     │
-//  │ ```numd-output                                                                          │
+//  │ ```output-numd                                                                          │
 //  │ foo/baz/bar                                                                             │
 //  │ ```                                                                                     │
 //  │ ###code-block-starting-line-in-original-md-24                                           │
@@ -133,22 +134,20 @@ $nu_res_stdout_lines
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index
 ```
-```numd-output
+```output-numd
 //  ╭─block_line_in_orig_md─┬──────────────────────────────────────────line───────────────────────────────────────────╮
 //  │                     7 │ ```nu                                                                                   │
 //  │                       │ let $var1 = 'foo'                                                                       │
 //  │                       │ ```                                                                                     │
-//  │                       │ ```numd-output                                                                          │
-//  │                       │ ```                                                                                     │
+//  │                       │ ```output-numd                                                                          │
 //  │                       │ ```                                                                                     │
 //  │                    13 │ ```nu                                                                                   │
 //  │                       │ # This chunk will produce some output in the separate block                             │
 //  │                       │ ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>` │
 //  │                       │ $var1 | path join 'baz' 'bar'                                                           │
 //  │                       │ ```                                                                                     │
-//  │                       │ ```numd-output                                                                          │
+//  │                       │ ```output-numd                                                                          │
 //  │                       │ foo/baz/bar                                                                             │
-//  │                       │ ```                                                                                     │
 //  │                       │ ```                                                                                     │
 //  │                    24 │ ```nu                                                                                   │
 //  │                       │ # This chunk will output results inline                                                 │
@@ -157,7 +156,6 @@ $nu_res_with_block_index
 //  │                       │ > 2 + 2                                                                                 │
 //  │                       │ 4                                                                                       │
 //  │                       │ ```                                                                                     │
-//  │                       │ ```                                                                                     │
 //  ╰─block_line_in_orig_md─┴──────────────────────────────────────────line───────────────────────────────────────────╯
 ```
 
@@ -165,7 +163,7 @@ $nu_res_with_block_index
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res
 ```
-```numd-output
+```output-numd
 //  # This is a simple markdown example
 //
 //  ## Example 1
@@ -183,7 +181,7 @@ $md_res
 //  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
 //  $var1 | path join 'baz' 'bar'
 //  ```
-//  ```numd-output
+//  ```output-numd
 //  foo/baz/bar
 //  ```
 //
@@ -197,15 +195,17 @@ $md_res
 //  4
 //  ```
 ```
+
 ```nu indent-output
-calc-changes 'simple_markdown.md' $md_orig $md_res
+calc-changes $file $md_orig $md_res
 ```
-```numd-output
-//  ╭────────────┬────────────────────╮
-//  │ filename   │ simple_markdown.md │
-//  │ lines      │ 0% from 30         │
-//  │ words      │ 0% from 80         │
-//  │ chars      │ 0% from 472        │
-//  │ levenstein │ 0                  │
-//  ╰────────────┴────────────────────╯
+```output-numd
+//  ╭────────────────┬────────────────────╮
+//  │ filename       │ simple_markdown.md │
+//  │ nu_code_blocks │ 3                  │
+//  │ levenstein     │ 0                  │
+//  │ diff-lines     │ 0%                 │
+//  │ diff-words     │ 0%                 │
+//  │ diff-chars     │ 0%                 │
+//  ╰────────────────┴────────────────────╯
 ```

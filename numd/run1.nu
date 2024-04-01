@@ -10,6 +10,7 @@ export def run [
     --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
+    --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -20,7 +21,11 @@ export def run [
         # we don't use temp dir here as code in `md` files might containt relative paths
         # which only work if we'll execute intrmid script from the same folder
 
-    gen-intermid-script $md_orig_table $intermid_script_path
+    gen-intermid-script $md_orig_table
+    | if $prepend_intermid == null {} else {
+        $'($prepend_intermid)(char nl)($in)'
+    }
+    | save -f $intermid_script_path
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
@@ -53,6 +58,43 @@ export def run [
     } else {}
 }
 
+# remove numd execution outputs from the file
+export def clear-outputs [
+    file: path # path to a `.md` file containing numd output to be cleared
+    --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --echo # output resulting markdown to the terminal instead of writing to file
+    --strip-markdown # keep only nushell script, strip all markdown tags
+]: [nothing -> nothing, nothing -> string, nothing -> record] {
+    let $md_orig = open -r $file
+    let $md_orig_table = detect-code-chunks $md_orig
+
+    let $output_md_path = $output_md_path | default $file
+
+    $md_orig_table
+    | where row_type =~ '^```nu(shell)?(\s|$)'
+    | group-by block_line_in_orig_md
+    | items {|k v|
+        $v.line
+        | if ($in | where $it =~ '^>' | is-empty) {} else {
+            where $it =~ '^(>|#|```)'
+        }
+        | prepend (numd-block $k)
+    }
+    | flatten
+    | parse-block-index $in
+    | if $strip_markdown {
+        get line
+        | each {lines | update 0 {|i| $'(char nl)# ($i)'} | drop | str join (char nl)}
+        | str join (char nl)
+        | return $in
+    } else {
+        assemble-markdown $md_orig_table $in
+    }
+    | if $echo {} else {
+        save -f $output_md_path
+    }
+}
+
 def backup-file [
     $path: path
 ]: nothing -> nothing {
@@ -72,14 +114,21 @@ def detect-code-chunks [
             | if $in =~ '^```' {} else {''}
         }
         | scan --noinit '' {|prev curr|
-            if $curr == '' and $prev != '```' {$prev} else {$curr}
+            match $curr {
+                '' => { if $prev == 'closing-fence' {''} else {$prev} }
+                '```' => { if $prev == '' {'```'} else {'closing-fence'} }
+                _ => { $curr }
+            }
+        }
+        | scan --noinit '' {|prev curr|
+            if $curr == 'closing-fence' {$prev} else {$curr}
         }
 
     let $block_start_in_orig_md = $row_type
         | enumerate # enumerates start index is 0
         | window --remainder 2
         | scan 1 {|prev curr|
-            if ($curr.item.0? == $curr.item.1?) {
+            if $curr.item.0? == $curr.item.1? {
                 $prev
             } else {
                 # here we output the line number with the opening fence of the current block
@@ -158,8 +207,8 @@ def gen-catch-error-outside []: string -> string {
     "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
 }
 
-def gen-fence-numd-output []: string -> string {
-    $"print '```(char nl)```numd-output'(char nl)($in)"
+def gen-fence-output-numd []: string -> string {
+    $"print '```(char nl)```output-numd'(char nl)($in)"
 }
 
 def gen-execute-code [
@@ -183,7 +232,7 @@ def gen-execute-code [
             } else {}
             | if 'no-output' in $options {} else {
                 if $whole_chunk {
-                    gen-fence-numd-output
+                    gen-fence-output-numd
                 } else {}
                 | if (ends-with-definition $in) {} else {
                     if 'indent-output' in $options {
@@ -201,17 +250,16 @@ def gen-execute-code [
 
 def gen-intermid-script [
     md_classified: table
-    save_path: path
-]: nothing -> nothing {
+]: nothing -> string {
     let $pwd = pwd
 
     $md_classified
-    | where row_type =~ '```nu(shell)?(\s|$)'
+    | where row_type =~ '^```nu(shell)?(\s|$)'
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
         | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
-            skip # skip the opening code fence ```nushell
+            skip | drop # skip code fences
             | str join (char nl)
             | gen-execute-code --whole_chunk --fence $v.row_type.0
         } else {
@@ -225,7 +273,7 @@ def gen-intermid-script [
         }
         | prepend $"print \"($v.row_type.0)\""
         | prepend $"print \"(numd-block $k)\""
-        | append $"print \"```\"" # this ending code fence already exists in the original markdown table thus unnecessary here
+        | append $"print \"```\""
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
@@ -233,7 +281,6 @@ def gen-intermid-script [
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
-    | save -f $save_path
 }
 
 def parse-block-index [
@@ -260,7 +307,6 @@ def parse-block-index [
         |i| $i.items.nu_out
         | skip
         | str join (char nl)
-        | $in + (char nl) + '```'
     }
     | rename block_line_in_orig_md line
     | into int block_line_in_orig_md
@@ -271,16 +317,15 @@ def assemble-markdown [
     $nu_res_with_block_line_in_orig_md: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '(```nu(shell)?(\s|$))|(^```numd-output$)'
+    | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
     | append $nu_res_with_block_line_in_orig_md
     | sort-by block_line_in_orig_md
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "(^|\n)```\n(```\n)+" "$1```\n" # multiple code-fences
-    | str replace --all --regex "```numd-output(\\s|\n)*```\n" '' # empty numd-output blocks
-    | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
-    | str replace --all --regex "\n\n+\n" "\n\n" # multiple new lines
+    | str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
+    | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
+    | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
 
 export def code-block-options [
@@ -323,23 +368,32 @@ def calc-changes [
     let $orig_file = $orig_file | ansi strip
     let $new_file = $new_file | ansi strip
 
+    let $n_code_bloks = detect-code-chunks $new_file
+        | where row_type =~ '^```nu'
+        | get block_line_in_orig_md
+        | uniq
+        | length
+
     $new_file | str stats | transpose metric new
     | merge ($orig_file | str stats | transpose metric old)
     | insert change {|i|
-        (($i.new - $i.old) / $i.old) * 100
+        let $change_abs = $i.new - $i.old
+
+        ($change_abs / $i.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"(ansi red)($in)%(ansi reset)"
+            $"(ansi red)($change_abs)\(($in)%\)(ansi reset)"
         } else if ($in > 0) {
-            $"(ansi blue)+($in)%(ansi reset)"
+            $"(ansi blue)+($in)\(($change_abs)%\)(ansi reset)"
         } else {'0%'}
-        | $"($in) from ($i.old)"
     }
+    | update metric {|i| $'diff-($i.metric)'}
     | select metric change
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenstein ($orig_file | str distance $new_file)
-    | select filename lines words chars levenstein
+    | insert nu_code_blocks $n_code_bloks
+    | select filename nu_code_blocks levenstein diff-lines diff-words diff-chars
 }
 
 def parse-options-from-fence []: string -> list {

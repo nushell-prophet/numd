@@ -23,7 +23,7 @@ Experienced nushell users can understand the logic better by looking at [example
 ### Details of parsing
 
 1. `numd` looks for ` ```nushell ` or ` ```nu ` code chunks.
-2. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```numd-output ` chunks, next to the executed code chunks.
+2. In the code chunks, that entirely don't have lines starting with the `>` symbol, numd executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```output-numd ` chunks, next to the executed code chunks.
 3. In the code chunks that contain one or more lines starting with `>` symbol, numd filters only lines that start with the `>` or `#` symbol, executes those lines one by one and output their results just after the executed line.
 
 ### `numd run` flags and params
@@ -32,11 +32,11 @@ Experienced nushell users can understand the logic better by looking at [example
 use numd
 numd run --help
 ```
-```numd-output
+```output-numd
 run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file>
+  > run {flags} <file> 
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -46,6 +46,7 @@ Flags:
   --no-info - do not output stats of changes in `.md` file
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown anyway)
+  --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -67,7 +68,7 @@ The block options should be in the [infostring](https://github.github.com/gfm/#i
 ```nushell
 numd code-block-options --list
 ```
-```numd-output
+```output-numd
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
@@ -84,14 +85,15 @@ By default `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
-```numd-output
-╭────────────┬───────────────────────────────────╮
-│ filename   │ simple_markdown_with_no_output.md │
-│ lines      │ +20% from 25                      │
-│ words      │ +20.5% from 73                    │
-│ chars      │ +16.9% from 437                   │
-│ levenstein │ 74                                │
-╰────────────┴───────────────────────────────────╯
+```output-numd
+╭────────────────┬───────────────────────────────────╮
+│ filename       │ simple_markdown_with_no_output.md │
+│ nu_code_blocks │ 3                                 │
+│ levenstein     │ 38                                │
+│ diff-lines     │ +20(5%)                           │
+│ diff-words     │ +9.6(7%)                          │
+│ diff-chars     │ +8.8(38%)                         │
+╰────────────────┴───────────────────────────────────╯
 ```
 
 ### `numd catpure`
@@ -103,7 +105,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 start capturing commands and their results into a file
 
 Usage:
-  > start (file)
+  > start (file) 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -115,12 +117,14 @@ Input/output types:
   ╭──input──┬─output──╮
   │ nothing │ nothing │
   ╰──input──┴─output──╯
+```
 
+```nushell
 > numd capture stop --help
 stop capturing commands and their results
 
 Usage:
-  > stop
+  > stop 
 
 Flags:
   -h, --help - Display the help message for this command
@@ -143,7 +147,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-03-27T07:30:08+00:00
+2024-03-27T07:30:09+00:00
 > 2 + 2
 4
 > git tag | lines | sort -n | last
