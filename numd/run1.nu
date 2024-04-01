@@ -71,7 +71,7 @@ export def clear-outputs [
     let $output_md_path = $output_md_path | default $file
 
     $md_orig_table
-    | where row_type =~ '```nu(shell)?(\s|$)'
+    | where row_type =~ '^```nu(shell)?(\s|$)'
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
@@ -254,7 +254,7 @@ def gen-intermid-script [
     let $pwd = pwd
 
     $md_classified
-    | where row_type =~ '```nu(shell)?(\s|$)'
+    | where row_type =~ '^```nu(shell)?(\s|$)'
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
@@ -317,14 +317,14 @@ def assemble-markdown [
     $nu_res_with_block_line_in_orig_md: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '(```nu(shell)?(\s|$))|(^```output-numd$)'
+    | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
     | append $nu_res_with_block_line_in_orig_md
     | sort-by block_line_in_orig_md
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```output-numd[\n\\s]*```\n" '' # empty output-numd blocks
-    | str replace --all --regex "\n\n+```\n" "\n```\n" # empty lines before closing code fences
+    | str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
+    | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
 
