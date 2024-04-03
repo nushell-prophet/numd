@@ -53,7 +53,8 @@ $md_orig_table
 
 ```nu indent-output
 let $intermid_script_path = $intermid_script_path
-        | default ( $nu.temp-path | path join $'numd-(tstamp).nu' )
+        | default ( $file
+            | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
 
 gen-intermid-script $md_orig_table
 | save -f $intermid_script_path
