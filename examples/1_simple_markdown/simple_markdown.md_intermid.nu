@@ -19,7 +19,7 @@ print '```
 ```output-numd'
 # This chunk will produce some output in the separate block
 ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
-$var1 | path join 'baz' 'bar' | echo $in
+$var1 | path join 'baz' 'bar' | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-24"
@@ -27,9 +27,9 @@ print "```nu"
 print ("# This chunk will output results inline" | nu-highlight)
 
 print ("> whoami" | nu-highlight)
-whoami | echo $in
+whoami | print
 
 print ("> 2 + 2" | nu-highlight)
-2 + 2 | echo $in
+2 + 2 | print
 
 print "```"

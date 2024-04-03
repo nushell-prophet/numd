@@ -5,7 +5,7 @@ const init_numd_pwd_const = '/Users/user/git/numd'
 print "###code-block-starting-line-in-original-md-13"
 print "```nu"
 print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
-[1, 2, 3, 4] | insert 2 10 | echo $in
+[1, 2, 3, 4] | insert 2 10 | print
 
 print ("# [1, 2, 10, 3, 4]" | nu-highlight)
 
@@ -13,7 +13,7 @@ print "```"
 print "###code-block-starting-line-in-original-md-28"
 print "```nu"
 print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
-[1, 2, 3, 4] | update 1 10 | echo $in
+[1, 2, 3, 4] | update 1 10 | print
 
 print ("# [1, 10, 3, 4]" | nu-highlight)
 
@@ -33,7 +33,7 @@ let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
-$colors | echo $in
+$colors | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-67"
@@ -47,7 +47,7 @@ print '```
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors | echo $in
+$colors | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-81"
@@ -59,7 +59,7 @@ print '```
 ```output-numd'
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors | echo $in
+$colors | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-96"
@@ -71,7 +71,7 @@ print '```
 ```output-numd'
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors | echo $in
+$colors | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-114"
@@ -88,7 +88,7 @@ let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $"Hello, ($it)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | echo $in
+$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-135"
@@ -101,7 +101,7 @@ print '```
 ```output-numd'
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean. | echo $in
+# The block passed to `where` must evaluate to a boolean. | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-144"
@@ -111,7 +111,7 @@ $scores | where $it > 7 # [10 8]" | nu-highlight)
 print '```
 ```output-numd'
 let scores = [7 10 8 6 7]
-$scores | where $it > 7 | echo $in
+$scores | where $it > 7 | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-161"
@@ -133,7 +133,7 @@ $"total = ($scores | math sum)" # easier approach, same result
 
 $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | echo $in
+$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-181"
@@ -143,7 +143,7 @@ $names.1 # gives Tami" | nu-highlight)
 print '```
 ```output-numd'
 let names = [Mark Tami Amanda Jeremy]
-$names.1 | echo $in
+$names.1 | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-191"
@@ -155,7 +155,7 @@ print '```
 ```output-numd'
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index | echo $in
+$names | get $index | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-206"
@@ -171,7 +171,7 @@ let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty | echo $in
+$colors | is-empty | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-219"
@@ -185,7 +185,7 @@ print '```
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors | echo $in
+'gold' not-in $colors | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-233"
@@ -217,7 +217,7 @@ let scores = [3 8 4]
 $scores | any {|it| $it > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 } | echo $in
+$scores | any {|it| $it mod 2 == 1 } | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-256"
@@ -249,7 +249,7 @@ let scores = [3 8 4]
 $scores | all {|it| $it > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 } | echo $in
+$scores | all {|it| $it mod 2 == 0 } | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-282"
@@ -261,7 +261,7 @@ print '```
 ```output-numd'
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | echo $in
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | print
 
 print "```"
 print "###code-block-starting-line-in-original-md-303"
@@ -275,6 +275,6 @@ print '```
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | echo $in
+$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | print
 
 print "```"

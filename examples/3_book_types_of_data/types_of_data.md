@@ -491,7 +491,7 @@ Finally, there is `null` which is the language's "nothing" value, similar to JSO
 
 You can place `null` at the end of a pipeline to replace the pipeline's output with it, and thus print nothing:
 
-```nushell
+```nushell no-run
 git checkout featurebranch | null
 ```
 
