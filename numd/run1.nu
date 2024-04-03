@@ -182,7 +182,7 @@ def trim-comments-plus []: string -> string {
 
 # Use a regular expression to check if the last line of the input ends with a semicolon,
 # or contains certain keywords ('let', 'def', 'use') followed by potential characters
-# This is to determine if appending ' | echo $in' is possible.
+# This is to determine if appending ' | print' is possible.
 def ends-with-definition [
     condition: string
 ]: nothing -> bool {
@@ -193,8 +193,8 @@ def gen-indented-output []: string -> string {
     $"($in) | table | into string | lines | each {$'//  \($in\)' | str trim} | str join \(char nl\)"
 }
 
-def gen-echo-in []: string -> string {
-    $'($in) | echo $in'
+def gen-print-in []: string -> string {
+    $'($in) | print'
 }
 
 def gen-catch-error-in-current-instance []: string -> string {
@@ -238,7 +238,7 @@ def gen-execute-code [
                     if 'indent-output' in $options {
                         gen-indented-output
                     } else {}
-                    | gen-echo-in
+                    | gen-print-in
                 }
             }
             | $in + (char nl)
