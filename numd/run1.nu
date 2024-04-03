@@ -29,11 +29,11 @@ export def run [
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
+    # if $intermid_script param wasn't set - remove the temporary one
     if $intermid_script == null {
         rm $intermid_script_path
     }
 
-    # the part with 2 ifs below needs to rewritten
     if $nu_res_stdout_lines == [] { # if nushell won't output anything
         return {
             filename: $file,
@@ -54,8 +54,8 @@ export def run [
         calc-changes $file $md_orig $md_res_ansi
     }
     | if $echo {
-        $"($md_res_ansi)(char nl)($in | table)" # output the changes table below the resulted markdown
-    } else {}
+        $"($md_res_ansi)(char nl)($in | table)" # output the changes stat table below the resulted markdown
+    } else {} # output the changes stat table only
 }
 
 # remove numd execution outputs from the file
