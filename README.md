@@ -96,6 +96,32 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╰────────────────┴───────────────────────────────────╯
 ```
 
+### `numd clear-outputs`
+
+```nu
+> numd clear-outputs --help
+remove numd execution outputs from the file
+
+Usage:
+  > clear-outputs {flags} <file> 
+
+Flags:
+  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  --echo - output resulting markdown to the terminal instead of writing to file
+  --strip-markdown - keep only nushell script, strip all markdown tags
+  -h, --help - Display the help message for this command
+
+Parameters:
+  file <path>: path to a `.md` file containing numd output to be cleared
+
+Input/output types:
+  ╭──input──┬─output──╮
+  │ nothing │ nothing │
+  │ nothing │ string  │
+  │ nothing │ record  │
+  ╰──input──┴─output──╯
+```
+
 ### `numd catpure`
 
 `numd` can use the `display_output` hook to write the current sesssion prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
@@ -147,11 +173,11 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-03-27T07:30:09+00:00
+2024-03-27T07:30:08+00:00
 > 2 + 2
 4
 > git tag | lines | sort -n | last
-0.1.0
+0.1.1
 ```
 
 ## Real fight examples to try
