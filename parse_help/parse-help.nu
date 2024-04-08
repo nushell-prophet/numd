@@ -8,9 +8,12 @@ export def main [
         | ansi strip
         | str replace 'Search terms:' "Search terms:\n"
         | str replace ':  (optional)' ' (optional)'
-        | str replace -ram '\s+-\s$' '' # flags or params with no description
+        | str replace -ram '(\s*)(-|:)\s*($|\()' '$1$2' # flags or params with no description
         | lines
-        | compact --empty
+        | str trim
+        | if not ($in | where $it == '======================' | is-empty) {
+            error make {msg: $"there are more than 1 command with the name ($command)"}
+        } else {}
         | if ($in.0 == 'Usage:') {} else {prepend 'Description:'}
 
     let $regex = [
@@ -39,8 +42,15 @@ export def main [
     | merge $elements
     | transpose -idr
     | update 'Flags' {|i| $i | get 'Flags' | where $it !~ '-h, --help'}
+    | if ($in.Description | split list '' | length) > 1 {
+        let $input = $in
+
+        $input
+        | update Description ($input.Description | take until {|line| $line == ''} | append '')
+        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == ''} | skip)}
+    } else {}
     | if ($in.Flags | length) == 0 {reject 'Flags'} else {}
-    | if $chapters != [] {
+    | if $chapters != null {
         select -i ...$chapters
     } else {}
     | if $record {
@@ -49,7 +59,7 @@ export def main [
     | items {|k v| $v
         | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
         | str join (char nl)
-        | $"($k)\n($in)"
+        | $"($k):\n($in)"
     }
-    | str join "\n\n"
+    | str join "\n"
 }
