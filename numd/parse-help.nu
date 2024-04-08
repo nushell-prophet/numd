@@ -2,7 +2,7 @@
 export def main [
     --sections: list
     --string
-]: string -> string, string -> record {
+] {
     let help_lines = ansi strip
         | str replace 'Search terms:' "Search terms:\n"
         | str replace ':  (optional)' ' (optional)'
