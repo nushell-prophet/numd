@@ -2,18 +2,18 @@
 export def main [
     command: string
     --chapters: list
+    --record
 ] {
     let help_lines = help $command
         | ansi strip
         | str replace 'Search terms:' "Search terms:\n"
         | str replace ':  (optional)' ' (optional)'
-        | str replace -ram '\s+-\s$' ''
+        | str replace -ram '\s+-\s$' '' # flags or params with no description
         | lines
         | compact --empty
         | if ($in.0 == 'Usage:') {} else {prepend 'Description:'}
 
-    let $regex = $chapters
-        | default [
+    let $regex = [
             Description
             "Search terms"
             Usage
@@ -28,22 +28,26 @@ export def main [
 
     let $existing_chapters = $help_lines
         | where $it =~ $regex
-        | str trim -rc ':'
+        | str trim --right --char ':'
         | wrap chapter
 
     let $elements = $help_lines
         | split list -r $regex
         | wrap elements
 
-    let $record = $existing_chapters
-        | merge $elements
-        | transpose -idr
-
-    $record
+    $existing_chapters
+    | merge $elements
+    | transpose -idr
     | update 'Flags' {|i| $i | get 'Flags' | where $it !~ '-h, --help'}
-    | if ($in | get 'Flags' | length) == 0 {reject 'Flags'} else {}
+    | if ($in.Flags | length) == 0 {reject 'Flags'} else {}
+    | if $chapters != [] {
+        select -i ...$chapters
+    } else {}
+    | if $record {
+        return $in
+    } else {}
     | items {|k v| $v
-        | str replace -r '^\s*(\S)' '  $1'
+        | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
         | str join (char nl)
         | $"($k)\n($in)"
     }
