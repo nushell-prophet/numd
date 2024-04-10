@@ -45,7 +45,9 @@ export def detect-code-chunks [
     | merge ($row_type | wrap row_type)
     | merge ($block_start_in_orig_md | wrap block_line_in_orig_md)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
-        error make {msg: 'a closing code block fence (```) is missing, markdown might be invalid.'}
+        error make {
+            msg: 'a closing code block fence (```) is missing, markdown might be invalid.'
+        }
     } else {}
 }
 
