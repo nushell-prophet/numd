@@ -58,7 +58,7 @@ export def escape-quotes []: string -> string {
 export def run-intermid-script [
     intermid_script_path: path
     no_fail_on_error: bool
-] {
+]: nothing -> list {
     ^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path
     | complete
     | if $in.exit_code == 0 {
@@ -276,7 +276,7 @@ export def calc-changes [
 export def diff-changes [
     $file
     $md_res_ansi
-] {
+]: nothing -> string {
     $md_res_ansi
     | ansi strip
     | ^diff --color=always -c $file -
@@ -292,7 +292,7 @@ export def diff-changes [
 # list code block options to alternate their execution and output. Like: '```nu try'
 export def code-block-options [
     --list # show options as a table
-] {
+]: [nothing -> record, nothing -> table] {
     [
         ["long" "short" "description"];
 
