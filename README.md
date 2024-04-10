@@ -97,6 +97,8 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╰────────────────┴───────────────────────────────────╯
 ```
 
+Also `--diff` param can be used to display diff of changes.
+
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
