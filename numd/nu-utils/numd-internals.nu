@@ -14,7 +14,7 @@ export def detect-code-chunks [
     let $file_lines = $md | lines
     let $row_type = $file_lines
         | each {
-            str trim
+            str trim --right
             | if $in =~ '^```' {} else {''}
         }
         | scan --noinit '' {|prev curr|
