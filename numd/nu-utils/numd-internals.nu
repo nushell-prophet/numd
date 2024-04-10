@@ -282,7 +282,11 @@ export def diff-changes [
     | ^diff --color=always -c $file -
     | lines
     | skip 5 # skip seemingly uninformative stats
-    | str join (char nl)
+    | if $in == [] {
+        'no changes produced to show diff'
+    } else {
+        str join (char nl)
+    }
 }
 
 # list code block options to alternate their execution and output. Like: '```nu try'
