@@ -281,7 +281,6 @@ export def diff-changes [
     | lines
     | skip 5 # skip seemingly uninformative stats
     | str join (char nl)
-    | print
 }
 
 # list code block options to alternate their execution and output. Like: '```nu try'
