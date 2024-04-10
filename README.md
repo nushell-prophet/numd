@@ -99,26 +99,26 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 
 Also `--diff` param can be used to display diff of changes.
 
-```nushell
+```nushell indent-output
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
 ```output-numd
-  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
-  $var1 | path join 'baz' 'bar'
-  ```
-+ ```output-numd
-+ foo/baz/bar
-+ ```
-  
-  ## Example 3
-  
-  ```nu
-  # This chunk will output results inline
-  > whoami
-+ user
-  > 2 + 2
-+ 4
-  ```
+//    ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
+//    $var1 | path join 'baz' 'bar'
+//    ```
+//  + ```output-numd
+//  + foo/baz/bar
+//  + ```
+//    
+//    ## Example 3
+//    
+//    ```nu
+//    # This chunk will output results inline
+//    > whoami
+//  + user
+//    > 2 + 2
+//  + 4
+//    ```
 ```
 
 ### `numd clear-outputs`
