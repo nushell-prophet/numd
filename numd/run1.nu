@@ -52,16 +52,22 @@ export def run [
         $md_res_ansi | ansi strip | save -f $path
     }
 
-    if $diff {
-        diff-changes $file $md_res_ansi # we use file path of the original file here
-    }
+    let $changes = calc-changes $file $md_orig $md_res_ansi
+        | if not ($echo and $diff) and not $no_info {
+            return $in
+        } else {
+            table
+        }
 
-    if $no_info { null } else {
-        calc-changes $file $md_orig $md_res_ansi
+    []
+    | if $echo {append $md_res_ansi} else {} # output the changes stat table below the resulted markdown
+    | if not $no_info {append $changes} else {}
+    | if $diff {
+        append (diff-changes $file $md_res_ansi) # we use file path of the original file here
+    } else {}
+    | if $in == [] {null} else {
+        str join (char nl)
     }
-    | if $echo {
-        $"($md_res_ansi)(char nl)($in | table)" # output the changes stat table below the resulted markdown
-    } else {} # output the changes stat table only
 }
 
 # remove numd execution outputs from the file
