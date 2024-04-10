@@ -254,9 +254,9 @@ export def calc-changes [
         ($change_abs / $i.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"(ansi red)($change_abs)\(($in)%\)(ansi reset)"
+            $"(ansi red)($change_abs) \(($in)%\)(ansi reset)"
         } else if ($in > 0) {
-            $"(ansi blue)+($in)\(($change_abs)%\)(ansi reset)"
+            $"(ansi blue)+($change_abs) \(($in)%\)(ansi reset)"
         } else {'0%'}
     }
     | update metric {|i| $'diff-($i.metric)'}
