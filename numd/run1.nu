@@ -12,6 +12,7 @@ export def run [
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown anyway)
     --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
+    --diff # use diff for printing changes
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
@@ -49,6 +50,10 @@ export def run [
         let $path = $output_md_path | default $file
         if not ($no_backup or $no_save) { backup-file $path }
         $md_res_ansi | ansi strip | save -f $path
+    }
+
+    if $diff {
+        diff-changes $file $md_res_ansi # we use file path of the original file here
     }
 
     if $no_info { null } else {

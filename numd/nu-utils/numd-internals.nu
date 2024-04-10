@@ -268,6 +268,19 @@ export def calc-changes [
     | select filename nu_code_blocks levenstein diff-lines diff-words diff-chars
 }
 
+export def diff-changes [
+    $file
+    $md_res_ansi
+] {
+    $md_res_ansi
+    | ansi strip
+    | ^diff --color=always -c $file -
+    | lines
+    | skip 5 # skip seemingly uninformative stats
+    | str join (char nl)
+    | print
+}
+
 # list code block options to alternate their execution and output. Like: '```nu try'
 export def code-block-options [
     --list # show options as a table
