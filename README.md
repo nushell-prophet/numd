@@ -47,6 +47,7 @@ Flags:
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown anyway)
   --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
+  --diff - use diff for printing changes
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -90,10 +91,32 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
 │ levenstein     │ 38                                │
-│ diff-lines     │ +20(5%)                           │
-│ diff-words     │ +9.6(7%)                          │
-│ diff-chars     │ +8.8(38%)                         │
+│ diff-lines     │ +5 (20%)                          │
+│ diff-words     │ +7 (9.6%)                         │
+│ diff-chars     │ +38 (8.8%)                        │
 ╰────────────────┴───────────────────────────────────╯
+```
+
+```nushell
+numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
+```
+```output-numd
+  ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
+  $var1 | path join 'baz' 'bar'
+  ```
++ ```output-numd
++ foo/baz/bar
++ ```
+  
+  ## Example 3
+  
+  ```nu
+  # This chunk will output results inline
+  > whoami
++ user
+  > 2 + 2
++ 4
+  ```
 ```
 
 ### `numd clear-outputs`
@@ -173,7 +196,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-03-27T07:30:08+00:00
+2024-04-07T05:26:21+00:00
 > 2 + 2
 4
 > git tag | lines | sort -n | last
