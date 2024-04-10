@@ -53,7 +53,7 @@ export def run [
     }
 
     let $changes = calc-changes $file $md_orig $md_res_ansi
-        | if not ($echo and $diff) and not $no_info {
+        | if not ($echo or $diff) and not $no_info {
             return $in
         } else {
             table
