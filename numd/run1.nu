@@ -52,20 +52,19 @@ export def run [
         $md_res_ansi | ansi strip | save -f $path
     }
 
-    let $changes = calc-changes $file $md_orig $md_res_ansi
-        | if not ($echo or $diff) and not $no_info {
-            return $in
+    if not $no_info {
+        calc-changes $file $md_orig $md_res_ansi
+        | if not ($echo or $diff) {
+            return $in # we return here a record file type
         } else {
-            table
+            table # we continue here with string
         }
-
-    []
-    | if $echo {append $md_res_ansi} else {} # output the changes stat table below the resulted markdown
-    | if not $no_info {append $changes} else {}
+    } else {}
+    | if $echo {prepend $md_res_ansi} else {} # output the changes stat table below the resulted markdown
     | if $diff {
         append (diff-changes $file $md_res_ansi) # we use file path of the original file here
     } else {}
-    | if $in == [] {null} else {
+    | if $in == null {} else {
         str join (char nl)
     }
 }
