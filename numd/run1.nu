@@ -45,6 +45,7 @@ export def run [
 
     let $nu_res_with_block_line_in_orig_md = parse-block-index $nu_res_stdout_lines
     let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_line_in_orig_md
+        | prettify-markdown
 
     if not $no_save {
         let $path = $output_md_path | default $file

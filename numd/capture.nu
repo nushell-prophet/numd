@@ -1,4 +1,5 @@
 use nu-utils/ [cprint]
+use nu-utils numd-internals [prettify-markdown]
 
 # start capturing commands and their results into a file
 export def --env start [
@@ -24,7 +25,7 @@ export def --env start [
         | ansi strip
         | default (char nl)
         | '> ' + (history | last | get command) + (char nl) + $in + (char nl)
-        | str replace -r "\n\n\n$" "\n\n"
+        | str replace -r "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') {
             save -ar $env.numd.path
         }
@@ -39,7 +40,9 @@ export def --env stop [ ]: nothing -> nothing {
 
     let $file = $env.numd.path
 
-    '```' + (char nl) | save -a $file
+    $'(open $file)```(char nl)'
+    | prettify-markdown
+    | save -f $file
 
     cprint $'numd commands capture to the *($file)* file has been stoped.'
 
