@@ -232,7 +232,10 @@ export def assemble-markdown [
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
+}
+
+export def prettify-markdown []: string -> string {
+    str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
