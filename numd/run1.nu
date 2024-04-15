@@ -1,7 +1,7 @@
 use nu-utils numd-internals *
 export use nu-utils numd-internals code-block-options
 
-# run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
+# run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
@@ -10,7 +10,7 @@ export def run [
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
     --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
-    --no-fail-on-error # skip errors (and don't update markdown anyway)
+    --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
     --diff # use diff for printing changes
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
@@ -18,8 +18,7 @@ export def run [
     let $md_orig_table = detect-code-chunks $md_orig
 
     let $intermid_script_path = $intermid_script
-        | default ( $file
-            | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
+        | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
         # we don't use temp dir here as code in `md` files might containt relative paths
         # which only work if we'll execute intrmid script from the same folder
 
@@ -31,7 +30,7 @@ export def run [
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
-    # if $intermid_script param wasn't set - remove the temporary one
+    # if $intermid_script param wasn't set - remove the temporary intermid script
     if $intermid_script == null {
         rm $intermid_script_path
     }
@@ -56,14 +55,14 @@ export def run [
     if not $no_info {
         calc-changes $file $md_orig $md_res_ansi
         | if not ($echo or $diff) {
-            return $in # we return here a record file type
+            return $in # default variant: we return here a record
         } else {
             table # we continue here with string
         }
     } else {}
     | if $echo {prepend $md_res_ansi} else {} # output the changes stat table below the resulted markdown
     | if $diff {
-        append (diff-changes $file $md_res_ansi) # we use file path of the original file here
+        append (diff-changes $file $md_res_ansi) # we use the file path of the original file here
     } else {}
     | if $in == null {} else {
         str join (char nl)
