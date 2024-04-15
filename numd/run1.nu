@@ -48,7 +48,7 @@ export def run [
 
     if not $no_save {
         let $path = $output_md_path | default $file
-        if not ($no_backup or $no_save) { backup-file $path }
+        if not $no_backup { backup-file $path }
         $md_res_ansi | ansi strip | save -f $path
     }
 
