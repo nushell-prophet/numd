@@ -13,16 +13,14 @@ print "```"
 print "###code-block-starting-line-in-original-md-13"
 print "```nu"
 print ("# This chunk will produce some output in a separate block
-ls; # mind that this `ls` won't output results back into the markdown as it is used without `print` or `>`
 $var1 | path join 'baz' 'bar'" | nu-highlight)
 print '```
 ```output-numd'
 # This chunk will produce some output in a separate block
-ls; # mind that this `ls` won't output results back into the markdown as it is used without `print` or `>`
 $var1 | path join 'baz' 'bar' | print
 
 print "```"
-print "###code-block-starting-line-in-original-md-24"
+print "###code-block-starting-line-in-original-md-23"
 print "```nu"
 print ("# This chunk will output results inline" | nu-highlight)
 

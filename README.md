@@ -91,9 +91,9 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
 │ levenstein     │ 38                                │
-│ diff-lines     │ +5 (20%)                          │
-│ diff-words     │ +7 (9.3%)                         │
-│ diff-chars     │ +38 (8.4%)                        │
+│ diff-lines     │ +5 (20.8%)                        │
+│ diff-words     │ +7 (12.5%)                        │
+│ diff-chars     │ +38 (11%)                         │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -103,7 +103,7 @@ Also `--diff` param can be used to display diff of changes.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
 ```output-numd
-//    ls; # mind that this `ls` won't output results back into the markdown as it is used without `print` or `>`
+//    # This chunk will produce some output in a separate block
 //    $var1 | path join 'baz' 'bar'
 //    ```
 //  + ```output-numd
