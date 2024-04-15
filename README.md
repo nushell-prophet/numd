@@ -198,11 +198,11 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-04-07T05:26:21+00:00
+2024-04-07T05:26:19+00:00
 > 2 + 2
 4
 > git tag | lines | sort -n | last
-0.1.1
+0.1.2
 ```
 
 ## Real fight examples to try
