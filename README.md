@@ -33,7 +33,7 @@ use numd
 numd run --help
 ```
 ```output-numd
-run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
+run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
 
 Usage:
   > run {flags} <file> 
@@ -45,7 +45,7 @@ Flags:
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
-  --no-fail-on-error - skip errors (and don't update markdown anyway)
+  --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
   --diff - use diff for printing changes
   -h, --help - Display the help message for this command
@@ -92,8 +92,8 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 │ nu_code_blocks │ 3                                 │
 │ levenstein     │ 38                                │
 │ diff-lines     │ +5 (20%)                          │
-│ diff-words     │ +7 (9.6%)                         │
-│ diff-chars     │ +38 (8.8%)                        │
+│ diff-words     │ +7 (9.3%)                         │
+│ diff-chars     │ +38 (8.4%)                        │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -103,7 +103,7 @@ Also `--diff` param can be used to display diff of changes.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
 ```output-numd
-//    ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
+//    ls; # mind that this `ls` won't output results back into the markdown as it is used without `print` or `>`
 //    $var1 | path join 'baz' 'bar'
 //    ```
 //  + ```output-numd

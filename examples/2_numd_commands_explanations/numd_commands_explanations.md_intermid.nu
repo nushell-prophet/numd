@@ -63,14 +63,16 @@ print "```"
 print "###code-block-starting-line-in-original-md-103"
 print "```nu indent-output"
 print ("let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+rm $intermid_script_path
 $nu_res_stdout_lines" | nu-highlight)
 print '```
 ```output-numd'
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+rm $intermid_script_path
 $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
 
 print "```"
-print "###code-block-starting-line-in-original-md-135"
+print "###code-block-starting-line-in-original-md-136"
 print "```nu indent-output"
 print ("let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index" | nu-highlight)
@@ -80,7 +82,7 @@ let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
 
 print "```"
-print "###code-block-starting-line-in-original-md-164"
+print "###code-block-starting-line-in-original-md-165"
 print "```nu indent-output"
 print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
@@ -94,7 +96,7 @@ let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
 
 print "```"
-print "###code-block-starting-line-in-original-md-203"
+print "###code-block-starting-line-in-original-md-204"
 print "```nu indent-output"
 print ("calc-changes $file $md_orig $md_res" | nu-highlight)
 print '```

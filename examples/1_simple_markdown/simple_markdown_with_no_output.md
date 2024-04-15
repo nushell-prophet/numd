@@ -11,8 +11,8 @@ let $var1 = 'foo'
 ## Example 2
 
 ```nu
-# This chunk will produce some output in the separate block
-ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
+# This chunk will produce some output in a separate block
+ls; # mind that this `ls` won't output results back into the markdown as it is used without `print` or `>`
 $var1 | path join 'baz' 'bar'
 ```
 
