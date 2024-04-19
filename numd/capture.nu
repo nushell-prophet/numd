@@ -13,14 +13,18 @@ export def --env start [
 
     '```nushell' + (char nl) | save -a $env.numd.path
 
-    $env.backup.hooks.display_output = ($env.config.hooks?.display_output? | default {
-        if (term size).columns >= 100 { table -e } else { table }
-    })
+    $env.backup.hooks.display_output = (
+        $env.config.hooks?.display_output?
+        | default {
+            if (term size).columns >= 100 { table -e } else { table }
+        }
+    )
+
     $env.config.hooks.display_output = {
         let $input = $in
 
         $input
-        | table -e
+        | if (term size).columns >= 100 { table -e } else { table }
         | into string
         | ansi strip
         | default (char nl)
