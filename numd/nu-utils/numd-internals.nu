@@ -103,7 +103,7 @@ export def gen-indented-output []: string -> string {
 }
 
 export def gen-print-in []: string -> string {
-    $'($in) | print'
+    $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
 }
 
 export def gen-catch-error-in-current-instance []: string -> string {
