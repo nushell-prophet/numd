@@ -3,8 +3,10 @@ use std iter scan
 export def backup-file [
     $path: path
 ]: nothing -> nothing {
-    if ($path | path exists) and ($path | path type) == 'file' {
-        mv $path ($path | path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)')
+    $path
+    | if ($in | path exists) and ($in | path type) == 'file' {
+        path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
+        | mv $path $in
     }
 }
 
