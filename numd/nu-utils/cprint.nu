@@ -1,6 +1,6 @@
 # export def main [] {}
 
-use 'str repeat.nu'
+use 'str.nu'
 
 # Print the string colorfully with bells and whistles.
 export def main [
