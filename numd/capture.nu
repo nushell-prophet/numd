@@ -30,7 +30,7 @@ export def --env start [
         | default (char nl)
         | '> ' + (history | last | get command) + (char nl) + $in + (char nl) + (char nl)
         | str replace -r "\n{3,}$" "\n\n"
-        | if ($in !~ 'numd capture') {
+        | if ($in !~ 'numd capture') { # don't save numd capture managing commands
             save -ar $env.numd.path
         }
 
