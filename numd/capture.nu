@@ -1,4 +1,4 @@
-use nu-utils/ [cprint]
+use nu-utils [cprint]
 use nu-utils numd-internals [prettify-markdown]
 
 # start capturing commands and their results into a file
@@ -17,7 +17,7 @@ export def --env start [
         if (term size).columns >= 100 { table -e } else { table }
     })
     $env.config.hooks.display_output = {
-        let $input = $in;
+        let $input = $in
 
         $input
         | table -e
