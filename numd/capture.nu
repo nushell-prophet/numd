@@ -11,7 +11,7 @@ export def --env start [
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
 
-    '```nushell' + (char nl) | save -a $env.numd.path
+    "```nushell\n" | save -a $env.numd.path
 
     $env.backup.hooks.display_output = (
         $env.config.hooks?.display_output?
@@ -28,7 +28,7 @@ export def --env start [
         | into string
         | ansi strip
         | default (char nl)
-        | '> ' + (history | last | get command) + (char nl) + $in + (char nl) + (char nl)
+        | $"> (history | last | get command)\n($in)\n\n"
         | str replace -r "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') { # don't save numd capture managing commands
             save -ar $env.numd.path
@@ -44,7 +44,7 @@ export def --env stop [ ]: nothing -> nothing {
 
     let $file = $env.numd.path
 
-    $'(open $file)```(char nl)'
+    $"(open $file)```\n"
     | prettify-markdown
     | save -f $file
 
