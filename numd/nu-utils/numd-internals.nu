@@ -80,7 +80,8 @@ export def numd-block [
 }
 
 export def gen-highlight-command [ ]: string -> string {
-    $"print \(\"($in | escape-quotes)\" | nu-highlight\)(char nl)"
+    escape-quotes
+    | $"print \(\"($in)\" | nu-highlight\)(char nl)"
 }
 
 export def trim-comments-plus []: string -> string {
@@ -112,8 +113,9 @@ export def gen-catch-error-in-current-instance []: string -> string {
 
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
-    ($"do {nu -c \"($in | escape-quotes)\"} " +
-    "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
+    escape-quotes
+    | ($"do {nu -c \"($in)\"} | complete | if \($in.exit_code != 0\) " +
+        "{get stderr} else {get stdout}")
 }
 
 export def gen-fence-output-numd []: string -> string {
