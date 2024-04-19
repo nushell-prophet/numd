@@ -1,4 +1,5 @@
 use std iter scan
+use str.nu
 
 export def backup-file [
     $path: path
@@ -88,8 +89,9 @@ export def numd-block [
 }
 
 export def gen-highlight-command [ ]: string -> string {
-    escape-escapes
-    | $"print \(\"($in)\" | nu-highlight\)(char nl)"
+    escape-quotes
+    | str prepend "print (\""
+    | str append "\" | nu-highlight)\n"
 }
 
 export def trim-comments-plus []: string -> string {
@@ -123,9 +125,9 @@ export def gen-catch-error-in-current-instance []: string -> string {
 
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
-    escape-escapes
-    | ($"do {nu -c \"($in)\"} | complete | if \($in.exit_code != 0\) " +
-        "{get stderr} else {get stdout}")
+    escape-quotes
+    | str prepend 'do {nu -c "'
+    | str append '"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}'
 }
 
 export def gen-fence-output-numd []: string -> string {
@@ -199,8 +201,8 @@ export def gen-intermid-script [
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
-    | prepend ( '# this script was generated automatically using numd' +
-        "\n# https://github.com/nushell-prophet/numd" )
+    | prepend ( '# this script was generated automatically using numd'
+        | str append "# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
 }
