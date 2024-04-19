@@ -28,7 +28,7 @@ export def --env start [
         | into string
         | ansi strip
         | default (char nl)
-        | '> ' + (history | last | get command) + (char nl) + $in + (char nl)
+        | '> ' + (history | last | get command) + (char nl) + $in + (char nl) + (char nl)
         | str replace -r "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') {
             save -ar $env.numd.path
