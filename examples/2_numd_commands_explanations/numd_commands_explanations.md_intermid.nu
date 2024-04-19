@@ -35,10 +35,10 @@ print '```
 ```output-numd'
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-chunks $md_orig
-$md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+$md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"
-print "###code-block-starting-line-in-original-md-55"
+print "###code-block-starting-line-in-original-md-54"
 print "```nu indent-output"
 print ("let $intermid_script_path = $intermid_script_path
         | default ( $file
@@ -57,10 +57,10 @@ let $intermid_script_path = $intermid_script_path
 gen-intermid-script $md_orig_table
 | save -f $intermid_script_path
 
-open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"
-print "###code-block-starting-line-in-original-md-103"
+print "###code-block-starting-line-in-original-md-100"
 print "```nu indent-output"
 print ("let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 rm $intermid_script_path
@@ -69,20 +69,20 @@ print '```
 ```output-numd'
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 rm $intermid_script_path
-$nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+$nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"
-print "###code-block-starting-line-in-original-md-136"
+print "###code-block-starting-line-in-original-md-132"
 print "```nu indent-output"
 print ("let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index" | nu-highlight)
 print '```
 ```output-numd'
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+$nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"
-print "###code-block-starting-line-in-original-md-165"
+print "###code-block-starting-line-in-original-md-160"
 print "```nu indent-output"
 print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
@@ -93,14 +93,14 @@ print '```
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
 
-$md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+$md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"
-print "###code-block-starting-line-in-original-md-204"
+print "###code-block-starting-line-in-original-md-198"
 print "```nu indent-output"
 print ("calc-changes $file $md_orig $md_res" | nu-highlight)
 print '```
 ```output-numd'
-calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print
+calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
 print "```"

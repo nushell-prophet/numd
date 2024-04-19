@@ -17,7 +17,7 @@ $var1 | path join 'baz' 'bar'" | nu-highlight)
 print '```
 ```output-numd'
 # This chunk will produce some output in a separate block
-$var1 | path join 'baz' 'bar' | print
+$var1 | path join 'baz' 'bar' | print; print ''
 
 print "```"
 print "###code-block-starting-line-in-original-md-23"
@@ -25,9 +25,9 @@ print "```nu"
 print ("# This chunk will output results inline" | nu-highlight)
 
 print ("> whoami" | nu-highlight)
-whoami | print
+whoami | print; print ''
 
 print ("> 2 + 2" | nu-highlight)
-2 + 2 | print
+2 + 2 | print; print ''
 
 print "```"

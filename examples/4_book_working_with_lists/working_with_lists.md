@@ -308,9 +308,9 @@ $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone |
 ```
 ```output-numd
 ╭────────Zone────────┬───────Time───────╮
-│ UTC                │ 2024.04.15 11:22 │
-│ CET                │ 2024.04.15 13:22 │
-│ Europe/Moscow      │ 2024.04.15 14:22 │
-│ Asia/Yekaterinburg │ 2024.04.15 16:22 │
+│ UTC                │ 2024.04.19 13:09 │
+│ CET                │ 2024.04.19 15:09 │
+│ Europe/Moscow      │ 2024.04.19 16:09 │
+│ Asia/Yekaterinburg │ 2024.04.19 18:09 │
 ╰────────Zone────────┴───────Time───────╯
 ```

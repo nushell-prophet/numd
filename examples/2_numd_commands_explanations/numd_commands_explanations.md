@@ -45,6 +45,7 @@ $md_orig_table
 //  │ # This chunk will output results inline                              │ ```nu          │                    23 │
 //  │ > whoami                                                             │ ```nu          │                    23 │
 //  │ user                                                                 │ ```nu          │                    23 │
+//  │                                                                      │ ```nu          │                    23 │
 //  │ > 2 + 2                                                              │ ```nu          │                    23 │
 //  │ 4                                                                    │ ```nu          │                    23 │
 //  │ ```                                                                  │ ```nu          │                    23 │
@@ -81,7 +82,7 @@ open $intermid_script_path
 //  print '```
 //  ```output-numd'
 //  # This chunk will produce some output in a separate block
-//  $var1 | path join 'baz' 'bar' | print
+//  $var1 | path join 'baz' 'bar' | print; print ''
 //
 //  print "```"
 //  print "###code-block-starting-line-in-original-md-23"
@@ -89,10 +90,10 @@ open $intermid_script_path
 //  print ("# This chunk will output results inline" | nu-highlight)
 //
 //  print ("> whoami" | nu-highlight)
-//  whoami | print
+//  whoami | print; print ''
 //
 //  print ("> 2 + 2" | nu-highlight)
-//  2 + 2 | print
+//  2 + 2 | print; print ''
 //
 //  print "```"
 ```
@@ -117,14 +118,17 @@ $nu_res_stdout_lines
 //  │ ```                                                       │
 //  │ ```output-numd                                            │
 //  │ foo/baz/bar                                               │
+//  │                                                           │
 //  │ ```                                                       │
 //  │ ###code-block-starting-line-in-original-md-23             │
 //  │ ```nu                                                     │
 //  │ # This chunk will output results inline                   │
 //  │ > whoami                                                  │
 //  │ user                                                      │
+//  │                                                           │
 //  │ > 2 + 2                                                   │
 //  │ 4                                                         │
+//  │                                                           │
 //  │ ```                                                       │
 //  ╰───────────────────────────────────────────────────────────╯
 ```
@@ -146,13 +150,16 @@ $nu_res_with_block_index
 //  │                       │ ```                                                       │
 //  │                       │ ```output-numd                                            │
 //  │                       │ foo/baz/bar                                               │
+//  │                       │                                                           │
 //  │                       │ ```                                                       │
 //  │                    23 │ ```nu                                                     │
 //  │                       │ # This chunk will output results inline                   │
 //  │                       │ > whoami                                                  │
 //  │                       │ user                                                      │
+//  │                       │                                                           │
 //  │                       │ > 2 + 2                                                   │
 //  │                       │ 4                                                         │
+//  │                       │                                                           │
 //  │                       │ ```                                                       │
 //  ╰─block_line_in_orig_md─┴───────────────────────────line────────────────────────────╯
 ```
@@ -190,6 +197,7 @@ $md_res
 //  # This chunk will output results inline
 //  > whoami
 //  user
+//
 //  > 2 + 2
 //  4
 //  ```

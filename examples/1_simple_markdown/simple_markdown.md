@@ -24,6 +24,7 @@ foo/baz/bar
 # This chunk will output results inline
 > whoami
 user
+
 > 2 + 2
 4
 ```

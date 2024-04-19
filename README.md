@@ -90,10 +90,10 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╭────────────────┬───────────────────────────────────╮
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
-│ levenstein     │ 38                                │
-│ diff-lines     │ +5 (20.8%)                        │
+│ levenstein     │ 39                                │
+│ diff-lines     │ +6 (25%)                          │
 │ diff-words     │ +7 (12.5%)                        │
-│ diff-chars     │ +38 (11%)                         │
+│ diff-chars     │ +39 (11.3%)                       │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -116,6 +116,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 //    # This chunk will output results inline
 //    > whoami
 //  + user
+//  + 
 //    > 2 + 2
 //  + 4
 //    ```
@@ -199,10 +200,12 @@ Input/output types:
 
 > sys | get host.boot_time
 2024-04-07T05:26:19+00:00
+
 > 2 + 2
 4
+
 > git tag | lines | sort -n | last
-0.1.2
+0.1.4
 ```
 
 ## Real fight examples to try
