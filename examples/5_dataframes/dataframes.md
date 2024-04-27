@@ -243,11 +243,10 @@ To see all the dataframes that are stored in memory you can use
 
 ```nu
 > polars store-ls
-╭───┬──────┬─────────┬──────╮
-│ # │ name │ columns │ rows │
-├───┼──────┼─────────┼──────┤
-│ 0 │ $df  │       8 │   10 │
-╰───┴──────┴─────────┴──────╯
+╭─────────────────key──────────────────┬─created─┬─columns─┬─rows─┬───type────┬─estimated_size─┬─span_contents─┬─span_start─┬─span_end─┬─reference_count─╮
+│ a15f102b-4a9b-4203-aea1-f5003160dae3 │ now     │       8 │   10 │ DataFrame │          403 B │ polars open   │    1958262 │  1958273 │               1 │
+╰─────────────────key──────────────────┴─created─┴─columns─┴─rows─┴───type────┴─estimated_size─┴─span_contents─┴─span_start─┴─span_end─┴─reference_count─╯
+
 ```
 
 As you can see, the command shows the created dataframes together with basic
@@ -258,9 +257,7 @@ dataframe variable to the stream
 
 ```nu
 > $df
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     1 │    11 │    0.10 │    1.00 │ a     │ b      │ c     │ first  │
 │ 1 │     2 │    12 │    0.20 │    1.00 │ a     │ b      │ c     │ second │
 │ 2 │     3 │    13 │    0.30 │    2.00 │ a     │ b      │ c     │ third  │
@@ -271,7 +268,8 @@ dataframe variable to the stream
 │ 7 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight  │
 │ 8 │     9 │    19 │    0.90 │    8.00 │ c     │ c      │ b     │ ninth  │
 │ 9 │     0 │    10 │    0.00 │    9.00 │ c     │ c      │ b     │ ninth  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 With the dataframe in memory we can start doing column operations with the
@@ -289,11 +287,10 @@ that exist in `df` by using the `aggregate` command
 
 ```nu
 > $df | polars sum
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬──────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │ word │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼──────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬─word─╮
 │ 0 │    40 │   145 │    4.50 │   46.00 │       │        │       │      │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴──────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴─word─╯
+
 ```
 
 As you can see, the aggregate function computes the sum for those columns where
@@ -302,11 +299,10 @@ the columns you want by using the [`polars select`](/commands/docs/polars_select
 
 ```nu
 > $df | polars sum | polars select int_1 int_2 float_1 float_2
-╭───┬───────┬───────┬─────────┬─────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │
-├───┼───────┼───────┼─────────┼─────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─╮
 │ 0 │    40 │   145 │    4.50 │   46.00 │
-╰───┴───────┴───────┴─────────┴─────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─╯
+
 ```
 
 You can even store the result from this aggregation as you would store any
@@ -325,12 +321,11 @@ And now we have two dataframes stored in memory
 
 ```nu
 > polars store-ls
-╭───┬──────┬─────────┬──────╮
-│ # │ name │ columns │ rows │
-├───┼──────┼─────────┼──────┤
-│ 0 │ $res │       4 │    1 │
-│ 1 │ $df  │       8 │   10 │
-╰───┴──────┴─────────┴──────╯
+╭─────────────────key──────────────────┬─created─┬─columns─┬─rows─┬───type────┬─estimated_size─┬─span_contents─┬─span_start─┬─span_end─┬─reference_count─╮
+│ a15f102b-4a9b-4203-aea1-f5003160dae3 │ now     │       8 │   10 │ DataFrame │          403 B │ polars open   │    1958262 │  1958273 │               1 │
+│ ebd8e7a8-3fac-47b4-88bc-16d3b82e3696 │ now     │       4 │    1 │ DataFrame │           32 B │ polars select │    1959202 │  1959215 │               1 │
+╰─────────────────key──────────────────┴─created─┴─columns─┴─rows─┴───type────┴─estimated_size─┴─span_contents─┴─span_start─┴─span_end─┴─reference_count─╯
+
 ```
 
 Pretty neat, isn't it?
@@ -367,14 +362,13 @@ right dataframe
 
 ```nu
 > $df | polars join $df_a int_1 int_1
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────┬─────────┬───────────┬───────────┬─────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │ int_2_x │ float_1_x │ float_2_x │ first_x │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┼─────────┼───────────┼───────────┼─────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──┬─int_2_x─┬─float_1_x─┬─float_2_x─┬─first_x─╮
 │ 0 │     6 │    16 │    0.60 │    5.00 │ b     │ a      │ a     │ second │      11 │      0.10 │      0.00 │ b       │
 │ 1 │     7 │    17 │    0.70 │    6.00 │ b     │ c      │ a     │ third  │      12 │      0.20 │      1.00 │ a       │
 │ 2 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight  │      13 │      0.30 │      2.00 │ a       │
 │ 3 │     9 │    19 │    0.90 │    8.00 │ c     │ c      │ b     │ ninth  │      14 │      0.40 │      3.00 │ a       │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────┴─────────┴───────────┴───────────┴─────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──┴─int_2_x─┴─float_1_x─┴─float_2_x─┴─first_x─╯
+
 ```
 
 ::: tip
@@ -388,11 +382,10 @@ For example:
 
 ```nu
 > $df | polars join $df_a [int_1 first] [int_1 first]
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────┬─────────┬───────────┬───────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │ int_2_x │ float_1_x │ float_2_x │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┼─────────┼───────────┼───────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──┬─int_2_x─┬─float_1_x─┬─float_2_x─╮
 │ 0 │     6 │    16 │    0.60 │    5.00 │ b     │ a      │ a     │ second │      11 │      0.10 │      0.00 │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────┴─────────┴───────────┴───────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──┴─int_2_x─┴─float_1_x─┴─float_2_x─╯
+
 ```
 
 By default, the join command does an inner join, meaning that it will keep the
@@ -418,6 +411,7 @@ To create a `GroupBy` object you only need to use the [`polars_group-by`](/comma
 ╭─────────────┬──────────────────────────────────────────────╮
 │ LazyGroupBy │ apply aggregation to complete execution plan │
 ╰─────────────┴──────────────────────────────────────────────╯
+
 ```
 
 When printing the `GroupBy` object we can see that it is in the background a
@@ -426,13 +420,15 @@ lazy operation waiting to be completed by adding an aggregation. Using the
 
 ```nu
 > $group | polars agg (polars col int_1 | polars sum)
-╭───┬───────┬───────╮
-│ # │ first │ int_1 │
-├───┼───────┼───────┤
-│ 0 │ b     │    17 │
-│ 1 │ a     │     6 │
-│ 2 │ c     │    17 │
-╰───┴───────┴───────╯
+╭────────────────┬───────────────────────────────────────────────────────────────────────────────────────╮
+│ plan           │ AGGREGATE                                                                             │
+│                │     [col("int_1").sum()] BY [col("first")] FROM                                       │
+│                │   DF ["int_1", "int_2", "float_1", "float_2"]; PROJECT */8 COLUMNS; SELECTION: "None" │
+│ optimized_plan │ AGGREGATE                                                                             │
+│                │     [col("int_1").sum()] BY [col("first")] FROM                                       │
+│                │   DF ["int_1", "int_2", "float_1", "float_2"]; PROJECT 2/8 COLUMNS; SELECTION: "None" │
+╰────────────────┴───────────────────────────────────────────────────────────────────────────────────────╯
+
 ```
 
 or we can define multiple aggregations on the same or different columns
@@ -444,6 +440,19 @@ $group | polars agg [
     (polars col float_1 | polars sum)
     (polars col float_2 | polars count)
 ] | polars sort-by first
+```
+```output-numd
+╭────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ plan           │ SORT BY [col("first")]                                                                                                   │
+│                │   AGGREGATE                                                                                                              │
+│                │       [col("int_1").n_unique(), col("int_2").min(), col("float_1").sum(), col("float_2").count()] BY [col("first")] FROM │
+│                │     DF ["int_1", "int_2", "float_1", "float_2"]; PROJECT */8 COLUMNS; SELECTION: "None"                                  │
+│ optimized_plan │ SORT BY [col("first")]                                                                                                   │
+│                │   AGGREGATE                                                                                                              │
+│                │       [col("int_1").n_unique(), col("int_2").min(), col("float_1").sum(), col("float_2").count()] BY [col("first")] FROM │
+│                │     DF ["int_1", "int_2", "float_1", "float_2"]; PROJECT 5/8 COLUMNS; SELECTION: "None"                                  │
+╰────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
 ```
 
 As you can see, the `GroupBy` object is a very powerful variable and it is
@@ -458,6 +467,12 @@ command `polars into-df`.
 ```nu
 > let a = ([[a b]; [1 2] [3 4] [5 6]] | polars into-df)
 > $a
+╭─#─┬─a─┬─b─╮
+│ 0 │ 1 │ 2 │
+│ 1 │ 3 │ 4 │
+│ 2 │ 5 │ 6 │
+╰─#─┴─a─┴─b─╯
+
 ```
 
 ::: tip
@@ -471,13 +486,12 @@ example, let's append two columns to our mini dataframe `$a`
 ```nu
 > let a2 = $a | polars with-column $a.a --name a2 | polars with-column $a.a --name a3
 > $a2
-╭───┬───┬───┬────┬────╮
-│ # │ a │ b │ a2 │ a3 │
-├───┼───┼───┼────┼────┤
+╭─#─┬─a─┬─b─┬─a2─┬─a3─╮
 │ 0 │ 1 │ 2 │  1 │  1 │
 │ 1 │ 3 │ 4 │  3 │  3 │
 │ 2 │ 5 │ 6 │  5 │  5 │
-╰───┴───┴───┴────┴────╯
+╰─#─┴─a─┴─b─┴─a2─┴─a3─╯
+
 ```
 
 Nushell's powerful piping syntax allows us to create new dataframes by
@@ -486,15 +500,15 @@ dataframes you will see in total four dataframes
 
 ```nu
 > polars store-ls
-╭───┬───────┬─────────┬──────╮
-│ # │ name  │ columns │ rows │
-├───┼───────┼─────────┼──────┤
-│ 0 │ $a2   │       4 │    3 │
-│ 1 │ $df_a │       5 │    4 │
-│ 2 │ $df   │       8 │   10 │
-│ 3 │ $a    │       2 │    3 │
-│ 4 │ $res  │       4 │    1 │
-╰───┴───────┴─────────┴──────╯
+╭─────────────────key──────────────────┬─columns─┬─rows─┬────type─────┬─estimated_size─┬───span_contents────┬─span_start─┬─span_end─┬─reference_count─┬─created─╮
+│ 148d96ee-dcbf-475f-b9ae-b55547202883 │         │      │ LazyGroupBy │                │ polars group-by    │    1962205 │  1962220 │               1 │      ❎ │
+│ a15f102b-4a9b-4203-aea1-f5003160dae3 │       8 │   10 │ DataFrame   │          403 B │ polars open        │    1958262 │  1958273 │               1 │ now     │
+│ 38a13946-fd89-4668-9f04-80ac36d45a7e │       2 │    3 │ DataFrame   │           48 B │ polars into-df     │    1961681 │  1961695 │               1 │ now     │
+│ 5a0f9911-a33b-4b63-8a7d-2c95b25c96fe │       5 │    4 │ DataFrame   │          132 B │ polars open        │    1959985 │  1959996 │               1 │ now     │
+│ ebd8e7a8-3fac-47b4-88bc-16d3b82e3696 │       4 │    1 │ DataFrame   │           32 B │ polars select      │    1959202 │  1959215 │               1 │ now     │
+│ fd93c859-72d2-4db3-8465-bef375bb6a93 │       4 │    3 │ DataFrame   │           96 B │ polars with-column │    1961992 │  1962010 │               1 │ now     │
+╰─────────────────key──────────────────┴─columns─┴─rows─┴────type─────┴─estimated_size─┴───span_contents────┴─span_start─┴─span_end─┴─reference_count─┴─created─╯
+
 ```
 
 One thing that is important to mention is how the memory is being optimized
@@ -522,13 +536,12 @@ command:
 ```nu
 > let new = ([9 8 4] | polars into-df)
 > $new
-╭───┬───╮
-│ # │ 0 │
-├───┼───┤
+╭─#─┬─0─╮
 │ 0 │ 9 │
 │ 1 │ 8 │
 │ 2 │ 4 │
-╰───┴───╯
+╰─#─┴─0─╯
+
 ```
 
 We have created a new series from a list of integers (we could have done the
@@ -541,13 +554,12 @@ previously created column.
 ```nu
 > let new_2 = ($new * 3 + 10)
 > $new_2
-╭───┬────╮
-│ # │ 0  │
-├───┼────┤
+╭─#─┬─0──╮
 │ 0 │ 37 │
 │ 1 │ 34 │
 │ 2 │ 22 │
-╰───┴────╯
+╰─#─┴─0──╯
+
 ```
 
 Now we have a new Series that was constructed by doing basic operations on the
@@ -563,13 +575,12 @@ Let's rename our previous Series so it has a memorable name
 ```nu
 > let new_2 = $new_2 | polars rename "0" memorable
 > $new_2
-╭───┬───────────╮
-│ # │ memorable │
-├───┼───────────┤
+╭─#─┬─memorable─╮
 │ 0 │        37 │
 │ 1 │        34 │
 │ 2 │        22 │
-╰───┴───────────╯
+╰─#─┴─memorable─╯
+
 ```
 
 We can also do basic operations with two Series as long as they have the same
@@ -577,13 +588,12 @@ data type
 
 ```nu
 > $new - $new_2
-╭───┬─────────────────╮
-│ # │ sub_0_memorable │
-├───┼─────────────────┤
+╭─#─┬─sub_0_memorable─╮
 │ 0 │             -28 │
 │ 1 │             -26 │
 │ 2 │             -18 │
-╰───┴─────────────────╯
+╰─#─┴─sub_0_memorable─╯
+
 ```
 
 And we can add them to previously defined dataframes
@@ -591,13 +601,12 @@ And we can add them to previously defined dataframes
 ```nu
 > let new_df = $a | polars with-column $new --name new_col
 > $new_df
-╭───┬───┬───┬─────────╮
-│ # │ a │ b │ new_col │
-├───┼───┼───┼─────────┤
+╭─#─┬─a─┬─b─┬─new_col─╮
 │ 0 │ 1 │ 2 │       9 │
 │ 1 │ 3 │ 4 │       8 │
 │ 2 │ 5 │ 6 │       4 │
-╰───┴───┴───┴─────────╯
+╰─#─┴─a─┴─b─┴─new_col─╯
+
 ```
 
 The Series stored in a Dataframe can also be used directly, for example,
@@ -605,13 +614,12 @@ we can multiply columns `a` and `b` to create a new Series
 
 ```nu
 > $new_df.a * $new_df.b
-╭───┬─────────╮
-│ # │ mul_a_b │
-├───┼─────────┤
+╭─#─┬─mul_a_b─╮
 │ 0 │       2 │
 │ 1 │      12 │
 │ 2 │      30 │
-╰───┴─────────╯
+╰─#─┴─mul_a_b─╯
+
 ```
 
 and we can start piping things in order to create new columns and dataframes
@@ -619,13 +627,12 @@ and we can start piping things in order to create new columns and dataframes
 ```nu
 > let $new_df = $new_df | polars with-column ($new_df.a * $new_df.b / $new_df.new_col) --name my_sum
 > $new_df
-╭───┬───┬───┬─────────┬────────╮
-│ # │ a │ b │ new_col │ my_sum │
-├───┼───┼───┼─────────┼────────┤
+╭─#─┬─a─┬─b─┬─new_col─┬─my_sum─╮
 │ 0 │ 1 │ 2 │       9 │      0 │
 │ 1 │ 3 │ 4 │       8 │      1 │
 │ 2 │ 5 │ 6 │       4 │      7 │
-╰───┴───┴───┴─────────┴────────╯
+╰─#─┴─a─┴─b─┴─new_col─┴─my_sum─╯
+
 ```
 
 Nushell's piping system can help you create very interesting workflows.
@@ -639,24 +646,22 @@ mask using the equality operator
 ```nu
 > let mask = $new == 8
 > $mask
-╭───┬───────╮
-│ # │   0   │
-├───┼───────┤
+╭─#─┬───0───╮
 │ 0 │ false │
 │ 1 │ true  │
 │ 2 │ false │
-╰───┴───────╯
+╰─#─┴───0───╯
+
 ```
 
 and with this mask we can now filter a dataframe, like this
 
 ```nu
 > $new_df | polars filter-with $mask
-╭───┬───┬───┬─────────┬────────╮
-│ # │ a │ b │ new_col │ my_sum │
-├───┼───┼───┼─────────┼────────┤
+╭─#─┬─a─┬─b─┬─new_col─┬─my_sum─╮
 │ 0 │ 3 │ 4 │       8 │      1 │
-╰───┴───┴───┴─────────┴────────╯
+╰─#─┴─a─┴─b─┴─new_col─┴─my_sum─╯
+
 ```
 
 Now we have a new dataframe with only the values where the mask was true.
@@ -666,38 +671,35 @@ The masks can also be created from Nushell lists, for example:
 ```nu
 > let mask1 = [true true false] | polars into-df
 > $new_df | polars filter-with $mask1
-╭───┬───┬───┬─────────┬────────╮
-│ # │ a │ b │ new_col │ my_sum │
-├───┼───┼───┼─────────┼────────┤
+╭─#─┬─a─┬─b─┬─new_col─┬─my_sum─╮
 │ 0 │ 1 │ 2 │       9 │      0 │
 │ 1 │ 3 │ 4 │       8 │      1 │
-╰───┴───┴───┴─────────┴────────╯
+╰─#─┴─a─┴─b─┴─new_col─┴─my_sum─╯
+
 ```
 
 To create complex masks, we have the `AND`
 
 ```nu
 > $mask and $mask1
-╭───┬─────────╮
-│ # │ and_0_0 │
-├───┼─────────┤
+╭─#─┬─and_0_0─╮
 │ 0 │ false   │
 │ 1 │ true    │
 │ 2 │ false   │
-╰───┴─────────╯
+╰─#─┴─and_0_0─╯
+
 ```
 
 and `OR` operations
 
 ```nu
 > $mask or $mask1
-╭───┬────────╮
-│ # │ or_0_0 │
-├───┼────────┤
+╭─#─┬─or_0_0─╮
 │ 0 │ true   │
 │ 1 │ true   │
 │ 2 │ false  │
-╰───┴────────╯
+╰─#─┴─or_0_0─╯
+
 ```
 
 We can also create a mask by checking if some values exist in other Series.
@@ -706,26 +708,19 @@ Using the first dataframe that we created we can do something like this
 ```nu
 > let mask3 = $df | polars col first | polars is-in [b c]
 > $mask3
-╭──────────┬─────────────────────────────────────────────────────────────────────────────────────────────────╮
-│          │ ╭───┬─────────┬──────────────╮                                                                  │
-│ input    │ │ # │  expr   │    value     │                                                                  │
-│          │ ├───┼─────────┼──────────────┤                                                                  │
-│          │ │ 0 │ column  │ first        │                                                                  │
-│          │ │ 1 │ literal │ Series[list] │                                                                  │
-│          │ ╰───┴─────────┴──────────────╯                                                                  │
-│ function │ IsIn                                                                                            │
-│ options  │ FunctionOptions { collect_groups: ApplyFlat, input_wildcard_expansion: false, auto_explode: tru │
-│          │ e, fmt_str: "", cast_to_supertypes: true, allow_rename: false, pass_name_to_apply: false }      │
-╰──────────┴─────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭──────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ input    │ [table 2 rows]                                                                                                                                                                                              │
+│ function │ Boolean(IsIn)                                                                                                                                                                                               │
+│ options  │ FunctionOptions { collect_groups: ElementWise, fmt_str: "", input_wildcard_expansion: false, returns_scalar: false, cast_to_supertypes: true, allow_rename: false, pass_name_to_apply: false, changes_le... │
+╰──────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
 ```
 
 and this new mask can be used to filter the dataframe
 
 ```nu
 > $df | polars filter-with $mask3
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     4 │    14 │    0.40 │    3.00 │ b     │ a      │ c     │ second │
 │ 1 │     0 │    15 │    0.50 │    4.00 │ b     │ a      │ a     │ third  │
 │ 2 │     6 │    16 │    0.60 │    5.00 │ b     │ a      │ a     │ second │
@@ -733,7 +728,8 @@ and this new mask can be used to filter the dataframe
 │ 4 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight  │
 │ 5 │     9 │    19 │    0.90 │    8.00 │ c     │ c      │ b     │ ninth  │
 │ 6 │     0 │    10 │    0.00 │    9.00 │ c     │ c      │ b     │ ninth  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 Another operation that can be done with masks is setting or replacing a value
@@ -746,9 +742,7 @@ This is example is not updated to recent Nushell versions.
 
 ```nu
 > $df | polars get first | polars set new --mask ($df.first =~ a)
-╭───┬────────╮
-│ # │ string │
-├───┼────────┤
+╭─#─┬─string─╮
 │ 0 │ new    │
 │ 1 │ new    │
 │ 2 │ new    │
@@ -759,7 +753,8 @@ This is example is not updated to recent Nushell versions.
 │ 7 │ c      │
 │ 8 │ c      │
 │ 9 │ c      │
-╰───┴────────╯
+╰─#─┴─string─╯
+
 ```
 
 ## Series as indices
@@ -772,13 +767,12 @@ extract that information
 ```nu
 > let indices = [1 4 6] | polars into-df
 > $df | polars take $indices
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     2 │    12 │    0.20 │    1.00 │ a     │ b      │ c     │ second │
 │ 1 │     0 │    15 │    0.50 │    4.00 │ b     │ a      │ a     │ third  │
 │ 2 │     7 │    17 │    0.70 │    6.00 │ b     │ c      │ a     │ third  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 The command [`polars take`](/commands/docs/polars_take.md) is very handy, especially if we mix it with other commands.
@@ -789,13 +783,12 @@ shown in the next example
 ```nu
 > let indices = $df | polars get first | polars arg-unique
 > $df | polars take $indices
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     1 │    11 │    0.10 │    1.00 │ a     │ b      │ c     │ first  │
 │ 1 │     4 │    14 │    0.40 │    3.00 │ b     │ a      │ c     │ second │
 │ 2 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 Or what if we want to create a new sorted dataframe using a column in specific.
@@ -809,9 +802,7 @@ The same result could be accomplished using the command [`sort`](/commands/docs/
 ```nu
 > let indices = $df | polars get word | polars arg-sort
 > $df | polars take $indices
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight  │
 │ 1 │     1 │    11 │    0.10 │    1.00 │ a     │ b      │ c     │ first  │
 │ 2 │     9 │    19 │    0.90 │    8.00 │ c     │ c      │ b     │ ninth  │
@@ -822,7 +813,8 @@ The same result could be accomplished using the command [`sort`](/commands/docs/
 │ 7 │     3 │    13 │    0.30 │    2.00 │ a     │ b      │ c     │ third  │
 │ 8 │     0 │    15 │    0.50 │    4.00 │ b     │ a      │ a     │ third  │
 │ 9 │     7 │    17 │    0.70 │    6.00 │ b     │ c      │ a     │ third  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 And finally, we can create new Series by setting a new value in the marked
@@ -831,9 +823,7 @@ indices. Have a look at the next command
 ```nu
 > let indices = [0 2] | polars into-df
 > $df | polars get int_1 | polars set-with-idx 123 --indices $indices
-╭───┬───────╮
-│ # │ int_1 │
-├───┼───────┤
+╭─#─┬─int_1─╮
 │ 0 │   123 │
 │ 1 │     2 │
 │ 2 │   123 │
@@ -844,7 +834,8 @@ indices. Have a look at the next command
 │ 7 │     8 │
 │ 8 │     9 │
 │ 9 │     0 │
-╰───┴───────╯
+╰─#─┴─int_1─╯
+
 ```
 
 ## Unique values
@@ -860,13 +851,12 @@ example, we can use it to count how many occurrences we have in the column
 
 ```nu
 > $df | polars get first | polars value-counts
-╭───┬───────┬────────╮
-│ # │ first │ counts │
-├───┼───────┼────────┤
-│ 0 │ b     │      4 │
-│ 1 │ a     │      3 │
-│ 2 │ c     │      3 │
-╰───┴───────┴────────╯
+╭─#─┬─first─┬─count─╮
+│ 0 │ c     │     3 │
+│ 1 │ b     │     4 │
+│ 2 │ a     │     3 │
+╰─#─┴─first─┴─count─╯
+
 ```
 
 As expected, the command returns a new dataframe that can be used to do more
@@ -877,13 +867,12 @@ to only get the unique unique values from a series, like this
 
 ```nu
 > $df | polars get first | polars unique
-╭───┬───────╮
-│ # │ first │
-├───┼───────┤
-│ 0 │ c     │
-│ 1 │ b     │
+╭─#─┬─first─╮
+│ 0 │ b     │
+│ 1 │ c     │
 │ 2 │ a     │
-╰───┴───────╯
+╰─#─┴─first─╯
+
 ```
 
 Or we can get a mask that we can use to filter out the rows where data is
@@ -892,21 +881,18 @@ in column `word`
 
 ```nu
 > $df | polars filter-with ($df | polars get word | polars is-unique)
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬───────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │ word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼───────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬─word──╮
 │ 0 │     1 │    11 │    0.10 │    1.00 │ a     │ b      │ c     │ first │
 │ 1 │     8 │    18 │    0.80 │    7.00 │ c     │ c      │ b     │ eight │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴───────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴─word──╯
+
 ```
 
 Or all the duplicated ones
 
 ```nu
 > $df | polars filter-with ($df | polars get word | polars is-duplicated)
-╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
-│ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
-├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
+╭─#─┬─int_1─┬─int_2─┬─float_1─┬─float_2─┬─first─┬─second─┬─third─┬──word──╮
 │ 0 │     2 │    12 │    0.20 │    1.00 │ a     │ b      │ c     │ second │
 │ 1 │     3 │    13 │    0.30 │    2.00 │ a     │ b      │ c     │ third  │
 │ 2 │     4 │    14 │    0.40 │    3.00 │ b     │ a      │ c     │ second │
@@ -915,7 +901,8 @@ Or all the duplicated ones
 │ 5 │     7 │    17 │    0.70 │    6.00 │ b     │ c      │ a     │ third  │
 │ 6 │     9 │    19 │    0.90 │    8.00 │ c     │ c      │ b     │ ninth  │
 │ 7 │     0 │    10 │    0.00 │    9.00 │ c     │ c      │ b     │ ninth  │
-╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
+╰─#─┴─int_1─┴─int_2─┴─float_1─┴─float_2─┴─first─┴─second─┴─third─┴──word──╯
+
 ```
 
 ## Lazy Dataframes
@@ -931,12 +918,11 @@ Let's create a small example of a lazy dataframe
 ```nu
 > let a = [[a b]; [1 a] [2 b] [3 c] [4 d]] | polars into-lazy
 > $a
-╭────────────────┬─────────────────────────────────────────────────────────╮
-│ plan           │   DF ["a", "b"]; PROJECT */2 COLUMNS; SELECTION: "None" │
-│                │                                                         │
-│ optimized_plan │   DF ["a", "b"]; PROJECT */2 COLUMNS; SELECTION: "None" │
-│                │                                                         │
-╰────────────────┴─────────────────────────────────────────────────────────╯
+╭────────────────┬───────────────────────────────────────────────────────╮
+│ plan           │ DF ["a", "b"]; PROJECT */2 COLUMNS; SELECTION: "None" │
+│ optimized_plan │ DF ["a", "b"]; PROJECT */2 COLUMNS; SELECTION: "None" │
+╰────────────────┴───────────────────────────────────────────────────────╯
+
 ```
 
 As you can see, the resulting dataframe is not yet evaluated, it stays as a
@@ -945,14 +931,13 @@ dataframe you would get the next result
 
 ```nu
 > $a | polars collect
-╭───┬───┬───╮
-│ # │ a │ b │
-├───┼───┼───┤
+╭─#─┬─a─┬─b─╮
 │ 0 │ 1 │ a │
 │ 1 │ 2 │ b │
 │ 2 │ 3 │ c │
 │ 3 │ 4 │ d │
-╰───┴───┴───╯
+╰─#─┴─a─┴─b─╯
+
 ```
 
 as you can see, the collect command executes the plan and creates a nushell
@@ -968,6 +953,36 @@ To find all lazy dataframe operations you can use
 ```nu
 scope commands | where category =~ lazyframe
 ```
+```output-numd
+╭──────name───────┬────category─────┬────signatures────┬──────usage───────┬────examples────┬─is_builtin─┬─is_sub─┬─is_plugin─┬─is_custom─┬─is_keyword─┬─is_extern─┬─creates_scope─┬─extra_usage─┬─search_terms─┬─decl_id─╮
+│ dfr agg         │ lazyframe       │ {record 1 field} │ Performs a se... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     489 │
+│ dfr cache       │ lazyframe       │ {record 1 field} │ Caches operat... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     490 │
+│ dfr collect     │ lazyframe       │ {record 1 field} │ Collect lazy ... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     491 │
+│ dfr explode     │ lazyframe       │ {record 1 field} │ Explodes a da... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     504 │
+│ dfr fetch       │ lazyframe       │ {record 1 field} │ Collects the ... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     492 │
+│ dfr fill-nan    │ lazyframe       │ {record 1 field} │ Replaces NaN ... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     493 │
+│ dfr fill-null   │ lazyframe       │ {record 1 field} │ Replaces NULL... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     494 │
+│ dfr filter      │ lazyframe       │ {record 1 field} │ Filter datafr... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     495 │
+│ dfr filter-with │ dataframe or... │ {record 1 field} │ Filters dataf... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     445 │
+│ dfr flatten     │ lazyframe       │ {record 1 field} │ An alias for ... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     505 │
+│ dfr group-by    │ lazyframe       │ {record 1 field} │ Creates a gro... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     503 │
+│ dfr into-lazy   │ lazyframe       │ {record 1 field} │ Converts a da... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │              │     502 │
+│ ...             │ ...             │ ...              │ ...              │ ...            │ ...        │ ...    │ ...       │ ...       │ ...        │ ...       │ ...           │ ...         │ ...          │ ...     │
+│ polars group-by │ lazyframe       │ {record 1 field} │ Creates a gro... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     683 │
+│ polars into-... │ lazyframe       │ {record 1 field} │ Converts a da... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     686 │
+│ polars join     │ lazyframe       │ {record 1 field} │ Joins a lazy ... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     693 │
+│ polars median   │ lazyframe       │ {record 1 field} │ Median value ... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     699 │
+│ polars quantile │ lazyframe       │ {record 1 field} │ Aggregates th... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     706 │
+│ polars rename   │ dataframe or... │ {record 1 field} │ Rename a data... │ [table 3 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     708 │
+│ polars reverse  │ lazyframe       │ {record 1 field} │ Reverses the ... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     711 │
+│ polars select   │ lazyframe       │ {record 1 field} │ Selects colum... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     715 │
+│ polars shift    │ dataframe or... │ {record 1 field} │ Shifts the va... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     719 │
+│ polars sort-by  │ lazyframe       │ {record 1 field} │ Sorts a lazy ... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     721 │
+│ polars unique   │ dataframe or... │ {record 1 field} │ Returns uniqu... │ [table 3 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     737 │
+│ polars with-... │ dataframe or... │ {record 1 field} │ Adds a series... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │              │     742 │
+╰──────name───────┴────category─────┴────signatures────┴──────usage───────┴────examples────┴─is_builtin─┴─is_sub─┴─is_plugin─┴─is_custom─┴─is_keyword─┴─is_extern─┴─creates_scope─┴─extra_usage─┴─search_terms─┴─decl_id─╯
+
+```
 
 With your lazy frame defined we can start chaining operations on it. For
 example this
@@ -979,6 +994,15 @@ $a |
      ((polars col a) * 2 | polars as double_a)
      ((polars col a) / 2 | polars as half_a)
 ] | polars collect
+```
+```output-numd
+╭─#─┬─a─┬─b─┬─double_a─┬─half_a─╮
+│ 0 │ 4 │ d │        8 │      2 │
+│ 1 │ 3 │ c │        6 │      1 │
+│ 2 │ 2 │ b │        4 │      1 │
+│ 3 │ 1 │ a │        2 │      0 │
+╰─#─┴─a─┴─b─┴─double_a─┴─half_a─╯
+
 ```
 
 :::tip
@@ -995,6 +1019,36 @@ expression you can use
 ```nu
 scope commands | where category =~ expression
 ```
+```output-numd
+╭───────name───────┬──category──┬────signatures────┬──────usage───────┬────examples────┬─is_builtin─┬─is_sub─┬─is_plugin─┬─is_custom─┬─is_keyword─┬─is_extern─┬─creates_scope─┬─extra_usage─┬───search_terms───┬─decl_id─╮
+│ dfr agg-groups   │ expression │ {record 1 field} │ Creates an ag... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │                  │     477 │
+│ dfr arg-where    │ expression │ {record 1 field} │ Creates an ex... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ condition, ma... │     468 │
+│ dfr as           │ expression │ {record 1 field} │ Creates an al... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ aka, abbr, ot... │     467 │
+│ dfr col          │ expression │ {record 1 field} │ Creates a nam... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ create           │     469 │
+│ dfr concat-str   │ expression │ {record 1 field} │ Creates a con... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ join, connect... │     470 │
+│ dfr count        │ expression │ {record 1 field} │ Creates a cou... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │                  │     478 │
+│ dfr datepart     │ expression │ {record 1 field} │ Creates an ex... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ year, month, ... │     488 │
+│ dfr expr-not     │ expression │ {record 1 field} │ Creates a not... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │                  │     480 │
+│ dfr implode      │ expression │ {record 1 field} │ Aggregates a ... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │                  │     476 │
+│ dfr is-in        │ expression │ {record 1 field} │ Creates an is... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ check, contai... │     479 │
+│ dfr lit          │ expression │ {record 1 field} │ Creates a lit... │ [table 1 row]  │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │ string, liter... │     472 │
+│ dfr max          │ expression │ {record 1 field} │ Creates a max... │ [table 2 rows] │ true       │ true   │ false     │ false     │ false      │ false     │ false         │             │                  │     481 │
+│ ...              │ ...        │ ...              │ ...              │ ...            │ ...        │ ...    │ ...       │ ...       │ ...        │ ...       │ ...           │ ...         │ ...              │ ...     │
+│ polars expr-not  │ expression │ {record 1 field} │ Creates a not... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     664 │
+│ polars implode   │ expression │ {record 1 field} │ Aggregates a ... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     684 │
+│ polars is-in     │ expression │ {record 1 field} │ Creates an is... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │ check, contai... │     689 │
+│ polars lit       │ expression │ {record 1 field} │ Creates a lit... │ [table 1 row]  │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │ string, liter... │     695 │
+│ polars max       │ expression │ {record 1 field} │ Creates a max... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     697 │
+│ polars mean      │ expression │ {record 1 field} │ Creates a mea... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     698 │
+│ polars min       │ expression │ {record 1 field} │ Creates a min... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     701 │
+│ polars otherwise │ expression │ {record 1 field} │ Completes a w... │ [table 3 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │ condition, else  │     705 │
+│ polars std       │ expression │ {record 1 field} │ Creates a std... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     722 │
+│ polars sum       │ expression │ {record 1 field} │ Creates a sum... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     729 │
+│ polars var       │ expression │ {record 1 field} │ Create a var ... │ [table 2 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │                  │     740 │
+│ polars when      │ expression │ {record 1 field} │ Creates and m... │ [table 3 rows] │ true       │ true   │ true      │ false     │ false      │ false     │ false         │             │ condition, ma... │     741 │
+╰───────name───────┴──category──┴────signatures────┴──────usage───────┴────examples────┴─is_builtin─┴─is_sub─┴─is_plugin─┴─is_custom─┴─is_keyword─┴─is_extern─┴─creates_scope─┴─extra_usage─┴───search_terms───┴─decl_id─╯
+
+```
 
 In our previous example, we use the `polars col` command to indicate that column `a`
 will be multiplied by 2 and then it will be aliased to the name `double_a`.
@@ -1003,12 +1057,26 @@ using the `polars select` command we can use only a string
 
 ```nu
 > $a | polars select a | polars collect
+╭─#─┬─a─╮
+│ 0 │ 1 │
+│ 1 │ 2 │
+│ 2 │ 3 │
+│ 3 │ 4 │
+╰─#─┴─a─╯
+
 ```
 
 or the `polars col` command
 
 ```nu
 > $a | polars select (polars col a) | polars collect
+╭─#─┬─a─╮
+│ 0 │ 1 │
+│ 1 │ 2 │
+│ 2 │ 3 │
+│ 3 │ 4 │
+╰─#─┴─a─╯
+
 ```
 
 Let's try something more complicated and create aggregations from a lazy
@@ -1022,6 +1090,13 @@ $a
      (polars col value | polars sum | polars as sum)
      (polars col value | polars mean | polars as mean)
 ] | polars collect
+```
+```output-numd
+╭─#─┬─name─┬─sum─┬─mean─╮
+│ 0 │ two  │   5 │ 2.50 │
+│ 1 │ one  │   2 │ 1.00 │
+╰─#─┴─name─┴─sum─┴─mean─╯
+
 ```
 
 And we could join on a lazy dataframe that hasn't being collected. Let's join
@@ -1037,6 +1112,15 @@ let group = ($a
     ]
 )
 $a | polars join $group name name | polars collect
+```
+```output-numd
+╭─#─┬─name─┬─value─┬─sum─┬─mean─╮
+│ 0 │ one  │     1 │   2 │ 1.00 │
+│ 1 │ two  │     2 │   5 │ 2.50 │
+│ 2 │ one  │     1 │   2 │ 1.00 │
+│ 3 │ two  │     3 │   5 │ 2.50 │
+╰─#─┴─name─┴─value─┴─sum─┴─mean─╯
+
 ```
 
 As you can see lazy frames are a powerful construct that will let you query
@@ -1059,7 +1143,6 @@ This list may be outdated. To get the up-to-date command list, see
 [Dataframe Or Lazyframe](/commands/categories/dataframe_or_lazyframe.md)
 command categories.
 :::
-
 
 | Command Name    | Applies To                  | Description                                                                | Nushell Equivalent            |
 | --------------- | --------------------------- | -------------------------------------------------------------------------- | ----------------------------- |
