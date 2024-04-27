@@ -54,7 +54,8 @@ export def detect-code-chunks [
 }
 
 export def escape-quotes []: string -> string {
-    str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
+    str replace --all --regex '([^\\])?\\([^\\])?' '$1\\$2' # escpae windows paths?
+    | str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
 }
 
 export def run-intermid-script [
