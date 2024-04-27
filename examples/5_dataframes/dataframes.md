@@ -48,7 +48,7 @@ Feel free to download it if you want to follow these tests.
 The dataset has 5 columns and 5,429,252 rows. We can check that by using the
 `polars store-ls` command:
 
-```
+```nu no-run
 > let df = (polars open .\Data7602DescendingYearOrder.csv)
 > polars store-ls
 
@@ -61,7 +61,7 @@ The dataset has 5 columns and 5,429,252 rows. We can check that by using the
 
 We can have a look at the first lines of the file using [`first`](/commands/docs/first.md):
 
-```
+```nu no-run
 > $df | polars first
 ╭───┬──────────┬─────────┬──────┬───────────┬──────────╮
 │ # │ anzsic06 │  Area   │ year │ geo_count │ ec_count │
@@ -72,7 +72,7 @@ We can have a look at the first lines of the file using [`first`](/commands/docs
 
 ...and finally, we can get an idea of the inferred data types:
 
-```
+```nu no-run
 > $df | polars dtypes
 ╭───┬───────────┬───────╮
 │ # │  column   │ dtype │
@@ -90,8 +90,8 @@ We can have a look at the first lines of the file using [`first`](/commands/docs
 Let's start by comparing loading times between the various methods. First, we
 will load the data using Nushell's [`open`](/commands/docs/open.md) command:
 
+```nu no-run
 > timeit {open .\Data7602DescendingYearOrder.csv}
-```
 30sec 479ms 614us 400ns
 ```
 
@@ -108,7 +108,7 @@ df = pd.read_csv("Data7602DescendingYearOrder.csv")
 
 And the benchmark for it is:
 
-```
+```nu no-run
 > timeit {python load.py}
 2sec 91ms 872us 900ns
 ```
@@ -118,8 +118,8 @@ That is a great improvement, from 30 seconds to 2 seconds. Nicely done, Pandas!
 Probably we can load the data a bit faster. This time we will use Nushell's
 `polars open` command:
 
+```nu no-run
 > timeit {polars open .\Data7602DescendingYearOrder.csv}
-```
 601ms 700us 700ns
 ```
 
@@ -138,7 +138,7 @@ use a large amount of memory. This may affect the performance of your system
 while this is being executed.
 :::
 
-```
+```nu no-run
 > timeit {
     open .\Data7602DescendingYearOrder.csv
     | group-by year
@@ -164,7 +164,7 @@ print(res)
 
 And the result from the benchmark is:
 
-```
+```nu no-run
 > timeit {python .\load.py}
 
 1sec 966ms 954us 800ns
@@ -176,7 +176,7 @@ To finish the comparison, let's try Nushell dataframes. We are going to put
 all the operations in one `nu` file, to make sure we are doing similar
 operations:
 
-```
+```nu no-run
 let df = (polars open Data7602DescendingYearOrder.csv)
 let res = ($df | polars group-by year | polars agg (polars col geo_count | polars sum))
 $res
@@ -184,7 +184,7 @@ $res
 
 and the benchmark with dataframes is:
 
-```
+```nu no-run
 > timeit {source load.nu}
 
 557ms 658us 500ns
