@@ -46,11 +46,11 @@ The file that we will be using for the benchmarks is the
 Feel free to download it if you want to follow these tests.
 
 The dataset has 5 columns and 5,429,252 rows. We can check that by using the
-`polars ls` command:
+`polars store-ls` command:
 
 ```
 > let df = (polars open .\Data7602DescendingYearOrder.csv)
-> polars ls
+> polars store-ls
 
 ╭───┬────────┬─────────┬─────────╮
 │ # │  name  │ columns │  rows   │
@@ -242,7 +242,7 @@ files.
 To see all the dataframes that are stored in memory you can use
 
 ```nu
-> polars ls
+> polars store-ls
 ╭───┬──────┬─────────┬──────╮
 │ # │ name │ columns │ rows │
 ├───┼──────┼─────────┼──────┤
@@ -324,7 +324,7 @@ executed command. Note the space between ( and !!.
 And now we have two dataframes stored in memory
 
 ```nu
-> polars ls
+> polars store-ls
 ╭───┬──────┬─────────┬──────╮
 │ # │ name │ columns │ rows │
 ├───┼──────┼─────────┼──────┤
@@ -485,7 +485,7 @@ taking data from other dataframes and appending it to them. Now, if you list you
 dataframes you will see in total four dataframes
 
 ```nu
-> polars ls
+> polars store-ls
 ╭───┬───────┬─────────┬──────╮
 │ # │ name  │ columns │ rows │
 ├───┼───────┼─────────┼──────┤
