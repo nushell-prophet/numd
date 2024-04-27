@@ -46,11 +46,11 @@ The file that we will be using for the benchmarks is the
 Feel free to download it if you want to follow these tests.
 
 The dataset has 5 columns and 5,429,252 rows. We can check that by using the
-`dfr ls` command:
+`polars ls` command:
 
-> let df = (dfr open .\Data7602DescendingYearOrder.csv)
 ```
-> dfr ls
+> let df = (polars open .\Data7602DescendingYearOrder.csv)
+> polars ls
 
 ╭───┬────────┬─────────┬─────────╮
 │ # │  name  │ columns │  rows   │
@@ -62,7 +62,7 @@ The dataset has 5 columns and 5,429,252 rows. We can check that by using the
 We can have a look at the first lines of the file using [`first`](/commands/docs/first.md):
 
 ```
-> $df | dfr first
+> $df | polars first
 ╭───┬──────────┬─────────┬──────┬───────────┬──────────╮
 │ # │ anzsic06 │  Area   │ year │ geo_count │ ec_count │
 ├───┼──────────┼─────────┼──────┼───────────┼──────────┤
@@ -73,7 +73,7 @@ We can have a look at the first lines of the file using [`first`](/commands/docs
 ...and finally, we can get an idea of the inferred data types:
 
 ```
-> $df | dfr dtypes
+> $df | polars dtypes
 ╭───┬───────────┬───────╮
 │ # │  column   │ dtype │
 ├───┼───────────┼───────┤
@@ -116,9 +116,9 @@ And the benchmark for it is:
 That is a great improvement, from 30 seconds to 2 seconds. Nicely done, Pandas!
 
 Probably we can load the data a bit faster. This time we will use Nushell's
-`dfr open` command:
+`polars open` command:
 
-> timeit {dfr open .\Data7602DescendingYearOrder.csv}
+> timeit {polars open .\Data7602DescendingYearOrder.csv}
 ```
 601ms 700us 700ns
 ```
@@ -140,11 +140,11 @@ while this is being executed.
 
 ```
 > timeit {
-	open .\Data7602DescendingYearOrder.csv
-	| group-by year
-	| transpose header rows
-	| upsert rows { get rows | math sum }
-	| flatten
+    open .\Data7602DescendingYearOrder.csv
+    | group-by year
+    | transpose header rows
+    | upsert rows { get rows | math sum }
+    | flatten
 }
 
 6min 30sec 622ms 312us
@@ -177,8 +177,8 @@ all the operations in one `nu` file, to make sure we are doing similar
 operations:
 
 ```
-let df = (dfr open Data7602DescendingYearOrder.csv)
-let res = ($df | dfr group-by year | dfr agg (dfr col geo_count | dfr sum))
+let df = (polars open Data7602DescendingYearOrder.csv)
+let res = ($df | polars group-by year | polars agg (polars col geo_count | polars sum))
 $res
 ```
 
@@ -224,25 +224,25 @@ sample csv file.
 Save the file and name it however you want to, for the sake of these examples
 the file will be called `test_small.csv`.
 
-Now, to read that file as a dataframe use the `dfr open` command like
+Now, to read that file as a dataframe use the `polars open` command like
 this:
 
 ```nu
-> let df = dfr open test_small.csv
+> let df = polars open test_small.csv
 ```
 
 This should create the value `$df` in memory which holds the data we just
 created.
 
 ::: tip
-The command `dfr open` can read either **csv** or **parquet**
+The command `polars open` can read either **csv** or **parquet**
 files.
 :::
 
 To see all the dataframes that are stored in memory you can use
 
 ```nu
-> dfr ls
+> polars ls
 ╭───┬──────┬─────────┬──────╮
 │ # │ name │ columns │ rows │
 ├───┼──────┼─────────┼──────┤
@@ -288,7 +288,7 @@ Let's start with basic aggregations on the dataframe. Let's sum all the columns
 that exist in `df` by using the `aggregate` command
 
 ```nu
-> $df | dfr sum
+> $df | polars sum
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬──────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │ word │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼──────┤
@@ -298,10 +298,10 @@ that exist in `df` by using the `aggregate` command
 
 As you can see, the aggregate function computes the sum for those columns where
 a sum makes sense. If you want to filter out the text column, you can select
-the columns you want by using the [`dfr select`](/commands/docs/dfr_select.md) command
+the columns you want by using the [`polars select`](/commands/docs/polars_select.md) command
 
 ```nu
-> $df | dfr sum | dfr select int_1 int_2 float_1 float_2
+> $df | polars sum | polars select int_1 int_2 float_1 float_2
 ╭───┬───────┬───────┬─────────┬─────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │
 ├───┼───────┼───────┼─────────┼─────────┤
@@ -313,7 +313,7 @@ You can even store the result from this aggregation as you would store any
 other Nushell variable
 
 ```nu
-> let res = $df | dfr sum | dfr select int_1 int_2 float_1 float_2
+> let res = $df | polars sum | polars select int_1 int_2 float_1 float_2
 ```
 
 ::: tip
@@ -324,7 +324,7 @@ executed command. Note the space between ( and !!.
 And now we have two dataframes stored in memory
 
 ```nu
-> dfr ls
+> polars ls
 ╭───┬──────┬─────────┬──────╮
 │ # │ name │ columns │ rows │
 ├───┼──────┼─────────┼──────┤
@@ -355,10 +355,10 @@ are going to call it `test_small_a.csv`)
 | save --raw --force test_small_a.csv
 ```
 
-We use the `dfr open` command to create the new variable
+We use the `polars open` command to create the new variable
 
 ```nu
-> let df_a = dfr open test_small_a.csv
+> let df_a = polars open test_small_a.csv
 ```
 
 Now, with the second dataframe loaded in memory we can join them using the
@@ -366,7 +366,7 @@ column called `int_1` from the left dataframe and the column `int_1` from the
 right dataframe
 
 ```nu
-> $df | dfr join $df_a int_1 int_1
+> $df | polars join $df_a int_1 int_1
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────┬─────────┬───────────┬───────────┬─────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │ int_2_x │ float_1_x │ float_2_x │ first_x │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┼─────────┼───────────┼───────────┼─────────┤
@@ -380,14 +380,14 @@ right dataframe
 ::: tip
 In `Nu` when a command has multiple arguments that are expecting
 multiple values we use brackets `[]` to enclose those values. In the case of
-[`dfr join`](/commands/docs/dfr_join.md) we can join on multiple columns
+[`polars join`](/commands/docs/polars_join.md) we can join on multiple columns
 as long as they have the same type.
 :::
 
 For example:
 
 ```nu
-> $df | dfr join $df_a [int_1 first] [int_1 first]
+> $df | polars join $df_a [int_1 first] [int_1 first]
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────┬─────────┬───────────┬───────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │ int_2_x │ float_1_x │ float_2_x │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┼─────────┼───────────┼───────────┤
@@ -403,17 +403,17 @@ in order to use it for further operations.
 ## DataFrame group-by
 
 One of the most powerful operations that can be performed with a DataFrame is
-the [`dfr group-by`](/commands/docs/dfr_group-by.md). This command will allow you to perform aggregation operations
+the [`polars group-by`](/commands/docs/polars_group-by.md). This command will allow you to perform aggregation operations
 based on a grouping criteria. In Nushell, a `GroupBy` is a type of object that
 can be stored and reused for multiple aggregations. This is quite handy, since
 the creation of the grouped pairs is the most expensive operation while doing
 group-by and there is no need to repeat it if you are planning to do multiple
 operations with the same group condition.
 
-To create a `GroupBy` object you only need to use the [`dfr_group-by`](/commands/docs/dfr_group-by.md) command
+To create a `GroupBy` object you only need to use the [`polars_group-by`](/commands/docs/polars_group-by.md) command
 
 ```nu
-> let group = $df | dfr group-by first
+> let group = $df | polars group-by first
 > $group
 ╭─────────────┬──────────────────────────────────────────────╮
 │ LazyGroupBy │ apply aggregation to complete execution plan │
@@ -425,7 +425,7 @@ lazy operation waiting to be completed by adding an aggregation. Using the
 `GroupBy` we can create aggregations on a column
 
 ```nu
-> $group | dfr agg (dfr col int_1 | dfr sum)
+> $group | polars agg (polars col int_1 | polars sum)
 ╭───┬───────┬───────╮
 │ # │ first │ int_1 │
 ├───┼───────┼───────┤
@@ -438,12 +438,12 @@ lazy operation waiting to be completed by adding an aggregation. Using the
 or we can define multiple aggregations on the same or different columns
 
 ```nu
-$group | dfr agg [
-	(dfr col int_1 | dfr n-unique)
-	(dfr col int_2 | dfr min)
-	(dfr col float_1 | dfr sum)
-	(dfr col float_2 | dfr count)
-] | dfr sort-by first
+$group | polars agg [
+    (polars col int_1 | polars n-unique)
+    (polars col int_2 | polars min)
+    (polars col float_1 | polars sum)
+    (polars col float_2 | polars count)
+] | polars sort-by first
 ```
 
 As you can see, the `GroupBy` object is a very powerful variable and it is
@@ -453,10 +453,10 @@ worth keeping in memory while you explore your dataset.
 
 It is also possible to construct dataframes from basic Nushell primitives, such
 as integers, decimals, or strings. Let's create a small dataframe using the
-command `dfr into-df`.
+command `polars into-df`.
 
 ```nu
-> let a = ([[a b]; [1 2] [3 4] [5 6]] | dfr into-df)
+> let a = ([[a b]; [1 2] [3 4] [5 6]] | polars into-df)
 > $a
 ```
 
@@ -469,7 +469,7 @@ We can append columns to a dataframe in order to create a new variable. As an
 example, let's append two columns to our mini dataframe `$a`
 
 ```nu
-> let a2 = $a | dfr with-column $a.a --name a2 | dfr with-column $a.a --name a3
+> let a2 = $a | polars with-column $a.a --name a2 | polars with-column $a.a --name a3
 > $a2
 ╭───┬───┬───┬────┬────╮
 │ # │ a │ b │ a2 │ a3 │
@@ -485,7 +485,7 @@ taking data from other dataframes and appending it to them. Now, if you list you
 dataframes you will see in total four dataframes
 
 ```nu
-> dfr ls
+> polars ls
 ╭───┬───────┬─────────┬──────╮
 │ # │ name  │ columns │ rows │
 ├───┼───────┼─────────┼──────┤
@@ -506,7 +506,7 @@ format](https://arrow.apache.org/docs/format/Columnar.html)). The other
 optimization trick is the fact that whenever possible, the columns from the
 dataframes are shared between dataframes, avoiding memory duplication for the
 same data. This means that dataframes `$a` and `$a2` are sharing the same two
-columns we created using the `dfr into-df` command. For this reason, it isn't
+columns we created using the `polars into-df` command. For this reason, it isn't
 possible to change the value of a column in a dataframe. However, you can
 create new columns based on data from other columns or dataframes.
 
@@ -516,11 +516,11 @@ A `Series` is the building block of a `DataFrame`. Each Series represents a
 column with the same data type, and we can create multiple Series of different
 types, such as float, int or string.
 
-Let's start our exploration with Series by creating one using the `dfr into-df`
+Let's start our exploration with Series by creating one using the `polars into-df`
 command:
 
 ```nu
-> let new = ([9 8 4] | dfr into-df)
+> let new = ([9 8 4] | polars into-df)
 > $new
 ╭───┬───╮
 │ # │ 0 │
@@ -561,7 +561,7 @@ use `scope variables`
 Let's rename our previous Series so it has a memorable name
 
 ```nu
-> let new_2 = $new_2 | dfr rename "0" memorable
+> let new_2 = $new_2 | polars rename "0" memorable
 > $new_2
 ╭───┬───────────╮
 │ # │ memorable │
@@ -589,7 +589,7 @@ data type
 And we can add them to previously defined dataframes
 
 ```nu
-> let new_df = $a | dfr with-column $new --name new_col
+> let new_df = $a | polars with-column $new --name new_col
 > $new_df
 ╭───┬───┬───┬─────────╮
 │ # │ a │ b │ new_col │
@@ -617,7 +617,7 @@ we can multiply columns `a` and `b` to create a new Series
 and we can start piping things in order to create new columns and dataframes
 
 ```nu
-> let $new_df = $new_df | dfr with-column ($new_df.a * $new_df.b / $new_df.new_col) --name my_sum
+> let $new_df = $new_df | polars with-column ($new_df.a * $new_df.b / $new_df.new_col) --name my_sum
 > $new_df
 ╭───┬───┬───┬─────────┬────────╮
 │ # │ a │ b │ new_col │ my_sum │
@@ -651,7 +651,7 @@ mask using the equality operator
 and with this mask we can now filter a dataframe, like this
 
 ```nu
-> $new_df | dfr filter-with $mask
+> $new_df | polars filter-with $mask
 ╭───┬───┬───┬─────────┬────────╮
 │ # │ a │ b │ new_col │ my_sum │
 ├───┼───┼───┼─────────┼────────┤
@@ -664,8 +664,8 @@ Now we have a new dataframe with only the values where the mask was true.
 The masks can also be created from Nushell lists, for example:
 
 ```nu
-> let mask1 = [true true false] | dfr into-df
-> $new_df | dfr filter-with $mask1
+> let mask1 = [true true false] | polars into-df
+> $new_df | polars filter-with $mask1
 ╭───┬───┬───┬─────────┬────────╮
 │ # │ a │ b │ new_col │ my_sum │
 ├───┼───┼───┼─────────┼────────┤
@@ -704,7 +704,7 @@ We can also create a mask by checking if some values exist in other Series.
 Using the first dataframe that we created we can do something like this
 
 ```nu
-> let mask3 = $df | dfr col first | dfr is-in [b c]
+> let mask3 = $df | polars col first | polars is-in [b c]
 > $mask3
 ╭──────────┬─────────────────────────────────────────────────────────────────────────────────────────────────╮
 │          │ ╭───┬─────────┬──────────────╮                                                                  │
@@ -722,7 +722,7 @@ Using the first dataframe that we created we can do something like this
 and this new mask can be used to filter the dataframe
 
 ```nu
-> $df | dfr filter-with $mask3
+> $df | polars filter-with $mask3
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
@@ -745,7 +745,7 @@ This is example is not updated to recent Nushell versions.
 :::
 
 ```nu
-> $df | dfr get first | dfr set new --mask ($df.first =~ a)
+> $df | polars get first | polars set new --mask ($df.first =~ a)
 ╭───┬────────╮
 │ # │ string │
 ├───┼────────┤
@@ -770,8 +770,8 @@ from our original dataframe. With that in mind, we can use the next command to
 extract that information
 
 ```nu
-> let indices = [1 4 6] | dfr into-df
-> $df | dfr take $indices
+> let indices = [1 4 6] | polars into-df
+> $df | polars take $indices
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
@@ -781,14 +781,14 @@ extract that information
 ╰───┴───────┴───────┴─────────┴─────────┴───────┴────────┴───────┴────────╯
 ```
 
-The command [`dfr take`](/commands/docs/dfr_take.md) is very handy, especially if we mix it with other commands.
+The command [`polars take`](/commands/docs/polars_take.md) is very handy, especially if we mix it with other commands.
 Let's say that we want to extract all rows for the first duplicated element for
-column `first`. In order to do that, we can use the command `dfr arg-unique` as
+column `first`. In order to do that, we can use the command `polars arg-unique` as
 shown in the next example
 
 ```nu
-> let indices = $df | dfr get first | dfr arg-unique
-> $df | dfr take $indices
+> let indices = $df | polars get first | polars arg-unique
+> $df | polars take $indices
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
@@ -807,8 +807,8 @@ The same result could be accomplished using the command [`sort`](/commands/docs/
 :::
 
 ```nu
-> let indices = $df | dfr get word | dfr arg-sort
-> $df | dfr take $indices
+> let indices = $df | polars get word | polars arg-sort
+> $df | polars take $indices
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
@@ -829,8 +829,8 @@ And finally, we can create new Series by setting a new value in the marked
 indices. Have a look at the next command
 
 ```nu
-> let indices = [0 2] | dfr into-df
-> $df | dfr get int_1 | dfr set-with-idx 123 --indices $indices
+> let indices = [0 2] | polars into-df
+> $df | polars get int_1 | polars set-with-idx 123 --indices $indices
 ╭───┬───────╮
 │ # │ int_1 │
 ├───┼───────┤
@@ -859,7 +859,7 @@ example, we can use it to count how many occurrences we have in the column
 `first`
 
 ```nu
-> $df | dfr get first | dfr value-counts
+> $df | polars get first | polars value-counts
 ╭───┬───────┬────────╮
 │ # │ first │ counts │
 ├───┼───────┼────────┤
@@ -876,7 +876,7 @@ Continuing with our exploration of `Series`, the next thing that we can do is
 to only get the unique unique values from a series, like this
 
 ```nu
-> $df | dfr get first | dfr unique
+> $df | polars get first | polars unique
 ╭───┬───────╮
 │ # │ first │
 ├───┼───────┤
@@ -891,7 +891,7 @@ unique or duplicated. For example, we can select the rows for unique values
 in column `word`
 
 ```nu
-> $df | dfr filter-with ($df | dfr get word | dfr is-unique)
+> $df | polars filter-with ($df | polars get word | polars is-unique)
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬───────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │ word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼───────┤
@@ -903,7 +903,7 @@ in column `word`
 Or all the duplicated ones
 
 ```nu
-> $df | dfr filter-with ($df | dfr get word | dfr is-duplicated)
+> $df | polars filter-with ($df | polars get word | polars is-duplicated)
 ╭───┬───────┬───────┬─────────┬─────────┬───────┬────────┬───────┬────────╮
 │ # │ int_1 │ int_2 │ float_1 │ float_2 │ first │ second │ third │  word  │
 ├───┼───────┼───────┼─────────┼─────────┼───────┼────────┼───────┼────────┤
@@ -929,7 +929,7 @@ operations.
 Let's create a small example of a lazy dataframe
 
 ```nu
-> let a = [[a b]; [1 a] [2 b] [3 c] [4 d]] | dfr into-lazy
+> let a = [[a b]; [1 a] [2 b] [3 c] [4 d]] | polars into-lazy
 > $a
 ╭────────────────┬─────────────────────────────────────────────────────────╮
 │ plan           │   DF ["a", "b"]; PROJECT */2 COLUMNS; SELECTION: "None" │
@@ -944,7 +944,7 @@ set of instructions that can be done on the data. If you were to collect that
 dataframe you would get the next result
 
 ```nu
-> $a | dfr collect
+> $a | polars collect
 ╭───┬───┬───╮
 │ # │ a │ b │
 ├───┼───┼───┤
@@ -974,11 +974,11 @@ example this
 
 ```nu
 $a |
-    dfr reverse |
-    dfr with-column [
-     ((dfr col a) * 2 | dfr as double_a)
-     ((dfr col a) / 2 | dfr as half_a)
-] | dfr collect
+    polars reverse |
+    polars with-column [
+     ((polars col a) * 2 | polars as double_a)
+     ((polars col a) / 2 | polars as half_a)
+] | polars collect
 ```
 
 :::tip
@@ -986,7 +986,7 @@ You can use the line buffer editor to format your queries (`ctr + o`) easily
 :::
 
 This query uses the lazy reverse command to invert the dataframe and the
-`dfr with-column` command to create new two columns using `expressions`.
+`polars with-column` command to create new two columns using `expressions`.
 An `expression` is used to define an operation that is executed on the lazy
 frame. When put together they create the whole set of instructions used by the
 lazy commands to query the data. To list all the commands that generate an
@@ -996,47 +996,47 @@ expression you can use
 scope commands | where category =~ expression
 ```
 
-In our previous example, we use the `dfr col` command to indicate that column `a`
+In our previous example, we use the `polars col` command to indicate that column `a`
 will be multiplied by 2 and then it will be aliased to the name `double_a`.
-In some cases the use of the `dfr col` command can be inferred. For example,
-using the `dfr select` command we can use only a string
+In some cases the use of the `polars col` command can be inferred. For example,
+using the `polars select` command we can use only a string
 
 ```nu
-> $a | dfr select a | dfr collect
+> $a | polars select a | polars collect
 ```
 
-or the `dfr col` command
+or the `polars col` command
 
 ```nu
-> $a | dfr select (dfr col a) | dfr collect
+> $a | polars select (polars col a) | polars collect
 ```
 
 Let's try something more complicated and create aggregations from a lazy
 dataframe
 
 ```nu
-let a = ( [[name value]; [one 1] [two 2] [one 1] [two 3]] | dfr into-lazy )
+let a = ( [[name value]; [one 1] [two 2] [one 1] [two 3]] | polars into-lazy )
 $a
-| dfr group-by name
-| dfr agg [
-     (dfr col value | dfr sum | dfr as sum)
-     (dfr col value | dfr mean | dfr as mean)
-] | dfr collect
+| polars group-by name
+| polars agg [
+     (polars col value | polars sum | polars as sum)
+     (polars col value | polars mean | polars as mean)
+] | polars collect
 ```
 
 And we could join on a lazy dataframe that hasn't being collected. Let's join
 the resulting group by to the original lazy frame
 
 ```nu
-let a = ( [[name value]; [one 1] [two 2] [one 1] [two 3]] | dfr into-lazy )
+let a = ( [[name value]; [one 1] [two 2] [one 1] [two 3]] | polars into-lazy )
 let group = ($a
-    | dfr group-by name
-    | dfr agg [
-      (dfr col value | dfr sum | dfr as sum)
-      (dfr col value | dfr mean | dfr as mean)
+    | polars group-by name
+    | polars agg [
+      (polars col value | polars sum | polars as sum)
+      (polars col value | polars mean | polars as mean)
     ]
 )
-$a | dfr join $group name name | dfr collect
+$a | polars join $group name name | polars collect
 ```
 
 As you can see lazy frames are a powerful construct that will let you query
