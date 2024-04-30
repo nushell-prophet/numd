@@ -53,9 +53,14 @@ export def detect-code-chunks [
     } else {}
 }
 
-export def escape-quotes []: string -> string {
-    str replace --all --regex '([^\\])?\\([^\\])?' '$1\\$2' # escpae windows paths?
-    | str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
+export def escape-escapes []: string -> string {
+    let $input = $in
+
+    help escapes
+    | filter {|i| ($i.output | str length) == 1}
+    | prepend {sequence: '\\' output: '\'} # make this substitution first
+    | uniq
+    | reduce -f $input {|i acc| $acc | str replace -a $i.output $i.sequence}
 }
 
 export def run-intermid-script [
@@ -83,7 +88,7 @@ export def numd-block [
 }
 
 export def gen-highlight-command [ ]: string -> string {
-    escape-quotes
+    escape-escapes
     | $"print \(\"($in)\" | nu-highlight\)(char nl)"
 }
 
@@ -118,7 +123,7 @@ export def gen-catch-error-in-current-instance []: string -> string {
 
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
-    escape-quotes
+    escape-escapes
     | ($"do {nu -c \"($in)\"} | complete | if \($in.exit_code != 0\) " +
         "{get stderr} else {get stdout}")
 }
