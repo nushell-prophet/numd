@@ -102,8 +102,10 @@ export def ends-with-definition [
     $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
 }
 
-export def gen-indented-output []: string -> string {
-    $"($in) | table | into string | lines | each {$'//  \($in\)' | str trim} | str join \(char nl\)"
+export def gen-indented-output [
+    --indent: string = '//  '
+]: string -> string {
+    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
 }
 
 export def gen-print-in []: string -> string {
