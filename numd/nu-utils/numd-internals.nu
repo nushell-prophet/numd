@@ -89,7 +89,7 @@ export def numd-block [
 }
 
 export def gen-highlight-command [ ]: string -> string {
-    escape-quotes
+    escape-escapes
     | str prepend "print (\""
     | str append "\" | nu-highlight)\n"
 }
@@ -125,7 +125,7 @@ export def gen-catch-error-in-current-instance []: string -> string {
 
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
-    escape-quotes
+    escape-escapes
     | str prepend 'do {nu -c "'
     | str append '"} | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}'
 }
