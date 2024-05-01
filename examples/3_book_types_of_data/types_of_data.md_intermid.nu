@@ -118,7 +118,7 @@ print ("> [sam fred george]" | nu-highlight)
 print "```"
 print "###code-block-starting-line-in-original-md-306"
 print "```nushell"
-print ("> [bell book candle] \| where \(\$it =\~ \'b\'\)" | nu-highlight)
+print ("> [bell book candle] \| where \(\$it =\~ 'b'\)" | nu-highlight)
 [bell book candle] | where ($it =~ 'b') | print; print ''
 
 print "```"
