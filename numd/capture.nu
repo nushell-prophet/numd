@@ -29,9 +29,9 @@ export def --env start [
         | ansi strip
         | default (char nl)
         | $"> (history | last | get command)\n($in)\n\n"
-        | str replace -r "\n{3,}$" "\n\n"
+        | str replace --regex "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') { # don't save numd capture managing commands
-            save -ar $env.numd.path
+            save --append --raw $env.numd.path
         }
 
         print -n $input # without the `-n` flag new line is added to an output
@@ -46,7 +46,7 @@ export def --env stop [ ]: nothing -> nothing {
 
     $"(open $file)```\n"
     | prettify-markdown
-    | save -f $file
+    | save --force $file
 
     cprint $'numd commands capture to the *($file)* file has been stoped.'
 
