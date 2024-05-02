@@ -94,7 +94,7 @@ print "```"
 print "###code-block-starting-line-in-original-md-135"
 print "```nu"
 print ("let colors = [red orange yellow green blue purple]
-\$colors \| where \(\$it \| str ends-with \'e\'\)
+\$colors \| where \(\$it \| str ends-with 'e'\)
 \# The block passed to `where` must evaluate to a boolean.
 \# This outputs the list [orange blue purple]." | nu-highlight)
 print '```
@@ -177,9 +177,9 @@ print "```"
 print "###code-block-starting-line-in-original-md-219"
 print "```nu"
 print ("let colors = [red green blue]
-\'blue\' in \$colors \# true
-\'yellow\' in \$colors \# false
-\'gold\' not-in \$colors \# true" | nu-highlight)
+'blue' in \$colors \# true
+'yellow' in \$colors \# false
+'gold' not-in \$colors \# true" | nu-highlight)
 print '```
 ```output-numd'
 let colors = [red green blue]
@@ -269,7 +269,7 @@ print "```nu"
 print ("let zones = [UTC CET Europe\/Moscow Asia\/Yekaterinburg]
 
 \# Show world clock for selected time zones
-\$zones \| wrap \'Zone\' \| upsert Time \{\|it\| \(date now \| date to-timezone \$it.Zone \| format date \'%Y.%m.%d %H:%M\'\)\}" | nu-highlight)
+\$zones \| wrap 'Zone' \| upsert Time \{\|it\| \(date now \| date to-timezone \$it.Zone \| format date '%Y.%m.%d %H:%M'\)\}" | nu-highlight)
 print '```
 ```output-numd'
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]

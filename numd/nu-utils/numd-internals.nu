@@ -55,13 +55,7 @@ export def detect-code-chunks [
 }
 
 export def escape-escapes []: string -> string {
-    let $input = $in
-
-    help escapes
-    | filter {|i| ($i.output | str length) == 1}
-    | prepend {sequence: '\\' output: '\'} # make this substitution first
-    | uniq
-    | reduce -f $input {|i acc| $acc | str replace -a $i.output $i.sequence}
+    str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
 }
 
 export def run-intermid-script [

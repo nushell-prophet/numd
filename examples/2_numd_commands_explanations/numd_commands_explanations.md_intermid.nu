@@ -6,7 +6,7 @@ print "###code-block-starting-line-in-original-md-3"
 print "```nu"
 print ("\$env.config.table.abbreviated_row_count = 100
 
-\# I source run here to export it\'s internal commands
+\# I source run here to export it's internal commands
 use \(\$init_numd_pwd_const \| path join numd run1.nu\) *
 use \(\$init_numd_pwd_const \| path join numd nu-utils numd-internals.nu\) *
 let \$file = \(\$init_numd_pwd_const \| path join examples 1_simple_markdown simple_markdown.md\)
@@ -42,7 +42,7 @@ print "###code-block-starting-line-in-original-md-55"
 print "```nu indent-output"
 print ("let \$intermid_script_path = \$intermid_script_path
         \| default \( \$file
-            \| path-modify --prefix \$\'numd-temp-\(tstamp\)\' --suffix \'.nu\' \)
+            \| path-modify --prefix \$'numd-temp-\(tstamp\)' --suffix '.nu' \)
 
 gen-intermid-script \$md_orig_table
 \| save -f \$intermid_script_path
