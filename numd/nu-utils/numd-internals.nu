@@ -348,10 +348,14 @@ export def parse-options-from-fence []: string -> list {
 export def path-modify [
     --prefix: string
     --suffix: string
+    --extension: string
     --parent_dir: string
 ]: path -> path {
     path parse
     | upsert stem {|i| $'($prefix)($i.stem)($suffix)'}
+    | if $extension != null {
+        update extension {|i| $i.extension + $extension }
+    } else {}
     | if $parent_dir != null {
         upsert parent {|i|
             $i.parent

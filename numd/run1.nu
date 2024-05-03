@@ -18,7 +18,7 @@ export def run [
     let $md_orig_table = detect-code-chunks $md_orig
 
     let $intermid_script_path = $intermid_script
-        | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
+        | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
         # we don't use temp dir here as code in `md` files might containt relative paths
         # which only work if we'll execute intrmid script from the same folder
 
