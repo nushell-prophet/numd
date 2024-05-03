@@ -118,8 +118,8 @@ export def gen-catch-error-in-current-instance []: string -> string {
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
     escape-escapes
-    | ($"do {nu -c \"($in)\"} | complete | if \($in.exit_code != 0\) " +
-        "{get stderr} else {get stdout}")
+    | ($'($nu.current-exe) -c "($in)"' +
+        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
 export def gen-fence-output-numd []: string -> string {
