@@ -340,8 +340,7 @@ export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
-    | where $it != ''
-    | compact
+    | compact --empty
     | each {|i| expand-short-options $i}
 }
 
