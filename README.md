@@ -157,9 +157,10 @@ Input/output types:
 start capturing commands and their results into a file
 
 Usage:
-  > start (file) 
+  > start {flags} (file) 
 
 Flags:
+  --separte - don't use `>` notation, create separate chunks for each pipeline
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -196,10 +197,11 @@ Input/output types:
 │ examples/2_numd_commands_explanations │ dir  │
 │ examples/3_book_types_of_data         │ dir  │
 │ examples/4_book_working_with_lists    │ dir  │
+│ examples/5_dataframes                 │ dir  │
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-04-07T05:26:19+00:00
+2024-04-21T09:42:17+00:00
 
 > 2 + 2
 4
