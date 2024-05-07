@@ -3,7 +3,7 @@
 ```nu
 $env.config.table.abbreviated_row_count = 100
 
-# I source run here to export it's internal commands
+# I source `run1.nu` here to export it's internal commands
 use ($init_numd_pwd_const | path join numd run1.nu) *
 use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 let $file = ($init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md)
