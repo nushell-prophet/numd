@@ -110,7 +110,7 @@ export def gen-indented-output [
 }
 
 export def gen-print-in []: string -> string {
-    $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
+    $"($in) | print(char nl)print ''" # the last `print ''` is for new lines after executed commands
 }
 
 export def gen-catch-error-in-current-instance []: string -> string {
@@ -192,6 +192,7 @@ export def gen-intermid-script [
         | prepend $"print \"($v.row_type.0)\""
         | prepend $"print \"(numd-block $k)\""
         | append $"print \"```\""
+        | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
