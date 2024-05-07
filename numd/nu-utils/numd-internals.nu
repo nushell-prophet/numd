@@ -53,8 +53,10 @@ export def detect-code-chunks [
     } else {}
 }
 
+# escape symbols to be printed unchanged inside `print "something"` statement
 export def escape-escapes []: string -> string {
-    str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
+    # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
+    str replace --all --regex '(\\|\")' '\$1'
 }
 
 export def run-intermid-script [
