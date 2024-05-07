@@ -78,7 +78,7 @@ export def run-intermid-script [
 export def numd-block [
     index?: int
 ]: nothing -> string {
-    $"###code-block-starting-line-in-original-md-($index)"
+    $"#code-block-starting-line-in-original-md-($index)"
 }
 
 export def gen-highlight-command [ ]: string -> string {
