@@ -85,7 +85,7 @@ export def numd-block [
 
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
-    | $"print \(\"($in)\" | nu-highlight\)(char nl)"
+    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
 export def trim-comments-plus []: string -> string {
@@ -110,7 +110,7 @@ export def gen-indented-output [
 }
 
 export def gen-print-in []: string -> string {
-    $"($in) | print(char nl)print ''" # the last `print ''` is for new lines after executed commands
+    $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
 }
 
 export def gen-catch-error-in-current-instance []: string -> string {
@@ -125,7 +125,7 @@ export def gen-catch-error-outside []: string -> string {
 }
 
 export def gen-fence-output-numd []: string -> string {
-    $"print '```(char nl)```output-numd'(char nl)($in)"
+    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
 
 export def gen-execute-code [
@@ -189,9 +189,9 @@ export def gen-intermid-script [
                 }
             }
         }
-        | prepend $"print \"($v.row_type.0)\""
-        | prepend $"print \"(numd-block $k)\""
-        | append $"print \"```\""
+        | prepend $"    print \"($v.row_type.0)\""
+        | prepend $"    print \"(numd-block $k)\""
+        | append $"    print \"```\""
         | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
