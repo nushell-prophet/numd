@@ -281,13 +281,13 @@ export def calc-changes [
             $"(ansi blue)+($change_abs) \(($in)%\)(ansi reset)"
         } else {'0%'}
     }
-    | update metric {|i| $'diff-($i.metric)'}
+    | update metric {|i| $'diff_($i.metric)'}
     | select metric change
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenstein ($orig_file | str distance $new_file)
     | insert nu_code_blocks $n_code_bloks
-    | select filename nu_code_blocks levenstein diff-lines diff-words diff-chars
+    | select filename nu_code_blocks levenstein diff_lines diff_words diff_chars
 }
 
 export def diff-changes [
