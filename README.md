@@ -91,9 +91,9 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
 │ levenstein     │ 39                                │
-│ diff-lines     │ +6 (25%)                          │
-│ diff-words     │ +7 (12.5%)                        │
-│ diff-chars     │ +39 (11.3%)                       │
+│ diff_lines     │ +6 (25%)                          │
+│ diff_words     │ +7 (12.5%)                        │
+│ diff_chars     │ +39 (11.3%)                       │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -201,7 +201,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-04-21T09:42:17+00:00
+2024-04-21T09:42:18+00:00
 
 > 2 + 2
 4

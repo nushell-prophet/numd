@@ -67,40 +67,42 @@ open $intermid_script_path
 //  # https://github.com/nushell-prophet/numd
 //  cd /Users/user/git/numd
 //  const init_numd_pwd_const = '/Users/user/git/numd'
-//  print "#code-block-starting-line-in-original-md-7"
-//  print "```nu"
-//  print ("let $var1 = 'foo'" | nu-highlight)
-//  print '```
-//  ```output-numd'
+//      print "#code-block-starting-line-in-original-md-7"
+//      print "```nu"
+//      print ("let $var1 = 'foo'" | nu-highlight)
+//
+//      print "```\n```output-numd"
+//
 //  let $var1 = 'foo'
 //
-//  print "```"
+//      print "```"
 //
-//  print "#code-block-starting-line-in-original-md-13"
-//  print "```nu"
-//  print ("# This chunk will produce some output in a separate block
+//      print "#code-block-starting-line-in-original-md-13"
+//      print "```nu"
+//      print ("# This chunk will produce some output in a separate block
 //  $var1 | path join 'baz' 'bar'" | nu-highlight)
-//  print '```
-//  ```output-numd'
+//
+//      print "```\n```output-numd"
+//
 //  # This chunk will produce some output in a separate block
-//  $var1 | path join 'baz' 'bar' | print
-//  print ''
+//  $var1 | path join 'baz' 'bar' | print; print ''
 //
-//  print "```"
+//      print "```"
 //
-//  print "#code-block-starting-line-in-original-md-23"
-//  print "```nu"
-//  print ("# This chunk will output results inline" | nu-highlight)
+//      print "#code-block-starting-line-in-original-md-23"
+//      print "```nu"
+//      print ("# This chunk will output results inline" | nu-highlight)
 //
-//  print ("> whoami" | nu-highlight)
-//  whoami | print
-//  print ''
 //
-//  print ("> 2 + 2" | nu-highlight)
-//  2 + 2 | print
-//  print ''
+//      print ("> whoami" | nu-highlight)
 //
-//  print "```"
+//  whoami | print; print ''
+//
+//      print ("> 2 + 2" | nu-highlight)
+//
+//  2 + 2 | print; print ''
+//
+//      print "```"
 ```
 
 ```nu indent-output
@@ -216,8 +218,8 @@ calc-changes $file $md_orig $md_res
 //  │ filename       │ simple_markdown.md │
 //  │ nu_code_blocks │ 3                  │
 //  │ levenstein     │ 0                  │
-//  │ diff-lines     │ 0%                 │
-//  │ diff-words     │ 0%                 │
-//  │ diff-chars     │ 0%                 │
+//  │ diff_lines     │ 0%                 │
+//  │ diff_words     │ 0%                 │
+//  │ diff_chars     │ 0%                 │
 //  ╰────────────────┴────────────────────╯
 ```
