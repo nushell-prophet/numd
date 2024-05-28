@@ -54,6 +54,9 @@ export def detect-code-chunks [
 }
 
 # escape symbols to be printed unchanged inside `print "something"` statement
+#
+# > 'abcd"dfdaf" "' | escape-escapes
+# abcd\"dfdaf\" \"
 export def escape-escapes []: string -> string {
     # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
     str replace --all --regex '(\\|\")' '\$1'
@@ -371,6 +374,8 @@ export def path-modify [
     | path join
 }
 
+# > tstamp
+# 20240527_111215
 export def tstamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
