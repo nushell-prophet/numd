@@ -13,9 +13,14 @@ export def run [
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
     --diff # use diff for printing changes
+    --width: int # set the `table --width` option value
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
     let $md_orig_table = detect-code-chunks $md_orig
+
+    if $width != null {
+        $env.numd.table-width = $width
+    }
 
     let $intermid_script_path = $intermid_script
         | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )

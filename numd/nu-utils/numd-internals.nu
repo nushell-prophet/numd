@@ -110,7 +110,10 @@ export def gen-indented-output [
 }
 
 export def gen-print-in []: string -> string {
-    $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
+    if $env.numd?.table-width? == null {} else {
+        $"($in) | table --width ($env.numd.table-width)"
+    }
+    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
 }
 
 export def gen-catch-error-in-current-instance []: string -> string {
