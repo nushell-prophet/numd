@@ -6,6 +6,7 @@ export def run [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
+    --save-ansi # save ansi formatted version
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes in `.md` file
@@ -51,10 +52,13 @@ export def run [
     let $md_res_ansi = assemble-markdown $md_orig_table $nu_res_with_block_line_in_orig_md
         | prettify-markdown
 
+    let $path = $output_md_path | default $file
     if not $no_save {
-        let $path = $output_md_path | default $file
         if not $no_backup { backup-file $path }
         $md_res_ansi | ansi strip | save -f $path
+    }
+    if $save_ansi {
+        $md_res_ansi | save -f $'($path).ans'
     }
 
     if not $no_info {
