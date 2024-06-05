@@ -1,6 +1,6 @@
 use ./numd
-def numdr [file: path] {
-    numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
+def numdr []: path -> record {
+    numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
 }
 
 numd clear-outputs ('examples' | path join 1_simple_markdown simple_markdown.md) -o (
@@ -8,10 +8,10 @@ numd clear-outputs ('examples' | path join 1_simple_markdown simple_markdown.md)
 )
 
 [
-    ('examples' | path join 1_simple_markdown simple_markdown.md)
-    ('examples' | path join 2_numd_commands_explanations numd_commands_explanations.md)
-    ('examples' | path join 4_book_working_with_lists working_with_lists.md)
-    ('examples' | path join 3_book_types_of_data types_of_data.md)
+    [1_simple_markdown simple_markdown.md]
+    ['2_numd_commands_explanations' numd_commands_explanations.md]
+    [4_book_working_with_lists working_with_lists.md]
+    [3_book_types_of_data types_of_data.md]
 ]
-| each {numdr $in}
+| each {prepend 'examples' | path join | numdr}
 | append (numd run README.md --no-backup)
