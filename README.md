@@ -201,7 +201,7 @@ Input/output types:
 │ examples/5_dataframes                 │ dir  │
 ╰─────────────────name──────────────────┴─type─╯
 
-> sys | get host.boot_time
+> sys host | get boot_time
 Fri, 24 May 2024 07:47:14 +0000 (2 weeks ago)
 
 > 2 + 2
