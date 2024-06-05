@@ -14,7 +14,7 @@ open README.md -r
 | $in + (char nl)
 | save -r README.md -f
 
-prettier README.md -w
+# prettier README.md -w
 
 use nupm
 nupm install --force --path .
@@ -22,3 +22,4 @@ nupm install --force --path .
 git add nupm.nuon
 git commit -m $'($git_tag) nupm version'
 git tag $git_tag
+git push origin $git_tag

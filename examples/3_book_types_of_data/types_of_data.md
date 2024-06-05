@@ -78,6 +78,7 @@ There are just two boolean values: `true` and `false`. Rather than writing the v
 > let mybool = 2 > 1
 > $mybool
 true
+
 > let mybool = ($nu.home-path | path exists)
 > $mybool
 true
@@ -150,8 +151,10 @@ As with durations, you can make fractional file sizes, and do calculations:
 ```nushell
 > 1Gb / 1b
 1000000000
+
 > 1Gib / 1b
 1073741824
+
 > (1Gib / 1b) == 2 ** 30
 true
 ```

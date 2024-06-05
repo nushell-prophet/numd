@@ -3,8 +3,10 @@ use std iter scan
 export def backup-file [
     $path: path
 ]: nothing -> nothing {
-    if ($path | path exists) and ($path | path type) == 'file' {
-        mv $path ($path | path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)')
+    $path
+    | if ($in | path exists) and ($in | path type) == 'file' {
+        path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
+        | mv $path $in
     }
 }
 
@@ -51,8 +53,13 @@ export def detect-code-chunks [
     } else {}
 }
 
-export def escape-quotes []: string -> string {
-    str replace --all --regex '([^\\]?)"' '$1\"' # [^\\]? - escape symbols
+# escape symbols to be printed unchanged inside `print "something"` statement
+#
+# > 'abcd"dfdaf" "' | escape-escapes
+# abcd\"dfdaf\" \"
+export def escape-escapes []: string -> string {
+    # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
+    str replace --all --regex '(\\|\")' '\$1'
 }
 
 export def run-intermid-script [
@@ -76,11 +83,12 @@ export def run-intermid-script [
 export def numd-block [
     index?: int
 ]: nothing -> string {
-    $"###code-block-starting-line-in-original-md-($index)"
+    $"#code-block-starting-line-in-original-md-($index)"
 }
 
 export def gen-highlight-command [ ]: string -> string {
-    $"print \(\"($in | escape-quotes)\" | nu-highlight\)(char nl)"
+    escape-escapes
+    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
 export def trim-comments-plus []: string -> string {
@@ -98,12 +106,17 @@ export def ends-with-definition [
     $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
 }
 
-export def gen-indented-output []: string -> string {
-    $"($in) | table | into string | lines | each {$'//  \($in\)' | str trim} | str join \(char nl\)"
+export def gen-indented-output [
+    --indent: string = '//  '
+]: string -> string {
+    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
 }
 
 export def gen-print-in []: string -> string {
-    $'($in) | print'
+    if $env.numd?.table-width? == null {} else {
+        $"($in) | table --width ($env.numd.table-width)"
+    }
+    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
 }
 
 export def gen-catch-error-in-current-instance []: string -> string {
@@ -112,12 +125,13 @@ export def gen-catch-error-in-current-instance []: string -> string {
 
 # execute the command outside to obtain a formatted error message if any
 export def gen-catch-error-outside []: string -> string {
-    ($"do {nu -c \"($in | escape-quotes)\"} " +
-    "| complete | if \($in.exit_code != 0\) {get stderr} else {get stdout}")
+    escape-escapes
+    | ($'($nu.current-exe) -c "($in)"' +
+        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
 export def gen-fence-output-numd []: string -> string {
-    $"print '```(char nl)```output-numd'(char nl)($in)"
+    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
 
 export def gen-execute-code [
@@ -164,6 +178,7 @@ export def gen-intermid-script [
 
     $md_classified
     | where row_type =~ '^```nu(shell)?(\s|$)'
+    | where row_type !~ '\b(no-run|N)\b'
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
@@ -180,9 +195,10 @@ export def gen-intermid-script [
                 }
             }
         }
-        | prepend $"print \"($v.row_type.0)\""
-        | prepend $"print \"(numd-block $k)\""
-        | append $"print \"```\""
+        | prepend $"    print \"($v.row_type.0)\""
+        | prepend $"    print \"(numd-block $k)\""
+        | append $"    print \"```\""
+        | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
@@ -227,12 +243,19 @@ export def assemble-markdown [
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
+    | append (
+        $md_classified
+        | where row_type =~ '^```nu(shell)?.*\b(no-run|N)\b'
+    )
     | append $nu_res_with_block_line_in_orig_md
     | sort-by block_line_in_orig_md
     | get line
     | str join (char nl)
     | $in + (char nl)
-    | str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
+}
+
+export def prettify-markdown []: string -> string {
+    str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
 }
@@ -264,13 +287,13 @@ export def calc-changes [
             $"(ansi blue)+($change_abs) \(($in)%\)(ansi reset)"
         } else {'0%'}
     }
-    | update metric {|i| $'diff-($i.metric)'}
+    | update metric {|i| $'diff_($i.metric)'}
     | select metric change
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenstein ($orig_file | str distance $new_file)
     | insert nu_code_blocks $n_code_bloks
-    | select filename nu_code_blocks levenstein diff-lines diff-words diff-chars
+    | select filename nu_code_blocks levenstein diff_lines diff_words diff_chars
 }
 
 export def diff-changes [
@@ -326,18 +349,21 @@ export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
-    | where $it != ''
-    | compact
+    | compact --empty
     | each {|i| expand-short-options $i}
 }
 
 export def path-modify [
     --prefix: string
     --suffix: string
+    --extension: string
     --parent_dir: string
 ]: path -> path {
     path parse
     | upsert stem {|i| $'($prefix)($i.stem)($suffix)'}
+    | if $extension != null {
+        update extension {|i| $i.extension + $extension }
+    } else {}
     | if $parent_dir != null {
         upsert parent {|i|
             $i.parent
@@ -348,6 +374,8 @@ export def path-modify [
     | path join
 }
 
+# > tstamp
+# 20240527_111215
 export def tstamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }

@@ -33,7 +33,7 @@ use numd
 numd run --help
 ```
 ```output-numd
-run nushell code chunks in a markdown file, outputs results back to the `.md` and optionally to terminal
+run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
 
 Usage:
   > run {flags} <file> 
@@ -45,9 +45,10 @@ Flags:
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
-  --no-fail-on-error - skip errors (and don't update markdown anyway)
+  --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
   --diff - use diff for printing changes
+  --width <Int> - set the `table --width` option value
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -90,10 +91,10 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╭────────────────┬───────────────────────────────────╮
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
-│ levenstein     │ 38                                │
-│ diff-lines     │ +5 (20%)                          │
-│ diff-words     │ +7 (9.6%)                         │
-│ diff-chars     │ +38 (8.8%)                        │
+│ levenstein     │ 40                                │
+│ diff_lines     │ +6 (25%)                          │
+│ diff_words     │ +7 (12.5%)                        │
+│ diff_chars     │ +40 (11.7%)                       │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -103,7 +104,7 @@ Also `--diff` param can be used to display diff of changes.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
 ```output-numd
-//    ls; # mind that this ls won't print in the markdown as it is used without `echo` or `>`
+//    # This chunk will produce some output in a separate block
 //    $var1 | path join 'baz' 'bar'
 //    ```
 //  + ```output-numd
@@ -116,6 +117,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 //    # This chunk will output results inline
 //    > whoami
 //  + user
+//  + 
 //    > 2 + 2
 //  + 4
 //    ```
@@ -156,9 +158,10 @@ Input/output types:
 start capturing commands and their results into a file
 
 Usage:
-  > start (file) 
+  > start {flags} (file) 
 
 Flags:
+  --separte - don't use `>` notation, create separate chunks for each pipeline
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -195,14 +198,17 @@ Input/output types:
 │ examples/2_numd_commands_explanations │ dir  │
 │ examples/3_book_types_of_data         │ dir  │
 │ examples/4_book_working_with_lists    │ dir  │
+│ examples/5_dataframes                 │ dir  │
 ╰─────────────────name──────────────────┴─type─╯
 
-> sys | get host.boot_time
-2024-04-07T05:26:21+00:00
+> sys host | get boot_time
+Fri, 24 May 2024 07:47:14 +0000 (2 weeks ago)
+
 > 2 + 2
 4
+
 > git tag | lines | sort -n | last
-0.1.1
+0.1.4
 ```
 
 ## Real fight examples to try

@@ -1,4 +1,4 @@
-use numd
+use ./numd
 def numdr [file: path] {
     numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
 }
