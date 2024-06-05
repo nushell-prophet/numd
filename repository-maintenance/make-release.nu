@@ -1,5 +1,5 @@
 let $git_info = (gh repo view --json description,name | from json);
-let $git_tag = (git tag | lines | sort -n | last | inc -p)
+let $git_tag = (git tag | lines | sort -n | last | split row '.' | into int | update 2 {$in + 1} | str join '.')
 let $desc = ($git_info | get description)
 
 open nupm.nuon
@@ -16,8 +16,8 @@ open README.md -r
 
 # prettier README.md -w
 
-use nupm
-nupm install --force --path .
+# use nupm
+# nupm install --force --path .
 
 git add nupm.nuon
 git commit -m $'($git_tag) nupm version'
