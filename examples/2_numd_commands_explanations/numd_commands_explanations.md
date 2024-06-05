@@ -217,9 +217,9 @@ calc-changes $file $md_orig $md_res
 //  ╭────────────────┬────────────────────╮
 //  │ filename       │ simple_markdown.md │
 //  │ nu_code_blocks │ 3                  │
-//  │ levenstein     │ 0                  │
+//  │ levenstein     │ 1                  │
 //  │ diff_lines     │ 0%                 │
 //  │ diff_words     │ 0%                 │
-//  │ diff_chars     │ 0%                 │
+//  │ diff_chars     │ +1 (0.3%)          │
 //  ╰────────────────┴────────────────────╯
 ```

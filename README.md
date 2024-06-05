@@ -48,6 +48,7 @@ Flags:
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
   --diff - use diff for printing changes
+  --width <Int> - set the `table --width` option value
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -90,10 +91,10 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╭────────────────┬───────────────────────────────────╮
 │ filename       │ simple_markdown_with_no_output.md │
 │ nu_code_blocks │ 3                                 │
-│ levenstein     │ 39                                │
+│ levenstein     │ 40                                │
 │ diff_lines     │ +6 (25%)                          │
 │ diff_words     │ +7 (12.5%)                        │
-│ diff_chars     │ +39 (11.3%)                       │
+│ diff_chars     │ +40 (11.7%)                       │
 ╰────────────────┴───────────────────────────────────╯
 ```
 
@@ -201,7 +202,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys | get host.boot_time
-2024-04-21T09:42:18+00:00
+Fri, 24 May 2024 07:47:14 +0000 (2 weeks ago)
 
 > 2 + 2
 4
