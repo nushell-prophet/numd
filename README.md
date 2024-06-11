@@ -36,11 +36,12 @@ numd run --help
 run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
 
 Usage:
-  > run {flags} <file> 
+  > run {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal
+  --save-ansi - save ansi formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes in `.md` file
@@ -130,7 +131,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 remove numd execution outputs from the file
 
 Usage:
-  > clear-outputs {flags} <file> 
+  > clear-outputs {flags} <file>
 
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
@@ -158,7 +159,7 @@ Input/output types:
 start capturing commands and their results into a file
 
 Usage:
-  > start {flags} (file) 
+  > start {flags} (file)
 
 Flags:
   --separte - don't use `>` notation, create separate chunks for each pipeline
@@ -178,7 +179,7 @@ Input/output types:
 stop capturing commands and their results
 
 Usage:
-  > stop 
+  > stop
 
 Flags:
   -h, --help - Display the help message for this command
@@ -198,17 +199,16 @@ Input/output types:
 │ examples/2_numd_commands_explanations │ dir  │
 │ examples/3_book_types_of_data         │ dir  │
 │ examples/4_book_working_with_lists    │ dir  │
-│ examples/5_dataframes                 │ dir  │
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:14 +0000 (2 weeks ago)
+Fri, 24 May 2024 07:47:13 +0000 (2 weeks ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.4
+0.1.6
 ```
 
 ## Real fight examples to try
