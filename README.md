@@ -1,6 +1,6 @@
 <h1 align="center">numd - reproducible Nushell Markdown documents</h1>
 
-Execute chunks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
+Execute blocks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
 
 `numd` is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
 
@@ -22,9 +22,9 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ### Details of parsing
 
-1. `numd` looks for ` ```nushell ` or ` ```nu ` code chunks.
-2. In the code chunks that entirely don't have lines starting with the `>` symbol, `numd` executes the whole code chunks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```output-numd ` chunks, next to the executed code chunks.
-3. In the code chunks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol, executes or prints those lines one by one, and outputs results just after the executed line.
+1. `numd` looks for ` ```nushell ` or ` ```nu ` code blocks.
+2. In the code blocks that entirely don't have lines starting with the `>` symbol, `numd` executes the whole code blocks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```output-numd ` blocks, next to the executed code blocks.
+3. In the code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol, executes or prints those lines one by one, and outputs results just after the executed line.
 
 ### `numd run` flags and params
 
@@ -33,7 +33,7 @@ use numd
 numd run --help
 ```
 ```output-numd
-run nushell code chunks in a markdown file, output results back to the `.md`, and optionally to the terminal
+run nushell code blocks in a markdown file, output results back to the `.md` and optionally to terminal
 
 Usage:
   > run {flags} <file>
@@ -74,8 +74,8 @@ numd code-block-options --list
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
-│ new-instance  │ n     │ execute the chunk in the new nushell instance │
-│ no-run        │ N     │ don't execute the code in chunk               │
+│ new-instance  │ n     │ execute the block in the new nushell instance │
+│ no-run        │ N     │ don't execute the code in block               │
 │ indent-output │ i     │ indent the output visually                    │
 ╰─────long──────┴─short─┴──────────────────description──────────────────╯
 ```
@@ -104,7 +104,7 @@ Also, the `--diff` param can be used to display the diff of changes.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
 ```output-numd
-//    # This chunk will produce some output in a separate block
+//    # This block will produce some output in a separate block
 //    $var1 | path join 'baz' 'bar'
 //    ```
 //  + ```output-numd
@@ -114,7 +114,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 //    ## Example 3
 //
 //    ```nu
-//    # This chunk will output results inline
+//    # This block will output results inline
 //    > whoami
 //  + user
 //  +
@@ -161,7 +161,7 @@ Usage:
   > start {flags} (file)
 
 Flags:
-  --separte - don't use `>` notation, create separate chunks for each pipeline
+  --separte - don't use `>` notation, create separate blocks for each pipeline
   -h, --help - Display the help message for this command
 
 Parameters:

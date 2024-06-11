@@ -2,7 +2,7 @@
 
 ## Example 1
 
-the chunk below will be executed as it is, but won't yeld any output
+the block below will be executed as it is, but won't yeld any output
 
 ```nu
 let $var1 = 'foo'
@@ -11,14 +11,14 @@ let $var1 = 'foo'
 ## Example 2
 
 ```nu
-# This chunk will produce some output in a separate block
+# This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'
 ```
 
 ## Example 3
 
 ```nu
-# This chunk will output results inline
+# This block will output results inline
 > whoami
 > 2 + 2
 ```

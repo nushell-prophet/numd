@@ -14,19 +14,19 @@ let $var1 = 'foo'
 
     print "#code-block-starting-line-in-original-md-13"
     print "```nu"
-    print ("# This chunk will produce some output in a separate block
+    print ("# This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'" | nu-highlight)
 
     print "```\n```output-numd"
 
-# This chunk will produce some output in a separate block
+# This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar' | print; print ''
 
     print "```"
 
     print "#code-block-starting-line-in-original-md-23"
     print "```nu"
-    print ("# This chunk will output results inline" | nu-highlight)
+    print ("# This block will output results inline" | nu-highlight)
 
 
     print ("> whoami" | nu-highlight)

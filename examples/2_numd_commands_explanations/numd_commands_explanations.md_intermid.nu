@@ -31,13 +31,13 @@ let $no_fail_on_error = false
     print "#code-block-starting-line-in-original-md-15"
     print "```nu indent-output"
     print ("let $md_orig = open -r $file
-let $md_orig_table = detect-code-chunks $md_orig
+let $md_orig_table = detect-code-blocks $md_orig
 $md_orig_table" | nu-highlight)
 
     print "```\n```output-numd"
 
 let $md_orig = open -r $file
-let $md_orig_table = detect-code-chunks $md_orig
+let $md_orig_table = detect-code-blocks $md_orig
 $md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
     print "```"
