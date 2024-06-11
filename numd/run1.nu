@@ -66,7 +66,7 @@ export def run [
         | if not ($echo or $diff) {
             return $in # default variant: we return here a record
         } else {
-            table # we continue here with string
+            table # we continue here with `string` as it will be appended to the resulting `string` markdown
         }
     } else {}
     | if $echo {prepend $md_res_ansi} else {} # output the changes stat table below the resulted markdown
