@@ -10,7 +10,7 @@ export def backup-file [
     }
 }
 
-export def detect-code-chunks [
+export def detect-code-blocks [
     md: string
 ]: nothing -> table {
     let $file_lines = $md | lines
@@ -182,7 +182,7 @@ export def gen-intermid-script [
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
-        | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
+        | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             skip | drop # skip code fences
             | str join (char nl)
             | gen-execute-code --whole_chunk --fence $v.row_type.0
@@ -269,7 +269,7 @@ export def calc-changes [
     let $orig_file = $orig_file | ansi strip
     let $new_file = $new_file | ansi strip
 
-    let $n_code_bloks = detect-code-chunks $new_file
+    let $n_code_bloks = detect-code-blocks $new_file
         | where row_type =~ '^```nu'
         | get block_line_in_orig_md
         | uniq

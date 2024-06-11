@@ -1,7 +1,7 @@
 use nu-utils numd-internals *
 export use nu-utils numd-internals code-block-options
 
-# run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
+# run nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
@@ -17,7 +17,7 @@ export def run [
     --width: int # set the `table --width` option value
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
-    let $md_orig_table = detect-code-chunks $md_orig
+    let $md_orig_table = detect-code-blocks $md_orig
 
     if $width != null {
         $env.numd.table-width = $width
@@ -86,7 +86,7 @@ export def clear-outputs [
     --strip-markdown # keep only nushell script, strip all markdown tags
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
-    let $md_orig_table = detect-code-chunks $md_orig
+    let $md_orig_table = detect-code-blocks $md_orig
 
     let $output_md_path = $output_md_path | default $file
 
