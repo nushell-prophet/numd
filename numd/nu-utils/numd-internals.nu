@@ -288,7 +288,7 @@ export def calc-changes [
             $"(ansi blue)+($change_abs) \(($in)%\)(ansi reset)"
         } else {'0%'}
     }
-    | update metric {|i| $'diff_($i.metric)'}
+    | update metric {$'diff_($in)'}
     | select metric change
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
@@ -361,14 +361,13 @@ export def path-modify [
     --parent_dir: string
 ]: path -> path {
     path parse
-    | upsert stem {|i| $'($prefix)($i.stem)($suffix)'}
+    | update stem {$'($prefix)($in)($suffix)'}
     | if $extension != null {
-        update extension {|i| $i.extension + $extension }
+        update extension {$in + $extension}
     } else {}
     | if $parent_dir != null {
-        upsert parent {|i|
-            $i.parent
-            | path join $parent_dir
+        update parent {
+            path join $parent_dir
             | $'(mkdir $in)($in)' # The author doesn't like that, but tee in 0.91 somehow consumes and produces list here
         }
     } else {}
