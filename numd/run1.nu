@@ -25,8 +25,8 @@ export def run [
 
     let $intermid_script_path = $intermid_script
         | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
-        # we don't use temp dir here as code in `md` files might containt relative paths
-        # which only work if we'll execute intrmid script from the same folder
+        # We don't use a temp directory here as the code in `md` files might contain relative paths,
+        # which will only work if we execute the intermediate script from the same folder.
 
     gen-intermid-script $md_orig_table
     | if $prepend_intermid == null {} else {
@@ -41,7 +41,8 @@ export def run [
         rm $intermid_script_path
     }
 
-    if $nu_res_stdout_lines == [] { # if nushell won't output anything
+    # if nushell won't output anything
+    if $nu_res_stdout_lines == [] {
         return {
             filename: $file,
             comment: "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
