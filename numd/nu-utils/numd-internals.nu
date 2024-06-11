@@ -258,7 +258,7 @@ export def prettify-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
-    | str replace --all --regex " +(\n|$)" "\n"
+    | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
 }
 
 export def calc-changes [
