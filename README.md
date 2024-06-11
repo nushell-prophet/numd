@@ -155,7 +155,7 @@ Input/output types:
 
 ```nushell
 > numd capture start --help
-start capturing commands and their results into a file
+start capturing commands and their outputs into a file
 
 Usage:
   > start {flags} (file)
@@ -175,7 +175,7 @@ Input/output types:
 
 ```nushell
 > numd capture stop --help
-stop capturing commands and their results
+stop capturing commands and their outputs
 
 Usage:
   > stop
