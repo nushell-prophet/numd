@@ -1,13 +1,14 @@
 use nu-utils [cprint]
 use nu-utils numd-internals [prettify-markdown]
 
-# start capturing commands and their results into a file
+# start capturing commands and their outputs into a file
 export def --env start [
     file: path = 'numd_capture.md'
     --separte # don't use `>` notation, create separate blocks for each pipeline
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
-        New lines of the recording will be appended to the *($file)* file.'
+        Commands and their outputs of the current nushell instance
+        will be appended to the *($file)* file.'
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
@@ -48,7 +49,7 @@ export def --env start [
     }
 }
 
-# stop capturing commands and their results
+# stop capturing commands and their outputs
 export def --env stop [ ]: nothing -> nothing {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
 
