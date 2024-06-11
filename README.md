@@ -212,7 +212,15 @@ Fri, 24 May 2024 07:47:13 +0000 (2 weeks ago)
 
 ## Real fight examples to try
 
-```nushell no-run
+```nushell no-output
+# output the result of execution to terminal without updating the file
 numd run examples/1_simple_markdown/simple_markdown.md --echo --no-save
-numd run examples/3_book_types_of_data/types_of_data.md --output-md-path examples/3_book_types_of_data/types_of_data_out.md --no-backup --intermid-script-path examples/3_book_types_of_data/types_of_data.md_intermid.nu
+
+# run examples in the `types_of_data.md` file,
+# save intermid nushell script to `types_of_data.md_intermid.nu`
+(
+    numd run examples/3_book_types_of_data/types_of_data.md
+        --no-backup
+        --intermid-script examples/3_book_types_of_data/types_of_data.md_intermid.nu
+)
 ```
