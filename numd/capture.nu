@@ -1,17 +1,18 @@
 use nu-utils [cprint]
 use nu-utils numd-internals [prettify-markdown]
 
-# start capturing commands and their results into a file
+# start capturing commands and their outputs into a file
 export def --env start [
     file: path = 'numd_capture.md'
-    --separte # don't use `>` notation, create separate chunks for each pipeline
+    --separte # don't use `>` notation, create separate blocks for each pipeline
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
-        New lines of the recording will be appended to the *($file)* file.'
+        Commands and their outputs of the current nushell instance
+        will be appended to the *($file)* file.'
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
-    $env.numd.separate-chunks = $separte
+    $env.numd.separate-blocks = $separte
 
     if not $separte {
         "```nushell\n" | save -a $env.numd.path
@@ -33,7 +34,7 @@ export def --env start [
         | into string
         | ansi strip
         | default (char nl)
-        | if $env.numd.separate-chunks {
+        | if $env.numd.separate-blocks {
             $"```nushell\n($command)\n```\n```output-numd\n($in)\n```\n\n"
             | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
         } else {
@@ -48,13 +49,13 @@ export def --env start [
     }
 }
 
-# stop capturing commands and their results
+# stop capturing commands and their outputs
 export def --env stop [ ]: nothing -> nothing {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
 
     let $file = $env.numd.path
 
-    if not $env.numd.separate-chunks {
+    if not $env.numd.separate-blocks {
         $"(open $file)```\n"
         | prettify-markdown
         | save --force $file

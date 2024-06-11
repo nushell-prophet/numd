@@ -10,7 +10,7 @@ export def backup-file [
     }
 }
 
-export def detect-code-chunks [
+export def detect-code-blocks [
     md: string
 ]: nothing -> table {
     let $file_lines = $md | lines
@@ -135,8 +135,8 @@ export def gen-fence-output-numd []: string -> string {
 }
 
 export def gen-execute-code [
-    --fence: string # opening code fence string with options for executing current chunk
-    --whole_chunk
+    --fence: string # opening code fence string with options for executing current block
+    --whole_block
 ]: string -> string {
     let $code = $in
     let $options = $fence | parse-options-from-fence
@@ -154,7 +154,7 @@ export def gen-execute-code [
                 }
             } else {}
             | if 'no-output' in $options {} else {
-                if $whole_chunk {
+                if $whole_block {
                     gen-fence-output-numd
                 } else {}
                 | if (ends-with-definition $in) {} else {
@@ -182,12 +182,12 @@ export def gen-intermid-script [
     | group-by block_line_in_orig_md
     | items {|k v|
         $v.line
-        | if ($in | where $it =~ '^>' | is-empty) {  # finding chunks with no `>` symbol, to execute them entirely
+        | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             skip | drop # skip code fences
             | str join (char nl)
-            | gen-execute-code --whole_chunk --fence $v.row_type.0
+            | gen-execute-code --whole_block --fence $v.row_type.0
         } else {
-            each { # here we define what to do with each line of the current chunk one by one
+            each { # here we define what to do with each line of the current block one by one
                 if $in =~ '^>' { # if it starts with `>` we execute it
                     gen-execute-code --fence $v.row_type.0
                 } else if $in =~ '^\s*#' {
@@ -269,7 +269,7 @@ export def calc-changes [
     let $orig_file = $orig_file | ansi strip
     let $new_file = $new_file | ansi strip
 
-    let $n_code_bloks = detect-code-chunks $new_file
+    let $n_code_bloks = detect-code-blocks $new_file
         | where row_type =~ '^```nu'
         | get block_line_in_orig_md
         | uniq
@@ -322,8 +322,8 @@ export def code-block-options [
 
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
-        ["new-instance" "n" "execute the chunk in the new nushell instance"]
-        ["no-run" "N" "don't execute the code in chunk"]
+        ["new-instance" "n" "execute the block in the new nushell instance"]
+        ["no-run" "N" "don't execute the code in block"]
         ["indent-output" "i" "indent the output visually" ]
     ]
     | if $list {} else {

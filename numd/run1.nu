@@ -1,7 +1,7 @@
 use nu-utils numd-internals *
 export use nu-utils numd-internals code-block-options
 
-# run nushell code chunks in a markdown file, output results back to the `.md` and optionally to terminal
+# run nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
@@ -17,7 +17,7 @@ export def run [
     --width: int # set the `table --width` option value
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
-    let $md_orig_table = detect-code-chunks $md_orig
+    let $md_orig_table = detect-code-blocks $md_orig
 
     if $width != null {
         $env.numd.table-width = $width
@@ -25,8 +25,8 @@ export def run [
 
     let $intermid_script_path = $intermid_script
         | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
-        # we don't use temp dir here as code in `md` files might containt relative paths
-        # which only work if we'll execute intrmid script from the same folder
+        # We don't use a temp directory here as the code in `md` files might contain relative paths,
+        # which will only work if we execute the intermediate script from the same folder.
 
     gen-intermid-script $md_orig_table
     | if $prepend_intermid == null {} else {
@@ -41,7 +41,8 @@ export def run [
         rm $intermid_script_path
     }
 
-    if $nu_res_stdout_lines == [] { # if nushell won't output anything
+    # if nushell won't output anything
+    if $nu_res_stdout_lines == [] {
         return {
             filename: $file,
             comment: "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
@@ -66,7 +67,7 @@ export def run [
         | if not ($echo or $diff) {
             return $in # default variant: we return here a record
         } else {
-            table # we continue here with string
+            table # we continue here with `string` as it will be appended to the resulting `string` markdown
         }
     } else {}
     | if $echo {prepend $md_res_ansi} else {} # output the changes stat table below the resulted markdown
@@ -86,7 +87,7 @@ export def clear-outputs [
     --strip-markdown # keep only nushell script, strip all markdown tags
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $md_orig = open -r $file
-    let $md_orig_table = detect-code-chunks $md_orig
+    let $md_orig_table = detect-code-blocks $md_orig
 
     let $output_md_path = $output_md_path | default $file
 
