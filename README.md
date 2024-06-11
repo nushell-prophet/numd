@@ -44,7 +44,7 @@ Flags:
   --save-ansi - save ansi formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
-  --no-info - do not output stats of changes in `.md` file
+  --no-info - do not output stats of changes
   --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
