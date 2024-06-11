@@ -1,16 +1,27 @@
 # numd commands explanation
 
+In the code chunk below, we set settings and variables for executing this whole document.
+
 ```nu
 $env.config.table.abbreviated_row_count = 100
 
-# I source `run1.nu` here to export it's internal commands
+# The `$init_numd_pwd_const` constant points to the current working directory from where the `numd` command was initiated.
+# It is added by `numd` in every intermediate script to make it available in cases like below.
 use ($init_numd_pwd_const | path join numd run1.nu) *
 use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
+
+# The variables in this chunk are named according to the names of corresponding command options and flags.
 let $file = ($init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md)
 let $output_md_path = null
 let $intermid_script_path = null
 let $no_fail_on_error = false
 ```
+
+## numd-internals.nu
+
+### detect-code-chunks
+
+This command is used for parsing initial markdown to detect executable code chunks.
 
 ```nu indent-output
 let $md_orig = open -r $file
@@ -51,6 +62,10 @@ $md_orig_table
 //  │ ```                                                                  │ ```nu          │                    23 │
 //  ╰─────────────────────────────────line─────────────────────────────────┴────row_type────┴─block_line_in_orig_md─╯
 ```
+
+## gen-intermid-script
+
+The `gen-intermid-script` command generates a script that contains code from all executable chunks and plus `numd` service commands.
 
 ```nu indent-output
 let $intermid_script_path = $intermid_script_path
@@ -105,6 +120,10 @@ open $intermid_script_path
 //      print "```"
 ```
 
+## run-intermid-script
+
+The `run-intermid-script` command runs and captures outputs of the executed intermediate script.
+
 ```nu indent-output
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 rm $intermid_script_path
@@ -140,6 +159,10 @@ $nu_res_stdout_lines
 //  ╰───────────────────────────────────────────────────────────╯
 ```
 
+## parse-block-index
+
+The `parse-block-index` command parses the captured output, and groups them by executed chunks.
+
 ```nu indent-output
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index
@@ -170,6 +193,10 @@ $nu_res_with_block_index
 //  │                       │ ```                                                       │
 //  ╰─block_line_in_orig_md─┴───────────────────────────line────────────────────────────╯
 ```
+
+## assemble-markdown
+
+The `assemble-markdown` command cleans outdated commands outputs in the `$md_orig_table` and combines them with `$nu_res_with_block_index` (the variable from the previous step). Additionally, `prettify-markdown` is used here to remove empty blocks and unnecessary empty lines.
 
 ```nu indent-output
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
@@ -209,6 +236,10 @@ $md_res
 //  4
 //  ```
 ```
+
+## calc-changes
+
+The `calc-changes` command displays stats on the changes made.
 
 ```nu indent-output
 calc-changes $file $md_orig $md_res
