@@ -33,7 +33,7 @@ use numd
 numd run --help
 ```
 ```output-numd
-run nushell code blocks in a markdown file, output results back to the `.md` and optionally to terminal
+run nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
   > run {flags} <file>
@@ -110,14 +110,14 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 //  + ```output-numd
 //  + foo/baz/bar
 //  + ```
-//
+//    
 //    ## Example 3
-//
+//    
 //    ```nu
 //    # This block will output results inline
 //    > whoami
 //  + user
-//  +
+//  + 
 //    > 2 + 2
 //  + 4
 //    ```
