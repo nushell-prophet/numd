@@ -20,11 +20,11 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
-### Details of parsing
+### Details on parsing code blocks and displaying the output
 
-1. `numd` looks for ` ```nushell ` or ` ```nu ` code blocks.
-2. In the code blocks that entirely don't have lines starting with the `>` symbol, `numd` executes the whole code blocks as they are, and if they produce any output (like in `print 'this'`), then the output is added next to the code block after empty line, the line with word `Output:` and another empty line inside code fences without language identifier.
-3. In the code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol, executes or prints those lines one by one, and outputs results just after the executed line.
+1. `numd` looks for code blocks marked with ` ```nushell ` or ` ```nu `.
+2. In code blocks that do not contain any lines starting with the `>` symbol, `numd` executes the entire code block as is. If the code produces any output, the output is added next to the code block after an empty line, a line with the word `Output:`, and another empty line. The output is enclosed in code fences without a language identifier.
+3. In code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol. It executes or prints those lines one by one, and outputs the results immediately after the executed line.
 
 ### `numd run` flags and params
 
