@@ -14,7 +14,10 @@ let $var1 = 'foo'
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'
 ```
-```output-numd
+
+Output:
+
+```
 foo/baz/bar
 ```
 

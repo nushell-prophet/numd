@@ -32,7 +32,10 @@ Experienced nushell users can understand the logic better by looking at [example
 use numd
 numd run --help
 ```
-```output-numd
+
+Output:
+
+```
 Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
@@ -70,7 +73,10 @@ Input/output types:
 ```nushell
 numd code-block-options --list
 ```
-```output-numd
+
+Output:
+
+```
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
@@ -87,7 +93,10 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
-```output-numd
+
+Output:
+
+```
 ╭──────────────────────┬───────────────────────────────────╮
 │ filename             │ simple_markdown_with_no_output.md │
 │ nushell_code_blocks  │ 3                                 │
@@ -103,14 +112,19 @@ Also, the `--diff` param can be used to display the diff of changes.
 ```nushell indent-output
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
 ```
-```output-numd
-//    # This block will produce some output in a separate block
+
+Output:
+
+```
 //    $var1 | path join 'baz' 'bar'
 //    ```
-//  + ```output-numd
+//    
+//  + Output:
+//  + 
+//  + ```
 //  + foo/baz/bar
 //  + ```
-//    
+//  + 
 //    ## Example 3
 //    
 //    ```nu
