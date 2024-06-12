@@ -175,6 +175,23 @@ export def prettify-markdown []: string -> string {
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
 }
 
+# The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
+# `detect-code-blocks` works only with lines without knowing the previous lines.
+export def replace-output-numd-fences [
+    --back
+] {
+    let $input = $in
+    let $a = "\n```\n\nOutput:\n\n```\n"
+    let $b = "\n```\n```output-numd\n"
+
+    $input
+    | if $back {
+        str replace --all $b $a
+    } else {
+        str replace --all $a $b
+    }
+}
+
 # Calculates changes between the original and updated markdown files and returns a record with differences.
 export def calc-changes [
     filename: path
