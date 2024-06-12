@@ -1,18 +1,18 @@
 use nu-utils numd-internals *
 export use nu-utils numd-internals code-block-options
 
-# run nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+# Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
-    file: path # path to a `.md` file containing nushell code to be executed
+    file: path # path to a `.md` file containing Nushell code to be executed
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
-    --save-ansi # save ansi formatted version
+    --save-ansi # save ANSI formatted version
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-info # do not output stats of changes
-    --intermid-script: path # optional a path for an intermediate script (useful for debugging purposes)
+    --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
-    --prepend-intermid: string # prepend text (code) into the intermid script, useful for customizing nushell output settings
+    --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
     --diff # use diff for printing changes
     --width: int # set the `table --width` option value
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
@@ -36,16 +36,16 @@ export def run [
 
     let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 
-    # if $intermid_script param wasn't set - remove the temporary intermid script
+    # if $intermid_script param wasn't set - remove the temporary intermediate script
     if $intermid_script == null {
         rm $intermid_script_path
     }
 
-    # if nushell won't output anything
     if $nu_res_stdout_lines == [] {
+    # if Nushell won't output anything
         return {
             filename: $file,
-            comment: "Execution of nushell blocks didn't produce any output. The markdown file was not updated"
+            comment: "Execution of Nushell blocks didn't produce any output. The markdown file was not updated"
         }
     }
 
@@ -79,7 +79,7 @@ export def run [
     }
 }
 
-# remove numd execution outputs from the file
+# Remove numd execution outputs from the file
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
