@@ -1,20 +1,16 @@
 # numd commands explanation
 
-In the code block below, we set settings and variables for executing this whole document.
+In the code block below, we set settings and variables for executing this entire document.
 
 ```nu
+# This setting is for overriding the author's usual small number of `abbreviated_row_count`.
 $env.config.table.abbreviated_row_count = 100
 
 # The `$init_numd_pwd_const` constant points to the current working directory from where the `numd` command was initiated.
 # It is added by `numd` in every intermediate script to make it available in cases like below.
+# We use `path join` here to construct working paths for both Windows and Unix
 use ($init_numd_pwd_const | path join numd run1.nu) *
 use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
-
-# The variables in this block are named according to the names of corresponding command options and flags.
-let $file = ($init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md)
-let $output_md_path = null
-let $intermid_script_path = null
-let $no_fail_on_error = false
 ```
 
 ## numd-internals.nu
@@ -24,6 +20,9 @@ let $no_fail_on_error = false
 This command is used for parsing initial markdown to detect executable code blocks.
 
 ```nu indent-output
+# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `examples/1_simple_markdown/simple_markdown.md`.
+let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
+
 let $md_orig = open -r $file
 let $md_orig_table = detect-code-blocks $md_orig
 $md_orig_table
@@ -65,12 +64,12 @@ $md_orig_table
 
 ## gen-intermid-script
 
-The `gen-intermid-script` command generates a script that contains code from all executable blocks and plus `numd` service commands.
+The `gen-intermid-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
 
 ```nu indent-output
-let $intermid_script_path = $intermid_script_path
-        | default ( $file
-            | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu' )
+# Here we emulate that the `$intermid_script_path` options is not set
+let $intermid_script_path = $file
+    | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu'
 
 gen-intermid-script $md_orig_table
 | save -f $intermid_script_path
@@ -125,6 +124,9 @@ open $intermid_script_path
 The `run-intermid-script` command runs and captures outputs of the executed intermediate script.
 
 ```nu indent-output
+# the flag `$no_fail_on_error` is set to false
+let $no_fail_on_error = false
+
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 rm $intermid_script_path
 $nu_res_stdout_lines
