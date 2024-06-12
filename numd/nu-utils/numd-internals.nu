@@ -85,6 +85,7 @@ export def numd-block [
 ]: nothing -> string {
     $"#code-block-starting-line-in-original-md-($index)"
 }
+# TODO we can use NUON in numd-blocks to set display options
 
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
