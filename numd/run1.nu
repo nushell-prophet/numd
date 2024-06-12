@@ -108,7 +108,7 @@ export def clear-outputs [
     | parse-block-index $in
     | if $strip_markdown {
         get line
-        | each {lines | update 0 {|line| $'(char nl)# ($line)'} | drop | str join (char nl)}
+        | each {lines | update 0 {$'(char nl)# ($in)'} | drop | str join (char nl)}
         | str join (char nl)
         | return $in
     } else {
