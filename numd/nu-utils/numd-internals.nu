@@ -1,15 +1,5 @@
 use std iter scan
 
-export def backup-file [
-    $path: path
-]: nothing -> nothing {
-    $path
-    | if ($in | path exists) and ($in | path type) == 'file' {
-        path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
-        | mv $path $in
-    }
-}
-
 export def detect-code-blocks [
     md: string
 ]: nothing -> table {
@@ -51,88 +41,6 @@ export def detect-code-blocks [
             msg: 'a closing code block fence (```) is missing, markdown might be invalid.'
         }
     } else {}
-}
-
-# escape symbols to be printed unchanged inside `print "something"` statement
-#
-# > 'abcd"dfdaf" "' | escape-escapes
-# abcd\"dfdaf\" \"
-export def escape-escapes []: string -> string {
-    # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
-    str replace --all --regex '(\\|\")' '\$1'
-}
-
-export def run-intermid-script [
-    intermid_script_path: path
-    no_fail_on_error: bool
-]: nothing -> list {
-    ^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path
-    | complete
-    | if $in.exit_code == 0 {
-        get stdout
-        | lines
-    } else {
-        if $no_fail_on_error {
-            []
-        } else {
-            error make {msg: $in.stderr}
-        }
-    }
-}
-
-export def numd-block [
-    index?: int
-]: nothing -> string {
-    $"#code-block-starting-line-in-original-md-($index)"
-}
-# TODO we can use NUON in numd-blocks to set display options
-
-export def gen-highlight-command [ ]: string -> string {
-    escape-escapes
-    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
-}
-
-export def trim-comments-plus []: string -> string {
-    str replace -r '^[>\s]+' '' # trim starting `>`
-    | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
-    | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
-}
-
-# Use a regular expression to check if the last line of the input ends with a semicolon,
-# or contains certain keywords ('let', 'def', 'use') followed by potential characters
-# This is to determine if appending ' | print' is possible.
-export def ends-with-definition [
-    condition: string
-]: nothing -> bool {
-    $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
-}
-
-export def gen-indented-output [
-    --indent: string = '//  '
-]: string -> string {
-    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
-}
-
-export def gen-print-in []: string -> string {
-    if $env.numd?.table-width? == null {} else {
-        $"($in) | table --width ($env.numd.table-width)"
-    }
-    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
-}
-
-export def gen-catch-error-in-current-instance []: string -> string {
-    $"try {($in)} catch {|e| $e}"
-}
-
-# execute the command outside to obtain a formatted error message if any
-export def gen-catch-error-outside []: string -> string {
-    escape-escapes
-    | ($'($nu.current-exe) -c "($in)"' +
-        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
-}
-
-export def gen-fence-output-numd []: string -> string {
-    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
 
 export def gen-execute-code [
@@ -347,6 +255,88 @@ export def expand-short-options [
     } else {}
 }
 
+# escape symbols to be printed unchanged inside `print "something"` statement
+#
+# > 'abcd"dfdaf" "' | escape-escapes
+# abcd\"dfdaf\" \"
+export def escape-escapes []: string -> string {
+    # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
+    str replace --all --regex '(\\|\")' '\$1'
+}
+
+export def run-intermid-script [
+    intermid_script_path: path
+    no_fail_on_error: bool
+]: nothing -> list {
+    ^$nu.current-exe --env-config $nu.env-path --config $nu.config-path $intermid_script_path
+    | complete
+    | if $in.exit_code == 0 {
+        get stdout
+        | lines
+    } else {
+        if $no_fail_on_error {
+            []
+        } else {
+            error make {msg: $in.stderr}
+        }
+    }
+}
+
+export def numd-block [
+    index?: int
+]: nothing -> string {
+    $"#code-block-starting-line-in-original-md-($index)"
+}
+# TODO we can use NUON in numd-blocks to set display options
+
+export def gen-highlight-command [ ]: string -> string {
+    escape-escapes
+    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
+}
+
+export def trim-comments-plus []: string -> string {
+    str replace -r '^[>\s]+' '' # trim starting `>`
+    | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+    | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
+}
+
+# Use a regular expression to check if the last line of the input ends with a semicolon,
+# or contains certain keywords ('let', 'def', 'use') followed by potential characters
+# This is to determine if appending ' | print' is possible.
+export def ends-with-definition [
+    condition: string
+]: nothing -> bool {
+    $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
+}
+
+export def gen-indented-output [
+    --indent: string = '//  '
+]: string -> string {
+    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
+}
+
+export def gen-print-in []: string -> string {
+    if $env.numd?.table-width? == null {} else {
+        $"($in) | table --width ($env.numd.table-width)"
+    }
+    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
+}
+
+export def gen-catch-error-in-current-instance []: string -> string {
+    $"try {($in)} catch {|e| $e}"
+}
+
+# execute the command outside to obtain a formatted error message if any
+export def gen-catch-error-outside []: string -> string {
+    escape-escapes
+    | ($'($nu.current-exe) -c "($in)"' +
+        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
+}
+
+export def gen-fence-output-numd []: string -> string {
+    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
+}
+
 export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -373,6 +363,16 @@ export def path-modify [
         }
     } else {}
     | path join
+}
+
+export def backup-file [
+    $path: path
+]: nothing -> nothing {
+    $path
+    | if ($in | path exists) and ($in | path type) == 'file' {
+        path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
+        | mv $path $in
+    }
 }
 
 # > tstamp
