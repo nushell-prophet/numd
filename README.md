@@ -23,7 +23,7 @@ Experienced nushell users can understand the logic better by looking at [example
 ### Details of parsing
 
 1. `numd` looks for ` ```nushell ` or ` ```nu ` code blocks.
-2. In the code blocks that entirely don't have lines starting with the `>` symbol, `numd` executes the whole code blocks as they are, and if they produce any output (like in `print 'this'`), then the output is written in the ` ```output-numd ` blocks, next to the executed code blocks.
+2. In the code blocks that entirely don't have lines starting with the `>` symbol, `numd` executes the whole code blocks as they are, and if they produce any output (like in `print 'this'`), then the output is added next to the code block after empty line, the line with word `Output:` and another empty line inside code fences without language identifier.
 3. In the code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol, executes or prints those lines one by one, and outputs results just after the executed line.
 
 ### `numd run` flags and params
