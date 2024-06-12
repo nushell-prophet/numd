@@ -1,5 +1,6 @@
 use std iter scan
 
+# Detects code blocks in a markdown string and returns a table with their line numbers and infostrings.
 export def detect-code-blocks [
     md: string
 ]: nothing -> table {
@@ -43,6 +44,7 @@ export def detect-code-blocks [
     } else {}
 }
 
+# Generates code for execution in the intermediate script within a given code fence
 export def gen-execute-code [
     --fence: string # opening code fence string with options for executing current block
     --whole_block
@@ -76,10 +78,10 @@ export def gen-execute-code [
             | $in + (char nl)
         }
 
-
     $highlited_command + $code_execution
 }
 
+# Generates an intermediate script from a table of classified markdown code blocks.
 export def gen-intermid-script [
     md_classified: table
 ]: nothing -> string {
@@ -109,7 +111,7 @@ export def gen-intermid-script [
         | append $"    print \"```\""
         | append '' # empty line for visual distinction
     }
-    | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be avaible in intermid-scripts
+    | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be available in intermediate scripts
     | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
@@ -117,6 +119,7 @@ export def gen-intermid-script [
     | str join (char nl)
 }
 
+# Parses block indices from Nushell output lines and returns a table with the original markdown line numbers.
 export def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
@@ -146,6 +149,7 @@ export def parse-block-index [
     | into int block_line_in_orig_md
 }
 
+# Assembles the final markdown by merging original classified markdown with parsed results of the generated script.
 export def assemble-markdown [
     $md_classified: table
     $nu_res_with_block_line_in_orig_md: table
@@ -163,6 +167,7 @@ export def assemble-markdown [
     | $in + (char nl)
 }
 
+# Prettifies markdown by removing unnecessary empty lines and trailing spaces.
 export def prettify-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
@@ -170,6 +175,7 @@ export def prettify-markdown []: string -> string {
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
 }
 
+# Calculates changes between the original and updated markdown files and returns a record with differences.
 export def calc-changes [
     filename: path
     orig_file: string
@@ -206,6 +212,7 @@ export def calc-changes [
     | select filename nu_code_blocks levenstein diff_lines diff_words diff_chars
 }
 
+# Displays the differences between the original and new markdown files in a colored diff format.
 export def diff-changes [
     $file
     $md_res_ansi
@@ -222,7 +229,7 @@ export def diff-changes [
     }
 }
 
-# list code block options to alternate their execution and output. Like: '```nu try'
+# Lists code block options for execution and output customization.
 export def code-block-options [
     --list # show options as a table
 ]: [nothing -> record, nothing -> table] {
@@ -231,7 +238,7 @@ export def code-block-options [
 
         ["no-output" "O" "don't try printing result"]
         ["try" "t" "try handling errors"]
-        ["new-instance" "n" "execute the block in the new nushell instance"]
+        ["new-instance" "n" "execute the block in the new Nushell instance"]
         ["no-run" "N" "don't execute the code in block"]
         ["indent-output" "i" "indent the output visually" ]
     ]
@@ -242,6 +249,7 @@ export def code-block-options [
 
 }
 
+# Expands short options for code block execution to their long forms.
 export def expand-short-options [
     $option
 ]: nothing -> string {
@@ -255,7 +263,7 @@ export def expand-short-options [
     } else {}
 }
 
-# escape symbols to be printed unchanged inside `print "something"` statement
+# Escapes symbols to be printed unchanged inside a `print "something"` statement.
 #
 # > 'abcd"dfdaf" "' | escape-escapes
 # abcd\"dfdaf\" \"
@@ -264,6 +272,7 @@ export def escape-escapes []: string -> string {
     str replace --all --regex '(\\|\")' '\$1'
 }
 
+# Runs the intermediate script and returns its output lines as a list.
 export def run-intermid-script [
     intermid_script_path: path
     no_fail_on_error: bool
@@ -282,6 +291,7 @@ export def run-intermid-script [
     }
 }
 
+# Generates a unique identifier for code blocks in markdown to distinguish their output.
 export def numd-block [
     index?: int
 ]: nothing -> string {
@@ -289,32 +299,34 @@ export def numd-block [
 }
 # TODO we can use NUON in numd-blocks to set display options
 
+# Generates a command to highlight code using Nushell syntax highlighting.
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
     | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
+# Trims comments and extra whitespace from code blocks for using code in the generated script
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
-# Use a regular expression to check if the last line of the input ends with a semicolon,
-# or contains certain keywords ('let', 'def', 'use') followed by potential characters
-# This is to determine if appending ' | print' is possible.
+# Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
 export def ends-with-definition [
     condition: string
 ]: nothing -> bool {
     $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
 }
 
+# Generates indented output for better visual formatting.
 export def gen-indented-output [
     --indent: string = '//  '
 ]: string -> string {
     $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
 }
 
+# Generates a print statement for capturing command output.
 export def gen-print-in []: string -> string {
     if $env.numd?.table-width? == null {} else {
         $"($in) | table --width ($env.numd.table-width)"
@@ -322,21 +334,24 @@ export def gen-print-in []: string -> string {
     | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
 }
 
+# Generates a try-catch block to handle errors in the current Nushell instance.
 export def gen-catch-error-in-current-instance []: string -> string {
     $"try {($in)} catch {|e| $e}"
 }
 
-# execute the command outside to obtain a formatted error message if any
+# Executes the command outside to obtain a formatted error message if any.
 export def gen-catch-error-outside []: string -> string {
     escape-escapes
     | ($'($nu.current-exe) -c "($in)"' +
         "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
+# Generates a fenced code block for output with a specific format.
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
 
+# Parses options from a code fence and returns them as a list.
 export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -345,6 +360,7 @@ export def parse-options-from-fence []: string -> list {
     | each {|i| expand-short-options $i}
 }
 
+# Modifies a path by adding a prefix, suffix, extension, or parent directory.
 export def path-modify [
     --prefix: string
     --suffix: string
@@ -365,6 +381,7 @@ export def path-modify [
     | path join
 }
 
+# Creates a backup of a file by moving it to a specified directory with a timestamp.
 export def backup-file [
     $path: path
 ]: nothing -> nothing {
@@ -375,6 +392,8 @@ export def backup-file [
     }
 }
 
+# Generates a timestamp string in the format YYYYMMDD_HHMMSS.
+#
 # > tstamp
 # 20240527_111215
 export def tstamp []: nothing -> string {
