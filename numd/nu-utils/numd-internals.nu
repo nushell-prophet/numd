@@ -184,7 +184,7 @@ export def calc-changes [
     let $original_file_content = $orig_file | ansi strip
     let $new_file_content = $new_file | ansi strip
 
-    let $num_code_blocks = detect-code-blocks $new_file_content
+    let $nushell_code_blocks = detect-code-blocks $new_file_content
         | where row_type =~ '^```nu'
         | get block_line
         | uniq
@@ -208,8 +208,8 @@ export def calc-changes [
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
     | insert levenshtein_distance ($original_file_content | str distance $new_file_content)
-    | insert num_code_blocks $num_code_blocks
-    | select filename num_code_blocks levenshtein_distance diff_lines diff_words diff_chars
+    | insert nushell_code_blocks $nushell_code_blocks
+    | select filename nushell_code_blocks levenshtein_distance diff_lines diff_words diff_chars
 }
 
 # Displays the differences between the original and new markdown files in a colored diff format.
