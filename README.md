@@ -33,7 +33,7 @@ use numd
 numd run --help
 ```
 ```output-numd
-run nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
   > run {flags} <file>
@@ -41,19 +41,19 @@ Usage:
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal
-  --save-ansi - save ansi formatted version
+  --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-info - do not output stats of changes
-  --intermid-script <Filepath> - optional a path for an intermediate script (useful for debugging purposes)
+  --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-intermid <String> - prepend text (code) into the intermid script, useful for customizing nushell output settings
+  --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
   --diff - use diff for printing changes
   --width <Int> - set the `table --width` option value
   -h, --help - Display the help message for this command
 
 Parameters:
-  file <path>: path to a `.md` file containing nushell code to be executed
+  file <path>: path to a `.md` file containing Nushell code to be executed
 
 Input/output types:
   ╭──input──┬─output──╮
@@ -74,7 +74,7 @@ numd code-block-options --list
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
-│ new-instance  │ n     │ execute the block in the new nushell instance │
+│ new-instance  │ n     │ execute the block in the new Nushell instance │
 │ no-run        │ N     │ don't execute the code in block               │
 │ indent-output │ i     │ indent the output visually                    │
 ╰─────long──────┴─short─┴──────────────────description──────────────────╯
@@ -88,14 +88,14 @@ By default, `numd` provides basic stats on changes made.
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ```
 ```output-numd
-╭────────────────┬───────────────────────────────────╮
-│ filename       │ simple_markdown_with_no_output.md │
-│ nu_code_blocks │ 3                                 │
-│ levenstein     │ 40                                │
-│ diff_lines     │ +6 (25%)                          │
-│ diff_words     │ +7 (12.5%)                        │
-│ diff_chars     │ +40 (11.7%)                       │
-╰────────────────┴───────────────────────────────────╯
+╭──────────────────────┬───────────────────────────────────╮
+│ filename             │ simple_markdown_with_no_output.md │
+│ nushell_code_blocks  │ 3                                 │
+│ levenshtein_distance │ 40                                │
+│ diff_lines           │ +6 (25%)                          │
+│ diff_words           │ +7 (12.5%)                        │
+│ diff_chars           │ +40 (11.7%)                       │
+╰──────────────────────┴───────────────────────────────────╯
 ```
 
 Also, the `--diff` param can be used to display the diff of changes.
@@ -127,7 +127,7 @@ numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --n
 
 ```nu
 > numd clear-outputs --help
-remove numd execution outputs from the file
+Remove numd execution outputs from the file
 
 Usage:
   > clear-outputs {flags} <file>
@@ -135,7 +135,7 @@ Usage:
 Flags:
   -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
-  --strip-markdown - keep only nushell script, strip all markdown tags
+  --strip-markdown - keep only Nushell script, strip all markdown tags
   -h, --help - Display the help message for this command
 
 Parameters:
