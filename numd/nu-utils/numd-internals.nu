@@ -2,41 +2,41 @@ use std iter scan
 
 # Detects code blocks in a markdown string and returns a table with their line numbers and infostrings.
 export def detect-code-blocks [
-    md: string
+    markdown: string
 ]: nothing -> table {
-    let $file_lines = $md | lines
+    let $file_lines = $markdown | lines
     let $row_type = $file_lines
         | each {
             str trim --right
             | if $in =~ '^```' {} else {''}
         }
-        | scan --noinit '' {|prev curr|
-            match $curr {
-                '' => { if $prev == 'closing-fence' {''} else {$prev} }
-                '```' => { if $prev == '' {'```'} else {'closing-fence'} }
-                _ => { $curr }
+        | scan --noinit '' {|prev_fence curr_fence|
+            match $curr_fence {
+                '' => { if $prev_fence == 'closing-fence' {''} else {$prev_fence} }
+                '```' => { if $prev_fence == '' {'```'} else {'closing-fence'} }
+                _ => { $curr_fence }
             }
         }
-        | scan --noinit '' {|prev curr|
-            if $curr == 'closing-fence' {$prev} else {$curr}
+        | scan --noinit '' {|prev_fence curr_fence|
+            if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
         }
 
-    let $block_start_in_orig_md = $row_type
+    let $block_start_line = $row_type
         | enumerate # enumerates start index is 0
         | window --remainder 2
-        | scan 1 {|prev curr|
-            if $curr.item.0? == $curr.item.1? {
-                $prev
+        | scan 1 {|prev_line curr_line|
+            if $curr_line.item.0? == $curr_line.item.1? {
+                $prev_line
             } else {
                 # here we output the line number with the opening fence of the current block
-                $curr.index.0 + 2
+                $curr_line.index.0 + 2
             }
         }
 
     # We wrap lists into columns here because previously we needed to use the `window` command
     $file_lines | wrap line
     | merge ($row_type | wrap row_type)
-    | merge ($block_start_in_orig_md | wrap block_line_in_orig_md)
+    | merge ($block_start_line | wrap block_line)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
         error make {
             msg: 'a closing code block fence (```) is missing, markdown might be invalid.'
@@ -44,32 +44,32 @@ export def detect-code-blocks [
     } else {}
 }
 
-# Generates code for execution in the intermediate script within a given code fence
+# Generates code for execution in the intermediate script within a given code fence.
 export def gen-execute-code [
     --fence: string # opening code fence string with options for executing current block
     --whole_block
 ]: string -> string {
-    let $code = $in
-    let $options = $fence | parse-options-from-fence
+    let $code_content = $in
+    let $fence_options = $fence | parse-options-from-fence
 
-    let $highlited_command = $code | gen-highlight-command
+    let $highlighted_command = $code_content | gen-highlight-command
 
-    let $code_execution = $code
-        | if 'no-run' in $options {''} else {
+    let $code_execution = $code_content
+        | if 'no-run' in $fence_options {''} else {
             trim-comments-plus
-            | if 'try' in $options {
-                if 'new-instance' in $options {
+            | if 'try' in $fence_options {
+                if 'new-instance' in $fence_options {
                     gen-catch-error-outside
                 } else {
                     gen-catch-error-in-current-instance
                 }
             } else {}
-            | if 'no-output' in $options {} else {
+            | if 'no-output' in $fence_options {} else {
                 if $whole_block {
                     gen-fence-output-numd
                 } else {}
                 | if (ends-with-definition $in) {} else {
-                    if 'indent-output' in $options {
+                    if 'indent-output' in $fence_options {
                         gen-indented-output
                     } else {}
                     | gen-print-in
@@ -78,41 +78,41 @@ export def gen-execute-code [
             | $in + (char nl)
         }
 
-    $highlited_command + $code_execution
+    $highlighted_command + $code_execution
 }
 
 # Generates an intermediate script from a table of classified markdown code blocks.
 export def gen-intermid-script [
     md_classified: table
 ]: nothing -> string {
-    let $pwd = pwd
+    let $current_dir = pwd
 
     $md_classified
     | where row_type =~ '^```nu(shell)?(\s|$)'
     | where row_type !~ '\b(no-run|N)\b'
-    | group-by block_line_in_orig_md
-    | items {|k v|
-        $v.line
+    | group-by block_line
+    | items {|block_index block_lines|
+        $block_lines.line
         | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
             skip | drop # skip code fences
             | str join (char nl)
-            | gen-execute-code --whole_block --fence $v.row_type.0
+            | gen-execute-code --whole_block --fence $block_lines.row_type.0
         } else {
             each { # here we define what to do with each line of the current block one by one
                 if $in =~ '^>' { # if it starts with `>` we execute it
-                    gen-execute-code --fence $v.row_type.0
+                    gen-execute-code --fence $block_lines.row_type.0
                 } else if $in =~ '^\s*#' {
                     gen-highlight-command
                 }
             }
         }
-        | prepend $"    print \"($v.row_type.0)\""
-        | prepend $"    print \"(numd-block $k)\""
+        | prepend $"    print \"($block_lines.row_type.0)\""
+        | prepend $"    print \"(numd-block $block_index)\""
         | append $"    print \"```\""
         | append '' # empty line for visual distinction
     }
-    | prepend $"const init_numd_pwd_const = '($pwd)'" # we initialize it here so it will be available in intermediate scripts
-    | prepend $"cd ($pwd)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
+    | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
+    | prepend $"cd ($current_dir)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
@@ -123,7 +123,7 @@ export def gen-intermid-script [
 export def parse-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-    let $block_start_in_orig_md = $nu_res_stdout_lines
+    let $block_start_line = $nu_res_stdout_lines
         | each {
             if $in =~ $"^(numd-block)\\d+$" {
                 split row '-' | last | into int
@@ -131,22 +131,22 @@ export def parse-block-index [
                 -1
             }
         }
-        | scan --noinit 0 {|prev curr|
-            if $curr == -1 {$prev} else {$curr}
+        | scan --noinit 0 {|prev_index curr_index|
+            if $curr_index == -1 {$prev_index} else {$curr_index}
         }
-        | wrap block_line_in_orig_md
+        | wrap block_line
 
     $nu_res_stdout_lines
     | wrap 'nu_out'
-    | merge $block_start_in_orig_md
-    | group-by block_line_in_orig_md --to-table
+    | merge $block_start_line
+    | group-by block_line --to-table
     | upsert items {
         |i| $i.items.nu_out
         | skip
         | str join (char nl)
     }
-    | rename block_line_in_orig_md line
-    | into int block_line_in_orig_md
+    | rename block_line line
+    | into int block_line
 }
 
 # Assembles the final markdown by merging original classified markdown with parsed results of the generated script.
