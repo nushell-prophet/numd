@@ -152,7 +152,7 @@ export def parse-block-index [
 # Assembles the final markdown by merging original classified markdown with parsed results of the generated script.
 export def assemble-markdown [
     $md_classified: table
-    $nu_res_with_block_line_in_orig_md: table
+    $nu_res_with_block_line: table
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
@@ -160,8 +160,8 @@ export def assemble-markdown [
         $md_classified
         | where row_type =~ '^```nu(shell)?.*\b(no-run|N)\b'
     )
-    | append $nu_res_with_block_line_in_orig_md
-    | sort-by block_line_in_orig_md
+    | append $nu_res_with_block_line
+    | sort-by block_line
     | get line
     | str join (char nl)
     | $in + (char nl)
@@ -181,35 +181,35 @@ export def calc-changes [
     orig_file: string
     new_file: string
 ]: nothing -> record {
-    let $orig_file = $orig_file | ansi strip
-    let $new_file = $new_file | ansi strip
+    let $original_file_content = $orig_file | ansi strip
+    let $new_file_content = $new_file | ansi strip
 
-    let $n_code_bloks = detect-code-blocks $new_file
+    let $num_code_blocks = detect-code-blocks $new_file_content
         | where row_type =~ '^```nu'
-        | get block_line_in_orig_md
+        | get block_line
         | uniq
         | length
 
-    $new_file | str stats | transpose metric new
-    | merge ($orig_file | str stats | transpose metric old)
-    | insert change {|i|
-        let $change_abs = $i.new - $i.old
+    $new_file_content | str stats | transpose metric new
+    | merge ($original_file_content | str stats | transpose metric old)
+    | insert change_percentage {|metric_stats|
+        let $change_value = $metric_stats.new - $metric_stats.old
 
-        ($change_abs / $i.old) * 100
+        ($change_value / $metric_stats.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"(ansi red)($change_abs) \(($in)%\)(ansi reset)"
+            $"(ansi red)($change_value) \(($in)%\)(ansi reset)"
         } else if ($in > 0) {
-            $"(ansi blue)+($change_abs) \(($in)%\)(ansi reset)"
+            $"(ansi blue)+($change_value) \(($in)%\)(ansi reset)"
         } else {'0%'}
     }
     | update metric {$'diff_($in)'}
-    | select metric change
+    | select metric change_percentage
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
-    | insert levenstein ($orig_file | str distance $new_file)
-    | insert nu_code_blocks $n_code_bloks
-    | select filename nu_code_blocks levenstein diff_lines diff_words diff_chars
+    | insert levenshtein_distance ($original_file_content | str distance $new_file_content)
+    | insert num_code_blocks $num_code_blocks
+    | select filename num_code_blocks levenshtein_distance diff_lines diff_words diff_chars
 }
 
 # Displays the differences between the original and new markdown files in a colored diff format.
@@ -246,19 +246,18 @@ export def code-block-options [
         select short long
         | transpose --as-record --ignore-titles --header-row
     }
-
 }
 
 # Expands short options for code block execution to their long forms.
 export def expand-short-options [
     $option
 ]: nothing -> string {
-    let $dict = code-block-options
+    let $options_dict = code-block-options
 
-    $dict
+    $options_dict
     | get --ignore-errors --sensitive $option
     | default $option
-    | if $in not-in ($dict | values) {
+    | if $in not-in ($options_dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
     } else {}
 }
@@ -268,7 +267,6 @@ export def expand-short-options [
 # > 'abcd"dfdaf" "' | escape-escapes
 # abcd\"dfdaf\" \"
 export def escape-escapes []: string -> string {
-    # str replace --all --regex '(\\|\"|\/|\(|\)|\{|\}|\$|\^|\#|\||\~)' '\$1'
     str replace --all --regex '(\\|\")' '\$1'
 }
 
@@ -305,7 +303,7 @@ export def gen-highlight-command [ ]: string -> string {
     | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
-# Trims comments and extra whitespace from code blocks for using code in the generated script
+# Trims comments and extra whitespace from code blocks for using code in the generated script.
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
@@ -336,7 +334,7 @@ export def gen-print-in []: string -> string {
 
 # Generates a try-catch block to handle errors in the current Nushell instance.
 export def gen-catch-error-in-current-instance []: string -> string {
-    $"try {($in)} catch {|e| $e}"
+    $"try {($in)} catch {|error| $error}"
 }
 
 # Executes the command outside to obtain a formatted error message if any.
@@ -357,7 +355,7 @@ export def parse-options-from-fence []: string -> list {
     | split row ','
     | str trim
     | compact --empty
-    | each {|i| expand-short-options $i}
+    | each {|option| expand-short-options $option}
 }
 
 # Modifies a path by adding a prefix, suffix, extension, or parent directory.
@@ -383,12 +381,12 @@ export def path-modify [
 
 # Creates a backup of a file by moving it to a specified directory with a timestamp.
 export def backup-file [
-    $path: path
+    file_path: path
 ]: nothing -> nothing {
-    $path
+    $file_path
     | if ($in | path exists) and ($in | path type) == 'file' {
         path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
-        | mv $path $in
+        | mv $file_path $in
     }
 }
 
