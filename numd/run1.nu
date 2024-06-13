@@ -16,7 +16,8 @@ export def run [
     --diff # use diff for printing changes
     --width: int # set the `table --width` option value
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
-    let $original_md = open -r $file
+    let $original_md = open -r $file | replace-output-numd-fences
+
     let $original_md_table = detect-code-blocks $original_md
 
     if $width != null {
@@ -52,6 +53,7 @@ export def run [
     let $nushell_output_with_block_line = parse-block-index $nushell_output_lines
     let $updated_md_ansi = assemble-markdown $original_md_table $nushell_output_with_block_line
         | prettify-markdown
+        | replace-output-numd-fences --back
 
     let $output_path = $output_md_path | default $file
     if not $no_save {
@@ -86,7 +88,8 @@ export def clear-outputs [
     --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
-    let $original_md = open -r $file
+    let $original_md = open -r $file | replace-output-numd-fences
+
     let $original_md_table = detect-code-blocks $original_md
 
     let $output_md_path = $output_md_path | default $file
@@ -105,7 +108,7 @@ export def clear-outputs [
     | parse-block-index $in
     | if $strip_markdown {
         get line
-        | each {lines | update 0 {|line| $'(char nl)# ($line)'} | drop | str join (char nl)}
+        | each {lines | update 0 {$'(char nl)# ($in)'} | drop | str join (char nl)}
         | str join (char nl)
         | return $in
     } else {

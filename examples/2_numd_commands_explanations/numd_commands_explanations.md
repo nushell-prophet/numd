@@ -23,11 +23,14 @@ This command is used for parsing initial markdown to detect executable code bloc
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
 
-let $md_orig = open -r $file
+let $md_orig = open -r $file | replace-output-numd-fences
 let $md_orig_table = detect-code-blocks $md_orig
 $md_orig_table
 ```
-```output-numd
+
+Output:
+
+```
 //  ╭─────────────────────────────────line─────────────────────────────────┬────row_type────┬─block_line─╮
 //  │ # This is a simple markdown example                                  │                │          1 │
 //  │                                                                      │                │          1 │
@@ -76,7 +79,10 @@ gen-intermid-script $md_orig_table
 
 open $intermid_script_path
 ```
-```output-numd
+
+Output:
+
+```
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
 //  cd /Users/user/git/numd
@@ -131,7 +137,10 @@ let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on
 rm $intermid_script_path
 $nu_res_stdout_lines
 ```
-```output-numd
+
+Output:
+
+```
 //  ╭───────────────────────────────────────────────────────────╮
 //  │ #code-block-starting-line-in-original-md-7                │
 //  │ ```nu                                                     │
@@ -169,7 +178,10 @@ The `parse-block-index` command parses the captured output, and groups them by e
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index
 ```
-```output-numd
+
+Output:
+
+```
 //  ╭─block_line─┬───────────────────────────line────────────────────────────╮
 //  │          7 │ ```nu                                                     │
 //  │            │ let $var1 = 'foo'                                         │
@@ -206,7 +218,10 @@ let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
 
 $md_res
 ```
-```output-numd
+
+Output:
+
+```
 //  # This is a simple markdown example
 //
 //  ## Example 1
@@ -246,7 +261,10 @@ The `calc-changes` command displays stats on the changes made.
 ```nu indent-output
 calc-changes $file $md_orig $md_res
 ```
-```output-numd
+
+Output:
+
+```
 //  ╭──────────────────────┬────────────────────╮
 //  │ filename             │ simple_markdown.md │
 //  │ nushell_code_blocks  │ 3                  │

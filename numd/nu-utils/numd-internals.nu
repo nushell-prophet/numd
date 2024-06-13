@@ -175,6 +175,20 @@ export def prettify-markdown []: string -> string {
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
 }
 
+# The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
+# `detect-code-blocks` works only with lines without knowing the previous lines.
+export def replace-output-numd-fences [
+    a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
+    b = "\n```\n```output-numd\n"
+    --back
+] {
+    if $back {
+        str replace --all $b $a
+    } else {
+        str replace --all $a $b
+    }
+}
+
 # Calculates changes between the original and updated markdown files and returns a record with differences.
 export def calc-changes [
     filename: path
@@ -182,7 +196,7 @@ export def calc-changes [
     new_file: string
 ]: nothing -> record {
     let $original_file_content = $orig_file | ansi strip
-    let $new_file_content = $new_file | ansi strip
+    let $new_file_content = $new_file | ansi strip | replace-output-numd-fences
 
     let $nushell_code_blocks = detect-code-blocks $new_file_content
         | where row_type =~ '^```nu'
