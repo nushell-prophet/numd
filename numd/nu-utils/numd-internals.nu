@@ -178,14 +178,11 @@ export def prettify-markdown []: string -> string {
 # The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
 # `detect-code-blocks` works only with lines without knowing the previous lines.
 export def replace-output-numd-fences [
+    a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
+    b = "\n```\n```output-numd\n"
     --back
 ] {
-    let $input = $in
-    let $a = "\n```\n\nOutput:\n\n```\n"
-    let $b = "\n```\n```output-numd\n"
-
-    $input
-    | if $back {
+    if $back {
         str replace --all $b $a
     } else {
         str replace --all $a $b
