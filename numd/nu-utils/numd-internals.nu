@@ -195,7 +195,7 @@ export def calc-changes [
     orig_file: string
     new_file: string
 ]: nothing -> record {
-    let $original_file_content = $orig_file | ansi strip
+    let $original_file_content = $orig_file | ansi strip | $in + "\n" # to fix https://github.com/nushell/nushell/issues/13155
     let $new_file_content = $new_file | ansi strip
 
     let $nushell_code_blocks = detect-code-blocks $new_file_content
