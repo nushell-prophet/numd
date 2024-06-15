@@ -268,9 +268,9 @@ Output:
 //  ╭──────────────────────┬────────────────────╮
 //  │ filename             │ simple_markdown.md │
 //  │ nushell_code_blocks  │ 3                  │
-//  │ levenshtein_distance │ 1                  │
+//  │ levenshtein_distance │ 0                  │
 //  │ diff_lines           │ 0%                 │
 //  │ diff_words           │ 0%                 │
-//  │ diff_chars           │ +1 (0.3%)          │
+//  │ diff_chars           │ 0%                 │
 //  ╰──────────────────────┴────────────────────╯
 ```
