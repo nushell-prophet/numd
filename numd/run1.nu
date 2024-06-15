@@ -90,9 +90,9 @@ export def clear-outputs [
     --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
-    let $original_md = open -r $file | replace-output-numd-fences
-
-    let $original_md_table = detect-code-blocks $original_md
+    let $original_md_table = open -r $file
+        | replace-output-numd-fences
+        | detect-code-blocks $in
 
     let $output_md_path = $output_md_path | default $file
 
