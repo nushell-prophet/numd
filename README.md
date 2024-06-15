@@ -100,10 +100,10 @@ Output:
 ╭──────────────────────┬───────────────────────────────────╮
 │ filename             │ simple_markdown_with_no_output.md │
 │ nushell_code_blocks  │ 3                                 │
-│ levenshtein_distance │ 40                                │
-│ diff_lines           │ +6 (25%)                          │
-│ diff_words           │ +7 (12.5%)                        │
-│ diff_chars           │ +40 (11.7%)                       │
+│ levenshtein_distance │ 38                                │
+│ diff_lines           │ +9 (37.5%)                        │
+│ diff_words           │ +6 (10.7%)                        │
+│ diff_chars           │ +38 (11%)                         │
 ╰──────────────────────┴───────────────────────────────────╯
 ```
 
@@ -215,7 +215,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:13 +0000 (2 weeks ago)
+Fri, 24 May 2024 07:47:14 +0000 (3 weeks ago)
 
 > 2 + 2
 4
