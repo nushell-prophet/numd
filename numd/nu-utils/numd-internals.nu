@@ -196,7 +196,7 @@ export def calc-changes [
     new_file: string
 ]: nothing -> record {
     let $original_file_content = $orig_file | ansi strip
-    let $new_file_content = $new_file | ansi strip | replace-output-numd-fences
+    let $new_file_content = $new_file | ansi strip
 
     let $nushell_code_blocks = detect-code-blocks $new_file_content
         | where row_type =~ '^```nu'
