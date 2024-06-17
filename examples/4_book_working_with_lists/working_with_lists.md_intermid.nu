@@ -299,19 +299,3 @@ $scores | all {|it| $it mod 2 == 0 } | print; print ''
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | print; print ''
 
     print "```"
-
-    print "#code-block-starting-line-in-original-md-303"
-    print "```nu"
-    print ("let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
-# Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}" | nu-highlight)
-
-    print "```\n```output-numd"
-
-let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
-# Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | print; print ''
-
-    print "```"
