@@ -107,7 +107,7 @@ Output:
 ╰──────────────────────┴───────────────────────────────────╯
 ```
 
-Also, the `--diff` param can be used to display the diff of changes.
+Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
