@@ -1,4 +1,6 @@
-export def testing [] {
+def main [] {}
+
+def 'main testing' [] {
     use ./numd
 
     numd clear-outputs ('examples' | path join 1_simple_markdown simple_markdown.md) -o (
@@ -12,7 +14,7 @@ export def testing [] {
     | append (numd run README.md --no-backup)
 }
 
-export def release [] {
+def 'main release' [] {
     let $git_info = gh repo view --json description,name | from json
     let $git_tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 {$in + 1} | str join '.'
 
