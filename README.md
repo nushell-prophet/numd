@@ -16,7 +16,7 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ## How it works
 
-`numd run` parses the initial file, generates a script to execute the found commands, executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
+`numd run` parses the initial file ([example](/examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
 Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
@@ -29,13 +29,8 @@ Experienced nushell users can understand the logic better by looking at [example
 ### `numd run` flags and params
 
 ```nushell
-use numd
-numd run --help
-```
-
-Output:
-
-```
+> use numd
+> numd run --help
 Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
@@ -71,12 +66,7 @@ Input/output types:
 `numd` understands the following block options. Several comma-separated block options will be combined together. The block options should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
 
 ```nushell
-numd code-block-options --list
-```
-
-Output:
-
-```
+> numd code-block-options --list
 ╭─────long──────┬─short─┬──────────────────description──────────────────╮
 │ no-output     │ O     │ don't try printing result                     │
 │ try           │ t     │ try handling errors                           │
@@ -91,12 +81,7 @@ Output:
 By default, `numd` provides basic stats on changes made.
 
 ```nushell
-numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
-```
-
-Output:
-
-```
+> numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
 ╭──────────────────────┬───────────────────────────────────╮
 │ filename             │ simple_markdown_with_no_output.md │
 │ nushell_code_blocks  │ 3                                 │
@@ -107,7 +92,7 @@ Output:
 ╰──────────────────────┴───────────────────────────────────╯
 ```
 
-Also, the `--diff` param can be used to display the diff of changes.
+Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
 numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
@@ -215,13 +200,13 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:14 +0000 (3 weeks ago)
+Fri, 24 May 2024 07:47:15 +0000 (3 weeks ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.6
+0.1.7
 ```
 
 ## Real fight examples to try

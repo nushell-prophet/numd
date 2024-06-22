@@ -342,20 +342,14 @@ Output:
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
 be converted to a separate row with a single column:
 
-```nu
-let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
+```nu no-run
+> let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
-```
-
-Output:
-
-```
+> $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
 ╭────────Zone────────┬───────Time───────╮
-│ UTC                │ 2024.06.12 12:53 │
-│ CET                │ 2024.06.12 14:53 │
-│ Europe/Moscow      │ 2024.06.12 15:53 │
-│ Asia/Yekaterinburg │ 2024.06.12 17:53 │
+│ UTC                │ 2024.06.17 06:06 │
+│ CET                │ 2024.06.17 08:06 │
+│ Europe/Moscow      │ 2024.06.17 09:06 │
+│ Asia/Yekaterinburg │ 2024.06.17 11:06 │
 ╰────────Zone────────┴───────Time───────╯
 ```
