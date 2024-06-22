@@ -3,5 +3,5 @@
   type: module,
   version: "0.1.9",
   description: "reproducible Nushell Markdown documents",
-  license: MIT
+  license: Unlicense license
 }
