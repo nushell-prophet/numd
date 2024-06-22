@@ -32,7 +32,7 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | replace-output-numd-fences
-let $md_orig_table = detect-code-blocks $md_orig
+let $md_orig_table = $md_orig | detect-code-blocks
 $md_orig_table" | nu-highlight)
 
     print "```\n```output-numd"
@@ -41,7 +41,7 @@ $md_orig_table" | nu-highlight)
 let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | replace-output-numd-fences
-let $md_orig_table = detect-code-blocks $md_orig
+let $md_orig_table = $md_orig | detect-code-blocks
 $md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
 
     print "```"

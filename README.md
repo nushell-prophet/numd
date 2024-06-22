@@ -42,7 +42,7 @@ Flags:
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
-  --no-info - do not output stats of changes
+  --no-stats - do not output stats of changes
   --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
@@ -95,7 +95,7 @@ By default, `numd` provides basic stats on changes made.
 Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
-numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
+numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-stats
 ```
 
 Output:
@@ -103,20 +103,20 @@ Output:
 ```
 //    $var1 | path join 'baz' 'bar'
 //    ```
-//    
+//
 //  + Output:
-//  + 
+//  +
 //  + ```
 //  + foo/baz/bar
 //  + ```
-//  + 
+//  +
 //    ## Example 3
-//    
+//
 //    ```nu
 //    # This block will output results inline
 //    > whoami
 //  + user
-//  + 
+//  +
 //    > 2 + 2
 //  + 4
 //    ```
@@ -200,13 +200,13 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:15 +0000 (3 weeks ago)
+Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.7
+0.1.9
 ```
 
 ## Real fight examples to try
