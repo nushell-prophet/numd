@@ -9,7 +9,7 @@ export def run [
     --save-ansi # save ANSI formatted version
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
-    --no-info # do not output stats of changes
+    --no-stats # do not output stats of changes
     --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
@@ -66,7 +66,7 @@ export def run [
         $updated_md_ansi | save -f $'($output_path).ans'
     }
 
-    if not $no_info {
+    if not $no_stats {
         calc-changes $file $original_md $updated_md_ansi
         | if not ($echo or $diff) {
             return $in # default variant: we return here a record
