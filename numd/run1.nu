@@ -4,7 +4,7 @@ export use nu-utils numd-internals code-block-options
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal
     --save-ansi # save ANSI formatted version
     --no-backup # overwrite the existing `.md` file without backup
@@ -57,7 +57,7 @@ export def run [
         | prettify-markdown
         | replace-output-numd-fences --back
 
-    let $output_path = $output_md_path | default $file
+    let $output_path = $result_md_path | default $file
     if not $no_save {
         if not $no_backup { backup-file $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
@@ -86,7 +86,7 @@ export def run [
 # Remove numd execution outputs from the file
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
-    --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string, nothing -> nothing] {
@@ -94,7 +94,7 @@ export def clear-outputs [
         | replace-output-numd-fences
         | detect-code-blocks
 
-    let $output_md_path = $output_md_path | default $file
+    let $result_md_path = $result_md_path | default $file
 
     $original_md_table
     | where row_type =~ '^```nu(shell)?(\s|$)'
@@ -117,6 +117,6 @@ export def clear-outputs [
         assemble-markdown $original_md_table $in
     }
     | if $echo {} else {
-        save -f $output_md_path
+        save -f $result_md_path
     }
 }
