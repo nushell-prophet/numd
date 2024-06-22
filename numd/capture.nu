@@ -4,7 +4,7 @@ use nu-utils numd-internals [prettify-markdown]
 # start capturing commands and their outputs into a file
 export def --env start [
     file: path = 'numd_capture.md'
-    --separte # don't use `>` notation, create separate blocks for each pipeline
+    --separate # don't use `>` notation, create separate blocks for each pipeline
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
         Commands and their outputs of the current nushell instance
@@ -12,9 +12,9 @@ export def --env start [
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
-    $env.numd.separate-blocks = $separte
+    $env.numd.separate-blocks = $separate
 
-    if not $separte {
+    if not $separate {
         "```nushell\n" | save -a $env.numd.path
     }
 
@@ -61,7 +61,7 @@ export def --env stop [ ]: nothing -> nothing {
         | save --force $file
     }
 
-    cprint $'numd commands capture to the *($file)* file has been stoped.'
+    cprint $'numd commands capture to the *($file)* file has been stopped.'
 
     $env.numd.status = 'stopped'
 }

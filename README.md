@@ -148,7 +148,7 @@ Input/output types:
   ╰──input──┴─output──╯
 ```
 
-### `numd catpure`
+### `numd capture`
 
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
@@ -160,7 +160,7 @@ Usage:
   > start {flags} (file)
 
 Flags:
-  --separte - don't use `>` notation, create separate blocks for each pipeline
+  --separate - don't use `>` notation, create separate blocks for each pipeline
   -h, --help - Display the help message for this command
 
 Parameters:
