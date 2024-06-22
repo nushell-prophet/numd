@@ -21,7 +21,8 @@ def 'main release' [] {
     open nupm.nuon
     | update description ($git_info.desc | str replace 'numd - ' '')
     | update version $git_tag
-    | save -f nupm.nuon
+    | to nuon --indent 2
+    | save --force --raw nupm.nuon
 
     open README.md -r
     | lines
