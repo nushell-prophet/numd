@@ -15,7 +15,7 @@ export def run [
     --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
     --diff # use diff for printing changes
     --width: int # set the `table --width` option value
-]: [nothing -> nothing, nothing -> string, nothing -> record] {
+]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
 
     let $original_md_table = $original_md
@@ -89,7 +89,7 @@ export def clear-outputs [
     --output-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
-]: [nothing -> nothing, nothing -> string, nothing -> record] {
+]: [nothing -> string, nothing -> nothing] {
     let $original_md_table = open -r $file
         | replace-output-numd-fences
         | detect-code-blocks
