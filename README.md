@@ -37,7 +37,7 @@ Usage:
   > run {flags} <file>
 
 Flags:
-  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
@@ -55,8 +55,8 @@ Parameters:
 
 Input/output types:
   ╭──input──┬─output──╮
-  │ nothing │ nothing │
   │ nothing │ string  │
+  │ nothing │ nothing │
   │ nothing │ record  │
   ╰──input──┴─output──╯
 ```
@@ -95,7 +95,7 @@ By default, `numd` provides basic stats on changes made.
 Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
-numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-stats
+numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-stats | ansi strip
 ```
 
 Output:
@@ -132,7 +132,7 @@ Usage:
   > clear-outputs {flags} <file>
 
 Flags:
-  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
   -h, --help - Display the help message for this command
@@ -142,9 +142,8 @@ Parameters:
 
 Input/output types:
   ╭──input──┬─output──╮
-  │ nothing │ nothing │
   │ nothing │ string  │
-  │ nothing │ record  │
+  │ nothing │ nothing │
   ╰──input──┴─output──╯
 ```
 

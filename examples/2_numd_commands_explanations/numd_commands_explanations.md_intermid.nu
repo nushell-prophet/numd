@@ -42,7 +42,7 @@ let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_m
 
 let $md_orig = open -r $file | replace-output-numd-fences
 let $md_orig_table = $md_orig | detect-code-blocks
-$md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+$md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
 
@@ -66,7 +66,7 @@ let $intermid_script_path = $file
 gen-intermid-script $md_orig_table
 | save -f $intermid_script_path
 
-open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
 
@@ -86,7 +86,7 @@ let $no_fail_on_error = false
 
 let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
 rm $intermid_script_path
-$nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+$nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
 
@@ -98,7 +98,7 @@ $nu_res_with_block_index" | nu-highlight)
     print "```\n```output-numd"
 
 let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+$nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
 
@@ -114,7 +114,7 @@ $md_res" | nu-highlight)
 let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
 
-$md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+$md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
 
@@ -124,6 +124,6 @@ $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str joi
 
     print "```\n```output-numd"
 
-calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim} | str join (char nl) | print; print ''
+calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
