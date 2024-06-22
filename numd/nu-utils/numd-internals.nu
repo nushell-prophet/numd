@@ -335,7 +335,7 @@ export def ends-with-definition [
 export def gen-indented-output [
     --indent: string = '//  '
 ]: string -> string {
-    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
+    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
 }
 
 # Generates a print statement for capturing command output.
