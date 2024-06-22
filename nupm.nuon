@@ -1,1 +1,7 @@
-{name: numd, type: module, version: "0.1.8", description: "reproducible Nushell Markdown documents", license: MIT}
+{
+  name: numd,
+  type: module,
+  version: "0.1.9",
+  description: "reproducible Nushell Markdown documents",
+  license: MIT
+}
