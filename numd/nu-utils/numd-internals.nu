@@ -1,10 +1,8 @@
 use std iter scan
 
 # Detects code blocks in a markdown string and returns a table with their line numbers and infostrings.
-export def detect-code-blocks [
-    markdown: string
-]: nothing -> table {
-    let $file_lines = $markdown | lines
+export def detect-code-blocks []: string -> table {
+    let $file_lines = lines
     let $row_type = $file_lines
         | each {
             str trim --right
@@ -198,7 +196,8 @@ export def calc-changes [
     let $original_file_content = $orig_file | ansi strip | $in + "\n" # to fix https://github.com/nushell/nushell/issues/13155
     let $new_file_content = $new_file | ansi strip
 
-    let $nushell_code_blocks = detect-code-blocks $new_file_content
+    let $nushell_code_blocks = $new_file_content
+        | detect-code-blocks
         | where row_type =~ '^```nu'
         | get block_line
         | uniq

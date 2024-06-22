@@ -20,7 +20,7 @@ export def run [
 
     let $original_md_table = $original_md
         | replace-output-numd-fences
-        | detect-code-blocks $in
+        | detect-code-blocks
 
     if $width != null {
         $env.numd.table-width = $width
@@ -92,7 +92,7 @@ export def clear-outputs [
 ]: [nothing -> nothing, nothing -> string, nothing -> record] {
     let $original_md_table = open -r $file
         | replace-output-numd-fences
-        | detect-code-blocks $in
+        | detect-code-blocks
 
     let $output_md_path = $output_md_path | default $file
 

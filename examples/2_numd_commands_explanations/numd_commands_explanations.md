@@ -24,7 +24,7 @@ This command is used for parsing initial markdown to detect executable code bloc
 let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | replace-output-numd-fences
-let $md_orig_table = detect-code-blocks $md_orig
+let $md_orig_table = $md_orig | detect-code-blocks
 $md_orig_table
 ```
 
