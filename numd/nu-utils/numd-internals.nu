@@ -249,11 +249,11 @@ export def code-block-options [
     [
         ["long" "short" "description"];
 
-        ["no-output" "O" "don't try printing result"]
-        ["try" "t" "try handling errors"]
-        ["new-instance" "n" "execute the block in the new Nushell instance"]
-        ["no-run" "N" "don't execute the code in block"]
         ["indent-output" "i" "indent the output visually" ]
+        ["no-output" "O" "execute the code without outputting the results"]
+        ["no-run" "N" "do not execute the code in the block"]
+        ["try" "t" "execute the block inside the `try {}` for handling errors"]
+        ["new-instance" "n" "execute the block in the new Nushell instance, useful with `try`"]
     ]
     | if $list {} else {
         select short long
