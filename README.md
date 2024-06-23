@@ -97,7 +97,7 @@ Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
 let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-numd run --diff --no-save --no-stats $path | ansi strip
+numd run $path --diff --no-save --no-stats | ansi strip
 ```
 
 Output:
@@ -216,7 +216,7 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 # output the result of execution to terminal without updating the file
 [examples 1_simple_markdown simple_markdown.md]
 | path join
-| numd run --echo --no-save $in
+| numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
 # save intermid nushell script to `types_of_data.md_intermid.nu`
