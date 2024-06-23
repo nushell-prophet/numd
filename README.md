@@ -220,6 +220,7 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 
 # run examples in the `types_of_data.md` file,
 # save intermid nushell script to `types_of_data.md_intermid.nu`
-let path = [examples 3_book_types_of_data types_of_data.md] | path join
-numd run $path --no-backup --intermid-script $'($path)_intermid.nu'
+[examples 3_book_types_of_data types_of_data.md]
+| path join
+| numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
 ```
