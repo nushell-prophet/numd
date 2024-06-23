@@ -303,7 +303,7 @@ export def run-intermid-script [
     }
 }
 
-# Generates a unique identifier for code blocks in markdown to distinguish their output.
+# Generates an unique identifier for code blocks in markdown to distinguish their output.
 export def numd-block [
     index?: int
 ]: nothing -> string {
@@ -317,7 +317,7 @@ export def gen-highlight-command [ ]: string -> string {
     | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
-# Trims comments and extra whitespace from code blocks for using code in the generated script.
+# Trims comments and extra whitespaces from code blocks for using code in the generated script.
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
@@ -359,6 +359,8 @@ export def gen-catch-error-outside []: string -> string {
 }
 
 # Generates a fenced code block for output with a specific format.
+#
+# We use combination of "\n" and (char nl) here for itermid script formatting
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
