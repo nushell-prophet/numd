@@ -67,13 +67,13 @@ Input/output types:
 
 ```nushell
 > numd code-block-options --list
-╭─────long──────┬─short─┬──────────────────description──────────────────╮
-│ no-output     │ O     │ don't try printing result                     │
-│ try           │ t     │ try handling errors                           │
-│ new-instance  │ n     │ execute the block in the new Nushell instance │
-│ no-run        │ N     │ don't execute the code in block               │
-│ indent-output │ i     │ indent the output visually                    │
-╰─────long──────┴─short─┴──────────────────description──────────────────╯
+╭─────long──────┬─short─┬───────────────────────────description────────────────────────────╮
+│ indent-output │ i     │ indent the output visually                                       │
+│ no-output     │ O     │ execute the code without outputting the results                  │
+│ no-run        │ N     │ do not execute the code in the block                             │
+│ try           │ t     │ execute the block inside the `try {}` for handling errors        │
+│ new-instance  │ n     │ execute the block in the new Nushell instance, useful with `try` │
+╰─────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -207,7 +207,7 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 4
 
 > git tag | lines | sort -n | last
-0.1.9
+0.1.11
 ```
 
 ## Real fight examples to try
@@ -223,4 +223,21 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 [examples 3_book_types_of_data types_of_data.md]
 | path join
 | numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
+```
+
+## Development and testing
+
+Nushell Markdown documents used together with Git could often serve as a convenient way to test custom and built-in Nushell commands.
+
+Testing of the `numd` module itself is done via the `testing` command in `tools.nu` in the root repository folder: whatever changes are made in the module - it could be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions) . Please, feel free to try it on your own.
+
+```nushell no-run
+> nu tools.nu testing
+╭───────────filename────────────┬─nushell_blocks─┬─levenshtein_dist─┬─diff_lines─┬─diff_words─┬─diff_chars─╮
+│ types_of_data.md              │             31 │                0 │ 0%         │ 0%         │ 0%         │
+│ simple_markdown.md            │              3 │                0 │ 0%         │ 0%         │ 0%         │
+│ numd_commands_explanations.md │              7 │                0 │ 0%         │ 0%         │ 0%         │
+│ working_with_lists.md         │             18 │                0 │ 0%         │ 0%         │ 0%         │
+│ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
+╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
 ```

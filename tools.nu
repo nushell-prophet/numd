@@ -15,18 +15,18 @@ def 'main testing' [] {
 }
 
 def 'main release' [] {
-    let $git_description = gh repo view --json description | from json | get description
-    let $git_tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 {$in + 1} | str join '.'
+    let $description = gh repo view --json description | from json | get description
+    let $tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 {$in + 1} | str join '.'
 
     open nupm.nuon
-    | update description ($git_description | str replace 'numd - ' '')
-    | update version $git_tag
+    | update description ($description | str replace 'numd - ' '')
+    | update version $tag
     | to nuon --indent 2
     | save --force --raw nupm.nuon
 
     open README.md -r
     | lines
-    | update 0 ('<h1 align="center">' + $git_description + '</h1>')
+    | update 0 ('<h1 align="center">' + $description + '</h1>')
     | str join (char nl)
     | $in + (char nl)
     | save -r README.md -f
@@ -37,7 +37,7 @@ def 'main release' [] {
     # nupm install --force --path .
 
     git add nupm.nuon
-    git commit -m $'($git_tag) nupm version'
-    git tag $git_tag
-    git push origin $git_tag
+    git commit -m $'($tag) nupm version'
+    git tag $tag
+    git push origin $tag
 }
