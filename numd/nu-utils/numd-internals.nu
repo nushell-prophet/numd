@@ -110,7 +110,6 @@ export def gen-intermid-script [
         | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
-    | prepend $"cd ($current_dir)" # to use `use nudoc` inside nudoc (as if it is executed in $nu.temp_path no )
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten

@@ -1,6 +1,5 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
-cd /Users/user/git/numd
 const init_numd_pwd_const = '/Users/user/git/numd'
     print "#code-block-starting-line-in-original-md-5"
     print "```nu"
@@ -70,7 +69,7 @@ open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | 
 
     print "```"
 
-    print "#code-block-starting-line-in-original-md-126"
+    print "#code-block-starting-line-in-original-md-125"
     print "```nu indent-output"
     print ("# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
@@ -90,7 +89,7 @@ $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str tr
 
     print "```"
 
-    print "#code-block-starting-line-in-original-md-168"
+    print "#code-block-starting-line-in-original-md-167"
     print "```nu indent-output"
     print ("let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
 $nu_res_with_block_index" | nu-highlight)
@@ -102,7 +101,7 @@ $nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | st
 
     print "```"
 
-    print "#code-block-starting-line-in-original-md-203"
+    print "#code-block-starting-line-in-original-md-202"
     print "```nu indent-output"
     print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
@@ -118,7 +117,7 @@ $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} |
 
     print "```"
 
-    print "#code-block-starting-line-in-original-md-246"
+    print "#code-block-starting-line-in-original-md-245"
     print "```nu indent-output"
     print ("calc-changes-stats $file $md_orig $md_res" | nu-highlight)
 

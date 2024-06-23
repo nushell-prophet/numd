@@ -124,6 +124,39 @@ Output:
 //    ```
 ```
 
+### Styling outputs
+
+It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermid-script.nu and executed before all parts of the code.
+
+```nushell indent-output
+let path = [examples 1_simple_markdown simple_nu_table.md] | path join
+
+# let's generate some markdown and save it to the `simple_nu_table.md` file
+"```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
+
+# let's run this file to see it's outputs
+numd run $path --echo --no-save --no-stats --prepend-intermid "$env.config.footer_mode = 'never'
+    $env.config.table.header_on_separator = false
+    $env.config.table.mode = 'basic_compact'"
+```
+
+Output:
+
+```
+//  ```nushell
+//  [[a b c]; [1 2 3]]
+//  ```
+//
+//  Output:
+//
+//  ```
+//  +---+---+---+
+//  | a | b | c |
+//  | 1 | 2 | 3 |
+//  +---+---+---+
+//  ```
+```
+
 ### `numd clear-outputs`
 
 ```nu
