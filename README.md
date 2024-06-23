@@ -30,7 +30,7 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > use numd
-> numd run --help
+> numd run --help | numd parse-help
 Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
@@ -127,7 +127,7 @@ Output:
 ### `numd clear-outputs`
 
 ```nu
-> numd clear-outputs --help
+> numd clear-outputs --help | numd parse-help
 Remove numd execution outputs from the file
 
 Usage:
@@ -154,7 +154,7 @@ Input/output types:
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
 ```nushell
-> numd capture start --help
+> numd capture start --help | numd parse-help
 start capturing commands and their outputs into a file
 
 Usage:
@@ -174,7 +174,7 @@ Input/output types:
 ```
 
 ```nushell
-> numd capture stop --help
+> numd capture stop --help | numd parse-help
 stop capturing commands and their outputs
 
 Usage:
