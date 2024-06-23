@@ -67,13 +67,13 @@ Input/output types:
 
 ```nushell
 > numd code-block-options --list
-╭─────long──────┬─short─┬──────────────────description──────────────────╮
-│ no-output     │ O     │ don't try printing result                     │
-│ try           │ t     │ try handling errors                           │
-│ new-instance  │ n     │ execute the block in the new Nushell instance │
-│ no-run        │ N     │ don't execute the code in block               │
-│ indent-output │ i     │ indent the output visually                    │
-╰─────long──────┴─short─┴──────────────────description──────────────────╯
+╭─────long──────┬─short─┬───────────────────────────description────────────────────────────╮
+│ indent-output │ i     │ indent the output visually                                       │
+│ no-output     │ O     │ execute the code without outputting the results                  │
+│ no-run        │ N     │ do not execute the code in the block                             │
+│ try           │ t     │ execute the block inside the `try {}` for handling errors        │
+│ new-instance  │ n     │ execute the block in the new Nushell instance, useful with `try` │
+╰─────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -207,7 +207,7 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 4
 
 > git tag | lines | sort -n | last
-0.1.9
+0.1.11
 ```
 
 ## Real fight examples to try
