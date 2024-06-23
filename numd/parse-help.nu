@@ -1,4 +1,4 @@
-#parse_help
+# Beautify and adapt the standard `--help` for markdown output
 export def main [
     --sections: list
     --record
