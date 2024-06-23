@@ -37,7 +37,7 @@ export def detect-code-blocks []: string -> table {
     | merge ($block_start_line | wrap block_line)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
         error make {
-            msg: 'a closing code block fence (```) is missing, markdown might be invalid.'
+            msg: 'a closing code block fence (```) is missing, the markdown might be invalid.'
         }
     } else {}
 }
@@ -360,7 +360,7 @@ export def gen-catch-error-outside []: string -> string {
 
 # Generates a fenced code block for output with a specific format.
 #
-# We use combination of "\n" and (char nl) here for itermid script formatting
+# We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }
