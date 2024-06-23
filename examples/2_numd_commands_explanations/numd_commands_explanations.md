@@ -254,12 +254,12 @@ Output:
 //  ```
 ```
 
-## calc-changes
+## calc-changes-stats
 
-The `calc-changes` command displays stats on the changes made.
+The `calc-changes-stats` command displays stats on the changes made.
 
 ```nu indent-output
-calc-changes $file $md_orig $md_res
+calc-changes-stats $file $md_orig $md_res
 ```
 
 Output:

@@ -188,7 +188,7 @@ export def replace-output-numd-fences [
 }
 
 # Calculates changes between the original and updated markdown files and returns a record with differences.
-export def calc-changes [
+export def calc-changes-stats [
     filename: path
     orig_file: string
     new_file: string

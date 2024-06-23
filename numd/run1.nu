@@ -67,7 +67,7 @@ export def run [
     }
 
     if not $no_stats {
-        calc-changes $file $original_md $updated_md_ansi
+        calc-changes-stats $file $original_md $updated_md_ansi
         | if not ($echo or $diff) {
             return $in # default variant: we return here a record
         } else {

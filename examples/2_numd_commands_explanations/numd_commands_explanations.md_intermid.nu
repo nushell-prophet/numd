@@ -120,10 +120,10 @@ $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} |
 
     print "#code-block-starting-line-in-original-md-246"
     print "```nu indent-output"
-    print ("calc-changes $file $md_orig $md_res" | nu-highlight)
+    print ("calc-changes-stats $file $md_orig $md_res" | nu-highlight)
 
     print "```\n```output-numd"
 
-calc-changes $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+calc-changes-stats $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
     print "```"
