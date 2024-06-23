@@ -2,7 +2,7 @@
 
 ## Example 1
 
-the block below will be executed as it is, but won't yeld any output
+the block below will be executed as it is, but won't yield any output
 
 ```nu
 let $var1 = 'foo'

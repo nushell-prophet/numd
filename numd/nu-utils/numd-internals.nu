@@ -1,10 +1,8 @@
 use std iter scan
 
 # Detects code blocks in a markdown string and returns a table with their line numbers and infostrings.
-export def detect-code-blocks [
-    markdown: string
-]: nothing -> table {
-    let $file_lines = $markdown | lines
+export def detect-code-blocks []: string -> table {
+    let $file_lines = lines
     let $row_type = $file_lines
         | each {
             str trim --right
@@ -190,7 +188,7 @@ export def replace-output-numd-fences [
 }
 
 # Calculates changes between the original and updated markdown files and returns a record with differences.
-export def calc-changes [
+export def calc-changes-stats [
     filename: path
     orig_file: string
     new_file: string
@@ -198,7 +196,8 @@ export def calc-changes [
     let $original_file_content = $orig_file | ansi strip | $in + "\n" # to fix https://github.com/nushell/nushell/issues/13155
     let $new_file_content = $new_file | ansi strip
 
-    let $nushell_code_blocks = detect-code-blocks $new_file_content
+    let $nushell_blocks = $new_file_content
+        | detect-code-blocks
         | where row_type =~ '^```nu'
         | get block_line
         | uniq
@@ -221,9 +220,9 @@ export def calc-changes [
     | select metric change_percentage
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
-    | insert levenshtein_distance ($original_file_content | str distance $new_file_content)
-    | insert nushell_code_blocks $nushell_code_blocks
-    | select filename nushell_code_blocks levenshtein_distance diff_lines diff_words diff_chars
+    | insert levenshtein_dist ($original_file_content | str distance $new_file_content)
+    | insert nushell_blocks $nushell_blocks
+    | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
 # Displays the differences between the original and new markdown files in a colored diff format.
@@ -304,7 +303,7 @@ export def run-intermid-script [
     }
 }
 
-# Generates a unique identifier for code blocks in markdown to distinguish their output.
+# Generates an unique identifier for code blocks in markdown to distinguish their output.
 export def numd-block [
     index?: int
 ]: nothing -> string {
@@ -318,7 +317,7 @@ export def gen-highlight-command [ ]: string -> string {
     | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
 }
 
-# Trims comments and extra whitespace from code blocks for using code in the generated script.
+# Trims comments and extra whitespaces from code blocks for using code in the generated script.
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
@@ -336,7 +335,7 @@ export def ends-with-definition [
 export def gen-indented-output [
     --indent: string = '//  '
 ]: string -> string {
-    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim} | str join \(char nl\)"
+    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
 }
 
 # Generates a print statement for capturing command output.
@@ -360,6 +359,8 @@ export def gen-catch-error-outside []: string -> string {
 }
 
 # Generates a fenced code block for output with a specific format.
+#
+# We use combination of "\n" and (char nl) here for itermid script formatting
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
 }

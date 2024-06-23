@@ -37,12 +37,12 @@ Usage:
   > run {flags} <file>
 
 Flags:
-  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
-  --no-info - do not output stats of changes
+  --no-stats - do not output stats of changes
   --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
@@ -55,8 +55,8 @@ Parameters:
 
 Input/output types:
   ╭──input──┬─output──╮
-  │ nothing │ nothing │
   │ nothing │ string  │
+  │ nothing │ nothing │
   │ nothing │ record  │
   ╰──input──┴─output──╯
 ```
@@ -81,21 +81,23 @@ Input/output types:
 By default, `numd` provides basic stats on changes made.
 
 ```nushell
-> numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
-╭──────────────────────┬───────────────────────────────────╮
-│ filename             │ simple_markdown_with_no_output.md │
-│ nushell_code_blocks  │ 3                                 │
-│ levenshtein_distance │ 38                                │
-│ diff_lines           │ +9 (37.5%)                        │
-│ diff_words           │ +6 (10.7%)                        │
-│ diff_chars           │ +38 (11%)                         │
-╰──────────────────────┴───────────────────────────────────╯
+> let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+> numd run --no-save $path
+╭──────────────────┬───────────────────────────────────╮
+│ filename         │ simple_markdown_with_no_output.md │
+│ nushell_blocks   │ 3                                 │
+│ levenshtein_dist │ 38                                │
+│ diff_lines       │ +9 (37.5%)                        │
+│ diff_words       │ +6 (10.7%)                        │
+│ diff_chars       │ +38 (11%)                         │
+╰──────────────────┴───────────────────────────────────╯
 ```
 
 Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
-numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-info
+let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+numd run $path --diff --no-save --no-stats | ansi strip
 ```
 
 Output:
@@ -103,20 +105,20 @@ Output:
 ```
 //    $var1 | path join 'baz' 'bar'
 //    ```
-//    
+//
 //  + Output:
-//  + 
+//  +
 //  + ```
 //  + foo/baz/bar
 //  + ```
-//  + 
+//  +
 //    ## Example 3
-//    
+//
 //    ```nu
 //    # This block will output results inline
 //    > whoami
 //  + user
-//  + 
+//  +
 //    > 2 + 2
 //  + 4
 //    ```
@@ -132,7 +134,7 @@ Usage:
   > clear-outputs {flags} <file>
 
 Flags:
-  -o, --output-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
   -h, --help - Display the help message for this command
@@ -142,13 +144,12 @@ Parameters:
 
 Input/output types:
   ╭──input──┬─output──╮
-  │ nothing │ nothing │
   │ nothing │ string  │
-  │ nothing │ record  │
+  │ nothing │ nothing │
   ╰──input──┴─output──╯
 ```
 
-### `numd catpure`
+### `numd capture`
 
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
@@ -160,7 +161,7 @@ Usage:
   > start {flags} (file)
 
 Flags:
-  --separte - don't use `>` notation, create separate blocks for each pipeline
+  --separate - don't use `>` notation, create separate blocks for each pipeline
   -h, --help - Display the help message for this command
 
 Parameters:
@@ -200,26 +201,26 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:15 +0000 (3 weeks ago)
+Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.7
+0.1.9
 ```
 
 ## Real fight examples to try
 
 ```nushell no-output
 # output the result of execution to terminal without updating the file
-numd run examples/1_simple_markdown/simple_markdown.md --echo --no-save
+[examples 1_simple_markdown simple_markdown.md]
+| path join
+| numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
 # save intermid nushell script to `types_of_data.md_intermid.nu`
-(
-    numd run examples/3_book_types_of_data/types_of_data.md
-        --no-backup
-        --intermid-script examples/3_book_types_of_data/types_of_data.md_intermid.nu
-)
+[examples 3_book_types_of_data types_of_data.md]
+| path join
+| numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
 ```
