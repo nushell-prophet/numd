@@ -6,7 +6,6 @@ export def main [
     let help_lines = ansi strip
         | str replace --all 'Search terms:' "Search terms:\n"
         | str replace --all ':  (optional)' ' (optional)'
-        | str replace -ram '(\s*)(-|:)\s*($|\()' '$1$2' # flags or params with no description
         | lines
         | str trim
         | if ($in.0 == 'Usage:') {} else {prepend 'Description:'}
