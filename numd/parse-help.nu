@@ -1,12 +1,11 @@
-#parse_help
+# Beautify and adapt the standard `--help` for markdown output
 export def main [
     --sections: list
-    --string
+    --record
 ] {
     let help_lines = ansi strip
-        | str replace 'Search terms:' "Search terms:\n"
-        | str replace ':  (optional)' ' (optional)'
-        | str replace -ram '(\s*)(-|:)\s*($|\()' '$1$2' # flags or params with no description
+        | str replace --all 'Search terms:' "Search terms:\n"
+        | str replace --all ':  (optional)' ' (optional)'
         | lines
         | str trim
         | if ($in.0 == 'Usage:') {} else {prepend 'Description:'}
@@ -48,18 +47,18 @@ export def main [
     | if $sections != null {
         select -i ...$sections
     } else {}
-    | if $string {
+    | if $record {
+        items {|k v| $v
+            | str join (char nl)
+            | {section: $k, value: $in}
+        }
+        | transpose -idr
+    } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
             | str join (char nl)
             | $"($k):\n($in)"
         }
         | str join "\n"
-    } else {
-        items {|k v| $v
-            | str join (char nl)
-            | {section: $k, value: $in}
-        }
-        | transpose -idr
     }
 }
