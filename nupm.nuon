@@ -1,7 +1,7 @@
 {
   name: numd,
   type: module,
-  version: "0.1.9",
+  version: "0.1.10",
   description: "reproducible Nushell Markdown documents",
   license: Unlicense
 }
