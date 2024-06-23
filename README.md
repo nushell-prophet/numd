@@ -31,7 +31,8 @@ Experienced nushell users can understand the logic better by looking at [example
 ```nushell
 > use numd
 > numd run --help | numd parse-help
-Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+Description:
+  Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
 Usage:
   > run {flags} <file>
@@ -48,7 +49,6 @@ Flags:
   --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
   --diff - use diff for printing changes
   --width <Int> - set the `table --width` option value
-  -h, --help - Display the help message for this command
 
 Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -128,7 +128,8 @@ Output:
 
 ```nu
 > numd clear-outputs --help | numd parse-help
-Remove numd execution outputs from the file
+Description:
+  Remove numd execution outputs from the file
 
 Usage:
   > clear-outputs {flags} <file>
@@ -137,7 +138,6 @@ Flags:
   -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
-  -h, --help - Display the help message for this command
 
 Parameters:
   file <path>: path to a `.md` file containing numd output to be cleared
@@ -155,14 +155,14 @@ Input/output types:
 
 ```nushell
 > numd capture start --help | numd parse-help
-start capturing commands and their outputs into a file
+Description:
+  start capturing commands and their outputs into a file
 
 Usage:
   > start {flags} (file)
 
 Flags:
   --separate - don't use `>` notation, create separate blocks for each pipeline
-  -h, --help - Display the help message for this command
 
 Parameters:
   file <path>:  (optional, default: 'numd_capture.md')
@@ -175,13 +175,13 @@ Input/output types:
 
 ```nushell
 > numd capture stop --help | numd parse-help
-stop capturing commands and their outputs
+Description:
+  stop capturing commands and their outputs
 
 Usage:
   > stop
 
 Flags:
-  -h, --help - Display the help message for this command
 
 Input/output types:
   ╭──input──┬─output──╮
