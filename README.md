@@ -85,7 +85,7 @@ By default, `numd` provides basic stats on changes made.
 > numd run --no-save $path
 ╭──────────────────────┬───────────────────────────────────╮
 │ filename             │ simple_markdown_with_no_output.md │
-│ nushell_code_blocks  │ 3                                 │
+│ nushell_blocks       │ 3                                 │
 │ levenshtein_distance │ 38                                │
 │ diff_lines           │ +9 (37.5%)                        │
 │ diff_words           │ +6 (10.7%)                        │
