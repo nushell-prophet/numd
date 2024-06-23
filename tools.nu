@@ -8,7 +8,7 @@ def 'main testing' [] {
     )
 
     glob examples/*/*.md --exclude [*/*_with_no_output*]
-    | each {|file|
+    | par-each {|file|
         numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
     }
     | append (numd run README.md --no-backup)
