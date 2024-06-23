@@ -3,9 +3,9 @@ def main [] {}
 def 'main testing' [] {
     use ./numd
 
-    numd clear-outputs ('examples' | path join 1_simple_markdown simple_markdown.md) -o (
-        'examples' | path join 1_simple_markdown simple_markdown_with_no_output.md
-    )
+    ['examples' '1_simple_markdown' 'simple_markdown.md']
+    | path join
+    | numd clear-outputs $in -o ($in | str replace 'markdown.md' 'markdown_with_no_output.md')
 
     glob examples/*/*.md --exclude [*/*_with_no_output*]
     | par-each {|file|
