@@ -81,7 +81,8 @@ Input/output types:
 By default, `numd` provides basic stats on changes made.
 
 ```nushell
-> numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --no-save
+> let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+> numd run --no-save $path
 ╭──────────────────────┬───────────────────────────────────╮
 │ filename             │ simple_markdown_with_no_output.md │
 │ nushell_code_blocks  │ 3                                 │
@@ -95,7 +96,8 @@ By default, `numd` provides basic stats on changes made.
 Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
-numd run examples/1_simple_markdown/simple_markdown_with_no_output.md --diff --no-save --no-stats | ansi strip
+let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+numd run --diff --no-save --no-stats $path | ansi strip
 ```
 
 Output:
@@ -212,13 +214,12 @@ Fri, 24 May 2024 07:47:15 +0000 (a month ago)
 
 ```nushell no-output
 # output the result of execution to terminal without updating the file
-numd run examples/1_simple_markdown/simple_markdown.md --echo --no-save
+[examples 1_simple_markdown simple_markdown.md]
+| path join
+| numd run --echo --no-save $in
 
 # run examples in the `types_of_data.md` file,
 # save intermid nushell script to `types_of_data.md_intermid.nu`
-(
-    numd run examples/3_book_types_of_data/types_of_data.md
-        --no-backup
-        --intermid-script examples/3_book_types_of_data/types_of_data.md_intermid.nu
-)
+let path = [examples 3_book_types_of_data types_of_data.md] | path join
+numd run $path --no-backup --intermid-script $'($path)_intermid.nu'
 ```
