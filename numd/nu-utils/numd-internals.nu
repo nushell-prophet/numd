@@ -220,9 +220,9 @@ export def calc-changes [
     | select metric change_percentage
     | transpose --as-record --ignore-titles --header-row
     | insert filename ($filename | path basename)
-    | insert levenshtein_distance ($original_file_content | str distance $new_file_content)
+    | insert levenshtein_dist ($original_file_content | str distance $new_file_content)
     | insert nushell_blocks $nushell_blocks
-    | select filename nushell_blocks levenshtein_distance diff_lines diff_words diff_chars
+    | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
 # Displays the differences between the original and new markdown files in a colored diff format.

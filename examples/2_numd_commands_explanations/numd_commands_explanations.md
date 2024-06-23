@@ -265,12 +265,12 @@ calc-changes $file $md_orig $md_res
 Output:
 
 ```
-//  ╭──────────────────────┬────────────────────╮
-//  │ filename             │ simple_markdown.md │
-//  │ nushell_blocks       │ 3                  │
-//  │ levenshtein_distance │ 0                  │
-//  │ diff_lines           │ 0%                 │
-//  │ diff_words           │ 0%                 │
-//  │ diff_chars           │ 0%                 │
-//  ╰──────────────────────┴────────────────────╯
+//  ╭──────────────────┬────────────────────╮
+//  │ filename         │ simple_markdown.md │
+//  │ nushell_blocks   │ 3                  │
+//  │ levenshtein_dist │ 0                  │
+//  │ diff_lines       │ 0%                 │
+//  │ diff_words       │ 0%                 │
+//  │ diff_chars       │ 0%                 │
+//  ╰──────────────────┴────────────────────╯
 ```

@@ -83,14 +83,14 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 > let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
-╭──────────────────────┬───────────────────────────────────╮
-│ filename             │ simple_markdown_with_no_output.md │
-│ nushell_blocks       │ 3                                 │
-│ levenshtein_distance │ 38                                │
-│ diff_lines           │ +9 (37.5%)                        │
-│ diff_words           │ +6 (10.7%)                        │
-│ diff_chars           │ +38 (11%)                         │
-╰──────────────────────┴───────────────────────────────────╯
+╭──────────────────┬───────────────────────────────────╮
+│ filename         │ simple_markdown_with_no_output.md │
+│ nushell_blocks   │ 3                                 │
+│ levenshtein_dist │ 38                                │
+│ diff_lines       │ +9 (37.5%)                        │
+│ diff_words       │ +6 (10.7%)                        │
+│ diff_chars       │ +38 (11%)                         │
+╰──────────────────┴───────────────────────────────────╯
 ```
 
 Also, the `--diff` flag can be used to display the diff of changes.
