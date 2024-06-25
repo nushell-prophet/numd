@@ -92,10 +92,9 @@ export def gen-intermid-script [
     | group-by block_line
     | values
     | each {
-        if $in.row_type.0 == '' {
-            $in.line
-            | gen-print-lines
-        } else if 'no-run' in ($in.row_type.0 | parse-options-from-fence) {
+        if ($in.row_type.0 == '' or
+            'no-run' in ($in.row_type.0 | parse-options-from-fence)
+        ) {
             $in.line
             | gen-print-lines
         } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
