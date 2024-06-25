@@ -106,36 +106,18 @@ $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str tr
 
     print "```"
 
-"
-## parse-block-index
-
-The `parse-block-index` command parses the captured output, and groups them by executed blocks.
-" | print
+"" | print
     print "```nu indent-output"
-    print ("let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index" | nu-highlight)
-
-    print "```\n```output-numd"
-
-let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
-
-    print "```"
-
-"
-## assemble-markdown
-
-The `assemble-markdown` command cleans outdated commands outputs in the `$md_orig_table` and combines them with `$nu_res_with_block_index` (the variable from the previous step). Additionally, `prettify-markdown` is used here to remove empty blocks and unnecessary empty lines.
-" | print
-    print "```nu indent-output"
-    print ("let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
+    print ("let $md_res = $nu_res_stdout_lines
+    | str join (char nl)
     | prettify-markdown
 
 $md_res" | nu-highlight)
 
     print "```\n```output-numd"
 
-let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
+let $md_res = $nu_res_stdout_lines
+    | str join (char nl)
     | prettify-markdown
 
 $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''

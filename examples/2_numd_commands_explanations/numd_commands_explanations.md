@@ -199,6 +199,7 @@ $md_res
 Output:
 
 ```
+//  # This is a simple markdown example
 //
 //  ## Example 1
 //
@@ -227,17 +228,8 @@ Output:
 //
 //  > 2 + 2
 //  4
+//
 //  ```
-//  # This is a simple markdown example
-//
-//  ## Example 1
-//
-//  the block below will be executed as it is, but won't yield any output
-//
-//  ## Example 2
-//
-//  ## Example 3
-//
 ```
 
 ## calc-changes-stats
@@ -254,9 +246,9 @@ Output:
 //  ╭──────────────────┬────────────────────╮
 //  │ filename         │ simple_markdown.md │
 //  │ nushell_blocks   │ 3                  │
-//  │ levenshtein_dist │ 187                │
-//  │ diff_lines       │ +8 (25.8%)         │
-//  │ diff_words       │ +20 (31.7%)        │
-//  │ diff_chars       │ +113 (29.4%)       │
+//  │ levenshtein_dist │ 1                  │
+//  │ diff_lines       │ 0%                 │
+//  │ diff_words       │ 0%                 │
+//  │ diff_chars       │ -1 (-0.3%)         │
 //  ╰──────────────────┴────────────────────╯
 ```
