@@ -115,7 +115,7 @@ export def clear-outputs [
             | str join (char nl)
         }
         | str join (char nl)
-        | return $in
+        | return $in # we return the stripped script here to not spoil original md
     } else {
         assemble-markdown $original_md_table $in
     }
