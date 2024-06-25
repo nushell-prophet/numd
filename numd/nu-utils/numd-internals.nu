@@ -88,6 +88,7 @@ export def gen-intermid-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
+    | where row_type != '```output-numd'
     | group-by block_line
     | values
     | each {
