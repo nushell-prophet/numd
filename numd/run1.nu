@@ -42,7 +42,7 @@ export def run [
         | if $in == '' {
             return {
                 filename: $file,
-                comment: "Execution of Nushell blocks didn't produce any output. The markdown file was not updated"
+                comment: "the script didn't produce any output"
             }
         } else {}
         | $in + (char nl)
