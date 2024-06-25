@@ -179,10 +179,10 @@ export def assemble-markdown [
 export def prettify-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
-    | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
+    | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
     | $in + (char nl)
-    | str replace --all --regex "\n+$" "\n" # ensure only trailing new line
+    | str replace --all --regex "\n+$" "\n" # ensure only trailing newline
 }
 
 # The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
@@ -335,7 +335,7 @@ export def gen-highlight-command [ ]: string -> string {
 # Trims comments and extra whitespaces from code blocks for using code in the generated script.
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
-    | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+    | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
@@ -358,7 +358,7 @@ export def gen-print-in []: string -> string {
     if $env.numd?.table-width? == null {} else {
         $"($in) | table --width ($env.numd.table-width)"
     }
-    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
+    | $"($in) | print; print ''" # the last `print ''` is for newlines after executed commands
 }
 
 # Generates a try-catch block to handle errors in the current Nushell instance.
