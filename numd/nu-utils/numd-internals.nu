@@ -91,8 +91,14 @@ export def gen-intermid-script [
     | group-by block_line
     | values
     | each {|block_lines|
-        if $block_lines.row_type.0 =~ '^```nu(shell)?(\s|$)' {
-            exec-block-lines $block_lines.line $block_lines.row_type.0
+        $block_lines
+        | if $in.row_type.0 == '' {
+            $in.line
+            | str join (char nl)
+            | escape-escapes
+            | $'"($in)" | print'
+        } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
+            exec-block-lines $in.line $in.row_type.0
         }
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
