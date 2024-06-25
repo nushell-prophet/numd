@@ -188,61 +188,9 @@ Output:
 //  ╰───────────────────────────────────────────────────────────────────────╯
 ```
 
-## parse-block-index
-
-The `parse-block-index` command parses the captured output, and groups them by executed blocks.
-
 ```nu indent-output
-let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
-$nu_res_with_block_index
-```
-
-Output:
-
-```
-//  ╭─block_line─┬─────────────────────────────────line──────────────────────────────────╮
-//  │          0 │                                                                       │
-//  │            │ ## Example 1                                                          │
-//  │            │                                                                       │
-//  │            │ the block below will be executed as it is, but won't yield any output │
-//  │            │                                                                       │
-//  │            │ ```nu                                                                 │
-//  │            │ let $var1 = 'foo'                                                     │
-//  │            │ ```                                                                   │
-//  │            │ ```output-numd                                                        │
-//  │            │ ```                                                                   │
-//  │            │                                                                       │
-//  │            │ ## Example 2                                                          │
-//  │            │                                                                       │
-//  │            │ ```nu                                                                 │
-//  │            │ # This block will produce some output in a separate block             │
-//  │            │ $var1 | path join 'baz' 'bar'                                         │
-//  │            │ ```                                                                   │
-//  │            │ ```output-numd                                                        │
-//  │            │ foo/baz/bar                                                           │
-//  │            │                                                                       │
-//  │            │ ```                                                                   │
-//  │            │                                                                       │
-//  │            │ ## Example 3                                                          │
-//  │            │                                                                       │
-//  │            │ ```nu                                                                 │
-//  │            │ # This block will output results inline                               │
-//  │            │ > whoami                                                              │
-//  │            │ user                                                                  │
-//  │            │                                                                       │
-//  │            │ > 2 + 2                                                               │
-//  │            │ 4                                                                     │
-//  │            │                                                                       │
-//  │            │ ```                                                                   │
-//  ╰─block_line─┴─────────────────────────────────line──────────────────────────────────╯
-```
-
-## assemble-markdown
-
-The `assemble-markdown` command cleans outdated commands outputs in the `$md_orig_table` and combines them with `$nu_res_with_block_index` (the variable from the previous step). Additionally, `prettify-markdown` is used here to remove empty blocks and unnecessary empty lines.
-
-```nu indent-output
-let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
+let $md_res = $nu_res_stdout_lines
+    | str join (char nl)
     | prettify-markdown
 
 $md_res
