@@ -85,35 +85,50 @@ export def gen-intermid-script [
 ]: nothing -> string {
     let $current_dir = pwd
 
+    # $md_classified | save $'(date now | into int).json'
+
     $md_classified
-    | where row_type =~ '^```nu(shell)?(\s|$)'
-    | where row_type !~ '\b(no-run|N)\b'
+    | where row_type != '```output-numd'
     | group-by block_line
-    | items {|block_index block_lines|
-        $block_lines.line
-        | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            skip | drop # skip code fences
-            | str join (char nl)
-            | gen-execute-code --whole_block --fence $block_lines.row_type.0
-        } else {
-            each { # here we define what to do with each line of the current block one by one
-                if $in =~ '^>' { # if it starts with `>` we execute it
-                    gen-execute-code --fence $block_lines.row_type.0
-                } else if $in =~ '^\s*#' {
-                    gen-highlight-command
-                }
-            }
+    | values
+    | each {
+        if ($in.row_type.0 == '' or
+            'no-run' in ($in.row_type.0 | parse-options-from-fence)
+        ) {
+            $in.line
+            | gen-print-lines
+        } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
+            exec-block-lines $in.line $in.row_type.0
         }
-        | prepend $"    print \"($block_lines.row_type.0)\""
-        | prepend $"    print \"(numd-block $block_index)\""
-        | append $"    print \"```\""
-        | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
+}
+
+export def exec-block-lines [
+    rows: list
+    row_type: string
+] {
+    $rows
+    | skip | drop # skip code fences
+    | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
+        str join (char nl)
+        | gen-execute-code --whole_block --fence $row_type
+    } else {
+        each { # here we define what to do with each line of the current block one by one
+            if $in =~ '^>' { # if it starts with `>` we execute it
+                gen-execute-code --fence $row_type
+            } else if $in =~ '^\s*#' {
+                gen-highlight-command
+            }
+        }
+    }
+    | prepend $"    print \"($row_type)\""
+    | append $"    print \"```\""
+    | append '' # empty line for visual distinction
 }
 
 # Parses block indices from Nushell output lines and returns a table with the original markdown line numbers.
@@ -153,10 +168,6 @@ export def assemble-markdown [
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
-    | append (
-        $md_classified
-        | where row_type =~ '^```nu(shell)?.*\b(no-run|N)\b'
-    )
     | append $nu_res_with_block_line
     | sort-by block_line
     | get line
@@ -286,8 +297,8 @@ export def escape-escapes []: string -> string {
 export def run-intermid-script [
     intermid_script_path: path
     no_fail_on_error: bool
-    --print-block-results # print the block's execution results immediately.
-]: nothing -> list {
+    print_block_results: bool # print blocks one by one as they are executed
+]: nothing -> string {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
         --plugin-config $nu.plugin-path $intermid_script_path)
     | if $print_block_results {
@@ -296,10 +307,9 @@ export def run-intermid-script [
     | complete
     | if $in.exit_code == 0 {
         get stdout
-        | lines
     } else {
         if $no_fail_on_error {
-            []
+            ''
         } else {
             error make {msg: $in.stderr}
         }
@@ -366,6 +376,12 @@ export def gen-catch-error-outside []: string -> string {
 # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
+}
+
+export def gen-print-lines []: list -> string {
+    str join (char nl)
+    | escape-escapes
+    | $'"($in)" | print'
 }
 
 # Parses options from a code fence and returns them as a list.

@@ -39,6 +39,7 @@ Usage:
 
 Flags:
   -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  --print-block-results - print the block's execution results immediately.
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
@@ -234,7 +235,7 @@ Input/output types:
 ╰─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:15 +0000 (a month ago)
+Fri, 24 May 2024 07:47:14 +0000 (a month ago)
 
 > 2 + 2
 4

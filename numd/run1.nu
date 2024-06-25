@@ -5,7 +5,7 @@ export use nu-utils numd-internals code-block-options
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
     --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
-    --print-block-results # print the block's execution results immediately.
+    --print-block-results # print blocks one by one as they are executed
     --echo # output resulting markdown to the terminal
     --save-ansi # save ANSI formatted version
     --no-backup # overwrite the existing `.md` file without backup
@@ -38,26 +38,21 @@ export def run [
     }
     | save -f $intermediate_script_path
 
-    let $nushell_output_lines = (run-intermid-script $intermediate_script_path
-        $no_fail_on_error --print-block-results=$print_block_results)
+    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
+        | if $in == '' {
+            return {
+                filename: $file,
+                comment: "the script didn't produce any output"
+            }
+        } else {}
+        | $in + (char nl)
+        | prettify-markdown
+        | replace-output-numd-fences --back
 
     # if $intermid_script param wasn't set - remove the temporary intermediate script
     if $intermid_script == null {
         rm $intermediate_script_path
     }
-
-    # if Nushell won't output anything
-    if $nushell_output_lines == [] {
-        return {
-            filename: $file,
-            comment: "Execution of Nushell blocks didn't produce any output. The markdown file was not updated"
-        }
-    }
-
-    let $nushell_output_with_block_line = parse-block-index $nushell_output_lines
-    let $updated_md_ansi = assemble-markdown $original_md_table $nushell_output_with_block_line
-        | prettify-markdown
-        | replace-output-numd-fences --back
 
     let $output_path = $result_md_path | default $file
     if not $no_save {
