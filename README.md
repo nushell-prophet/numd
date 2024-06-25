@@ -16,7 +16,7 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ## How it works
 
-`numd run` parses the initial file ([example](/examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, parses the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
+`numd run` parses the initial file ([example](/examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, captures the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
 Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
@@ -277,4 +277,3 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 │ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
 ╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
 ```
-
