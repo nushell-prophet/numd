@@ -90,9 +90,8 @@ export def gen-intermid-script [
     $md_classified
     | group-by block_line
     | values
-    | each {|block_lines|
-        $block_lines
-        | if $in.row_type.0 == '' {
+    | each {
+        if $in.row_type.0 == '' {
             $in.line
             | str join (char nl)
             | escape-escapes
