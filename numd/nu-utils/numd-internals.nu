@@ -87,7 +87,6 @@ export def gen-intermid-script [
 
     $md_classified
     | where row_type =~ '^```nu(shell)?(\s|$)'
-    | where row_type !~ '\b(no-run|N)\b'
     | group-by block_line
     | items {|block_index block_lines|
         $block_lines.line
@@ -153,10 +152,6 @@ export def assemble-markdown [
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
-    | append (
-        $md_classified
-        | where row_type =~ '^```nu(shell)?.*\b(no-run|N)\b'
-    )
     | append $nu_res_with_block_line
     | sort-by block_line
     | get line
