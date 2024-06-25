@@ -89,7 +89,8 @@ export def gen-intermid-script [
 
     $md_classified
     | group-by block_line
-    | items {|block_index block_lines|
+    | values
+    | each {|block_lines|
         if $block_lines.row_type.0 =~ '^```nu(shell)?(\s|$)' {
             exec-block-lines $block_lines.line $block_lines.row_type.0
         }
