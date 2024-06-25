@@ -54,8 +54,8 @@ export def run [
         }
     }
 
-    let $nushell_output_with_block_line = parse-block-index $nushell_output_lines
-    let $updated_md_ansi = assemble-markdown $original_md_table $nushell_output_with_block_line
+    let $updated_md_ansi = $nushell_output_lines
+        | str join (char nl)
         | prettify-markdown
         | replace-output-numd-fences --back
 
