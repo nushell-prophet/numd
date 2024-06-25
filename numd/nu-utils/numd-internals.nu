@@ -91,7 +91,7 @@ export def gen-intermid-script [
     | group-by block_line
     | items {|block_index block_lines|
         if $block_lines.row_type.0 =~ '^```nu(shell)?(\s|$)' {
-            exec-block-lines $block_lines.line $block_lines.row_type.0 $block_index
+            exec-block-lines $block_lines.line $block_lines.row_type.0
         }
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
@@ -104,7 +104,6 @@ export def gen-intermid-script [
 export def exec-block-lines [
     rows: list
     row_type: string
-    block_index
 ] {
     $rows
     | skip | drop # skip code fences
@@ -121,7 +120,6 @@ export def exec-block-lines [
         }
     }
     | prepend $"    print \"($row_type)\""
-    | prepend $"    print \"(numd-block $block_index)\""
     | append $"    print \"```\""
     | append '' # empty line for visual distinction
 }
