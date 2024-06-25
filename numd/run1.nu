@@ -38,27 +38,21 @@ export def run [
     }
     | save -f $intermediate_script_path
 
-    let $nushell_output_lines = (run-intermid-script $intermediate_script_path
-        $no_fail_on_error --print-block-results=$print_block_results)
+    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error --print-block-results=$print_block_results
+        | if $in == '' {
+            return {
+                filename: $file,
+                comment: "Execution of Nushell blocks didn't produce any output. The markdown file was not updated"
+            }
+        } else {}
+        | $in + (char nl)
+        | prettify-markdown
+        | replace-output-numd-fences --back
 
     # if $intermid_script param wasn't set - remove the temporary intermediate script
     if $intermid_script == null {
         rm $intermediate_script_path
     }
-
-    # if Nushell won't output anything
-    if $nushell_output_lines == [] {
-        return {
-            filename: $file,
-            comment: "Execution of Nushell blocks didn't produce any output. The markdown file was not updated"
-        }
-    }
-
-    let $updated_md_ansi = $nushell_output_lines
-        | str join (char nl)
-        | $in + (char nl)
-        | prettify-markdown
-        | replace-output-numd-fences --back
 
     let $output_path = $result_md_path | default $file
     if not $no_save {
