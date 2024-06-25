@@ -93,14 +93,10 @@ export def gen-intermid-script [
     | each {
         if $in.row_type.0 == '' {
             $in.line
-            | str join (char nl)
-            | escape-escapes
-            | $'"($in)" | print'
+            | gen-print-lines
         } else if 'no-run' in ($in.row_type.0 | parse-options-from-fence) {
             $in.line
-            | str join (char nl)
-            | escape-escapes
-            | $'"($in)" | print'
+            | gen-print-lines
         } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
             exec-block-lines $in.line $in.row_type.0
         }
@@ -381,6 +377,12 @@ export def gen-catch-error-outside []: string -> string {
 # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
     $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
+}
+
+export def gen-print-lines []: list -> string {
+    str join (char nl)
+    | escape-escapes
+    | $'"($in)" | print'
 }
 
 # Parses options from a code fence and returns them as a list.
