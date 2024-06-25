@@ -87,8 +87,8 @@ By default, `numd` provides basic stats on changes made.
 ╭──────────────────┬───────────────────────────────────╮
 │ filename         │ simple_markdown_with_no_output.md │
 │ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 40                                │
-│ diff_lines       │ +10 (41.7%)                       │
+│ levenshtein_dist │ 38                                │
+│ diff_lines       │ +9 (37.5%)                        │
 │ diff_words       │ +6 (10.7%)                        │
 │ diff_chars       │ +38 (11%)                         │
 ╰──────────────────┴───────────────────────────────────╯
@@ -104,16 +104,6 @@ numd run $path --diff --no-save --no-stats | ansi strip
 Output:
 
 ```
-//    ```
-//
-//    ## Example 3
-//
-//    ```nu
-//    # This block will output results inline
-//    > whoami
-//    > 2 + 2
-//  ! ```
-//  --- 15,34 ----
 //    $var1 | path join 'baz' 'bar'
 //    ```
 //
@@ -131,10 +121,8 @@ Output:
 //  + user
 //  +
 //    > 2 + 2
-//  ! 4
-//  !
-//  ! ```
-//  \ No newline at end of file
+//  + 4
+//    ```
 ```
 
 ### Styling outputs
@@ -167,7 +155,6 @@ Output:
 //  | a | b | c |
 //  | 1 | 2 | 3 |
 //  +---+---+---+
-//
 //  ```
 ```
 
