@@ -141,7 +141,7 @@ The `run-intermid-script` command runs and captures outputs of the executed inte
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error false
 rm $intermid_script_path
 $nu_res_stdout_lines
 ```
@@ -149,42 +149,40 @@ $nu_res_stdout_lines
 Output:
 
 ```
-//  ╭───────────────────────────────────────────────────────────────────────╮
-//  │ # This is a simple markdown example                                   │
-//  │                                                                       │
-//  │ ## Example 1                                                          │
-//  │                                                                       │
-//  │ the block below will be executed as it is, but won't yield any output │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ let $var1 = 'foo'                                                     │
-//  │ ```                                                                   │
-//  │ ```output-numd                                                        │
-//  │ ```                                                                   │
-//  │                                                                       │
-//  │ ## Example 2                                                          │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ # This block will produce some output in a separate block             │
-//  │ $var1 | path join 'baz' 'bar'                                         │
-//  │ ```                                                                   │
-//  │ ```output-numd                                                        │
-//  │ foo/baz/bar                                                           │
-//  │                                                                       │
-//  │ ```                                                                   │
-//  │                                                                       │
-//  │ ## Example 3                                                          │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ # This block will output results inline                               │
-//  │ > whoami                                                              │
-//  │ user                                                                  │
-//  │                                                                       │
-//  │ > 2 + 2                                                               │
-//  │ 4                                                                     │
-//  │                                                                       │
-//  │ ```                                                                   │
-//  ╰───────────────────────────────────────────────────────────────────────╯
+//  # This is a simple markdown example
+//
+//  ## Example 1
+//
+//  the block below will be executed as it is, but won't yield any output
+//
+//  ```nu
+//  let $var1 = 'foo'
+//  ```
+//  ```output-numd
+//  ```
+//
+//  ## Example 2
+//
+//  ```nu
+//  # This block will produce some output in a separate block
+//  $var1 | path join 'baz' 'bar'
+//  ```
+//  ```output-numd
+//  foo/baz/bar
+//
+//  ```
+//
+//  ## Example 3
+//
+//  ```nu
+//  # This block will output results inline
+//  > whoami
+//  user
+//
+//  > 2 + 2
+//  4
+//
+//  ```
 ```
 
 ```nu indent-output
@@ -227,7 +225,6 @@ Output:
 //
 //  > 2 + 2
 //  4
-//
 //  ```
 ```
 
@@ -245,9 +242,10 @@ Output:
 //  ╭──────────────────┬────────────────────╮
 //  │ filename         │ simple_markdown.md │
 //  │ nushell_blocks   │ 3                  │
-//  │ levenshtein_dist │ 2                  │
-//  │ diff_lines       │ +1 (3.3%)          │
+//  │ levenshtein_dist │ 1                  │
+//  │ diff_lines       │ -1 (-3.2%)         │
 //  │ diff_words       │ 0%                 │
-//  │ diff_chars       │ 0%                 │
+//  │ diff_chars       │ -1 (-0.3%)         │
 //  ╰──────────────────┴────────────────────╯
 ```
+
