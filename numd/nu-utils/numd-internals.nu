@@ -286,9 +286,13 @@ export def escape-escapes []: string -> string {
 export def run-intermid-script [
     intermid_script_path: path
     no_fail_on_error: bool
+    --print-block-results # print the block's execution results immediately.
 ]: nothing -> list {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
         --plugin-config $nu.plugin-path $intermid_script_path)
+    | if $print_block_results {
+        tee {print}
+    } else {}
     | complete
     | if $in.exit_code == 0 {
         get stdout

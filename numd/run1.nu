@@ -5,6 +5,7 @@ export use nu-utils numd-internals code-block-options
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
     --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --print-block-results # print the block's execution results immediately.
     --echo # output resulting markdown to the terminal
     --save-ansi # save ANSI formatted version
     --no-backup # overwrite the existing `.md` file without backup
@@ -37,7 +38,8 @@ export def run [
     }
     | save -f $intermediate_script_path
 
-    let $nushell_output_lines = run-intermid-script $intermediate_script_path $no_fail_on_error
+    let $nushell_output_lines = (run-intermid-script $intermediate_script_path
+        $no_fail_on_error --print-block-results=$print_block_results)
 
     # if $intermid_script param wasn't set - remove the temporary intermediate script
     if $intermid_script == null {
