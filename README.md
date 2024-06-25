@@ -39,6 +39,7 @@ Usage:
 
 Flags:
   -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  --print-block-results - print the block's execution results immediately.
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
