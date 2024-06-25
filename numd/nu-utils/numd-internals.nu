@@ -131,50 +131,6 @@ export def exec-block-lines [
     | append '' # empty line for visual distinction
 }
 
-# Parses block indices from Nushell output lines and returns a table with the original markdown line numbers.
-export def parse-block-index [
-    $nu_res_stdout_lines: list
-]: nothing -> table {
-    let $block_start_line = $nu_res_stdout_lines
-        | each {
-            if $in =~ $"^(numd-block)\\d+$" {
-                split row '-' | last | into int
-            } else {
-                -1
-            }
-        }
-        | scan --noinit 0 {|prev_index curr_index|
-            if $curr_index == -1 {$prev_index} else {$curr_index}
-        }
-        | wrap block_line
-
-    $nu_res_stdout_lines
-    | wrap 'nu_out'
-    | merge $block_start_line
-    | group-by block_line --to-table
-    | upsert items {
-        |i| $i.items.nu_out
-        | skip
-        | str join (char nl)
-    }
-    | rename block_line line
-    | into int block_line
-}
-
-# Assembles the final markdown by merging original classified markdown with parsed results of the generated script.
-export def assemble-markdown [
-    $md_classified: table
-    $nu_res_with_block_line: table
-]: nothing -> string {
-    $md_classified
-    | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
-    | append $nu_res_with_block_line
-    | sort-by block_line
-    | get line
-    | str join (char nl)
-    | $in + (char nl)
-}
-
 # Prettifies markdown by removing unnecessary empty lines and trailing spaces.
 export def prettify-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
