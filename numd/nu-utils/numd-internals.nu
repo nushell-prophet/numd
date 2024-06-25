@@ -96,6 +96,11 @@ export def gen-intermid-script [
             | str join (char nl)
             | escape-escapes
             | $'"($in)" | print'
+        } else if 'no-run' in ($in.row_type.0 | parse-options-from-fence) {
+            $in.line
+            | str join (char nl)
+            | escape-escapes
+            | $'"($in)" | print'
         } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
             exec-block-lines $in.line $in.row_type.0
         }
