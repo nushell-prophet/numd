@@ -56,6 +56,7 @@ export def run [
 
     let $updated_md_ansi = $nushell_output_lines
         | str join (char nl)
+        | $in + (char nl)
         | prettify-markdown
         | replace-output-numd-fences --back
 
