@@ -85,34 +85,45 @@ export def gen-intermid-script [
 ]: nothing -> string {
     let $current_dir = pwd
 
+    # $md_classified | save $'(date now | into int).json'
+
     $md_classified
-    | where row_type =~ '^```nu(shell)?(\s|$)'
     | group-by block_line
     | items {|block_index block_lines|
-        $block_lines.line
-        | skip | drop # skip code fences
-        | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            str join (char nl)
-            | gen-execute-code --whole_block --fence $block_lines.row_type.0
-        } else {
-            each { # here we define what to do with each line of the current block one by one
-                if $in =~ '^>' { # if it starts with `>` we execute it
-                    gen-execute-code --fence $block_lines.row_type.0
-                } else if $in =~ '^\s*#' {
-                    gen-highlight-command
-                }
-            }
+        if $block_lines.row_type.0 =~ '^```nu(shell)?(\s|$)' {
+            exec-block-lines $block_lines.line $block_lines.row_type.0 $block_index
         }
-        | prepend $"    print \"($block_lines.row_type.0)\""
-        | prepend $"    print \"(numd-block $block_index)\""
-        | append $"    print \"```\""
-        | append '' # empty line for visual distinction
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
+}
+
+export def exec-block-lines [
+    rows: list
+    row_type: string
+    block_index
+] {
+    $rows
+    | skip | drop # skip code fences
+    | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
+        str join (char nl)
+        | gen-execute-code --whole_block --fence $row_type
+    } else {
+        each { # here we define what to do with each line of the current block one by one
+            if $in =~ '^>' { # if it starts with `>` we execute it
+                gen-execute-code --fence $row_type
+            } else if $in =~ '^\s*#' {
+                gen-highlight-command
+            }
+        }
+    }
+    | prepend $"    print \"($row_type)\""
+    | prepend $"    print \"(numd-block $block_index)\""
+    | append $"    print \"```\""
+    | append '' # empty line for visual distinction
 }
 
 # Parses block indices from Nushell output lines and returns a table with the original markdown line numbers.
