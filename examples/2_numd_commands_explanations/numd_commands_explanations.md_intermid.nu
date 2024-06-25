@@ -91,7 +91,7 @@ The `run-intermid-script` command runs and captures outputs of the executed inte
     print ("# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error false
 rm $intermid_script_path
 $nu_res_stdout_lines" | nu-highlight)
 
@@ -100,7 +100,7 @@ $nu_res_stdout_lines" | nu-highlight)
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error
+let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error false
 rm $intermid_script_path
 $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 

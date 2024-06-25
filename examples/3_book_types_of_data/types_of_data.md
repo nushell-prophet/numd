@@ -533,3 +533,4 @@ If you would prefer this to return `null`, mark the cell path member as _optiona
 
 The absence of a value is (as of Nushell 0.71) printed as the ❎ emoji in interactive output.
 :::
+
