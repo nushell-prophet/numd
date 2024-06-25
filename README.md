@@ -16,9 +16,9 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ## How it works
 
-`numd run` parses the initial file ([example](/examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, captures the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
+`numd run` parses the initial file ([example](/z_examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/z_examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, captures the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
-Experienced nushell users can understand the logic better by looking at [examples](./examples/). Especially, seeing [numd in action describing its own commands](./examples/2_numd_commands_explanations/numd_commands_explanations.md).
+Experienced nushell users can understand the logic better by looking at [examples](./z_examples/). Especially, seeing [numd in action describing its own commands](./z_examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
 ### Details on parsing code blocks and displaying the output
 
@@ -82,7 +82,7 @@ Input/output types:
 By default, `numd` provides basic stats on changes made.
 
 ```nushell
-> let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+> let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
 ╭──────────────────┬───────────────────────────────────╮
 │ filename         │ simple_markdown_with_no_output.md │
@@ -97,7 +97,7 @@ By default, `numd` provides basic stats on changes made.
 Also, the `--diff` flag can be used to display the diff of changes.
 
 ```nushell indent-output
-let path = [examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 numd run $path --diff --no-save --no-stats | ansi strip
 ```
 
@@ -131,7 +131,7 @@ Output:
 It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermid-script.nu and executed before all parts of the code.
 
 ```nushell indent-output
-let path = [examples 1_simple_markdown simple_nu_table.md] | path join
+let path = [z_examples 1_simple_markdown simple_nu_table.md] | path join
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
@@ -228,13 +228,13 @@ Input/output types:
 ### Some random familiar examples
 
 ```nushell
-> ls examples | sort-by name | reject modified size
-╭─────────────────name──────────────────┬─type─╮
-│ examples/1_simple_markdown            │ dir  │
-│ examples/2_numd_commands_explanations │ dir  │
-│ examples/3_book_types_of_data         │ dir  │
-│ examples/4_book_working_with_lists    │ dir  │
-╰─────────────────name──────────────────┴─type─╯
+> ls z_examples | sort-by name | reject modified size
+╭──────────────────name───────────────────┬─type─╮
+│ z_examples/1_simple_markdown            │ dir  │
+│ z_examples/2_numd_commands_explanations │ dir  │
+│ z_examples/3_book_types_of_data         │ dir  │
+│ z_examples/4_book_working_with_lists    │ dir  │
+╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
 Fri, 24 May 2024 07:47:14 +0000 (a month ago)
@@ -250,13 +250,13 @@ Fri, 24 May 2024 07:47:14 +0000 (a month ago)
 
 ```nushell no-output
 # output the result of execution to terminal without updating the file
-[examples 1_simple_markdown simple_markdown.md]
+[z_examples 1_simple_markdown simple_markdown.md]
 | path join
 | numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
 # save intermid nushell script to `types_of_data.md_intermid.nu`
-[examples 3_book_types_of_data types_of_data.md]
+[z_examples 3_book_types_of_data types_of_data.md]
 | path join
 | numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
 ```
@@ -277,3 +277,4 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 │ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
 ╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
 ```
+

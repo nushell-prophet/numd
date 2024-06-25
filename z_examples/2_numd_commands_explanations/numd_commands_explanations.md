@@ -20,8 +20,8 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 This command is used for parsing initial markdown to detect executable code blocks.
 
 ```nu indent-output
-# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `examples/1_simple_markdown/simple_markdown.md`.
-let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
+# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
+let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | replace-output-numd-fences
 let $md_orig_table = $md_orig | detect-code-blocks
@@ -248,4 +248,3 @@ Output:
 //  │ diff_chars       │ -1 (-0.3%)         │
 //  ╰──────────────────┴────────────────────╯
 ```
-
