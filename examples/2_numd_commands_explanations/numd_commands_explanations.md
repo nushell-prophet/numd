@@ -86,12 +86,7 @@ Output:
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
 //  const init_numd_pwd_const = '/Users/user/git/numd'
-//  "# This is a simple markdown example
-//
-//  ## Example 1
-//
-//  the block below will be executed as it is, but won't yield any output
-//  " | print
+//      print "#code-block-starting-line-in-original-md-7"
 //      print "```nu"
 //      print ("let $var1 = 'foo'" | nu-highlight)
 //
@@ -101,9 +96,7 @@ Output:
 //
 //      print "```"
 //
-//  "
-//  ## Example 2
-//  " | print
+//      print "#code-block-starting-line-in-original-md-13"
 //      print "```nu"
 //      print ("# This block will produce some output in a separate block
 //  $var1 | path join 'baz' 'bar'" | nu-highlight)
@@ -115,9 +108,7 @@ Output:
 //
 //      print "```"
 //
-//  "
-//  ## Example 3
-//  " | print
+//      print "#code-block-starting-line-in-original-md-23"
 //      print "```nu"
 //      print ("# This block will output results inline" | nu-highlight)
 //
@@ -149,47 +140,79 @@ $nu_res_stdout_lines
 Output:
 
 ```
-//  ╭───────────────────────────────────────────────────────────────────────╮
-//  │ # This is a simple markdown example                                   │
-//  │                                                                       │
-//  │ ## Example 1                                                          │
-//  │                                                                       │
-//  │ the block below will be executed as it is, but won't yield any output │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ let $var1 = 'foo'                                                     │
-//  │ ```                                                                   │
-//  │ ```output-numd                                                        │
-//  │ ```                                                                   │
-//  │                                                                       │
-//  │ ## Example 2                                                          │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ # This block will produce some output in a separate block             │
-//  │ $var1 | path join 'baz' 'bar'                                         │
-//  │ ```                                                                   │
-//  │ ```output-numd                                                        │
-//  │ foo/baz/bar                                                           │
-//  │                                                                       │
-//  │ ```                                                                   │
-//  │                                                                       │
-//  │ ## Example 3                                                          │
-//  │                                                                       │
-//  │ ```nu                                                                 │
-//  │ # This block will output results inline                               │
-//  │ > whoami                                                              │
-//  │ user                                                                  │
-//  │                                                                       │
-//  │ > 2 + 2                                                               │
-//  │ 4                                                                     │
-//  │                                                                       │
-//  │ ```                                                                   │
-//  ╰───────────────────────────────────────────────────────────────────────╯
+//  ╭───────────────────────────────────────────────────────────╮
+//  │ #code-block-starting-line-in-original-md-7                │
+//  │ ```nu                                                     │
+//  │ let $var1 = 'foo'                                         │
+//  │ ```                                                       │
+//  │ ```output-numd                                            │
+//  │ ```                                                       │
+//  │ #code-block-starting-line-in-original-md-13               │
+//  │ ```nu                                                     │
+//  │ # This block will produce some output in a separate block │
+//  │ $var1 | path join 'baz' 'bar'                             │
+//  │ ```                                                       │
+//  │ ```output-numd                                            │
+//  │ foo/baz/bar                                               │
+//  │                                                           │
+//  │ ```                                                       │
+//  │ #code-block-starting-line-in-original-md-23               │
+//  │ ```nu                                                     │
+//  │ # This block will output results inline                   │
+//  │ > whoami                                                  │
+//  │ user                                                      │
+//  │                                                           │
+//  │ > 2 + 2                                                   │
+//  │ 4                                                         │
+//  │                                                           │
+//  │ ```                                                       │
+//  ╰───────────────────────────────────────────────────────────╯
 ```
 
+## parse-block-index
+
+The `parse-block-index` command parses the captured output, and groups them by executed blocks.
+
 ```nu indent-output
-let $md_res = $nu_res_stdout_lines
-    | str join (char nl)
+let $nu_res_with_block_index = parse-block-index $nu_res_stdout_lines
+$nu_res_with_block_index
+```
+
+Output:
+
+```
+//  ╭─block_line─┬───────────────────────────line────────────────────────────╮
+//  │          7 │ ```nu                                                     │
+//  │            │ let $var1 = 'foo'                                         │
+//  │            │ ```                                                       │
+//  │            │ ```output-numd                                            │
+//  │            │ ```                                                       │
+//  │         13 │ ```nu                                                     │
+//  │            │ # This block will produce some output in a separate block │
+//  │            │ $var1 | path join 'baz' 'bar'                             │
+//  │            │ ```                                                       │
+//  │            │ ```output-numd                                            │
+//  │            │ foo/baz/bar                                               │
+//  │            │                                                           │
+//  │            │ ```                                                       │
+//  │         23 │ ```nu                                                     │
+//  │            │ # This block will output results inline                   │
+//  │            │ > whoami                                                  │
+//  │            │ user                                                      │
+//  │            │                                                           │
+//  │            │ > 2 + 2                                                   │
+//  │            │ 4                                                         │
+//  │            │                                                           │
+//  │            │ ```                                                       │
+//  ╰─block_line─┴───────────────────────────line────────────────────────────╯
+```
+
+## assemble-markdown
+
+The `assemble-markdown` command cleans outdated commands outputs in the `$md_orig_table` and combines them with `$nu_res_with_block_index` (the variable from the previous step). Additionally, `prettify-markdown` is used here to remove empty blocks and unnecessary empty lines.
+
+```nu indent-output
+let $md_res = assemble-markdown $md_orig_table $nu_res_with_block_index
     | prettify-markdown
 
 $md_res
@@ -227,7 +250,6 @@ Output:
 //
 //  > 2 + 2
 //  4
-//
 //  ```
 ```
 
@@ -245,8 +267,8 @@ Output:
 //  ╭──────────────────┬────────────────────╮
 //  │ filename         │ simple_markdown.md │
 //  │ nushell_blocks   │ 3                  │
-//  │ levenshtein_dist │ 2                  │
-//  │ diff_lines       │ +1 (3.3%)          │
+//  │ levenshtein_dist │ 0                  │
+//  │ diff_lines       │ 0%                 │
 //  │ diff_words       │ 0%                 │
 //  │ diff_chars       │ 0%                 │
 //  ╰──────────────────┴────────────────────╯
