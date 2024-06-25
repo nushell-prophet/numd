@@ -297,7 +297,7 @@ export def escape-escapes []: string -> string {
 export def run-intermid-script [
     intermid_script_path: path
     no_fail_on_error: bool
-    --print-block-results # print the block's execution results immediately.
+    print_block_results: bool # print the block's execution results immediately.
 ]: nothing -> string {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
         --plugin-config $nu.plugin-path $intermid_script_path)

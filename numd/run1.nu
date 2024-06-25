@@ -38,7 +38,7 @@ export def run [
     }
     | save -f $intermediate_script_path
 
-    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error --print-block-results=$print_block_results
+    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
             return {
                 filename: $file,
