@@ -111,7 +111,8 @@ export def clear-outputs [
             lines
             | skip
             | drop
-            |str join (char nl)
+            | str replace --all --regex '^>\s*' ''
+            | str join (char nl)
         }
         | str join (char nl)
         | return $in
