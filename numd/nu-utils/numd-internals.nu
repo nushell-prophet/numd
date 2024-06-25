@@ -90,9 +90,9 @@ export def gen-intermid-script [
     | group-by block_line
     | items {|block_index block_lines|
         $block_lines.line
+        | skip | drop # skip code fences
         | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
-            skip | drop # skip code fences
-            | str join (char nl)
+            str join (char nl)
             | gen-execute-code --whole_block --fence $block_lines.row_type.0
         } else {
             each { # here we define what to do with each line of the current block one by one
