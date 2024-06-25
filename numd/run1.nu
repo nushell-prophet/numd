@@ -45,7 +45,6 @@ export def run [
                 comment: "the script didn't produce any output"
             }
         } else {}
-        | $in + (char nl)
         | prettify-markdown
         | replace-output-numd-fences --back
 
