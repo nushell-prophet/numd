@@ -87,10 +87,10 @@ By default, `numd` provides basic stats on changes made.
 ╭──────────────────┬───────────────────────────────────╮
 │ filename         │ simple_markdown_with_no_output.md │
 │ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 39                                │
-│ diff_lines       │ +10 (41.7%)                       │
+│ levenshtein_dist │ 38                                │
+│ diff_lines       │ +9 (37.5%)                        │
 │ diff_words       │ +6 (10.7%)                        │
-│ diff_chars       │ +39 (11.3%)                       │
+│ diff_chars       │ +38 (11%)                         │
 ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -123,7 +123,6 @@ Output:
 //    > 2 + 2
 //  + 4
 //    ```
-//  +
 ```
 
 ### Styling outputs
@@ -157,7 +156,6 @@ Output:
 //  | 1 | 2 | 3 |
 //  +---+---+---+
 //  ```
-//
 ```
 
 ### `numd clear-outputs`
@@ -277,4 +275,3 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 │ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
 ╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
 ```
-
