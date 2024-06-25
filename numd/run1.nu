@@ -109,7 +109,7 @@ export def clear-outputs [
         get line
         | each {
             lines
-            | skip
+            | update 0 {$'(char nl)    # ($in)'} # keep infostring
             | drop
             | str replace --all --regex '^>\s*' ''
             | str join (char nl)
