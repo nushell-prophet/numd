@@ -20,7 +20,7 @@ export def run [
     let $original_md = open -r $file
 
     let $original_md_table = $original_md
-        | replace-output-numd-fences
+        | replace-output-numd-fences # should be unncecessary for new files
         | detect-code-blocks
 
     if $width != null {
