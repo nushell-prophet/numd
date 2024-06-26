@@ -6,16 +6,16 @@ export def detect-code-blocks []: string -> table {
     let $row_type = $file_lines
         | each {
             str trim --right
-            | if $in =~ '^```' {} else {''}
+            | if $in =~ '^```' {} else {'text'}
         }
-        | scan --noinit '' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
-                '' => { if $prev_fence == 'closing-fence' {''} else {$prev_fence} }
-                '```' => { if $prev_fence == '' {'```'} else {'closing-fence'} }
+                'text' => { if $prev_fence == 'closing-fence' {'text'} else {$prev_fence} }
+                '```' => { if $prev_fence == 'text' {'```'} else {'closing-fence'} }
                 _ => { $curr_fence }
             }
         }
-        | scan --noinit '' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|prev_fence curr_fence|
             if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
         }
 
@@ -92,7 +92,7 @@ export def gen-intermid-script [
     | group-by block_line
     | values
     | each {
-        if ($in.row_type.0 == '' or
+        if ($in.row_type.0 == 'text' or
             'no-run' in ($in.row_type.0 | parse-options-from-fence)
         ) {
             $in.line
