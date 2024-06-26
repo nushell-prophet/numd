@@ -17,6 +17,9 @@ export def run [
     --width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
+        | if $nu.os-info.family == windows {
+            str replace --all $'[^(char cr)](char lf)' $'(char crlf)'
+        } else {}
 
     let $original_md_table = $original_md
         | replace-output-numd-fences # should be unncecessary for new files
