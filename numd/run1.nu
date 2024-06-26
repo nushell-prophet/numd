@@ -40,10 +40,8 @@ export def run [
 
     let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
-            return {
-                filename: $file,
-                comment: "the script didn't produce any output"
-            }
+            return { filename: $file,
+                comment: "the script didn't produce any output" }
         } else {}
         | prettify-markdown
         | replace-output-numd-fences --back
