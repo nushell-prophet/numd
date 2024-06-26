@@ -7,42 +7,42 @@ const init_numd_pwd_const = '/Users/user/git/numd'
 
 the block below will be executed as it is, but won't yield any output
 " | print
-    print "```nu"
-    print ("let $var1 = 'foo'" | nu-highlight)
+"```nu" | print
+"let $var1 = 'foo'" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let $var1 = 'foo'
 
-    print "```"
+"```" | print
 
 "
 ## Example 2
 " | print
-    print "```nu"
-    print ("# This block will produce some output in a separate block
-$var1 | path join 'baz' 'bar'" | nu-highlight)
+"```nu" | print
+"# This block will produce some output in a separate block
+$var1 | path join 'baz' 'bar'" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar' | print; print ''
 
-    print "```"
+"```" | print
 
 "
 ## Example 3
 " | print
-    print "```nu"
-    print ("# This block will output results inline" | nu-highlight)
+"```nu" | print
+"# This block will output results inline" | nu-highlight | print
 
 
-    print ("> whoami" | nu-highlight)
+"> whoami" | nu-highlight | print
 
 whoami | print; print ''
 
-    print ("> 2 + 2" | nu-highlight)
+"> 2 + 2" | nu-highlight | print
 
 2 + 2 | print; print ''
 
-    print "```"
+"```" | print

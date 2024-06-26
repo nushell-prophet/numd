@@ -235,7 +235,7 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:14 +0000 (a month ago)
+Fri, 24 May 2024 07:47:13 +0000 (a month ago)
 
 > 2 + 2
 4
