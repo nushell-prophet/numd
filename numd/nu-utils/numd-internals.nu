@@ -236,23 +236,6 @@ export def calc-changes-stats [
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
-# Displays the differences between the original and new markdown files in a colored diff format.
-export def diff-changes [
-    $file
-    $md_res_ansi
-]: nothing -> string {
-    $md_res_ansi
-    | ansi strip
-    | ^diff --color=always -c $file -
-    | lines
-    | skip 5 # skip seemingly uninformative stats
-    | if $in == [] {
-        'no changes produced to show diff'
-    } else {
-        str join (char nl)
-    }
-}
-
 # Lists code block options for execution and output customization.
 export def code-block-options [
     --list # show options as a table

@@ -14,7 +14,6 @@ export def run [
     --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-    --diff # use diff for printing changes
     --width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
@@ -60,16 +59,13 @@ export def run [
 
     if not $no_stats {
         calc-changes-stats $file $original_md $updated_md_ansi
-        | if not ($echo or $diff) {
+        | if not $echo {
             return $in # default variant: we return here a record
         } else {
             table # we continue here with `string` as it will be appended to the resulting `string` markdown
         }
     } else {}
     | if $echo {prepend $updated_md_ansi} else {} # output the changes stat table below the resulting markdown
-    | if $diff {
-        append (diff-changes $file $updated_md_ansi) # we use the file path of the original file here
-    } else {}
     | if $in == null {} else {
         str join (char nl)
     }

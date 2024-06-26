@@ -48,7 +48,6 @@ Flags:
   --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-  --diff - use diff for printing changes
   --width <Int> - set the `table --width` option value
 
 Parameters:
@@ -92,37 +91,6 @@ By default, `numd` provides basic stats on changes made.
 │ diff_words       │ +6 (10.7%)                        │
 │ diff_chars       │ +38 (11%)                         │
 ╰──────────────────┴───────────────────────────────────╯
-```
-
-Also, the `--diff` flag can be used to display the diff of changes.
-
-```nushell indent-output
-let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-numd run $path --diff --no-save --no-stats | ansi strip
-```
-
-Output:
-
-```
-//    $var1 | path join 'baz' 'bar'
-//    ```
-//
-//  + Output:
-//  +
-//  + ```
-//  + foo/baz/bar
-//  + ```
-//  +
-//    ## Example 3
-//
-//    ```nu
-//    # This block will output results inline
-//    > whoami
-//  + user
-//  +
-//    > 2 + 2
-//  + 4
-//    ```
 ```
 
 ### Styling outputs
