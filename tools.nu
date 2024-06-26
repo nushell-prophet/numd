@@ -9,6 +9,10 @@ def 'main testing' [] {
 
     glob z_examples/*/*.md --exclude [*/*_with_no_output*]
     | par-each {|file|
+        numd clear-outputs $file --strip-markdown --echo
+        | save -f (
+            [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
+        )
         numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
     }
     | append (numd run README.md --no-backup)
