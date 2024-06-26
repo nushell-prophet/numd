@@ -126,8 +126,8 @@ export def exec-block-lines [
             }
         }
     }
-    | prepend $"    print \"($row_type)\""
-    | append $"    print \"```\""
+    | prepend $"\"($row_type)\" | print"
+    | append $"\"```\" | print"
     | append '' # empty line for visual distinction
 }
 
@@ -328,7 +328,7 @@ export def numd-block [
 # Generates a command to highlight code using Nushell syntax highlighting.
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
-    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
+    | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trims comments and extra whitespaces from code blocks for using code in the generated script.
@@ -376,7 +376,7 @@ export def gen-catch-error-outside []: string -> string {
 #
 # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
-    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
+    $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
 export def gen-print-lines []: list -> string {
