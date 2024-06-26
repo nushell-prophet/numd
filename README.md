@@ -200,6 +200,7 @@ Input/output types:
 │ z_examples/2_numd_commands_explanations │ dir  │
 │ z_examples/3_book_types_of_data         │ dir  │
 │ z_examples/4_book_working_with_lists    │ dir  │
+│ z_examples/99_strip_markdown            │ dir  │
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
