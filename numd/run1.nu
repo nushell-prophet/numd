@@ -23,9 +23,7 @@ export def run [
         | replace-output-numd-fences # should be unncecessary for new files
         | detect-code-blocks
 
-    if $width != null {
-        $env.numd.table-width = $width
-    }
+    if $width != null { $env.numd.table-width = $width }
 
     let $intermediate_script_path = $intermid_script
         | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
