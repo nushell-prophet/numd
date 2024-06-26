@@ -14,18 +14,18 @@ export def run [
     --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-    --diff # use diff for printing changes
     --width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
+        | if $nu.os-info.family == windows {
+            str replace --all --regex (char crlf) "\n"
+        } else {}
 
     let $original_md_table = $original_md
-        | replace-output-numd-fences
+        | replace-output-numd-fences # should be unncecessary for new files
         | detect-code-blocks
 
-    if $width != null {
-        $env.numd.table-width = $width
-    }
+    if $width != null { $env.numd.table-width = $width }
 
     let $intermediate_script_path = $intermid_script
         | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
@@ -40,12 +40,9 @@ export def run [
 
     let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
-            return {
-                filename: $file,
-                comment: "the script didn't produce any output"
-            }
+            return { filename: $file,
+                comment: "the script didn't produce any output" }
         } else {}
-        | $in + (char nl)
         | prettify-markdown
         | replace-output-numd-fences --back
 
@@ -65,16 +62,13 @@ export def run [
 
     if not $no_stats {
         calc-changes-stats $file $original_md $updated_md_ansi
-        | if not ($echo or $diff) {
+        | if not $echo {
             return $in # default variant: we return here a record
         } else {
             table # we continue here with `string` as it will be appended to the resulting `string` markdown
         }
     } else {}
     | if $echo {prepend $updated_md_ansi} else {} # output the changes stat table below the resulting markdown
-    | if $diff {
-        append (diff-changes $file $updated_md_ansi) # we use the file path of the original file here
-    } else {}
     | if $in == null {} else {
         str join (char nl)
     }
@@ -107,9 +101,15 @@ export def clear-outputs [
     | parse-block-index $in
     | if $strip_markdown {
         get line
-        | each {lines | update 0 {$'(char nl)# ($in)'} | drop | str join (char nl)}
+        | each {
+            lines
+            | update 0 {$'(char nl)    # ($in)'} # keep infostring
+            | drop
+            | str replace --all --regex '^>\s*' ''
+            | str join (char nl)
+        }
         | str join (char nl)
-        | return $in
+        | return $in # we return the stripped script here to not spoil original md
     } else {
         assemble-markdown $original_md_table $in
     }

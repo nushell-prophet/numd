@@ -20,8 +20,8 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 This command is used for parsing initial markdown to detect executable code blocks.
 
 ```nu indent-output
-# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `examples/1_simple_markdown/simple_markdown.md`.
-let $file = $init_numd_pwd_const | path join examples 1_simple_markdown simple_markdown.md
+# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
+let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | replace-output-numd-fences
 let $md_orig_table = $md_orig | detect-code-blocks
@@ -32,18 +32,18 @@ Output:
 
 ```
 //  ╭─────────────────────────────────line──────────────────────────────────┬────row_type────┬─block_line─╮
-//  │ # This is a simple markdown example                                   │                │          1 │
-//  │                                                                       │                │          1 │
-//  │ ## Example 1                                                          │                │          1 │
-//  │                                                                       │                │          1 │
-//  │ the block below will be executed as it is, but won't yield any output │                │          1 │
-//  │                                                                       │                │          1 │
+//  │ # This is a simple markdown example                                   │ text           │          1 │
+//  │                                                                       │ text           │          1 │
+//  │ ## Example 1                                                          │ text           │          1 │
+//  │                                                                       │ text           │          1 │
+//  │ the block below will be executed as it is, but won't yield any output │ text           │          1 │
+//  │                                                                       │ text           │          1 │
 //  │ ```nu                                                                 │ ```nu          │          7 │
 //  │ let $var1 = 'foo'                                                     │ ```nu          │          7 │
 //  │ ```                                                                   │ ```nu          │          7 │
-//  │                                                                       │                │         10 │
-//  │ ## Example 2                                                          │                │         10 │
-//  │                                                                       │                │         10 │
+//  │                                                                       │ text           │         10 │
+//  │ ## Example 2                                                          │ text           │         10 │
+//  │                                                                       │ text           │         10 │
 //  │ ```nu                                                                 │ ```nu          │         13 │
 //  │ # This block will produce some output in a separate block             │ ```nu          │         13 │
 //  │ $var1 | path join 'baz' 'bar'                                         │ ```nu          │         13 │
@@ -51,9 +51,9 @@ Output:
 //  │ ```output-numd                                                        │ ```output-numd │         17 │
 //  │ foo/baz/bar                                                           │ ```output-numd │         17 │
 //  │ ```                                                                   │ ```output-numd │         17 │
-//  │                                                                       │                │         20 │
-//  │ ## Example 3                                                          │                │         20 │
-//  │                                                                       │                │         20 │
+//  │                                                                       │ text           │         20 │
+//  │ ## Example 3                                                          │ text           │         20 │
+//  │                                                                       │ text           │         20 │
 //  │ ```nu                                                                 │ ```nu          │         23 │
 //  │ # This block will output results inline                               │ ```nu          │         23 │
 //  │ > whoami                                                              │ ```nu          │         23 │
@@ -92,45 +92,45 @@ Output:
 //
 //  the block below will be executed as it is, but won't yield any output
 //  " | print
-//      print "```nu"
-//      print ("let $var1 = 'foo'" | nu-highlight)
+//  "```nu" | print
+//  "let $var1 = 'foo'" | nu-highlight | print
 //
-//      print "```\n```output-numd"
+//  "```\n```output-numd" | print
 //
 //  let $var1 = 'foo'
 //
-//      print "```"
+//  "```" | print
 //
 //  "
 //  ## Example 2
 //  " | print
-//      print "```nu"
-//      print ("# This block will produce some output in a separate block
-//  $var1 | path join 'baz' 'bar'" | nu-highlight)
+//  "```nu" | print
+//  "# This block will produce some output in a separate block
+//  $var1 | path join 'baz' 'bar'" | nu-highlight | print
 //
-//      print "```\n```output-numd"
+//  "```\n```output-numd" | print
 //
 //  # This block will produce some output in a separate block
 //  $var1 | path join 'baz' 'bar' | print; print ''
 //
-//      print "```"
+//  "```" | print
 //
 //  "
 //  ## Example 3
 //  " | print
-//      print "```nu"
-//      print ("# This block will output results inline" | nu-highlight)
+//  "```nu" | print
+//  "# This block will output results inline" | nu-highlight | print
 //
 //
-//      print ("> whoami" | nu-highlight)
+//  "> whoami" | nu-highlight | print
 //
 //  whoami | print; print ''
 //
-//      print ("> 2 + 2" | nu-highlight)
+//  "> 2 + 2" | nu-highlight | print
 //
 //  2 + 2 | print; print ''
 //
-//      print "```"
+//  "```" | print
 ```
 
 ## run-intermid-script
@@ -242,10 +242,9 @@ Output:
 //  ╭──────────────────┬────────────────────╮
 //  │ filename         │ simple_markdown.md │
 //  │ nushell_blocks   │ 3                  │
-//  │ levenshtein_dist │ 1                  │
-//  │ diff_lines       │ -1 (-3.2%)         │
+//  │ levenshtein_dist │ 0                  │
+//  │ diff_lines       │ 0%                 │
 //  │ diff_words       │ 0%                 │
-//  │ diff_chars       │ -1 (-0.3%)         │
+//  │ diff_chars       │ 0%                 │
 //  ╰──────────────────┴────────────────────╯
 ```
-

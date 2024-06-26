@@ -6,16 +6,16 @@ export def detect-code-blocks []: string -> table {
     let $row_type = $file_lines
         | each {
             str trim --right
-            | if $in =~ '^```' {} else {''}
+            | if $in =~ '^```' {} else {'text'}
         }
-        | scan --noinit '' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
-                '' => { if $prev_fence == 'closing-fence' {''} else {$prev_fence} }
-                '```' => { if $prev_fence == '' {'```'} else {'closing-fence'} }
+                'text' => { if $prev_fence == 'closing-fence' {'text'} else {$prev_fence} }
+                '```' => { if $prev_fence == 'text' {'```'} else {'closing-fence'} }
                 _ => { $curr_fence }
             }
         }
-        | scan --noinit '' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|prev_fence curr_fence|
             if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
         }
 
@@ -92,7 +92,7 @@ export def gen-intermid-script [
     | group-by block_line
     | values
     | each {
-        if ($in.row_type.0 == '' or
+        if ($in.row_type.0 == 'text' or
             'no-run' in ($in.row_type.0 | parse-options-from-fence)
         ) {
             $in.line
@@ -126,8 +126,8 @@ export def exec-block-lines [
             }
         }
     }
-    | prepend $"    print \"($row_type)\""
-    | append $"    print \"```\""
+    | prepend $"\"($row_type)\" | print"
+    | append $"\"```\" | print"
     | append '' # empty line for visual distinction
 }
 
@@ -179,8 +179,9 @@ export def assemble-markdown [
 export def prettify-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
-    | str replace --all --regex "\n{3,}" "\n\n" # multiple new lines
+    | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
+    | str replace --all --regex "\n*$" "\n" # ensure a single trailing newline
 }
 
 # The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
@@ -233,23 +234,6 @@ export def calc-changes-stats [
     | insert levenshtein_dist ($original_file_content | str distance $new_file_content)
     | insert nushell_blocks $nushell_blocks
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
-}
-
-# Displays the differences between the original and new markdown files in a colored diff format.
-export def diff-changes [
-    $file
-    $md_res_ansi
-]: nothing -> string {
-    $md_res_ansi
-    | ansi strip
-    | ^diff --color=always -c $file -
-    | lines
-    | skip 5 # skip seemingly uninformative stats
-    | if $in == [] {
-        'no changes produced to show diff'
-    } else {
-        str join (char nl)
-    }
 }
 
 # Lists code block options for execution and output customization.
@@ -327,13 +311,13 @@ export def numd-block [
 # Generates a command to highlight code using Nushell syntax highlighting.
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
-    | $"    print \(\"($in)\" | nu-highlight\)(char nl)(char nl)"
+    | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trims comments and extra whitespaces from code blocks for using code in the generated script.
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
-    | str replace -r '[\s\n]+$' '' # trim new lines and spaces from the end of a line
+    | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
@@ -356,7 +340,7 @@ export def gen-print-in []: string -> string {
     if $env.numd?.table-width? == null {} else {
         $"($in) | table --width ($env.numd.table-width)"
     }
-    | $"($in) | print; print ''" # the last `print ''` is for new lines after executed commands
+    | $"($in) | print; print ''" # the last `print ''` is for newlines after executed commands
 }
 
 # Generates a try-catch block to handle errors in the current Nushell instance.
@@ -375,7 +359,7 @@ export def gen-catch-error-outside []: string -> string {
 #
 # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
-    $"    print \"```\\n```output-numd\"(char nl)(char nl)($in)"
+    $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
 export def gen-print-lines []: list -> string {

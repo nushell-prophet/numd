@@ -13,28 +13,28 @@ For example, `[foo bar baz]` or `[foo, bar, baz]`.
 
 You can [`update`](/commands/docs/update.md) and [`insert`](/commands/docs/insert.md) values into lists as they flow through the pipeline, for example let's insert the value `10` into the middle of a list:
 " | print
-    print "```nu"
-    print ("> [1, 2, 3, 4] | insert 2 10" | nu-highlight)
+"```nu" | print
+"> [1, 2, 3, 4] | insert 2 10" | nu-highlight | print
 
 [1, 2, 3, 4] | insert 2 10 | print; print ''
 
-    print ("# [1, 2, 10, 3, 4]" | nu-highlight)
+"# [1, 2, 10, 3, 4]" | nu-highlight | print
 
 
-    print "```"
+"```" | print
 
 "
 We can also use [`update`](/commands/docs/update.md) to replace the 2nd element with the value `10`.
 " | print
-    print "```nu"
-    print ("> [1, 2, 3, 4] | update 1 10" | nu-highlight)
+"```nu" | print
+"> [1, 2, 3, 4] | update 1 10" | nu-highlight | print
 
 [1, 2, 3, 4] | update 1 10 | print; print ''
 
-    print ("# [1, 10, 3, 4]" | nu-highlight)
+"# [1, 10, 3, 4]" | nu-highlight | print
 
 
-    print "```"
+"```" | print
 
 "
 ## Removing or adding items from list
@@ -43,15 +43,15 @@ In addition to [`insert`](/commands/docs/insert.md) and [`update`](/commands/doc
 
 For example:
 " | print
-    print "```nu"
-    print ("let colors = [yellow green]
+"```nu" | print
+"let colors = [yellow green]
 let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ($colors ++ \"blue\")
 let colors = (\"black\" ++ $colors)
-$colors # [black red yellow green purple blue]" | nu-highlight)
+$colors # [black red yellow green purple blue]" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [yellow green]
 let colors = ($colors | prepend red)
@@ -60,57 +60,57 @@ let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
 $colors | print; print ''
 
-    print "```"
+"```" | print
 
 "
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
 " | print
-    print "```nu"
-    print ("let colors = [red yellow green purple]
+"```nu" | print
+"let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors # [yellow]" | nu-highlight)
+$colors # [yellow]" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors | print; print ''
 
-    print "```"
+"```" | print
 
 "
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
 " | print
-    print "```nu"
-    print ("let colors = [red yellow green purple black magenta]
+"```nu" | print
+"let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors # [purple black magenta]" | nu-highlight)
+$colors # [purple black magenta]" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors | print; print ''
 
-    print "```"
+"```" | print
 
 "
 And from the beginning of a list,
 " | print
-    print "```nu"
-    print ("let colors = [yellow green purple]
+"```nu" | print
+"let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors # [yellow green]" | nu-highlight)
+$colors # [yellow green]" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors | print; print ''
 
-    print "```"
+"```" | print
 
 "
 ## Iterating over lists
@@ -119,15 +119,15 @@ To iterate over the items in a list, use the [`each`](/commands/docs/each.md) co
 of Nu code that specifies what to do to each item. The block parameter (e.g. `|it|` in `{ |it| print $it }`) is the current list
 item, but the [`enumerate`](/commands/docs/enumerate.md) filter can be used to provide `index` and `item` values if needed. For example:
 " | print
-    print "```nu"
-    print ("let names = [Mark Tami Amanda Jeremy]
+"```nu" | print
+"let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $\"Hello, ($it)!\" }
 # Outputs \"Hello, Mark!\" and three more similar lines.
 
 $names | enumerate | each { |it| $\"($it.index + 1) - ($it.item)\" }
-# Outputs \"1 - Mark\", \"2 - Tami\", etc." | nu-highlight)
+# Outputs \"1 - Mark\", \"2 - Tami\", etc." | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $"Hello, ($it)!" }
@@ -135,40 +135,40 @@ $names | each { |it| $"Hello, ($it)!" }
 
 $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
 
 The following example gets all the colors whose names end in \"e\".
 " | print
-    print "```nu"
-    print ("let colors = [red orange yellow green blue purple]
+"```nu" | print
+"let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
 # The block passed to `where` must evaluate to a boolean.
-# This outputs the list [orange blue purple]." | nu-highlight)
+# This outputs the list [orange blue purple]." | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
 # The block passed to `where` must evaluate to a boolean. | print; print ''
 
-    print "```"
+"```" | print
 
 "
 In this example, we keep only values higher than `7`.
 " | print
-    print "```nu"
-    print ("let scores = [7 10 8 6 7]
-$scores | where $it > 7 # [10 8]" | nu-highlight)
+"```nu" | print
+"let scores = [7 10 8 6 7]
+$scores | where $it > 7 # [10 8]" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
@@ -177,17 +177,17 @@ It uses a block which takes 2 parameters: the current item (conventionally named
 To change `it` to have `index` and `item` values, use the [`enumerate`](/commands/docs/enumerate.md) filter.
 For example:
 " | print
-    print "```nu"
-    print ("let scores = [3 8 4]
+"```nu" | print
+"let scores = [3 8 4]
 $\"total = ($scores | reduce { |it, acc| $acc + $it })\" # total = 15
 
 $\"total = ($scores | math sum)\" # easier approach, same result
 
 $\"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })\" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16" | nu-highlight)
+$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let scores = [3 8 4]
 $"total = ($scores | reduce { |it, acc| $acc + $it })" # total = 15
@@ -198,7 +198,7 @@ $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
 $scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | print; print ''
 
-    print "```"
+"```" | print
 
 "
 ## Accessing the list
@@ -207,32 +207,32 @@ To access a list item at a given index, use the `$name.index` form where `$name`
 
 For example, the second element in the list below can be accessed with `$names.1`.
 " | print
-    print "```nu"
-    print ("let names = [Mark Tami Amanda Jeremy]
-$names.1 # gives Tami" | nu-highlight)
+"```nu" | print
+"let names = [Mark Tami Amanda Jeremy]
+$names.1 # gives Tami" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let names = [Mark Tami Amanda Jeremy]
 $names.1 | print; print ''
 
-    print "```"
+"```" | print
 
 "
 If the index is in some variable `$index` we can use the `get` command to extract the item from the list.
 " | print
-    print "```nu"
-    print ("let names = [Mark Tami Amanda Jeremy]
+"```nu" | print
+"let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index # gives Tami" | nu-highlight)
+$names | get $index # gives Tami" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`length`](/commands/docs/length.md) command returns the number of items in a list.
@@ -241,14 +241,14 @@ For example, `[red green blue] | length` outputs `3`.
 The [`is-empty`](/commands/docs/is-empty.md) command determines whether a string, list, or table is empty.
 It can be used with lists as follows:
 " | print
-    print "```nu"
-    print ("let colors = [red green blue]
+"```nu" | print
+"let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty # true" | nu-highlight)
+$colors | is-empty # true" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red green blue]
 $colors | is-empty # false
@@ -256,33 +256,33 @@ $colors | is-empty # false
 let colors = []
 $colors | is-empty | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The `in` and `not-in` operators are used to test whether a value is in a list. For example:
 " | print
-    print "```nu"
-    print ("let colors = [red green blue]
+"```nu" | print
+"let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors # true" | nu-highlight)
+'gold' not-in $colors # true" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
 'gold' not-in $colors | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`any`](/commands/docs/any.md) command determines if any item in a list
 matches a given condition.
 For example:
 " | print
-    print "```nu"
-    print ("let colors = [red green blue]
+"```nu" | print
+"let colors = [red green blue]
 # Do any color names end with \"e\"?
 $colors | any {|it| $it | str ends-with \"e\" } # true
 
@@ -294,9 +294,9 @@ let scores = [3 8 4]
 $scores | any {|it| $it > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 } # true" | nu-highlight)
+$scores | any {|it| $it mod 2 == 1 } # true" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red green blue]
 # Do any color names end with "e"?
@@ -312,15 +312,15 @@ $scores | any {|it| $it > 7 } # true
 # Are any scores odd?
 $scores | any {|it| $it mod 2 == 1 } | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`all`](/commands/docs/all.md) command determines if every item in a list
 matches a given condition.
 For example:
 " | print
-    print "```nu"
-    print ("let colors = [red green blue]
+"```nu" | print
+"let colors = [red green blue]
 # Do all color names end with \"e\"?
 $colors | all {|it| $it | str ends-with \"e\" } # false
 
@@ -332,9 +332,9 @@ let scores = [3 8 4]
 $scores | all {|it| $it > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 } # false" | nu-highlight)
+$scores | all {|it| $it mod 2 == 0 } # false" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 let colors = [red green blue]
 # Do all color names end with "e"?
@@ -350,7 +350,7 @@ $scores | all {|it| $it > 7 } # false
 # Are all scores even?
 $scores | all {|it| $it mod 2 == 0 } | print; print ''
 
-    print "```"
+"```" | print
 
 "
 ## Converting the list
@@ -360,18 +360,18 @@ by adding items in nested lists to the top-level list.
 This can be called multiple times to flatten lists nested at any depth.
 For example:
 " | print
-    print "```nu"
-    print ("[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
+"```nu" | print
+"[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten" | nu-highlight)
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten" | nu-highlight | print
 
-    print "```\n```output-numd"
+"```\n```output-numd" | print
 
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | print; print ''
 
-    print "```"
+"```" | print
 
 "
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will

@@ -520,7 +520,7 @@ git checkout featurebranch | null
 > [{a:1 b:2} {b:1}].1.a
 Error: nu::shell::column_not_found
 
-  × Cannot find column
+  × Cannot find column 'a'
    ╭─[source:1:12]
  1 │ [{a:1 b:2} {b:1}].1.a
    ·            ──┬──    ┬
@@ -533,4 +533,3 @@ If you would prefer this to return `null`, mark the cell path member as _optiona
 
 The absence of a value is (as of Nushell 0.71) printed as the ❎ emoji in interactive output.
 :::
-
