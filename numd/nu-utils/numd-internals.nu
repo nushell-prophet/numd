@@ -181,8 +181,7 @@ export def prettify-markdown []: string -> string {
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
     | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
-    | $in + (char nl)
-    | str replace --all --regex "\n+$" "\n" # ensure only trailing newline
+    | str replace --all --regex "\n*$" "\n" # ensure a single trailing newline
 }
 
 # The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
