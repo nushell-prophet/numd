@@ -414,7 +414,7 @@ export def parse-options-from-fence []: string -> list {
 # Modifies a path by adding a prefix, suffix, extension, or parent directory.
 #
 # > 'numd/capture.nu' | path-modify --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
-# numd/abc/pref_capture_suf.nu.md
+# numd/abc/pref_capture_suf.nu.
 export def path-modify [
     --prefix: string
     --suffix: string
