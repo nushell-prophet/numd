@@ -308,7 +308,7 @@ export def run-intermid-script [
 # Generates an unique identifier for code blocks in markdown to distinguish their output.
 #
 # > numd-block 3
-# code-block-starting-line-in-original-md-3
+# #code-block-starting-line-in-original-md-3
 export def numd-block [
     index?: int
 ]: nothing -> string {
@@ -398,10 +398,10 @@ export def gen-print-lines []: list -> string {
 # Parses options from a code fence and returns them as a list.
 #
 # > '```nu no-run, t' | parse-options-from-fence
-# ╭────────╮
-# │ no-run │
-# │ try    │
-# ╰────────╯
+# ╭───┬────────╮
+# │ 0 │ no-run │
+# │ 1 │ try    │
+# ╰───┴────────╯
 export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -413,7 +413,7 @@ export def parse-options-from-fence []: string -> list {
 # Modifies a path by adding a prefix, suffix, extension, or parent directory.
 #
 # > 'numd/capture.nu' | path-modify --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
-# numd/abc/pref_capture_suf.nu.
+# numd/abc/pref_capture_suf.nu.md
 export def path-modify [
     --prefix: string
     --suffix: string
@@ -448,7 +448,7 @@ export def backup-file [
 # Generates a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > tstamp
-# 20240527_111215
+# 20240701_125253
 export def tstamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
