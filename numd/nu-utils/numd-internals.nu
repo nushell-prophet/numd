@@ -43,6 +43,8 @@ export def detect-code-blocks []: string -> table {
 }
 
 # Generates code for execution in the intermediate script within a given code fence.
+#
+# > 'ls | sort-by modified -r' | gen-execute-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/gen-execute-code_0.nu -f
 export def gen-execute-code [
     --fence: string # opening code fence string with options for executing current block
     --whole_block
@@ -256,6 +258,9 @@ export def code-block-options [
 }
 
 # Expands short options for code block execution to their long forms.
+#
+# > expand-short-options 'i'
+# indent-output
 export def expand-short-options [
     $option
 ]: nothing -> string {
@@ -301,6 +306,9 @@ export def run-intermid-script [
 }
 
 # Generates an unique identifier for code blocks in markdown to distinguish their output.
+#
+# > numd-block 3
+# code-block-starting-line-in-original-md-3
 export def numd-block [
     index?: int
 ]: nothing -> string {
@@ -309,6 +317,8 @@ export def numd-block [
 # TODO we can use NUON in numd-blocks to set display options
 
 # Generates a command to highlight code using Nushell syntax highlighting.
+# > 'ls' | gen-highlight-command
+# "ls" | nu-highlight | print
 export def gen-highlight-command [ ]: string -> string {
     escape-escapes
     | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
@@ -322,6 +332,12 @@ export def trim-comments-plus []: string -> string {
 }
 
 # Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
+#
+# > ends-with-definition 'let a = ls'
+# true
+#
+# > ends-with-definition 'ls'
+# false
 export def ends-with-definition [
     condition: string
 ]: nothing -> bool {
@@ -329,6 +345,9 @@ export def ends-with-definition [
 }
 
 # Generates indented output for better visual formatting.
+#
+# > 'ls' | gen-indented-output
+# ls | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
 export def gen-indented-output [
     --indent: string = '//  '
 ]: string -> string {
@@ -336,6 +355,9 @@ export def gen-indented-output [
 }
 
 # Generates a print statement for capturing command output.
+#
+# > 'ls' | gen-print-in
+# ls | print; print ''
 export def gen-print-in []: string -> string {
     if $env.numd?.table-width? == null {} else {
         $"($in) | table --width ($env.numd.table-width)"
@@ -344,11 +366,17 @@ export def gen-print-in []: string -> string {
 }
 
 # Generates a try-catch block to handle errors in the current Nushell instance.
+#
+# > 'ls' | gen-catch-error-in-current-instance
+# try {ls} catch {|error| $error}
 export def gen-catch-error-in-current-instance []: string -> string {
     $"try {($in)} catch {|error| $error}"
 }
 
 # Executes the command outside to obtain a formatted error message if any.
+#
+# > 'ls' | gen-catch-error-outside
+# /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def gen-catch-error-outside []: string -> string {
     escape-escapes
     | ($'($nu.current-exe) -c "($in)"' +
@@ -369,6 +397,12 @@ export def gen-print-lines []: list -> string {
 }
 
 # Parses options from a code fence and returns them as a list.
+#
+# > '```nu no-run, t' | parse-options-from-fence
+# ╭────────╮
+# │ no-run │
+# │ try    │
+# ╰────────╯
 export def parse-options-from-fence []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -378,6 +412,9 @@ export def parse-options-from-fence []: string -> list {
 }
 
 # Modifies a path by adding a prefix, suffix, extension, or parent directory.
+#
+# > 'numd/capture.nu' | path-modify --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
+# numd/abc/pref_capture_suf.nu.md
 export def path-modify [
     --prefix: string
     --suffix: string
