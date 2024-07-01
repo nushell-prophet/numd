@@ -384,9 +384,8 @@ export def gen-catch-error-outside []: string -> string {
 }
 
 # Generates a fenced code block for output with a specific format.
-#
-# We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
 export def gen-fence-output-numd []: string -> string {
+    # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
     $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
