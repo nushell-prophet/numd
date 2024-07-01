@@ -123,7 +123,7 @@ export def exec-block-lines [
         each { # here we define what to do with each line of the current block one by one
             if $in =~ '^>' { # if it starts with `>` we execute it
                 gen-execute-code --fence $row_type
-            } else if $in =~ '^\s*#' {
+            } else if $in =~ '^#' {
                 gen-highlight-command
             }
         }
