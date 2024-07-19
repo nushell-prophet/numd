@@ -328,7 +328,7 @@ export def gen-highlight-command [ ]: string -> string {
 export def trim-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
-    | str replace -r '\s*#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
+    | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
 # Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
