@@ -342,7 +342,7 @@ export def extract-last-span [
         | get pipelines
         | last
         | get elements.0.expr.span
-        | $in.start - $in.end - 1
+        | $in.start - $in.end
 
     $command
     | str substring $len..
