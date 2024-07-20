@@ -121,9 +121,9 @@ export def exec-block-lines [
         | gen-execute-code --whole_block --fence $row_type
     } else {
         each { # here we define what to do with each line of the current block one by one
-            if $in =~ '^>' { # if it starts with `>` we execute it
+            if $in starts-with '>' { # if line starts with `>` we execute it
                 gen-execute-code --fence $row_type
-            } else if $in =~ '^#' {
+            } else if $in starts-with '#' { # if line starts with `#` we print it
                 gen-highlight-command
             }
         }
