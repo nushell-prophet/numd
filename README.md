@@ -201,11 +201,13 @@ Input/output types:
 │ z_examples/3_book_types_of_data         │ dir  │
 │ z_examples/4_book_working_with_lists    │ dir  │
 │ z_examples/5_simple_nu_table            │ dir  │
+│ z_examples/6_edge_cases                 │ dir  │
+│ z_examples/999_numd_internals           │ dir  │
 │ z_examples/99_strip_markdown            │ dir  │
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:13 +0000 (a month ago)
+Thu, 18 Jul 2024 07:06:52 +0000 (2 days ago)
 
 > 2 + 2
 4
