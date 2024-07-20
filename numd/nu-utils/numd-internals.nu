@@ -356,9 +356,15 @@ export def extract-last-span [
 # > can-append-print 'ls'
 # true
 export def can-append-print [
-    condition: string
+    command: string
 ]: nothing -> bool {
-    $condition !~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
+    let $last_span = extract-last-span $command
+
+    if $last_span ends-with ';' {
+        false
+    } else {
+        $last_span !~ '\b(let|mut|def|use)\b'
+    }
 }
 
 # Generates indented output for better visual formatting.
