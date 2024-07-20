@@ -68,7 +68,7 @@ export def gen-execute-code [
                 if $whole_block {
                     gen-fence-output-numd
                 } else {}
-                | if (ends-with-definition $in) {} else {
+                | if (dont-append-print $in) {} else {
                     if 'indent-output' in $fence_options {
                         gen-indented-output
                     } else {}
@@ -350,13 +350,13 @@ export def extract-last-span [
 
 # Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
 #
-# > ends-with-definition 'let a = ls'
+# > dont-append-print 'let a = ls'
 # true
 #
-# > ends-with-definition 'ls'
+# > dont-append-print 'ls'
 # false
-export def ends-with-definition [
     condition: string
+export def dont-append-print [
 ]: nothing -> bool {
     $condition =~ '(;|null|(?>[^\r\n]*\b(let|def|use)\b.*[^\r\n;]*))$'
 }
