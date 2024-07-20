@@ -98,9 +98,9 @@ By default, `numd` provides basic stats on changes made.
 It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermid-script.nu and executed before all parts of the code.
 
 ```nushell indent-output
-let path = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
+let path = $nu.temp-path | path join simple_nu_table.md
 
-# let's generate some markdown and save it to the `simple_nu_table.md` file
+# let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
 # let's run this file to see it's outputs
