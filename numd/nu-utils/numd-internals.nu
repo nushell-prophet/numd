@@ -331,6 +331,23 @@ export def trim-comments-plus []: string -> string {
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
+# Extract the last span from command to decide if `| print` could be appended
+export def extract-last-span [
+    $command: string
+] {
+    let $command = $command | str trim -c "\n" | str trim
+    let $len = ast $command --json
+        | get block
+        | from json
+        | get pipelines
+        | last
+        | get elements.0.expr.span
+        | $in.start - $in.end - 1
+
+    $command
+    | str substring $len..
+}
+
 # Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
 #
 # > ends-with-definition 'let a = ls'
