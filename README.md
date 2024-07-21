@@ -218,7 +218,7 @@ Thu, 18 Jul 2024 07:06:52 +0000 (2 days ago)
 
 ## Embeding lfs images
 
-![test](/images/media/freeze.png)
+![test](https://media.githubusercontent.com/media/nushell-prophet/numd/images/media/freeze.png)
 
 ## Real fight examples to try
 
