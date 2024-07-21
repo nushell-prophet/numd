@@ -216,6 +216,10 @@ Thu, 18 Jul 2024 07:06:52 +0000 (2 days ago)
 0.1.11
 ```
 
+## Embeding lfs images
+
+![test](./images/media/freeze.png)
+
 ## Real fight examples to try
 
 ```nushell no-output
