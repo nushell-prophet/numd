@@ -463,7 +463,7 @@ export def backup-file [
 ]: nothing -> nothing {
     $file_path
     | if ($in | path exists) and ($in | path type) == 'file' {
-        path-modify --parent_dir 'md_backups' --suffix $'-(tstamp)'
+        path-modify --parent_dir 'zzz_md_backups' --suffix $'-(tstamp)'
         | mv $file_path $in
     }
 }
