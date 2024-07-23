@@ -22,7 +22,7 @@ export def run [
         } else {}
 
     let $original_md_table = $original_md
-        | toggle-output-fences # should be unncecessary for new files
+        | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
 
     if $width != null { $env.numd.table-width = $width }
