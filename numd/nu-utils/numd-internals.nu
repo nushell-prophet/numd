@@ -55,28 +55,26 @@ export def create-execution-code [
     let $highlighted_command = $code_content | create-highlight-command
 
     let $code_execution = $code_content
-        | if 'no-run' in $fence_options {''} else {
-            remove-comments-plus
-            | if 'try' in $fence_options {
-                if 'new-instance' in $fence_options {
-                    create-catch-error-outside
-                } else {
-                    create-catch-error-current-instance
-                }
-            } else {}
-            | if 'no-output' in $fence_options {} else {
-                if $whole_block {
-                    create-fence-output
-                } else {}
-                | if (check-print-append $in) {
-                    if 'indent-output' in $fence_options {
-                        create-indented-output
-                    } else {}
-                    | generate-print-statement
-                } else {}
+        | remove-comments-plus
+        | if 'try' in $fence_options {
+            if 'new-instance' in $fence_options {
+                create-catch-error-outside
+            } else {
+                create-catch-error-current-instance
             }
-            | $in + (char nl)
+        } else {}
+        | if 'no-output' in $fence_options {} else {
+            if $whole_block {
+                create-fence-output
+            } else {}
+            | if (check-print-append $in) {
+                if 'indent-output' in $fence_options {
+                    create-indented-output
+                } else {}
+                | generate-print-statement
+            } else {}
         }
+        | $in + (char nl)
 
     $highlighted_command + $code_execution
 }
