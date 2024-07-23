@@ -33,3 +33,5 @@ user
 ```
 
 ![](media/test.svg)
+
+![](media/test.png)
