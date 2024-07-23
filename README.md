@@ -67,13 +67,14 @@ Input/output types:
 
 ```nushell
 > numd code-block-options --list
-╭─────long──────┬─short─┬───────────────────────────description────────────────────────────╮
-│ indent-output │ i     │ indent the output visually                                       │
-│ no-output     │ O     │ execute the code without outputting the results                  │
-│ no-run        │ N     │ do not execute the code in the block                             │
-│ try           │ t     │ execute the block inside the `try {}` for handling errors        │
-│ new-instance  │ n     │ execute the block in the new Nushell instance, useful with `try` │
-╰─────long──────┴─short─┴───────────────────────────description────────────────────────────╯
+╭──────long──────┬─short─┬───────────────────────────description───────────────────────────╮
+│ indent-output  │ i     │ indent output visually                                          │
+│ no-output      │ O     │ execute code without outputting results                         │
+│ no-run         │ N     │ do not execute code in block                                    │
+│ try            │ t     │ execute block inside `try {}` for error handling                │
+│ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block) │
+│ picture-output │ p     │ capture output as picture and place after block                 │
+╰──────long──────┴─short─┴───────────────────────────description───────────────────────────╯
 ```
 
 ### Stats of changes
@@ -207,13 +208,13 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 18 Jul 2024 07:06:52 +0000 (2 days ago)
+Thu, 18 Jul 2024 07:06:55 +0000 (4 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.11
+0.1.12
 ```
 
 ## Real fight examples to try
