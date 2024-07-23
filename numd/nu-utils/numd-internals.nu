@@ -349,7 +349,7 @@ export def get-last-span [
     | str substring $len..
 }
 
-# Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
+# Checks if the last span of the input ends with a semicolon or contains certain keywords to determine if appending ` | print` is possible.
 #
 # > check-print-append 'let a = ls'
 # false
