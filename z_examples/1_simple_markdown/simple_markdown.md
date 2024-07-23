@@ -31,3 +31,5 @@ user
 > 2 + 2
 4
 ```
+
+![](media/test.svg)
