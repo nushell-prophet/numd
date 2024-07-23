@@ -108,6 +108,7 @@ export def generate-intermediate-script [
         "\n# https://github.com/nushell-prophet/numd" )
     | flatten
     | str join (char nl)
+    | str replace -r "\n*$" "\n"
 }
 
 export def execute-block-lines [
