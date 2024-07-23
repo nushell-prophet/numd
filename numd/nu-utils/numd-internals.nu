@@ -245,12 +245,12 @@ export def code-block-options [
     [
         ["long" "short" "description"];
 
-        ["indent-output" "i" "indent the output visually" ]
-        ["no-output" "O" "execute the code without outputting the results"]
-        ["no-run" "N" "do not execute the code in the block"]
-        ["try" "t" "execute the block inside the `try {}` for handling errors"]
-        ["new-instance" "n" "execute the block in the new Nushell instance, useful with `try`"]
-        ["picture-output" "p" "capture output into picture and place it after the code block"]
+        ["indent-output" "i" "indent output visually"]
+        ["no-output" "O" "execute code without outputting results"]
+        ["no-run" "N" "do not execute code in block"]
+        ["try" "t" "execute block inside `try {}` for error handling"]
+        ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
+        ["picture-output" "p" "capture output as picture and place after block"]
     ]
     | if $list {} else {
         select short long
