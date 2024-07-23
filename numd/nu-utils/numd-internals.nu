@@ -1,7 +1,7 @@
 use std iter scan
 
 # Detects code blocks in a markdown string and returns a table with their line numbers and infostrings.
-export def detect-code-blocks []: string -> table {
+export def find-code-blocks []: string -> table {
     let $file_lines = lines
     let $row_type = $file_lines
         | each {
@@ -44,35 +44,35 @@ export def detect-code-blocks []: string -> table {
 
 # Generates code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | gen-execute-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/gen-execute-code_0.nu -f
-export def gen-execute-code [
+# > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+export def create-execution-code [
     --fence: string # opening code fence string with options for executing current block
     --whole_block
 ]: string -> string {
     let $code_content = $in
-    let $fence_options = $fence | parse-options-from-fence
+    let $fence_options = $fence | extract-fence-options
 
-    let $highlighted_command = $code_content | gen-highlight-command
+    let $highlighted_command = $code_content | create-highlight-command
 
     let $code_execution = $code_content
         | if 'no-run' in $fence_options {''} else {
-            trim-comments-plus
+            remove-comments-plus
             | if 'try' in $fence_options {
                 if 'new-instance' in $fence_options {
-                    gen-catch-error-outside
+                    create-catch-error-outside
                 } else {
-                    gen-catch-error-in-current-instance
+                    create-catch-error-current-instance
                 }
             } else {}
             | if 'no-output' in $fence_options {} else {
                 if $whole_block {
-                    gen-fence-output-numd
+                    create-fence-output
                 } else {}
-                | if (can-append-print $in) {
+                | if (check-print-append $in) {
                     if 'indent-output' in $fence_options {
-                        gen-indented-output
+                        create-indented-output
                     } else {}
-                    | gen-print-in
+                    | generate-print-statement
                 } else {}
             }
             | $in + (char nl)
@@ -82,7 +82,7 @@ export def gen-execute-code [
 }
 
 # Generates an intermediate script from a table of classified markdown code blocks.
-export def gen-intermid-script [
+export def generate-intermediate-script [
     md_classified: table
 ]: nothing -> string {
     let $current_dir = pwd
@@ -95,12 +95,12 @@ export def gen-intermid-script [
     | values
     | each {
         if ($in.row_type.0 == 'text' or
-            'no-run' in ($in.row_type.0 | parse-options-from-fence)
+            'no-run' in ($in.row_type.0 | extract-fence-options)
         ) {
             $in.line
-            | gen-print-lines
+            | generate-print-lines
         } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
-            exec-block-lines $in.line $in.row_type.0
+            execute-block-lines $in.line $in.row_type.0
         }
     }
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # we initialize it here so it will be available in intermediate scripts
@@ -110,7 +110,7 @@ export def gen-intermid-script [
     | str join (char nl)
 }
 
-export def exec-block-lines [
+export def execute-block-lines [
     rows: list
     row_type: string
 ] {
@@ -118,13 +118,13 @@ export def exec-block-lines [
     | skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {  # finding blocks with no `>` symbol, to execute them entirely
         str join (char nl)
-        | gen-execute-code --whole_block --fence $row_type
+        | create-execution-code --whole_block --fence $row_type
     } else {
         each { # here we define what to do with each line of the current block one by one
             if $in starts-with '>' { # if line starts with `>` we execute it
-                gen-execute-code --fence $row_type
+                create-execution-code --fence $row_type
             } else if $in starts-with '#' { # if line starts with `#` we print it
-                gen-highlight-command
+                create-highlight-command
             }
         }
     }
@@ -134,12 +134,12 @@ export def exec-block-lines [
 }
 
 # Parses block indices from Nushell output lines and returns a table with the original markdown line numbers.
-export def parse-block-index [
+export def extract-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
     let $block_start_line = $nu_res_stdout_lines
         | each {
-            if $in =~ $"^(numd-block)\\d+$" {
+            if $in =~ $"^(mark-code-block)\\d+$" {
                 split row '-' | last | into int
             } else {
                 -1
@@ -164,7 +164,7 @@ export def parse-block-index [
 }
 
 # Assembles the final markdown by merging original classified markdown with parsed results of the generated script.
-export def assemble-markdown [
+export def merge-markdown [
     $md_classified: table
     $nu_res_with_block_line: table
 ]: nothing -> string {
@@ -178,7 +178,7 @@ export def assemble-markdown [
 }
 
 # Prettifies markdown by removing unnecessary empty lines and trailing spaces.
-export def prettify-markdown []: string -> string {
+export def clean-markdown []: string -> string {
     str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
@@ -187,8 +187,8 @@ export def prettify-markdown []: string -> string {
 }
 
 # The replacement is needed to distinguish the blocks with outputs from just blocks with ```.
-# `detect-code-blocks` works only with lines without knowing the previous lines.
-export def replace-output-numd-fences [
+# `find-code-blocks` works only with lines without knowing the previous lines.
+export def toggle-output-fences [
     a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
     b = "\n```\n```output-numd\n"
     --back
@@ -201,7 +201,7 @@ export def replace-output-numd-fences [
 }
 
 # Calculates changes between the original and updated markdown files and returns a record with differences.
-export def calc-changes-stats [
+export def compute-change-stats [
     filename: path
     orig_file: string
     new_file: string
@@ -210,7 +210,7 @@ export def calc-changes-stats [
     let $new_file_content = $new_file | ansi strip
 
     let $nushell_blocks = $new_file_content
-        | detect-code-blocks
+        | find-code-blocks
         | where row_type =~ '^```nu'
         | get block_line
         | uniq
@@ -239,7 +239,7 @@ export def calc-changes-stats [
 }
 
 # Lists code block options for execution and output customization.
-export def code-block-options [
+export def list-code-options [
     --list # show options as a table
 ]: [nothing -> record, nothing -> table] {
     [
@@ -260,12 +260,12 @@ export def code-block-options [
 
 # Expands short options for code block execution to their long forms.
 #
-# > expand-short-options 'i'
+# > convert-short-options 'i'
 # indent-output
-export def expand-short-options [
+export def convert-short-options [
     $option
 ]: nothing -> string {
-    let $options_dict = code-block-options
+    let $options_dict = list-code-options
 
     $options_dict
     | get --ignore-errors --sensitive $option
@@ -277,14 +277,14 @@ export def expand-short-options [
 
 # Escapes symbols to be printed unchanged inside a `print "something"` statement.
 #
-# > 'abcd"dfdaf" "' | escape-escapes
+# > 'abcd"dfdaf" "' | escape-special-characters
 # abcd\"dfdaf\" \"
-export def escape-escapes []: string -> string {
+export def escape-special-characters []: string -> string {
     str replace --all --regex '(\\|\")' '\$1'
 }
 
 # Runs the intermediate script and returns its output lines as a list.
-export def run-intermid-script [
+export def execute-intermediate-script [
     intermid_script_path: path
     no_fail_on_error: bool
     print_block_results: bool # print blocks one by one as they are executed
@@ -308,32 +308,32 @@ export def run-intermid-script [
 
 # Generates an unique identifier for code blocks in markdown to distinguish their output.
 #
-# > numd-block 3
+# > mark-code-block 3
 # #code-block-starting-line-in-original-md-3
-export def numd-block [
+export def mark-code-block [
     index?: int
 ]: nothing -> string {
     $"#code-block-starting-line-in-original-md-($index)"
 }
-# TODO we can use NUON in numd-blocks to set display options
+# TODO we can use NUON in mark-code-blocks to set display options
 
 # Generates a command to highlight code using Nushell syntax highlighting.
-# > 'ls' | gen-highlight-command
+# > 'ls' | create-highlight-command
 # "ls" | nu-highlight | print
-export def gen-highlight-command [ ]: string -> string {
-    escape-escapes
+export def create-highlight-command [ ]: string -> string {
+    escape-special-characters
     | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trims comments and extra whitespaces from code blocks for using code in the generated script.
-export def trim-comments-plus []: string -> string {
+export def remove-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
 # Extract the last span from command to decide if `| print` could be appended
-export def extract-last-span [
+export def get-last-span [
     $command: string
 ] {
     let $command = $command | str trim -c "\n" | str trim
@@ -351,15 +351,15 @@ export def extract-last-span [
 
 # Checks if the last line of the input ends with a semicolon or certain keywords to determine if appending ` | print` is possible.
 #
-# > can-append-print 'let a = ls'
+# > check-print-append 'let a = ls'
 # false
 #
-# > can-append-print 'ls'
+# > check-print-append 'ls'
 # true
-export def can-append-print [
+export def check-print-append [
     command: string
 ]: nothing -> bool {
-    let $last_span = extract-last-span $command
+    let $last_span = get-last-span $command
 
     if $last_span ends-with ';' {
         false
@@ -370,9 +370,9 @@ export def can-append-print [
 
 # Generates indented output for better visual formatting.
 #
-# > 'ls' | gen-indented-output
+# > 'ls' | create-indented-output
 # ls | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
-export def gen-indented-output [
+export def create-indented-output [
     --indent: string = '//  '
 ]: string -> string {
     $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
@@ -380,9 +380,9 @@ export def gen-indented-output [
 
 # Generates a print statement for capturing command output.
 #
-# > 'ls' | gen-print-in
+# > 'ls' | generate-print-statement
 # ls | print; print ''
-export def gen-print-in []: string -> string {
+export def generate-print-statement []: string -> string {
     if $env.numd?.table-width? == null {} else {
         $"($in) | table --width ($env.numd.table-width)"
     }
@@ -391,54 +391,54 @@ export def gen-print-in []: string -> string {
 
 # Generates a try-catch block to handle errors in the current Nushell instance.
 #
-# > 'ls' | gen-catch-error-in-current-instance
+# > 'ls' | create-catch-error-current-instance
 # try {ls} catch {|error| $error}
-export def gen-catch-error-in-current-instance []: string -> string {
+export def create-catch-error-current-instance []: string -> string {
     $"try {($in)} catch {|error| $error}"
 }
 
 # Executes the command outside to obtain a formatted error message if any.
 #
-# > 'ls' | gen-catch-error-outside
+# > 'ls' | create-catch-error-outside
 # /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
-export def gen-catch-error-outside []: string -> string {
-    escape-escapes
+export def create-catch-error-outside []: string -> string {
+    escape-special-characters
     | ($'($nu.current-exe) -c "($in)"' +
         "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
 # Generates a fenced code block for output with a specific format.
-export def gen-fence-output-numd []: string -> string {
+export def create-fence-output []: string -> string {
     # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
     $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
-export def gen-print-lines []: list -> string {
+export def generate-print-lines []: list -> string {
     str join (char nl)
-    | escape-escapes
+    | escape-special-characters
     | $'"($in)" | print'
 }
 
 # Parses options from a code fence and returns them as a list.
 #
-# > '```nu no-run, t' | parse-options-from-fence
+# > '```nu no-run, t' | extract-fence-options
 # ╭───┬────────╮
 # │ 0 │ no-run │
 # │ 1 │ try    │
 # ╰───┴────────╯
-export def parse-options-from-fence []: string -> list {
+export def extract-fence-options []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
     | compact --empty
-    | each {|option| expand-short-options $option}
+    | each {|option| convert-short-options $option}
 }
 
 # Modifies a path by adding a prefix, suffix, extension, or parent directory.
 #
-# > 'numd/capture.nu' | path-modify --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
+# > 'numd/capture.nu' | modify-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
 # numd/abc/pref_capture_suf.nu.md
-export def path-modify [
+export def modify-path [
     --prefix: string
     --suffix: string
     --extension: string
@@ -459,20 +459,20 @@ export def path-modify [
 }
 
 # Creates a backup of a file by moving it to a specified directory with a timestamp.
-export def backup-file [
+export def create-file-backup [
     file_path: path
 ]: nothing -> nothing {
     $file_path
     | if ($in | path exists) and ($in | path type) == 'file' {
-        path-modify --parent_dir 'zzz_md_backups' --suffix $'-(tstamp)'
+        modify-path --parent_dir 'zzz_md_backups' --suffix $'-(generate-timestamp)'
         | mv $file_path $in
     }
 }
 
 # Generates a timestamp string in the format YYYYMMDD_HHMMSS.
 #
-# > tstamp
+# > generate-timestamp
 # 20240701_125253
-export def tstamp []: nothing -> string {
+export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }

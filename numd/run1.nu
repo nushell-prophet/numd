@@ -1,5 +1,5 @@
 use nu-utils numd-internals *
-export use nu-utils numd-internals code-block-options
+export use nu-utils numd-internals list-code-options
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
@@ -22,29 +22,29 @@ export def run [
         } else {}
 
     let $original_md_table = $original_md
-        | replace-output-numd-fences # should be unncecessary for new files
-        | detect-code-blocks
+        | toggle-output-fences # should be unncecessary for new files
+        | find-code-blocks
 
     if $width != null { $env.numd.table-width = $width }
 
     let $intermediate_script_path = $intermid_script
-        | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
+        | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
 
-    gen-intermid-script $original_md_table
+    generate-intermediate-script $original_md_table
     | if $prepend_intermid == null {} else {
         $'($prepend_intermid)(char nl)($in)'
     }
     | save -f $intermediate_script_path
 
-    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let $updated_md_ansi = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
             return { filename: $file,
                 comment: "the script didn't produce any output" }
         } else {}
-        | prettify-markdown
-        | replace-output-numd-fences --back
+        | clean-markdown
+        | toggle-output-fences --back
 
     # if $intermid_script param wasn't set - remove the temporary intermediate script
     if $intermid_script == null {
@@ -53,7 +53,7 @@ export def run [
 
     let $output_path = $result_md_path | default $file
     if not $no_save {
-        if not $no_backup { backup-file $output_path }
+        if not $no_backup { create-file-backup $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
     }
     if $save_ansi {
@@ -61,7 +61,7 @@ export def run [
     }
 
     if not $no_stats {
-        calc-changes-stats $file $original_md $updated_md_ansi
+        compute-change-stats $file $original_md $updated_md_ansi
         | if not $echo {
             return $in # default variant: we return here a record
         } else {
@@ -82,8 +82,8 @@ export def clear-outputs [
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string, nothing -> nothing] {
     let $original_md_table = open -r $file
-        | replace-output-numd-fences
-        | detect-code-blocks
+        | toggle-output-fences
+        | find-code-blocks
 
     let $result_md_path = $result_md_path | default $file
 
@@ -95,10 +95,10 @@ export def clear-outputs [
         | if ($in | where $it =~ '^>' | is-empty) {} else {
             where $it =~ '^(>|#|```)'
         }
-        | prepend (numd-block $block_index)
+        | prepend (mark-code-block $block_index)
     }
     | flatten
-    | parse-block-index $in
+    | extract-block-index $in
     | if $strip_markdown {
         get line
         | each {
@@ -112,7 +112,7 @@ export def clear-outputs [
         | str join (char nl)
         | return $in # we return the stripped script here to not spoil original md
     } else {
-        assemble-markdown $original_md_table $in
+        merge-markdown $original_md_table $in
     }
     | if $echo {} else {
         save -f $result_md_path

@@ -15,7 +15,7 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 
 ## numd-internals.nu
 
-### detect-code-blocks
+### find-code-blocks
 
 This command is used for parsing initial markdown to detect executable code blocks.
 
@@ -23,8 +23,8 @@ This command is used for parsing initial markdown to detect executable code bloc
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
-let $md_orig = open -r $file | replace-output-numd-fences
-let $md_orig_table = $md_orig | detect-code-blocks
+let $md_orig = open -r $file | toggle-output-fences
+let $md_orig_table = $md_orig | find-code-blocks
 $md_orig_table
 ```
 
@@ -65,16 +65,16 @@ Output:
 //  ╰─────────────────────────────────line──────────────────────────────────┴────row_type────┴─block_line─╯
 ```
 
-## gen-intermid-script
+## generate-intermediate-script
 
-The `gen-intermid-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
+The `generate-intermediate-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
 
 ```nu indent-output
 # Here we emulate that the `$intermid_script_path` options is not set
 let $intermid_script_path = $file
-    | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu'
+    | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-gen-intermid-script $md_orig_table
+generate-intermediate-script $md_orig_table
 | save -f $intermid_script_path
 
 open $intermid_script_path
@@ -133,15 +133,15 @@ Output:
 //  "```" | print
 ```
 
-## run-intermid-script
+## execute-intermediate-script
 
-The `run-intermid-script` command runs and captures outputs of the executed intermediate script.
+The `execute-intermediate-script` command runs and captures outputs of the executed intermediate script.
 
 ```nu indent-output
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error false
+let $nu_res_stdout_lines = execute-intermediate-script $intermid_script_path $no_fail_on_error false
 rm $intermid_script_path
 $nu_res_stdout_lines
 ```
@@ -188,7 +188,7 @@ Output:
 ```nu indent-output
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
-    | prettify-markdown
+    | clean-markdown
 
 $md_res
 ```
@@ -228,12 +228,12 @@ Output:
 //  ```
 ```
 
-## calc-changes-stats
+## compute-change-stats
 
-The `calc-changes-stats` command displays stats on the changes made.
+The `compute-change-stats` command displays stats on the changes made.
 
 ```nu indent-output
-calc-changes-stats $file $md_orig $md_res
+compute-change-stats $file $md_orig $md_res
 ```
 
 Output:

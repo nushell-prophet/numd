@@ -66,7 +66,7 @@ Input/output types:
 `numd` understands the following block options. Several comma-separated block options will be combined together. The block options should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
 
 ```nushell
-> numd code-block-options --list
+> numd list-code-options --list
 ╭──────long──────┬─short─┬───────────────────────────description───────────────────────────╮
 │ indent-output  │ i     │ indent output visually                                          │
 │ no-output      │ O     │ execute code without outputting results                         │
