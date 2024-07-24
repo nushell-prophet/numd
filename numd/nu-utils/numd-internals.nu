@@ -70,7 +70,11 @@ export def create-execution-code [
                 if 'indent-output' in $fence_options {
                     create-indented-output
                 } else {}
-                | generate-print-statement
+                | if 'picture-output' in $fence_options {
+                    generate-picture
+                } else {
+                    generate-print-statement
+                }
             } else {}
         }
         | $in + (char nl)
@@ -116,8 +120,10 @@ export def generate-intermediate-script [
         } else {}
     } else {}
     | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
+    | prepend "stor create --table-name 'captures' --columns {capture: str}"
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
+    | append "print (stor open | query db 'select * from captures')"
     | flatten
     | str join (char nl)
     | str replace -r "\n*$" "\n"
@@ -442,6 +448,11 @@ export def generate-table-statement []: string -> string {
         $"($in) | table --width ($env.numd.table-width)"
     }
 }
+
+export def generate-picture [] {
+    $"($in) | table | {capture: $in} | stor insert --table-name captures"
+}
+
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
 #
