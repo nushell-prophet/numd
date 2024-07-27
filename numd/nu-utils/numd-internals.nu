@@ -473,8 +473,11 @@ export def open-config-intermediate-script [] {
     | if ($in | path exists) {
         open
         | get -i prepend-intermediate-script
-        | if $in != null {print 'config from `.numd_config.yaml` will be used'; $'(char nl)($in)'}
-    } else {''}
+        | if $in != null {
+            print 'config from `.numd_config.yaml` will be used';
+            $'($in)(char nl)'
+        }
+    }
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
