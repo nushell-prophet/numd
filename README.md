@@ -67,14 +67,13 @@ Input/output types:
 
 ```nushell
 > numd list-code-options --list
-╭──────long──────┬─short─┬───────────────────────────description───────────────────────────╮
-│ indent-output  │ i     │ indent output visually                                          │
-│ no-output      │ O     │ execute code without outputting results                         │
-│ no-run         │ N     │ do not execute code in block                                    │
-│ try            │ t     │ execute block inside `try {}` for error handling                │
-│ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block) │
-│ picture-output │ p     │ capture output as picture and place after block                 │
-╰──────long──────┴─short─┴───────────────────────────description───────────────────────────╯
+╭─────long──────┬─short─┬───────────────────────────description───────────────────────────╮
+│ indent-output │ i     │ indent output visually                                          │
+│ no-output     │ O     │ execute code without outputting results                         │
+│ no-run        │ N     │ do not execute code in block                                    │
+│ try           │ t     │ execute block inside `try {}` for error handling                │
+│ new-instance  │ n     │ execute block in new Nushell instance (useful with `try` block) │
+╰─────long──────┴─short─┴───────────────────────────description───────────────────────────╯
 ```
 
 ### Stats of changes
