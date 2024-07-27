@@ -468,15 +468,19 @@ export def create-file-backup [
     }
 }
 
-export def open-config-intermediate-script [] {
+export def open-config [] {
     '.numd_config.yaml'
     | if ($in | path exists) {
         open
-        | get -i prepend-intermediate-script
-        | if $in != null {
-            print 'config from `.numd_config.yaml` will be used';
-            $'($in)(char nl)'
-        }
+    }
+}
+
+export def open-config-intermediate-script [] {
+    open-config
+    | get -i prepend-intermediate-script
+    | if $in != null {
+        print 'config from `.numd_config.yaml` will be used';
+        $'($in)(char nl)'
     }
 }
 
