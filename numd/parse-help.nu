@@ -3,7 +3,9 @@ export def main [
     --sections: list
     --record
 ] {
-    let help_lines = ansi strip
+    let help_lines = split row '======================'
+        | first # quick fix for https://github.com/nushell/nushell/issues/13470
+        | ansi strip
         | str replace --all 'Search terms:' "Search terms:\n"
         | str replace --all ':  (optional)' ' (optional)'
         | lines
