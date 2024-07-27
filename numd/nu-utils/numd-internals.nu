@@ -468,6 +468,15 @@ export def create-file-backup [
     }
 }
 
+export def open-config-intermediate-script [] {
+    '.numd_config.yaml'
+    | if ($in | path exists) {
+        open
+        | get -i prepend-intermediate-script
+        | if $in != null {print 'config from `.numd_config.yaml` will be used'; $'(char nl)($in)'}
+    } else {''}
+}
+
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp

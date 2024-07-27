@@ -33,7 +33,9 @@ export def run [
         # which will only work if we execute the intermediate script from the same folder.
 
     generate-intermediate-script $original_md_table
-    | if $prepend_intermid == null {} else {
+    | if $prepend_intermid == null {
+        $'(open-config-intermediate-script)($in)'
+    } else {
         $'($prepend_intermid)(char nl)($in)'
     }
     | save -f $intermediate_script_path
