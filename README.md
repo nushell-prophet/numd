@@ -16,7 +16,7 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ## How it works
 
-`numd run` parses the initial file ([example](/z_examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/z_examples/1_simple_markdown/simple_markdown.md_intermid.nu)), executes this script in a new nushell instance, captures the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
+`numd run` parses the initial file ([example](/z_examples/1_simple_markdown/simple_markdown.md)), generates a script to execute the found commands ([example](/z_examples/1_simple_markdown/simple_markdown.md_intermed.nu)), executes this script in a new nushell instance, captures the results, updates the initial document accordingly, and/or outputs the resulting document into the terminal along with basic changes [stats](#stats-of-changes).
 
 Experienced nushell users can understand the logic better by looking at [examples](./z_examples/). Especially, seeing [numd in action describing its own commands](./z_examples/2_numd_commands_explanations/numd_commands_explanations.md).
 
@@ -45,9 +45,9 @@ Flags:
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-stats - do not output stats of changes
-  --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
+  --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary one will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
+  --prepend-intermed <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
   --width <Int> - set the `table --width` option value
 
 Parameters:
@@ -95,7 +95,7 @@ By default, `numd` provides basic stats on changes made.
 
 ### Styling outputs
 
-It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermid-script.nu and executed before all parts of the code.
+It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermed-script.nu and executed before all parts of the code.
 
 ```nushell indent-output
 let path = $nu.temp-path | path join simple_nu_table.md
@@ -104,7 +104,7 @@ let path = $nu.temp-path | path join simple_nu_table.md
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
 # let's run this file to see it's outputs
-numd run $path --echo --no-save --no-stats --prepend-intermid "$env.config.footer_mode = 'never'
+numd run $path --echo --no-save --no-stats --prepend-intermed "$env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
     $env.config.table.mode = 'basic_compact'"
 ```
@@ -207,7 +207,7 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 18 Jul 2024 07:06:55 +0000 (4 days ago)
+Thu, 18 Jul 2024 07:06:56 +0000 (a week ago)
 
 > 2 + 2
 4
@@ -225,10 +225,10 @@ Thu, 18 Jul 2024 07:06:55 +0000 (4 days ago)
 | numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
-# save intermid nushell script to `types_of_data.md_intermid.nu`
+# save intermed nushell script to `types_of_data.md_intermed.nu`
 [z_examples 3_book_types_of_data types_of_data.md]
 | path join
-| numd run $in --no-backup --intermid-script $'($in)_intermid.nu'
+| numd run $in --no-backup --intermed-script $'($in)_intermed.nu'
 ```
 
 ## Development and testing

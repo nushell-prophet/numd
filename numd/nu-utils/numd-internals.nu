@@ -284,12 +284,12 @@ export def escape-special-characters []: string -> string {
 
 # Run the intermediate script and return its output lines as a list.
 export def execute-intermediate-script [
-    intermid_script_path: path
+    intermed_script_path: path
     no_fail_on_error: bool
     print_block_results: bool # print blocks one by one as they execute
 ]: nothing -> string {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
-        --plugin-config $nu.plugin-path $intermid_script_path)
+        --plugin-config $nu.plugin-path $intermed_script_path)
     | if $print_block_results {
         tee {print}
     } else {}
@@ -467,6 +467,8 @@ export def create-file-backup [
         | mv $file_path $in
     }
 }
+
+#todo make config - an env record
 
 export def open-config [] {
     '.numd_config.yaml'

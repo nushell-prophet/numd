@@ -11,10 +11,10 @@ export def run [
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-stats # do not output stats of changes
-    --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
+    --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
-    --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-    --table-width: int # set the `table --width` option value
+    --prepend-intermed: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
+    --width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
         | if $nu.os-info.family == windows {
@@ -27,16 +27,16 @@ export def run [
 
     if $table_width != null { $env.numd.table-width = $table_width }
 
-    let $intermediate_script_path = $intermid_script
+    let $intermediate_script_path = $intermed_script
         | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
 
     generate-intermediate-script $original_md_table
-    | if $prepend_intermid == null {
+    | if $prepend_intermed == null {
         $'(open-config-intermediate-script)($in)'
     } else {
-        $'($prepend_intermid)(char nl)($in)'
+        $'($prepend_intermed)(char nl)($in)'
     }
     | save -f $intermediate_script_path
 
@@ -48,8 +48,8 @@ export def run [
         | clean-markdown
         | toggle-output-fences --back
 
-    # if $intermid_script param wasn't set - remove the temporary intermediate script
-    if $intermid_script == null {
+    # if $intermed_script param wasn't set - remove the temporary intermediate script
+    if $intermed_script == null {
         rm $intermediate_script_path
     }
 

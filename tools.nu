@@ -13,7 +13,7 @@ def 'main testing' [] {
         | save -f (
             [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
         )
-        numd run $file --no-backup --intermid-script $'($file)_intermid.nu'
+        numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
     }
     | append (numd run README.md --no-backup)
 }

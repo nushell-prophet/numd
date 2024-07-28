@@ -60,25 +60,25 @@ $md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim --r
 The `generate-intermediate-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
 " | print
 "```nu indent-output" | print
-"# Here we emulate that the `$intermid_script_path` options is not set
-let $intermid_script_path = $file
+"# Here we emulate that the `$intermed_script_path` options is not set
+let $intermed_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
 generate-intermediate-script $md_orig_table
-| save -f $intermid_script_path
+| save -f $intermed_script_path
 
-open $intermid_script_path" | nu-highlight | print
+open $intermed_script_path" | nu-highlight | print
 
 "```\n```output-numd" | print
 
-# Here we emulate that the `$intermid_script_path` options is not set
-let $intermid_script_path = $file
+# Here we emulate that the `$intermed_script_path` options is not set
+let $intermed_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
 generate-intermediate-script $md_orig_table
-| save -f $intermid_script_path
+| save -f $intermed_script_path
 
-open $intermid_script_path | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+open $intermed_script_path | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -91,8 +91,8 @@ The `execute-intermediate-script` command runs and captures outputs of the execu
 "# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = execute-intermediate-script $intermid_script_path $no_fail_on_error false
-rm $intermid_script_path
+let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
+rm $intermed_script_path
 $nu_res_stdout_lines" | nu-highlight | print
 
 "```\n```output-numd" | print
@@ -100,8 +100,8 @@ $nu_res_stdout_lines" | nu-highlight | print
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = execute-intermediate-script $intermid_script_path $no_fail_on_error false
-rm $intermid_script_path
+let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
+rm $intermed_script_path
 $nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
