@@ -101,6 +101,7 @@ export def generate-intermediate-script [
             execute-block-lines $in.line $in.row_type.0
         }
     }
+    | prepend $"($env.numd?.prepend-intermediate-code?)"
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd" )
