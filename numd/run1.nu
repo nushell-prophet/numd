@@ -13,7 +13,7 @@ export def run [
     --no-stats # do not output stats of changes
     --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
-    --prepend-intermed: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
+    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
     --width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
@@ -33,10 +33,10 @@ export def run [
         # which will only work if we execute the intermediate script from the same folder.
 
     generate-intermediate-script $original_md_table
-    | if $prepend_intermed == null {
+    | if $prepend_code == null {
         $'(open-config-intermediate-script)($in)'
     } else {
-        $'($prepend_intermed)(char nl)($in)'
+        $'($prepend_code)(char nl)($in)'
     }
     | save -f $intermediate_script_path
 

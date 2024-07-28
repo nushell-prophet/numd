@@ -47,7 +47,7 @@ Flags:
   --no-stats - do not output stats of changes
   --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary one will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-intermed <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
+  --prepend-code <String> - prepend code into the intermediate script, useful for customizing Nushell output settings
   --width <Int> - set the `table --width` option value
 
 Parameters:
@@ -104,7 +104,7 @@ let path = $nu.temp-path | path join simple_nu_table.md
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
 # let's run this file to see it's outputs
-numd run $path --echo --no-save --no-stats --prepend-intermed "$env.config.footer_mode = 'never'
+numd run $path --echo --no-save --no-stats --prepend-code "$env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
     $env.config.table.mode = 'basic_compact'"
 ```
