@@ -45,7 +45,7 @@ Flags:
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-stats - do not output stats of changes
-  --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary one will be deleted.
+  --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-code <String> - prepend code into the intermediate script, useful for customizing Nushell output settings
   --width <Int> - set the `table --width` option value
