@@ -101,7 +101,7 @@ export def generate-intermediate-script [
             execute-block-lines $in.line $in.row_type.0
         }
     }
-    | prepend $"($env.numd?.prepend-intermediate-code?)"
+    | prepend $"($env.numd?.prepend-code?)"
     | prepend $"const init_numd_pwd_const = '($current_dir)'" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
@@ -471,19 +471,22 @@ export def create-file-backup [
 
 #todo make config - an env record
 
-export def open-config [] {
-    '.numd_config.yaml'
-    | if ($in | path exists) {
-        open
-    } else {{}}
-}
+export def --env load-config [
+    path: path # path to .yaml numd config file
+    --prepend_code: string
+    --table_width: int
+] {
+    $env.numd = (
+        [
+            [key value];
 
-export def open-config-intermediate-script [] {
-    open-config
-    | get -i prepend-intermediate-script
-    | if $in != null {
-        $'# config from .numd_config(char nl)($in)(char nl)(char nl)'
-    }
+            [prepend-code $prepend_code]
+            [table-width $table_width]
+        ]
+        | append (open $path | transpose key value)
+        | where value not-in [null 0]
+        | transpose --ignore-titles --as-record --header-row
+    )
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.

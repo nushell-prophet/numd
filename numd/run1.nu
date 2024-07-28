@@ -14,7 +14,8 @@ export def run [
     --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
-    --width: int # set the `table --width` option value
+    --width: int = 0 # set the `table --width` option value
+    --config-yaml: path = ''
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
         | if $nu.os-info.family == windows {
@@ -25,7 +26,7 @@ export def run [
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
 
-    if $table_width != null { $env.numd.table-width = $table_width }
+    load-config $config_yaml --prepend_code $prepend_code --table_width $width
 
     let $intermediate_script_path = $intermed_script
         | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
@@ -33,11 +34,6 @@ export def run [
         # which will only work if we execute the intermediate script from the same folder.
 
     generate-intermediate-script $original_md_table
-    | if $prepend_code == null {
-        $'(open-config-intermediate-script)($in)'
-    } else {
-        $'($prepend_code)(char nl)($in)'
-    }
     | save -f $intermediate_script_path
 
     let $updated_md_ansi = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
