@@ -481,8 +481,7 @@ export def open-config-intermediate-script [] {
     open-config
     | get -i prepend-intermediate-script
     | if $in != null {
-        print 'config from `.numd_config.yaml` will be used';
-        $'($in)(char nl)'
+        $'# config from .numd_config(char nl)($in)(char nl)(char nl)'
     }
 }
 
