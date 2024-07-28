@@ -472,7 +472,7 @@ export def open-config [] {
     '.numd_config.yaml'
     | if ($in | path exists) {
         open
-    }
+    } else {{}}
 }
 
 export def open-config-intermediate-script [] {
