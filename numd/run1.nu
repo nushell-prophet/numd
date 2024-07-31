@@ -14,7 +14,7 @@ export def run [
     --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-    --width: int # set the `table --width` option value
+    --table-width: int # set the `table --width` option value
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
         | if $nu.os-info.family == windows {
@@ -25,7 +25,7 @@ export def run [
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
 
-    if $width != null { $env.numd.table-width = $width }
+    if $table_width != null { $env.numd.table-width = $table_width }
 
     let $intermediate_script_path = $intermid_script
         | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
