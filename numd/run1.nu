@@ -14,7 +14,7 @@ export def run [
     --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
-    --width: int = 0 # set the `table --width` option value
+    --width: int # set the `table --width` option value
     --config-yaml: path = ''
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
