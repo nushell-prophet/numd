@@ -59,7 +59,7 @@ export def run [
     }
 
     if not $no_stats {
-        compute-change-stats $file $original_md $updated_md_ansi
+        compute-change-stats $output_path $original_md $updated_md_ansi
         | if not $echo {
             return $in # default variant: we return here a record
         } else {
