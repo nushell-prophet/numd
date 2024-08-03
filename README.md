@@ -48,7 +48,8 @@ Flags:
   --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
   --prepend-code <String> - prepend code into the intermediate script, useful for customizing Nushell output settings
-  --width <Int> - set the `table --width` option value
+  --table-width <Int> - set the `table --width` option value
+  --config-path <Filepath> - path to a config file (default: '')
 
 Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -207,7 +208,7 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 18 Jul 2024 07:06:56 +0000 (a week ago)
+Thu, 1 Aug 2024 14:26:12 +0000 (2 days ago)
 
 > 2 + 2
 4

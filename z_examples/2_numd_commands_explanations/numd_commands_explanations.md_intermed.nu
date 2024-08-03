@@ -1,6 +1,8 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+
 const init_numd_pwd_const = '/Users/user/git/numd'
+
 "# numd commands explanation
 
 In the code block below, we set settings and variables for executing this entire document.
@@ -50,7 +52,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+$md_orig_table | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
@@ -78,7 +80,7 @@ let $intermed_script_path = $file
 generate-intermediate-script $md_orig_table
 | save -f $intermed_script_path
 
-open $intermed_script_path | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+open $intermed_script_path | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
@@ -102,7 +104,7 @@ let $no_fail_on_error = false
 
 let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
 rm $intermed_script_path
-$nu_res_stdout_lines | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+$nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
@@ -120,7 +122,7 @@ let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
 
-$md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+$md_res | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
@@ -134,6 +136,6 @@ The `compute-change-stats` command displays stats on the changes made.
 
 "```\n```output-numd" | print
 
-compute-change-stats $file $md_orig $md_res | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | print; print ''
+compute-change-stats $file $md_orig $md_res | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print

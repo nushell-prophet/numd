@@ -1,6 +1,8 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+
 const init_numd_pwd_const = '/Users/user/git/numd'
+
 "# Types of Data
 
 Traditionally, Unix shell commands have communicated with each other using strings of text: one command would write text to standard output (often abbreviated 'stdout') and the other would read text from standard input (or 'stdin'), allowing the two commands to communicate.
@@ -14,7 +16,7 @@ The [`describe`](/commands/docs/describe.md) command returns the type of a data 
 "```nushell" | print
 "> 42 | describe" | nu-highlight | print
 
-42 | describe | print; print ''
+42 | describe | table | print; print ''
 
 "```" | print
 
@@ -47,7 +49,7 @@ You can parse a string into an integer with the [`into int`](/commands/docs/into
 "```nushell" | print
 "> \"-5\" | into int" | nu-highlight | print
 
-"-5" | into int | print; print ''
+"-5" | into int | table | print; print ''
 
 "```" | print
 
@@ -60,7 +62,7 @@ You can cast a string into a Float with the [`into float`](/commands/docs/into_f
 "```nushell" | print
 "> \"1.2\" | into float" | nu-highlight | print
 
-"1.2" | into float | print; print ''
+"1.2" | into float | table | print; print ''
 
 "```" | print
 
@@ -93,7 +95,7 @@ let mybool = 2 > 1
 
 "> $mybool" | nu-highlight | print
 
-$mybool | print; print ''
+$mybool | table | print; print ''
 
 "> let mybool = ($nu.home-path | path exists)" | nu-highlight | print
 
@@ -101,7 +103,7 @@ let mybool = ($nu.home-path | path exists)
 
 "> $mybool" | nu-highlight | print
 
-$mybool | print; print ''
+$mybool | table | print; print ''
 
 "```" | print
 
@@ -139,7 +141,7 @@ You can make fractional durations:
 "```nushell" | print
 "> 3.14day" | nu-highlight | print
 
-3.14day | print; print ''
+3.14day | table | print; print ''
 
 "```" | print
 
@@ -149,7 +151,7 @@ And you can do calculations with durations:
 "```nushell" | print
 "> 30day / 1sec  # How many seconds in 30 days?" | nu-highlight | print
 
-30day / 1sec | print; print ''
+30day / 1sec | table | print; print ''
 
 "```" | print
 
@@ -179,15 +181,15 @@ As with durations, you can make fractional file sizes, and do calculations:
 "```nushell" | print
 "> 1Gb / 1b" | nu-highlight | print
 
-1Gb / 1b | print; print ''
+1Gb / 1b | table | print; print ''
 
 "> 1Gib / 1b" | nu-highlight | print
 
-1Gib / 1b | print; print ''
+1Gib / 1b | table | print; print ''
 
 "> (1Gib / 1b) == 2 ** 30" | nu-highlight | print
 
-(1Gib / 1b) == 2 ** 30 | print; print ''
+(1Gib / 1b) == 2 ** 30 | table | print; print ''
 
 "```" | print
 
@@ -237,15 +239,15 @@ You can write binary as a literal using any of the `0x[...]`, `0b[...]`, or `0o[
 "```nushell" | print
 "> 0x[1F FF]  # Hexadecimal" | nu-highlight | print
 
-0x[1F FF] | print; print ''
+0x[1F FF] | table | print; print ''
 
 "> 0b[1 1010] # Binary" | nu-highlight | print
 
-0b[1 1010] | print; print ''
+0b[1 1010] | table | print; print ''
 
 "> 0o[377]    # Octal" | nu-highlight | print
 
-0o[377] | print; print ''
+0o[377] | table | print; print ''
 
 "```" | print
 
@@ -263,7 +265,7 @@ Records hold key-value pairs, which associate string keys with various data valu
 "```nushell" | print
 "> {name: sam rank: 10}" | nu-highlight | print
 
-{name: sam rank: 10} | print; print ''
+{name: sam rank: 10} | table | print; print ''
 
 "```" | print
 
@@ -278,7 +280,7 @@ This means that any command that operates on a table's rows _also_ operates on r
 "```nushell" | print
 "> {x:3 y:1} | insert z 0" | nu-highlight | print
 
-{x:3 y:1} | insert z 0 | print; print ''
+{x:3 y:1} | insert z 0 | table | print; print ''
 
 "```" | print
 
@@ -290,7 +292,7 @@ You can iterate over records by first transposing it into a table:
 "```nushell" | print
 "> {name: sam, rank: 10} | transpose key value" | nu-highlight | print
 
-{name: sam, rank: 10} | transpose key value | print; print ''
+{name: sam, rank: 10} | transpose key value | table | print; print ''
 
 "```" | print
 
@@ -300,7 +302,7 @@ Accessing records' data is done by placing a `.` before a string, which is usual
 "```nushell" | print
 "> {x:12 y:4}.x" | nu-highlight | print
 
-{x:12 y:4}.x | print; print ''
+{x:12 y:4}.x | table | print; print ''
 
 "```" | print
 
@@ -310,7 +312,7 @@ However, if a record has a key name that can't be expressed as a bare string, or
 "```nushell" | print
 "> {\"1\":true \" \":false}.\" \"" | nu-highlight | print
 
-{"1":true " ":false}." " | print; print ''
+{"1":true " ":false}." " | table | print; print ''
 
 "```" | print
 
@@ -324,7 +326,7 @@ let data = { name: alice, age: 50 }
 
 "> { ...$data, hobby: cricket }" | nu-highlight | print
 
-{ ...$data, hobby: cricket } | print; print ''
+{ ...$data, hobby: cricket } | table | print; print ''
 
 "```" | print
 
@@ -336,7 +338,7 @@ Lists are ordered sequences of data values. List syntax is very similar to array
 "```nushell" | print
 "> [sam fred george]" | nu-highlight | print
 
-[sam fred george] | print; print ''
+[sam fred george] | table | print; print ''
 
 "```" | print
 
@@ -347,7 +349,7 @@ Lists are equivalent to the individual columns of tables. You can think of a lis
 "```nushell" | print
 "> [bell book candle] | where ($it =~ 'b')" | nu-highlight | print
 
-[bell book candle] | where ($it =~ 'b') | print; print ''
+[bell book candle] | where ($it =~ 'b') | table | print; print ''
 
 "```" | print
 
@@ -359,7 +361,7 @@ Accessing lists' data is done by placing a `.` before a bare integer:
 "```nushell" | print
 "> [a b c].1" | nu-highlight | print
 
-[a b c].1 | print; print ''
+[a b c].1 | table | print; print ''
 
 "```" | print
 
@@ -369,7 +371,7 @@ To get a sub-list from a list, you can use the [`range`](/commands/docs/range.md
 "```nushell" | print
 "> [a b c d e f] | range 1..3" | nu-highlight | print
 
-[a b c d e f] | range 1..3 | print; print ''
+[a b c d e f] | range 1..3 | table | print; print ''
 
 "```" | print
 
@@ -384,7 +386,7 @@ let x = [1 2]
 
 "> [...$x 3 ...(4..7 | take 2)]" | nu-highlight | print
 
-[...$x 3 ...(4..7 | take 2)] | print; print ''
+[...$x 3 ...(4..7 | take 2)] | table | print; print ''
 
 "```" | print
 
@@ -398,7 +400,7 @@ We can create our own tables similarly to how we create a list. Because tables a
 "```nushell" | print
 "> [[column1, column2]; [Value1, Value2] [Value3, Value4]]" | nu-highlight | print
 
-[[column1, column2]; [Value1, Value2] [Value3, Value4]] | print; print ''
+[[column1, column2]; [Value1, Value2] [Value3, Value4]] | table | print; print ''
 
 "```" | print
 
@@ -408,7 +410,7 @@ You can also create a table as a list of records, JSON-style:
 "```nushell" | print
 "> [{name: sam, rank: 10}, {name: bob, rank: 7}]" | nu-highlight | print
 
-[{name: sam, rank: 10}, {name: bob, rank: 7}] | print; print ''
+[{name: sam, rank: 10}, {name: bob, rank: 7}] | table | print; print ''
 
 "```" | print
 
@@ -419,7 +421,7 @@ Internally, tables are simply **lists of records**. This means that any command 
 "```nushell" | print
 "> [{x:12, y:5}, {x:3, y:6}] | get 0" | nu-highlight | print
 
-[{x:12, y:5}, {x:3, y:6}] | get 0 | print; print ''
+[{x:12, y:5}, {x:3, y:6}] | get 0 | table | print; print ''
 
 "```" | print
 
@@ -429,7 +431,7 @@ This is true regardless of which table syntax you use:
 "```nushell" | print
 "> [[x,y];[12,5],[3,6]] | get 0" | nu-highlight | print
 
-[[x,y];[12,5],[3,6]] | get 0 | print; print ''
+[[x,y];[12,5],[3,6]] | get 0 | table | print; print ''
 
 "```" | print
 
@@ -449,7 +451,7 @@ Moreover, you can also access entire columns of a table by name, to obtain lists
 "```nushell" | print
 "> [{x:12 y:5} {x:4 y:7} {x:2 y:2}].x" | nu-highlight | print
 
-[{x:12 y:5} {x:4 y:7} {x:2 y:2}].x | print; print ''
+[{x:12 y:5} {x:4 y:7} {x:2 y:2}].x | table | print; print ''
 
 "```" | print
 
@@ -459,7 +461,7 @@ Of course, these resulting lists don't have the column names of the table. To re
 "```nushell" | print
 "> [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z" | nu-highlight | print
 
-[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z | print; print ''
+[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z | table | print; print ''
 
 "```" | print
 
@@ -469,7 +471,7 @@ To remove rows from a table, you'll commonly use the [`select`](/commands/docs/s
 "```nushell" | print
 "> [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2" | nu-highlight | print
 
-[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2 | print; print ''
+[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2 | table | print; print ''
 
 "```" | print
 
@@ -481,7 +483,7 @@ By default, cell path access will fail if it can't access the requested row or c
 "```nushell" | print
 "> [{foo: 123}, {}].foo?" | nu-highlight | print
 
-[{foo: 123}, {}].foo? | print; print ''
+[{foo: 123}, {}].foo? | table | print; print ''
 
 "```" | print
 
@@ -508,7 +510,7 @@ do $greet \"Julian\"" | nu-highlight | print
 
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
-do $greet "Julian" | print; print ''
+do $greet "Julian" | table | print; print ''
 
 "```" | print
 
@@ -536,7 +538,7 @@ mut x = 1
 if true {
     $x += 1000
 }
-print $x | print; print ''
+print $x | table | print; print ''
 
 "```" | print
 
@@ -558,11 +560,11 @@ git checkout featurebranch | null
 "```nushell try,new-instance" | print
 "> [{a:1 b:2} {b:1}]" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}]"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print; print ''
+/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}]"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table | print; print ''
 
 "> [{a:1 b:2} {b:1}].1.a" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}].1.a"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | print; print ''
+/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}].1.a"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table | print; print ''
 
 "```" | print
 

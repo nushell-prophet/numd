@@ -85,7 +85,9 @@ Output:
 ```
 //  # this script was generated automatically using numd
 //  # https://github.com/nushell-prophet/numd
+//
 //  const init_numd_pwd_const = '/Users/user/git/numd'
+//
 //  "# This is a simple markdown example
 //
 //  ## Example 1
@@ -111,7 +113,7 @@ Output:
 //  "```\n```output-numd" | print
 //
 //  # This block will produce some output in a separate block
-//  $var1 | path join 'baz' 'bar' | print; print ''
+//  $var1 | path join 'baz' 'bar' | table | print; print ''
 //
 //  "```" | print
 //
@@ -124,11 +126,11 @@ Output:
 //
 //  "> whoami" | nu-highlight | print
 //
-//  whoami | print; print ''
+//  whoami | table | print; print ''
 //
 //  "> 2 + 2" | nu-highlight | print
 //
-//  2 + 2 | print; print ''
+//  2 + 2 | table | print; print ''
 //
 //  "```" | print
 ```
