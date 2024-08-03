@@ -1,13 +1,16 @@
-
-    # ```nushell
-$env.numd?
-
-
-    # ```nushell
+```nushell
 [[a b c]; [1 2 3]]
+```
 
+Output:
 
-    # ```nushell
+```
+╭─a─┬─b─┬─c─╮
+│ 1 │ 2 │ 3 │
+╰─a─┴─b─┴─c─╯
+```
+
+```nushell
 [[column long_text];
 
 ['value_1' ('Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.' +
@@ -21,3 +24,13 @@ $env.numd?
                 'adipiscing, laboris elit quis pariatur. Adipiscing laboris elit quis pariatur. ' +
                 'Elit quis pariatur, in ut anim anim ut.')]
 ]
+```
+
+Output:
+
+```
+╭─column──┬─...─╮
+│ value_1 │ ... │
+│ value_2 │ ... │
+╰─column──┴─...─╯
+```

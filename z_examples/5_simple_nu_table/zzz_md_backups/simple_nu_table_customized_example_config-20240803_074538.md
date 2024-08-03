@@ -1,8 +1,4 @@
 ```nushell
-> $env.numd?
-```
-
-```nushell
 [[a b c]; [1 2 3]]
 ```
 
