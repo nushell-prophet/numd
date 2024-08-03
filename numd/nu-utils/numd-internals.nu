@@ -494,13 +494,14 @@ export def --env load-config [
         [
             [key value];
 
+            [dummy-key 'dummy-value']
             [prepend-code $prepend_code]
             [table-width $table_width]
         ]
         | if $path != '' {
             append (open $path | transpose key value)
         } else {}
-        | where value not-in [null 0]
+        | where value != null
         | transpose --ignore-titles --as-record --header-row
     )
 }
