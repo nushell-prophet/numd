@@ -1,3 +1,6 @@
+const numdinternals = ([numd nu-utils numd-internals.nu] | path join)
+use $numdinternals [modify-path]
+
 def main [] {}
 
 def 'main testing' [] {
@@ -18,13 +21,13 @@ def 'main testing' [] {
         numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
     }
     | append (
-        numd run $path_simple_table --table-width 20 --result-md-path (
-            $path_simple_table | str replace 'simple_nu_table.md' 'simple_nu_table_customized_width20.md'
+        numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
+            $path_simple_table | modify-path --suffix '_customized_width20'
         )
     )
     | append (
-        numd run $path_simple_table --config-path 'numd_example_config.yaml' --result-md-path (
-            $path_simple_table | str replace 'simple_nu_table.md' 'simple_nu_table_customized_example_config.md'
+        numd run $path_simple_table --no-backup --config-path 'numd_example_config.yaml' --result-md-path (
+            $path_simple_table | modify-path --suffix '_customized_example_config'
         )
     )
     | append (numd run README.md --no-backup)
