@@ -1,5 +1,5 @@
 use nu-utils [cprint]
-use nu-utils numd-internals [prettify-markdown]
+use nu-utils numd-internals [clean-markdown]
 
 # start capturing commands and their outputs into a file
 export def --env start [
@@ -57,7 +57,7 @@ export def --env stop [ ]: nothing -> nothing {
 
     if not $env.numd.separate-blocks {
         $"(open $file)```\n"
-        | prettify-markdown
+        | clean-markdown
         | save --force $file
     }
 

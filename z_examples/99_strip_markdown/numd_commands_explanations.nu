@@ -14,38 +14,38 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
-let $md_orig = open -r $file | replace-output-numd-fences
-let $md_orig_table = $md_orig | detect-code-blocks
+let $md_orig = open -r $file | toggle-output-fences
+let $md_orig_table = $md_orig | find-code-blocks
 $md_orig_table
 
 
     # ```nu indent-output
-# Here we emulate that the `$intermid_script_path` options is not set
-let $intermid_script_path = $file
-    | path-modify --prefix $'numd-temp-(tstamp)' --suffix '.nu'
+# Here we emulate that the `$intermed_script_path` options is not set
+let $intermed_script_path = $file
+    | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-gen-intermid-script $md_orig_table
-| save -f $intermid_script_path
+generate-intermediate-script $md_orig_table
+| save -f $intermed_script_path
 
-open $intermid_script_path
+open $intermed_script_path
 
 
     # ```nu indent-output
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = run-intermid-script $intermid_script_path $no_fail_on_error false
-rm $intermid_script_path
+let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
+rm $intermed_script_path
 $nu_res_stdout_lines
 
 
     # ```nu indent-output
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
-    | prettify-markdown
+    | clean-markdown
 
 $md_res
 
 
     # ```nu indent-output
-calc-changes-stats $file $md_orig $md_res
+compute-change-stats $file $md_orig $md_res

@@ -1,6 +1,8 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
+
 const init_numd_pwd_const = '/Users/user/git/numd'
+
 "# Working with lists
 
 ## Creating lists
@@ -16,7 +18,7 @@ You can [`update`](/commands/docs/update.md) and [`insert`](/commands/docs/inser
 "```nu" | print
 "> [1, 2, 3, 4] | insert 2 10" | nu-highlight | print
 
-[1, 2, 3, 4] | insert 2 10 | print; print ''
+[1, 2, 3, 4] | insert 2 10 | table | print; print ''
 
 "# [1, 2, 10, 3, 4]" | nu-highlight | print
 
@@ -29,7 +31,7 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 "```nu" | print
 "> [1, 2, 3, 4] | update 1 10" | nu-highlight | print
 
-[1, 2, 3, 4] | update 1 10 | print; print ''
+[1, 2, 3, 4] | update 1 10 | table | print; print ''
 
 "# [1, 10, 3, 4]" | nu-highlight | print
 
@@ -58,7 +60,7 @@ let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ($colors ++ "blue")
 let colors = ("black" ++ $colors)
-$colors | print; print ''
+$colors | table | print; print ''
 
 "```" | print
 
@@ -76,7 +78,7 @@ $colors # [yellow]" | nu-highlight | print
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors | print; print ''
+$colors | table | print; print ''
 
 "```" | print
 
@@ -92,7 +94,7 @@ $colors # [purple black magenta]" | nu-highlight | print
 
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors | print; print ''
+$colors | table | print; print ''
 
 "```" | print
 
@@ -108,7 +110,7 @@ $colors # [yellow green]" | nu-highlight | print
 
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors | print; print ''
+$colors | table | print; print ''
 
 "```" | print
 
@@ -133,7 +135,7 @@ let names = [Mark Tami Amanda Jeremy]
 $names | each { |it| $"Hello, ($it)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | print; print ''
+$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" } | table | print; print ''
 
 "```" | print
 
@@ -152,7 +154,7 @@ $colors | where ($it | str ends-with 'e')
 
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean. | print; print ''
+# The block passed to `where` must evaluate to a boolean. | table | print; print ''
 
 "```" | print
 
@@ -166,7 +168,7 @@ $scores | where $it > 7 # [10 8]" | nu-highlight | print
 "```\n```output-numd" | print
 
 let scores = [7 10 8 6 7]
-$scores | where $it > 7 | print; print ''
+$scores | where $it > 7 | table | print; print ''
 
 "```" | print
 
@@ -196,7 +198,7 @@ $"total = ($scores | math sum)" # easier approach, same result
 
 $"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | print; print ''
+$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } | table | print; print ''
 
 "```" | print
 
@@ -214,7 +216,7 @@ $names.1 # gives Tami" | nu-highlight | print
 "```\n```output-numd" | print
 
 let names = [Mark Tami Amanda Jeremy]
-$names.1 | print; print ''
+$names.1 | table | print; print ''
 
 "```" | print
 
@@ -230,7 +232,7 @@ $names | get $index # gives Tami" | nu-highlight | print
 
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index | print; print ''
+$names | get $index | table | print; print ''
 
 "```" | print
 
@@ -254,7 +256,7 @@ let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty | print; print ''
+$colors | is-empty | table | print; print ''
 
 "```" | print
 
@@ -272,7 +274,7 @@ The `in` and `not-in` operators are used to test whether a value is in a list. F
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors | print; print ''
+'gold' not-in $colors | table | print; print ''
 
 "```" | print
 
@@ -310,7 +312,7 @@ let scores = [3 8 4]
 $scores | any {|it| $it > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 } | print; print ''
+$scores | any {|it| $it mod 2 == 1 } | table | print; print ''
 
 "```" | print
 
@@ -348,7 +350,7 @@ let scores = [3 8 4]
 $scores | all {|it| $it > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 } | print; print ''
+$scores | all {|it| $it mod 2 == 0 } | table | print; print ''
 
 "```" | print
 
@@ -369,7 +371,7 @@ For example:
 
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | print; print ''
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | table | print; print ''
 
 "```" | print
 

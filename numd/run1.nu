@@ -1,5 +1,5 @@
 use nu-utils numd-internals *
-export use nu-utils numd-internals code-block-options
+export use nu-utils numd-internals list-code-options
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
@@ -11,10 +11,11 @@ export def run [
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-stats # do not output stats of changes
-    --intermid-script: path # optional path for an intermediate script (useful for debugging purposes)
+    --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
-    --prepend-intermid: string # prepend text (code) into the intermediate script, useful for customizing Nushell output settings
-    --width: int # set the `table --width` option value
+    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
+    --table-width: int # set the `table --width` option value
+    --config-path: path = '' # path to a config file
 ]: [nothing -> string, nothing -> nothing, nothing -> record] {
     let $original_md = open -r $file
         | if $nu.os-info.family == windows {
@@ -22,38 +23,35 @@ export def run [
         } else {}
 
     let $original_md_table = $original_md
-        | replace-output-numd-fences # should be unncecessary for new files
-        | detect-code-blocks
+        | toggle-output-fences # should be unnecessary for new files
+        | find-code-blocks
 
-    if $width != null { $env.numd.table-width = $width }
+    load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
-    let $intermediate_script_path = $intermid_script
-        | default ( $file | path-modify --prefix $'numd-temp-(tstamp)' --extension '.nu' )
+    let $intermediate_script_path = $intermed_script
+        | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
 
-    gen-intermid-script $original_md_table
-    | if $prepend_intermid == null {} else {
-        $'($prepend_intermid)(char nl)($in)'
-    }
+    generate-intermediate-script $original_md_table
     | save -f $intermediate_script_path
 
-    let $updated_md_ansi = run-intermid-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let $updated_md_ansi = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
             return { filename: $file,
                 comment: "the script didn't produce any output" }
         } else {}
-        | prettify-markdown
-        | replace-output-numd-fences --back
+        | clean-markdown
+        | toggle-output-fences --back
 
-    # if $intermid_script param wasn't set - remove the temporary intermediate script
-    if $intermid_script == null {
+    # if $intermed_script param wasn't set - remove the temporary intermediate script
+    if $intermed_script == null {
         rm $intermediate_script_path
     }
 
     let $output_path = $result_md_path | default $file
     if not $no_save {
-        if not $no_backup { backup-file $output_path }
+        if not $no_backup { create-file-backup $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
     }
     if $save_ansi {
@@ -61,7 +59,7 @@ export def run [
     }
 
     if not $no_stats {
-        calc-changes-stats $file $original_md $updated_md_ansi
+        compute-change-stats $output_path $original_md $updated_md_ansi
         | if not $echo {
             return $in # default variant: we return here a record
         } else {
@@ -82,8 +80,8 @@ export def clear-outputs [
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string, nothing -> nothing] {
     let $original_md_table = open -r $file
-        | replace-output-numd-fences
-        | detect-code-blocks
+        | toggle-output-fences
+        | find-code-blocks
 
     let $result_md_path = $result_md_path | default $file
 
@@ -95,10 +93,10 @@ export def clear-outputs [
         | if ($in | where $it =~ '^>' | is-empty) {} else {
             where $it =~ '^(>|#|```)'
         }
-        | prepend (numd-block $block_index)
+        | prepend (mark-code-block $block_index)
     }
     | flatten
-    | parse-block-index $in
+    | extract-block-index $in
     | if $strip_markdown {
         get line
         | each {
@@ -112,7 +110,7 @@ export def clear-outputs [
         | str join (char nl)
         | return $in # we return the stripped script here to not spoil original md
     } else {
-        assemble-markdown $original_md_table $in
+        merge-markdown $original_md_table $in
     }
     | if $echo {} else {
         save -f $result_md_path
