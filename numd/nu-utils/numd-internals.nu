@@ -371,7 +371,7 @@ export def check-print-append [
 # Generate indented output for better visual formatting.
 #
 # > 'ls' | create-indented-output
-# ls | table | into string | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
+# ls | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
 export def create-indented-output [
     --indent: string = '//  '
 ]: string -> string {
@@ -382,7 +382,7 @@ export def create-indented-output [
 # Generate a print statement for capturing command output.
 #
 # > 'ls' | generate-print-statement
-# ls | print; print ''
+# ls | table | print; print ''
 export def generate-print-statement []: string -> string {
     generate-table-statement
     | $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
@@ -394,6 +394,7 @@ export def generate-print-statement []: string -> string {
 # ls | table
 #
 # > $env.numd.table-width = 10; 'ls' | generate-table-statement
+# ls | table --width 10
 export def generate-table-statement []: string -> string {
     if $env.numd?.table-width? == null {
         $"($in) | table"
@@ -435,10 +436,10 @@ export def generate-print-lines []: list -> string {
 # Parse options from a code fence and return them as a list.
 #
 # > '```nu no-run, t' | extract-fence-options
-# ╭───┬────────╮
-# │ 0 │ no-run │
-# │ 1 │ try    │
-# ╰───┴────────╯
+# ╭────────╮
+# │ no-run │
+# │ try    │
+# ╰────────╯
 export def extract-fence-options []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
