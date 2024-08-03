@@ -13,7 +13,7 @@ def 'main testing' [] {
     | numd clear-outputs $in -o ($in | str replace 'markdown.md' 'markdown_with_no_output.md')
 
     glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
-    | par-each {|file|
+    | par-each --keep-order {|file|
         numd clear-outputs $file --strip-markdown --echo
         | save -f (
             [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
