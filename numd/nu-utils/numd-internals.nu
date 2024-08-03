@@ -375,7 +375,8 @@ export def check-print-append [
 export def create-indented-output [
     --indent: string = '//  '
 ]: string -> string {
-    $"($in) | table | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
+    generate-table-statement
+    | $"($in) | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
 }
 
 # Generate a print statement for capturing command output.
@@ -383,10 +384,20 @@ export def create-indented-output [
 # > 'ls' | generate-print-statement
 # ls | print; print ''
 export def generate-print-statement []: string -> string {
-    if $env.numd?.table-width? == null {} else {
+    generate-table-statement
+    | $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
+}
+
+# Generate a table statement with optional width specification.
+#
+# > 'ls' | generate-table-statement
+# ls | table
+export def generate-table-statement []: string -> string {
+    if $env.numd?.table-width? == null {
+        $"($in) | table"
+    } else {
         $"($in) | table --width ($env.numd.table-width)"
     }
-    | $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
