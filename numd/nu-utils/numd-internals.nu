@@ -484,8 +484,8 @@ export def create-file-backup [
 
 export def --env load-config [
     path: path # path to .yaml numd config file
-    --prepend_code: string
-    --table_width: int
+    --prepend_code: any
+    --table_width: any
 ] {
     $env.numd = (
         [
