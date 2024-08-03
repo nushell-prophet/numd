@@ -392,6 +392,8 @@ export def generate-print-statement []: string -> string {
 #
 # > 'ls' | generate-table-statement
 # ls | table
+#
+# > $env.numd.table-width = 10; 'ls' | generate-table-statement
 export def generate-table-statement []: string -> string {
     if $env.numd?.table-width? == null {
         $"($in) | table"
