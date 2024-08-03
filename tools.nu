@@ -3,7 +3,7 @@ def main [] {}
 def 'main testing' [] {
     use ./numd
 
-    let $path1 = ([z_examples 3_book_types_of_data types_of_data.md] | path join)
+    let $path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
     ['z_examples' '1_simple_markdown' 'simple_markdown.md']
     | path join
@@ -18,13 +18,13 @@ def 'main testing' [] {
         numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
     }
     | append (
-        numd run $path1 --table-width 20 --result-md-path (
-            $path1 | str replace 'types_of_data.md' 'types_of_data_customized_width20.md'
+        numd run $path_simple_table --table-width 20 --result-md-path (
+            $path_simple_table | str replace 'simple_nu_table.md' 'simple_nu_table_customized_width20.md'
         )
     )
     | append (
-        numd run $path1 --config-path 'numd_example_config.yaml' --result-md-path (
-            $path1 | str replace 'types_of_data.md' 'types_of_data_customized_example_config.md'
+        numd run $path_simple_table --config-path 'numd_example_config.yaml' --result-md-path (
+            $path_simple_table | str replace 'simple_nu_table.md' 'simple_nu_table_customized_example_config.md'
         )
     )
     | append (numd run README.md --no-backup)
