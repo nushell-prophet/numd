@@ -497,7 +497,9 @@ export def --env load-config [
             [prepend-code $prepend_code]
             [table-width $table_width]
         ]
-        | append (open $path | transpose key value)
+        | if $path != '' {
+            append (open $path | transpose key value)
+        } else {}
         | where value not-in [null 0]
         | transpose --ignore-titles --as-record --header-row
     )
