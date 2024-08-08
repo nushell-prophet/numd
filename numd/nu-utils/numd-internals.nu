@@ -104,10 +104,10 @@ export def generate-intermediate-script [
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
-            prepend ($"\n# numd config loaded from `($env.numd.config-path)`\n")
+            prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
         } else {}
     } else {}
-    | prepend $"const init_numd_pwd_const = '($current_dir)'" # initialize it here so it will be available in intermediate scripts
+    | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
     | flatten
