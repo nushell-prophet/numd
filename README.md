@@ -55,11 +55,11 @@ Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  │ nothing │ record  │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  │ 2 │ nothing │ record  │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Supported nushell code block options
@@ -147,10 +147,10 @@ Parameters:
   file <path>: path to a `.md` file containing numd output to be cleared
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### `numd capture`
@@ -172,9 +172,9 @@ Parameters:
   file <path>:  (optional, default: 'numd_capture.md')
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ```nushell
@@ -188,9 +188,9 @@ Usage:
 Flags:
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Some random familiar examples
@@ -209,13 +209,13 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 1 Aug 2024 14:26:12 +0000 (2 days ago)
+Thu, 8 Aug 2024 10:04:14 +0000 (4 hours ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.12
+0.1.14
 ```
 
 ## Real fight examples to try
