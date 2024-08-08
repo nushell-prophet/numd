@@ -4,7 +4,7 @@ use $numdinternals [modify-path]
 def main [] {}
 
 def 'main testing' [] {
-    use ./numd
+    use numd
 
     let $path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
@@ -18,7 +18,8 @@ def 'main testing' [] {
         | save -f (
             [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
         )
-        numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
+        ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
+            --config-path numd_config_default.yaml )
     }
     | append (
         numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
@@ -30,7 +31,7 @@ def 'main testing' [] {
             $path_simple_table | modify-path --suffix '_customized_example_config'
         )
     )
-    | append (numd run README.md --no-backup)
+    | append (numd run README.md --no-backup --config-path numd_config_default.yaml)
 }
 
 def 'main release' [] {
