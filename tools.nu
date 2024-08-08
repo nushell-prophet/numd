@@ -19,7 +19,7 @@ def 'main testing' [] {
             [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
         )
         ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
-            --config-path numd_config_default.yaml )
+            --config-path numd_config_example1.yaml )
     }
     | append (
         numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
@@ -27,11 +27,11 @@ def 'main testing' [] {
         )
     )
     | append (
-        numd run $path_simple_table --no-backup --config-path 'numd_example_config.yaml' --result-md-path (
+        numd run $path_simple_table --no-backup --config-path 'numd_config_example2.yaml' --result-md-path (
             $path_simple_table | modify-path --suffix '_customized_example_config'
         )
     )
-    | append (numd run README.md --no-backup --config-path numd_config_default.yaml)
+    | append (numd run README.md --no-backup --config-path numd_config_example1.yaml)
 }
 
 def 'main release' [] {
