@@ -498,7 +498,11 @@ export def --env load-config [
             [table-width $table_width]
         ]
         | if $path != '' {
-            append (open $path | transpose key value)
+            append (
+                open $path
+                | upsert config-path $path
+                | transpose key value
+            )
         } else {}
         | where value != null
         | if ($in | is-empty) {{}} else {
