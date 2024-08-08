@@ -1,9 +1,9 @@
-```nushell try
+```nushell no-run
 > lssomething
 ╭───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ msg   │ External command failed                                                                                                                                                                    │
-│ debug │ ExternalCommand { label: "Command `lssomething` not found", help: "`lssomething` is neither a Nushell built-in or a known external command", span: Span { start: 1967919, end: 1967930 } } │
-│ raw   │ ExternalCommand { label: "Command `lssomething` not found", help: "`lssomething` is neither a Nushell built-in or a known external command", span: Span { start: 1967919, end: 1967930 } } │
+│ debug │ ExternalCommand { label: "Command `lssomething` not found", help: "`lssomething` is neither a Nushell built-in or a known external command", span: Span { start: 1967901, end: 1967912 } } │
+│ raw   │ ExternalCommand { label: "Command `lssomething` not found", help: "`lssomething` is neither a Nushell built-in or a known external command", span: Span { start: 1967901, end: 1967912 } } │
 ╰───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
