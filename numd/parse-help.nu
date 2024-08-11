@@ -37,8 +37,8 @@ export def main [
     $existing_sections
     | merge $elements
     | transpose -idr
-    | if ($in.Flags | length) == 0 {reject 'Flags'} else {}
     | update 'Flags' {where $it !~ '-h, --help'}
+    | if ($in.Flags | length) == 1 {reject 'Flags'} else {} # todo now flags contain fields with empty row
     | if ($in.Description | split list '' | length) > 1 {
         let $input = $in
 
