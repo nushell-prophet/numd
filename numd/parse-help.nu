@@ -37,8 +37,8 @@ export def main [
     $existing_sections
     | merge $elements
     | transpose -idr
-    | update 'Flags' {|i| $i | get 'Flags' | where $it !~ '-h, --help'}
     | if ($in.Flags | length) == 0 {reject 'Flags'} else {}
+    | update 'Flags' {where $it !~ '-h, --help'}
     | if ($in.Description | split list '' | length) > 1 {
         let $input = $in
 
