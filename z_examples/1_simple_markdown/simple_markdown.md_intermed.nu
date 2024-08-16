@@ -11,7 +11,12 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"# This is a simple markdown example\n\n## Example 1\n\nthe block below will be executed as it is, but won't yield any output\n" | print
+"# This is a simple markdown example
+
+## Example 1
+
+the block below will be executed as it is, but won't yield any output
+" | print
 "```nu" | print
 "let $var1 = 'foo'" | nu-highlight | print
 
@@ -21,9 +26,12 @@ let $var1 = 'foo'
 
 "```" | print
 
-"\n## Example 2\n" | print
+"
+## Example 2
+" | print
 "```nu" | print
-"# This block will produce some output in a separate block\n$var1 | path join 'baz' 'bar'" | nu-highlight | print
+"# This block will produce some output in a separate block
+$var1 | path join 'baz' 'bar'" | nu-highlight | print
 
 "```\n```output-numd" | print
 
@@ -32,7 +40,9 @@ $var1 | path join 'baz' 'bar' | table | print; print ''
 
 "```" | print
 
-"\n## Example 3\n" | print
+"
+## Example 3
+" | print
 "```nu" | print
 "# This block will output results inline" | nu-highlight | print
 

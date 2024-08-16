@@ -11,9 +11,11 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"raw strings test\n" | print
+"raw strings test
+" | print
 "```nu" | print
-"let $two_single_lines_text = r#'\"High up in the mountains, a Snake crawled and lay in a damp gorge, coiled\n    into a knot, staring out at the sea.'#" | nu-highlight | print
+"let $two_single_lines_text = r#'\"High up in the mountains, a Snake crawled and lay in a damp gorge, coiled
+    into a knot, staring out at the sea.'#" | nu-highlight | print
 
 "```\n```output-numd" | print
 

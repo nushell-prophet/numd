@@ -11,7 +11,14 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"```nushell no-run\n> lssomething\n╭───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮\n│ msg   │ External command failed                                                                                                                                                                    │\n│ debug │ ExternalCommand { label: \"Command `lssomething` not found\", help: \"`lssomething` is neither a Nushell built-in or a known external command\", span: Span { start: 1967901, end: 1967912 } } │\n│ raw   │ ExternalCommand { label: \"Command `lssomething` not found\", help: \"`lssomething` is neither a Nushell built-in or a known external command\", span: Span { start: 1967901, end: 1967912 } } │\n╰───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯\n```" | print
+"```nushell no-run
+> lssomething
+╭───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ msg   │ External command failed                                                                                                                                                                    │
+│ debug │ ExternalCommand { label: \"Command `lssomething` not found\", help: \"`lssomething` is neither a Nushell built-in or a known external command\", span: Span { start: 1967901, end: 1967912 } } │
+│ raw   │ ExternalCommand { label: \"Command `lssomething` not found\", help: \"`lssomething` is neither a Nushell built-in or a known external command\", span: Span { start: 1967901, end: 1967912 } } │
+╰───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```" | print
 "" | print
 "```nushell try, new-instance" | print
 "> lssomething" | nu-highlight | print
