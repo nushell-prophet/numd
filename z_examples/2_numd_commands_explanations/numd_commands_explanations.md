@@ -88,12 +88,7 @@ Output:
 //
 //  const init_numd_pwd_const = '/Users/user/git/numd'
 //
-//  "# This is a simple markdown example
-//
-//  ## Example 1
-//
-//  the block below will be executed as it is, but won't yield any output
-//  " | print
+//  "# This is a simple markdown example\n\n## Example 1\n\nthe block below will be executed as it is, but won't yield any output\n" | print
 //  "```nu" | print
 //  "let $var1 = 'foo'" | nu-highlight | print
 //
@@ -103,12 +98,9 @@ Output:
 //
 //  "```" | print
 //
-//  "
-//  ## Example 2
-//  " | print
+//  "\n## Example 2\n" | print
 //  "```nu" | print
-//  "# This block will produce some output in a separate block
-//  $var1 | path join 'baz' 'bar'" | nu-highlight | print
+//  "# This block will produce some output in a separate block\n$var1 | path join 'baz' 'bar'" | nu-highlight | print
 //
 //  "```\n```output-numd" | print
 //
@@ -117,9 +109,7 @@ Output:
 //
 //  "```" | print
 //
-//  "
-//  ## Example 3
-//  " | print
+//  "\n## Example 3\n" | print
 //  "```nu" | print
 //  "# This block will output results inline" | nu-highlight | print
 //
