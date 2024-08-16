@@ -285,6 +285,8 @@ export def convert-short-options [
 # > 'abcd"dfdaf" "' | escape-special-characters
 # abcd\"dfdaf\" \"
 export def escape-special-characters []: string -> string {
+    # `to json` might give similar results, yet it replaces new lines
+    # which spoils readability of intermediate scripts
     str replace --all --regex '(\\|\")' '\$1'
 }
 
