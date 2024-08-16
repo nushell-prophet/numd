@@ -326,8 +326,8 @@ export def mark-code-block [
 # > 'ls' | create-highlight-command
 # "ls" | nu-highlight | print
 export def create-highlight-command [ ]: string -> string {
-    to json
-    | $'($in) | nu-highlight | print(char nl)(char nl)'
+    escape-special-characters
+    | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
@@ -421,8 +421,8 @@ export def create-catch-error-current-instance []: string -> string {
 # > 'ls' | create-catch-error-outside
 # /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def create-catch-error-outside []: string -> string {
-    to json
-    | ($'($nu.current-exe) -c ($in)' +
+    escape-special-characters
+    | ($'($nu.current-exe) -c "($in)"' +
         "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
@@ -434,8 +434,8 @@ export def create-fence-output []: string -> string {
 
 export def generate-print-lines []: list -> string {
     str join (char nl)
-    | to json
-    | $'($in) | print'
+    | escape-special-characters
+    | $'"($in)" | print'
 }
 
 # Parse options from a code fence and return them as a list.
