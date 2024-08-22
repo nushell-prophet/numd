@@ -38,18 +38,18 @@ Usage:
   > run {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
   --print-block-results - print blocks one by one as they are executed
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-stats - do not output stats of changes
-  --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+  --intermed-script <path> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-code <String> - prepend code into the intermediate script, useful for customizing Nushell output settings
-  --table-width <Int> - set the `table --width` option value
-  --config-path <Filepath> - path to a config file (default: '')
+  --prepend-code <string> - prepend code into the intermediate script, useful for customizing Nushell output settings
+  --table-width <int> - set the `table --width` option value
+  --config-path <path> - path to a config file (default: '')
 
 Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -139,7 +139,7 @@ Usage:
   > clear-outputs {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
 
@@ -207,7 +207,7 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 8 Aug 2024 10:04:14 +0000 (4 hours ago)
+Thu, 8 Aug 2024 10:04:12 +0000 (2 weeks ago)
 
 > 2 + 2
 4
