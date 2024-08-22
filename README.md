@@ -185,8 +185,6 @@ Description:
 Usage:
   > stop
 
-Flags:
-
 Input/output types:
   ╭─#─┬──input──┬─output──╮
   │ 0 │ nothing │ nothing │
