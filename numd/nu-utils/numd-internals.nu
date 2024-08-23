@@ -371,7 +371,7 @@ export def check-print-append [
     if $last_span ends-with ';' {
         false
     } else {
-        $last_span !~ '\b(let|mut|def|use)\b'
+        $last_span !~ '\b(let|mut|def|use)\b' and $last_span !~ '(?<!(let|mut) )\$\S+ = '
     }
 }
 
