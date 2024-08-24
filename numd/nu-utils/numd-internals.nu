@@ -364,6 +364,8 @@ export def get-last-span [
 #
 # > check-print-append 'ls'
 # true
+#
+# > check-print-append 'mut a = 1; $a = 2'
 export def check-print-append [
     command: string
 ]: nothing -> bool {
