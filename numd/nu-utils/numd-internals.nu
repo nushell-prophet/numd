@@ -283,7 +283,7 @@ export def convert-short-options [
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
 #
 # > 'abcd"dfdaf" "' | escape-special-characters-and-quote
-# abcd\"dfdaf\" \"
+# "abcd\"dfdaf\" \""
 export def escape-special-characters-and-quote []: string -> string {
     # `to json` might give similar results, yet it replaces new lines
     # which spoils readability of intermediate scripts
@@ -366,6 +366,7 @@ export def get-last-span [
 # true
 #
 # > check-print-append 'mut a = 1; $a = 2'
+# false
 export def check-print-append [
     command: string
 ]: nothing -> bool {
@@ -446,10 +447,10 @@ export def generate-print-lines []: list -> string {
 # Parse options from a code fence and return them as a list.
 #
 # > '```nu no-run, t' | extract-fence-options
-# ╭────────╮
-# │ no-run │
-# │ try    │
-# ╰────────╯
+# ╭───┬────────╮
+# │ 0 │ no-run │
+# │ 1 │ try    │
+# ╰───┴────────╯
 export def extract-fence-options []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -524,7 +525,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20240701_125253
+# 20240824_110937
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
