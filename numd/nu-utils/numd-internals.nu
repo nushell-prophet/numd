@@ -282,12 +282,13 @@ export def convert-short-options [
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
 #
-# > 'abcd"dfdaf" "' | escape-special-characters
+# > 'abcd"dfdaf" "' | escape-special-characters-and-quote
 # abcd\"dfdaf\" \"
-export def escape-special-characters []: string -> string {
+export def escape-special-characters-and-quote []: string -> string {
     # `to json` might give similar results, yet it replaces new lines
     # which spoils readability of intermediate scripts
     str replace --all --regex '(\\|\")' '\$1'
+    | $'"($in)"'
 }
 
 # Run the intermediate script and return its output lines as a list.
@@ -328,8 +329,8 @@ export def mark-code-block [
 # > 'ls' | create-highlight-command
 # "ls" | nu-highlight | print
 export def create-highlight-command [ ]: string -> string {
-    escape-special-characters
-    | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
+    escape-special-characters-and-quote
+    | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
@@ -423,8 +424,8 @@ export def create-catch-error-current-instance []: string -> string {
 # > 'ls' | create-catch-error-outside
 # /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def create-catch-error-outside []: string -> string {
-    escape-special-characters
-    | ($'($nu.current-exe) -c "($in)"' +
+    escape-special-characters-and-quote
+    | ($'($nu.current-exe) -c ($in)' +
         "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
@@ -436,8 +437,8 @@ export def create-fence-output []: string -> string {
 
 export def generate-print-lines []: list -> string {
     str join (char nl)
-    | escape-special-characters
-    | $'"($in)" | print'
+    | escape-special-characters-and-quote
+    | $'($in) | print'
 }
 
 # Parse options from a code fence and return them as a list.
