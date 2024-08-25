@@ -345,13 +345,21 @@ export def get-last-span [
     $command: string
 ] {
     let $command = $command | str trim -c "\n" | str trim
-    let $len = ast $command --json
+    let $spans = ast $command --json
         | get block
         | from json
-        | get pipelines
-        | last
-        | get elements.0.expr.span
-        | $in.start - $in.end
+        | to yaml
+        | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
+        | rename s f
+        | into int s f
+
+    let last_span_end = $spans.f | math max
+    let longest_last_span_start = $spans
+        | where f == $last_span_end
+        | get s
+        | math min
+
+    let $len = $longest_last_span_start - $last_span_end
 
     $command
     | str substring $len..
