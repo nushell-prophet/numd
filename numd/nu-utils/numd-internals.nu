@@ -357,7 +357,11 @@ export def get-last-span [
     let longest_last_span_start = $spans
         | where f == $last_span_end
         | get s
-        | math min
+        | if ($in | length) == 1 {} else {
+            sort
+            | skip
+        }
+        | first
 
     let $len = $longest_last_span_start - $last_span_end
 
