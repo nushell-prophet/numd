@@ -162,7 +162,7 @@ $colors | where ($it | str ends-with 'e')
 
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean. | table | print; print ''
+# The block passed to `where` must evaluate to a boolean.
 
 "```" | print
 

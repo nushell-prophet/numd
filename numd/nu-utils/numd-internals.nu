@@ -553,7 +553,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20240824_110937
+# 20240825_091300
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
