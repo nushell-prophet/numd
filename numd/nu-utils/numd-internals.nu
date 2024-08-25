@@ -400,7 +400,7 @@ export def check-print-append [
 ]: nothing -> bool {
     let $last_span = get-last-span $command
 
-    if $last_span ends-with ';' {
+    if $last_span =~ '(;|print|null)$' {
         false
     } else {
         $last_span !~ '\b(let|mut|def|use)\b' and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
