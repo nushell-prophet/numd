@@ -341,6 +341,21 @@ export def remove-comments-plus []: string -> string {
 }
 
 # Extract the last span from a command to decide if `| print` can be appended
+#
+# > get-last-span 'let a = 1..10; $a | length'
+# length
+#
+# > get-last-span 'let a = 1..10; ($a | length);'
+# let a = 1..10; ($a | length);
+#
+# > get-last-span 'let a = 1..10; ($a | length)'
+# ($a | length)
+#
+# > get-last-span 'let a = 1..10'
+# let a = 1..10
+#
+# > get-last-span '"abc"'
+# "abc"
 export def get-last-span [
     $command: string
 ] {
