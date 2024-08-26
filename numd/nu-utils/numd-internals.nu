@@ -101,8 +101,13 @@ export def generate-intermediate-script [
             execute-block-lines $in.line $in.row_type.0
         }
     }
-    | prepend $"($env.numd?.prepend-code?)"
-    | prepend $"const init_numd_pwd_const = '($current_dir)'" # initialize it here so it will be available in intermediate scripts
+    | if $env.numd?.prepend-code? != null {
+        prepend $"($env.numd?.prepend-code?)\n"
+        | if $env.numd.config-path? != null {
+            prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
+        } else {}
+    } else {}
+    | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
     | flatten
@@ -277,10 +282,13 @@ export def convert-short-options [
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
 #
-# > 'abcd"dfdaf" "' | escape-special-characters
-# abcd\"dfdaf\" \"
-export def escape-special-characters []: string -> string {
+# > 'abcd"dfdaf" "' | escape-special-characters-and-quote
+# "abcd\"dfdaf\" \""
+export def escape-special-characters-and-quote []: string -> string {
+    # `to json` might give similar results, yet it replaces new lines
+    # which spoils readability of intermediate scripts
     str replace --all --regex '(\\|\")' '\$1'
+    | $'"($in)"'
 }
 
 # Run the intermediate script and return its output lines as a list.
@@ -301,7 +309,7 @@ export def execute-intermediate-script [
         if $no_fail_on_error {
             ''
         } else {
-            error make {msg: $in.stderr?}
+            error make {msg: ($in.stderr? | into string)} --unspanned
         }
     }
 }
@@ -321,8 +329,8 @@ export def mark-code-block [
 # > 'ls' | create-highlight-command
 # "ls" | nu-highlight | print
 export def create-highlight-command [ ]: string -> string {
-    escape-special-characters
-    | $"\"($in)\" | nu-highlight | print(char nl)(char nl)"
+    escape-special-characters-and-quote
+    | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
@@ -333,17 +341,45 @@ export def remove-comments-plus []: string -> string {
 }
 
 # Extract the last span from a command to decide if `| print` can be appended
+#
+# > get-last-span 'let a = 1..10; $a | length'
+# length
+#
+# > get-last-span 'let a = 1..10; ($a | length);'
+# let a = 1..10; ($a | length);
+#
+# > get-last-span 'let a = 1..10; ($a | length)'
+# ($a | length)
+#
+# > get-last-span 'let a = 1..10'
+# let a = 1..10
+#
+# > get-last-span '"abc"'
+# "abc"
 export def get-last-span [
     $command: string
 ] {
     let $command = $command | str trim -c "\n" | str trim
-    let $len = ast $command --json
+    let $spans = ast $command --json
         | get block
         | from json
-        | get pipelines
-        | last
-        | get elements.0.expr.span
-        | $in.start - $in.end
+        | to yaml
+        | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
+        | rename s f
+        | into int s f
+
+    # I just brutforced ast filter params in nu 0.97, as `ast` waits for better replacement or improvement
+    let last_span_end = $spans.f | math max
+    let longest_last_span_start = $spans
+        | where f == $last_span_end
+        | get s
+        | if ($in | length) == 1 {} else {
+            sort
+            | skip
+        }
+        | first
+
+    let $len = $longest_last_span_start - $last_span_end
 
     $command
     | str substring $len..
@@ -356,15 +392,18 @@ export def get-last-span [
 #
 # > check-print-append 'ls'
 # true
+#
+# > check-print-append 'mut a = 1; $a = 2'
+# false
 export def check-print-append [
     command: string
 ]: nothing -> bool {
     let $last_span = get-last-span $command
 
-    if $last_span ends-with ';' {
+    if $last_span =~ '(;|print|null)$' {
         false
     } else {
-        $last_span !~ '\b(let|mut|def|use)\b'
+        $last_span !~ '\b(let|mut|def|use)\b' and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
     }
 }
 
@@ -416,8 +455,8 @@ export def create-catch-error-current-instance []: string -> string {
 # > 'ls' | create-catch-error-outside
 # /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def create-catch-error-outside []: string -> string {
-    escape-special-characters
-    | ($'($nu.current-exe) -c "($in)"' +
+    escape-special-characters-and-quote
+    | ($'($nu.current-exe) -c ($in)' +
         "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
@@ -429,17 +468,17 @@ export def create-fence-output []: string -> string {
 
 export def generate-print-lines []: list -> string {
     str join (char nl)
-    | escape-special-characters
-    | $'"($in)" | print'
+    | escape-special-characters-and-quote
+    | $'($in) | print'
 }
 
 # Parse options from a code fence and return them as a list.
 #
 # > '```nu no-run, t' | extract-fence-options
-# ╭────────╮
-# │ no-run │
-# │ try    │
-# ╰────────╯
+# ╭───┬────────╮
+# │ 0 │ no-run │
+# │ 1 │ try    │
+# ╰───┴────────╯
 export def extract-fence-options []: string -> list {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -498,7 +537,11 @@ export def --env load-config [
             [table-width $table_width]
         ]
         | if $path != '' {
-            append (open $path | transpose key value)
+            append (
+                open $path
+                | upsert config-path $path
+                | transpose key value
+            )
         } else {}
         | where value != null
         | if ($in | is-empty) {{}} else {
@@ -510,7 +553,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20240701_125253
+# 20240825_091300
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }

@@ -3,6 +3,14 @@
 
 const init_numd_pwd_const = '/Users/user/git/numd'
 
+# numd config loaded from `/Users/user/git/numd/numd_config_example1.yaml`
+
+$env.config.footer_mode = 'always';
+$env.config.table = {mode: rounded, index_mode: never,
+show_empty: false, padding: {left: 1, right: 1},
+trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
+header_on_separator: true, abbreviated_row_count: 1000}
+
 "# Working with lists
 
 ## Creating lists
@@ -154,7 +162,7 @@ $colors | where ($it | str ends-with 'e')
 
 let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
-# The block passed to `where` must evaluate to a boolean. | table | print; print ''
+# The block passed to `where` must evaluate to a boolean.
 
 "```" | print
 

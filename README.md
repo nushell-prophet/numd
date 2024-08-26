@@ -38,28 +38,28 @@ Usage:
   > run {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
   --print-block-results - print blocks one by one as they are executed
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-stats - do not output stats of changes
-  --intermed-script <Filepath> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+  --intermed-script <path> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-code <String> - prepend code into the intermediate script, useful for customizing Nushell output settings
-  --table-width <Int> - set the `table --width` option value
-  --config-path <Filepath> - path to a config file (default: '')
+  --prepend-code <string> - prepend code into the intermediate script, useful for customizing Nushell output settings
+  --table-width <int> - set the `table --width` option value
+  --config-path <path> - path to a config file (default: '')
 
 Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  │ nothing │ record  │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  │ 2 │ nothing │ record  │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Supported nushell code block options
@@ -107,6 +107,7 @@ let path = $nu.temp-path | path join simple_nu_table.md
 # let's run this file to see it's outputs
 numd run $path --echo --no-save --no-stats --prepend-code "$env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
+    $env.config.table.index_mode = 'never'
     $env.config.table.mode = 'basic_compact'"
 ```
 
@@ -138,7 +139,7 @@ Usage:
   > clear-outputs {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
 
@@ -146,10 +147,10 @@ Parameters:
   file <path>: path to a `.md` file containing numd output to be cleared
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### `numd capture`
@@ -171,9 +172,9 @@ Parameters:
   file <path>:  (optional, default: 'numd_capture.md')
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ```nushell
@@ -184,12 +185,10 @@ Description:
 Usage:
   > stop
 
-Flags:
-
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Some random familiar examples
@@ -208,13 +207,13 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 1 Aug 2024 14:26:12 +0000 (2 days ago)
+Thu, 22 Aug 2024 11:02:48 +0000 (2 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.12
+0.1.14
 ```
 
 ## Real fight examples to try

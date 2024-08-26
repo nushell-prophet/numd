@@ -1,0 +1,3 @@
+```nushell
+> lssomething
+```
