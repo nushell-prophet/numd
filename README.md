@@ -1,4 +1,5 @@
-<h1 align="center">numd - reproducible Nushell Markdown documents</h1>
+<h1 align="center">numd</h1>
+<h3 align="cenger">reproducible Nushell Markdown documents</h3>
 
 Execute blocks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
 
