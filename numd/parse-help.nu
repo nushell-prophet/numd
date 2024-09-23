@@ -51,15 +51,13 @@ export def main [
     } else {}
     | if $record {
         items {|k v|
-            $v
-            | str join (char nl)
-            | wrap $k
+            {$k: ($v | to text)}
         }
         | into record
     } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
-            | str join (char nl)
+            | to text
             | $"($k):\n($in)"
         }
         | to text
