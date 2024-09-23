@@ -61,6 +61,7 @@ export def main [
             | str join (char nl)
             | $"($k):\n($in)"
         }
-        | str join "\n"
+        | to text
+        | '---' + (char nl) + $in
     }
 }
