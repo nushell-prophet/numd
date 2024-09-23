@@ -23,7 +23,7 @@ export def main [
             Examples
         ]
         | str join '|'
-        | $"^\(($in)\):"
+        | '^(' + $in + '):'
 
     let $existing_sections = $help_lines
         | where $it =~ $regex
