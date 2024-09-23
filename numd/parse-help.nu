@@ -50,11 +50,12 @@ export def main [
         select -i ...$sections
     } else {}
     | if $record {
-        items {|k v| $v
+        items {|k v|
+            $v
             | str join (char nl)
-            | {section: $k, value: $in}
+            | wrap $k
         }
-        | transpose -idr
+        | into record
     } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
