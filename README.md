@@ -32,6 +32,7 @@ Experienced nushell users can understand the logic better by looking at [example
 ```nushell
 > use numd
 > numd run --help | numd parse-help
+---
 Description:
   Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 
@@ -133,6 +134,7 @@ Output:
 
 ```nu
 > numd clear-outputs --help | numd parse-help
+---
 Description:
   Remove numd execution outputs from the file
 
@@ -160,6 +162,7 @@ Input/output types:
 
 ```nushell
 > numd capture start --help | numd parse-help
+---
 Description:
   start capturing commands and their outputs into a file
 
@@ -180,6 +183,7 @@ Input/output types:
 
 ```nushell
 > numd capture stop --help | numd parse-help
+---
 Description:
   stop capturing commands and their outputs
 
@@ -208,13 +212,13 @@ Input/output types:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 22 Aug 2024 11:02:48 +0000 (2 days ago)
+Fri, 20 Sep 2024 16:27:31 +0000 (3 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.14
+0.1.15
 ```
 
 ## Real fight examples to try
