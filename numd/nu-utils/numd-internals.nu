@@ -110,6 +110,11 @@ export def generate-intermediate-script [
             execute-block-lines
             | prepend $"\"($row_type)\" | print"
             | append $"\"```\" | print"
+            | if 'picture-output' in $env.numd.current_block_options {
+                prepend "stor open | query db 'CREATE TABLE IF NOT EXISTS captures (capture text)'"
+                | append "stor open | query db 'select capture from captures' | get capture | to text | print"
+                | append "stor delete --table-name captures --where-clause '1' | null"
+            } else {}
             | append '' # add an empty line for visual distinction
         }
     }
@@ -120,10 +125,8 @@ export def generate-intermediate-script [
         } else {}
     } else {}
     | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
-    | prepend "stor create --table-name 'captures' --columns {capture: str}"
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
-    | append "print (stor open | query db 'select * from captures')"
     | flatten
     | str join (char nl)
     | str replace -r "\n*$" "\n"
