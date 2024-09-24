@@ -333,14 +333,14 @@ export def create-highlight-command [ ]: string -> string {
     | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
-# Trim comments and extra whitespace from code blocks for use in the generated script.
+# Trim comments and extra whitespaces from code blocks for use in the generated script.
 export def remove-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
-# Extract the last span from a command to decide if `| print` can be appended
+# Extract the last span from a command to determine if `| print` can be appended
 #
 # > get-last-span 'let a = 1..10; $a | length'
 # length
@@ -457,7 +457,7 @@ export def create-catch-error-current-instance []: string -> string {
 export def create-catch-error-outside []: string -> string {
     escape-special-characters-and-quote
     | ($'($nu.current-exe) -c ($in)' +
-        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
+        " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
 # Generate a fenced code block for output with a specific format.
