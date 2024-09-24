@@ -61,6 +61,7 @@ export def main [
             | $"($k):\n($in)"
         }
         | to text
+        | str replace -ar '[\n\s]+$' '' # empty trailing new lines
         | str replace -arm '^' '// '
     }
 }
