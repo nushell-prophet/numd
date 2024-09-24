@@ -61,6 +61,6 @@ export def main [
             | $"($k):\n($in)"
         }
         | to text
-        | '---' + (char nl) + $in
+        | str replace -arm '^' '\\ '
     }
 }
