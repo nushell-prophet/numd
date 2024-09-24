@@ -97,13 +97,13 @@ export def generate-intermediate-script [
             $env.numd.current_block_options = ($row_type | extract-fence-options)
         }
 
-        if ($row_type == 'text' or
+        $input.line
+        | if ($row_type == 'text' or
             'no-run' in $env.numd.current_block_options
         ) {
-            $input.line
-            | generate-print-lines
+            generate-print-lines
         } else if $row_type =~ '^```nu(shell)?(\s|$)' {
-            execute-block-lines $input.line
+            execute-block-lines
             | prepend $"\"($row_type)\" | print"
             | append $"\"```\" | print"
             | append '' # add an empty line for visual distinction
@@ -123,11 +123,8 @@ export def generate-intermediate-script [
     | str replace -r "\n*$" "\n"
 }
 
-export def execute-block-lines [
-    rows: list
-] {
-    $rows
-    | skip | drop # skip code fences
+export def execute-block-lines [ ]: list -> list {
+    skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {  # find blocks with no `>` symbol to execute them entirely
         str join (char nl)
         | create-execution-code --whole_block
