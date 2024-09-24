@@ -450,7 +450,8 @@ export def generate-table-statement []: string -> string {
 }
 
 export def generate-picture [] {
-    $"($in) | table | do {|i| stor open | query db \"insert into 'captures' \(capture) values \(?)\" -p [$i]} $in"
+    generate-table-statement
+    | $"($in) | do {|i| stor open | query db \"insert into 'captures' \(capture) values \(?)\" -p [$i]} $in"
 }
 
 
