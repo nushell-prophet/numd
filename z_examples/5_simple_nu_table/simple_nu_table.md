@@ -33,8 +33,8 @@ Output:
 Output:
 
 ```
-╭─column──┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────long_text───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ value_1 │ Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.Eu aute lorem ullamco sed ipsum incididunt irure. Lorem ullamco sed ipsum incididunt.Sed ipsum incididunt irure, culpa. Irure, culpa labore sit sunt.                                                               │
-│ value_2 │ Irure quis magna ipsum anim. Magna ipsum anim aliquip elit lorem ut. Anim aliquip elit lorem, ut quis nostrud. Lorem ut quis, nostrud commodo non. Nostrud commodo non cillum exercitation dolore fugiat nulla. Non cillum exercitation dolore fugiat nulla ut. Exercitation dolore fugia... │
-╰─column──┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────long_text───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─column──┬──────────────────────────────────────────────────────long_text──────────────────────────────────────────────────────╮
+│ value_1 │ Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.Eu aute lorem ullamco sed ipsum incidid... │
+│ value_2 │ Irure quis magna ipsum anim. Magna ipsum anim aliquip elit lorem ut. Anim aliquip elit lorem, ut quis nostrud. L... │
+╰─column──┴──────────────────────────────────────────────────────long_text──────────────────────────────────────────────────────╯
 ```

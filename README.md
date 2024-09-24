@@ -217,6 +217,7 @@ Output:
 │ z_examples/4_book_working_with_lists    │ dir  │
 │ z_examples/5_simple_nu_table            │ dir  │
 │ z_examples/6_edge_cases                 │ dir  │
+│ z_examples/7_image_output               │ dir  │
 │ z_examples/999_numd_internals           │ dir  │
 │ z_examples/99_strip_markdown            │ dir  │
 ╰──────────────────name───────────────────┴─type─╯
