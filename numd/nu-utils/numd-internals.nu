@@ -262,7 +262,7 @@ export def list-code-options [
         ["no-run" "N" "do not execute code in block"]
         ["try" "t" "execute block inside `try {}` for error handling"]
         ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
-        # ["picture-output" "p" "capture output as picture and place after block"]
+        ["picture-output" "p" "capture output as picture and place after block"]
     ]
     | if $list {} else {
         select short long
