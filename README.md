@@ -65,9 +65,6 @@ Experienced nushell users can understand the logic better by looking at [example
 //   │ 1 │ nothing │ nothing │
 //   │ 2 │ nothing │ record  │
 //   ╰─#─┴──input──┴─output──╯
-//
-//
-//
 ```
 
 ### Supported nushell code block options
@@ -163,9 +160,6 @@ Output:
 //   │ 0 │ nothing │ string  │
 //   │ 1 │ nothing │ nothing │
 //   ╰─#─┴──input──┴─output──╯
-//
-//
-//
 ```
 
 ### `numd capture`
@@ -194,9 +188,6 @@ Output:
 //   ╭─#─┬──input──┬─output──╮
 //   │ 0 │ nothing │ nothing │
 //   ╰─#─┴──input──┴─output──╯
-//
-//
-//
 ```
 
 ```nushell
@@ -213,9 +204,6 @@ Output:
 //   ╭─#─┬──input──┬─output──╮
 //   │ 0 │ nothing │ nothing │
 //   ╰─#─┴──input──┴─output──╯
-//
-//
-//
 ```
 
 ### Some random familiar examples
