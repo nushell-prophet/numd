@@ -343,6 +343,7 @@ export def create-highlight-command [
 ]: string -> string {
     escape-special-characters-and-quote
     | append " | nu-highlight"
+    | str join
     | if $picture {
         generate-picture
     } else {}
