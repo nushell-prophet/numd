@@ -13,9 +13,9 @@ ls ~ | first 2
 ╰─#─┴───────name────────┴─type─┴─size──┴──modified───╯
 
 ```nu p
-ls ~ | last 2
+> ls ~ | last 2
 ```
 
 ```nu p
-ls ~ | skip 2 | first 2
+> ls ~ | skip 2 | first 2
 ```
