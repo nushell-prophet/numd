@@ -51,7 +51,11 @@ export def create-execution-code [
     let $code_content = $in
     let $fence_options = $env.numd.current_block_options
 
-    let $highlighted_command = $code_content | create-highlight-command
+    let $highlighted_command = $code_content
+        | create-highlight-command
+        | if 'picture-output' in $fence_options {
+            generate-picture
+        } else {}
 
     let $code_execution = $code_content
         | remove-comments-plus
