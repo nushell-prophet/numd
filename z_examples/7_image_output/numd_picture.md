@@ -18,4 +18,5 @@ ls ~ | first 2
 
 ```nu p
 > ls ~ | skip 2 | first 2
+> ls ~ | skip 4 | first 2
 ```

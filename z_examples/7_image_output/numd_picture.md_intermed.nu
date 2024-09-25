@@ -27,9 +27,7 @@ $env.numd.capture_lines | to text | freeze -o media/7.png --language ansi | comp
 " | print
 $env.numd.capture_lines = []
 "```nu p" | print
-"ls ~ | last 2" | nu-highlight | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in | print
-
-"```\n```output-numd" | print
+"> ls ~ | last 2" | nu-highlight | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in | print
 
 ls ~ | last 2 | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in
 
@@ -39,9 +37,7 @@ $env.numd.capture_lines | to text | freeze -o media/15.png --language ansi | com
 "" | print
 $env.numd.capture_lines = []
 "```nu p" | print
-"ls ~ | skip 2 | first 2" | nu-highlight | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in | print
-
-"```\n```output-numd" | print
+"> ls ~ | skip 2 | first 2" | nu-highlight | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in | print
 
 ls ~ | skip 2 | first 2 | table | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in
 
