@@ -112,7 +112,7 @@ export def generate-intermediate-script [
             | append $"\"```\" | print"
             | if 'picture-output' in $env.numd.current_block_options {
                 prepend "$env.numd.capture_lines = []"
-                | append $"$env.numd.capture_lines | to text | freeze -o ($input.block_line.0).png --language ansi"
+                | append $"$env.numd.capture_lines | to text | freeze -o ($input.block_line.0).png --language ansi | complete | null"
             } else {}
             | append '' # add an empty line for visual distinction
         }
