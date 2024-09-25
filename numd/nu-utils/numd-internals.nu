@@ -52,10 +52,7 @@ export def create-execution-code [
     let $fence_options = $env.numd.current_block_options
 
     let $highlighted_command = $code_content
-        | create-highlight-command
-        | if 'picture-output' in $fence_options {
-            generate-picture
-        } else {}
+        | create-highlight-command --picture=('picture-output' in $fence_options)
 
     let $code_execution = $code_content
         | remove-comments-plus
@@ -341,9 +338,16 @@ export def mark-code-block [
 # Generate a command to highlight code using Nushell syntax highlighting.
 # > 'ls' | create-highlight-command
 # "ls" | nu-highlight | print
-export def create-highlight-command [ ]: string -> string {
+export def create-highlight-command [
+    --picture
+]: string -> string {
     escape-special-characters-and-quote
-    | $"($in) | nu-highlight | print(char nl)(char nl)"
+    | append " | nu-highlight"
+    | if $picture {
+        generate-picture
+    } else {}
+    | append " | print\n\n"
+    | str join
 }
 
 # Trim comments and extra whitespaces from code blocks for use in the generated script.
