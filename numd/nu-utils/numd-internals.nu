@@ -115,7 +115,7 @@ export def generate-intermediate-script [
                 prepend "$env.numd.capture_lines = []"
                 | append $"let $screen_path = '('media' | path join $'($input.block_line.0).png' | path expand)'"
                 | append $"$env.numd.capture_lines | to text | freeze -o $screen_path --language ansi | complete | null"
-                | append ('"![](" + $screen_path + ") | print"')
+                | append ('"![](" + $screen_path + ") " | print')
             } else {}
             | append '' # add an empty line for visual distinction
         }
