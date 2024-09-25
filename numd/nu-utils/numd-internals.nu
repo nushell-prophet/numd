@@ -342,13 +342,11 @@ export def create-highlight-command [
     --picture
 ]: string -> string {
     escape-special-characters-and-quote
-    | append " | nu-highlight"
-    | str join
+    | $in + " | nu-highlight"
     | if $picture {
         generate-picture
     } else {}
-    | append " | print\n\n"
-    | str join
+    | $in + " | print\n\n"
 }
 
 # Trim comments and extra whitespaces from code blocks for use in the generated script.
