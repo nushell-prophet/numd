@@ -111,9 +111,8 @@ export def generate-intermediate-script [
             | prepend $"\"($row_type)\" | print"
             | append $"\"```\" | print"
             | if 'picture-output' in $env.numd.current_block_options {
-                prepend "stor open | query db 'CREATE TABLE IF NOT EXISTS captures (capture text)'"
-                | append "stor open | query db 'select capture from captures' | get capture | to text | print"
-                | append "stor delete --table-name captures --where-clause '1' | null"
+                prepend "$env.numd.capture_lines = []"
+                | append "$env.numd.capture_lines | to text | print 'captured:' $in"
             } else {}
             | append '' # add an empty line for visual distinction
         }
@@ -454,7 +453,7 @@ export def generate-table-statement []: string -> string {
 
 export def generate-picture [] {
     generate-table-statement
-    | $"($in) | do {|i| stor open | query db \"insert into 'captures' \(capture) values \(?)\" -p [$i]} $in"
+    | $"($in) | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in"
 }
 
 
