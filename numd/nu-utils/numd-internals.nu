@@ -461,8 +461,7 @@ export def generate-table-statement []: string -> string {
 }
 
 export def store-line-in-env [] {
-    generate-table-statement
-    | $"($in) | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in"
+    $"($in) | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in"
 }
 
 export def generate-capture-picture [
