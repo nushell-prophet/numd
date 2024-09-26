@@ -464,10 +464,17 @@ export def generate-picture [] {
 export def generate-capture-picture [
     $image_name
 ] {
-    prepend "$env.numd.capture_lines = []"
-    | append $"let $screen_path = '('media' | path join $'($image_name).png')'"
-    | append $"$env.numd.capture_lines | to text | freeze -o $screen_path --language ansi | complete | null"
-    | append ('"![](" + ($screen_path | str replace -a '\' '/') + ") <!-- numd-image -->" | print')
+    let $input = $in
+    let $folder = 'media' | path join numd
+    mkdir $folder
+
+    let $media_path = $folder | path join $'($image_name).png'
+    let $web_path = $media_path | str replace -a '\' '/' # windows compatability
+
+    $input
+    | prepend "$env.numd.capture_lines = []"
+    | append $"$env.numd.capture_lines | to text | freeze -o '($media_path)' --language ansi | complete | null"
+    | append $"'![]\(($web_path)) <!-- numd-image -->' | print"
 }
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
