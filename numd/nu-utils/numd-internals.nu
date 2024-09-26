@@ -212,7 +212,7 @@ export def toggle-output-fences [
         str replace --all $b $a
     } else {
         str replace --all $a $b
-        | str replace --all --regex '\n```\n(.*<!-- numd-image -->)' $"($b)$1\n```\n"
+        | str replace --all --regex '\n```\n(.*<!-- numd-image -->)' $"($b)$1\n```"
     }
 }
 
