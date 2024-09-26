@@ -50,9 +50,10 @@ export def create-execution-code [
 ]: string -> string {
     let $code_content = $in
     let $fence_options = $env.numd.current_block_options
+    let $picture_output = 'picture-output' in $fence_options
 
     let $highlighted_command = $code_content
-        | create-highlight-command --picture=('picture-output' in $fence_options)
+        | create-highlight-command --picture=($picture_output and not $whole_block)
 
     let $code_execution = $code_content
         | remove-comments-plus
@@ -71,7 +72,7 @@ export def create-execution-code [
                 if 'indent-output' in $fence_options {
                     create-indented-output
                 } else {}
-                | if 'picture-output' in $fence_options {
+                | if $picture_output {
                     generate-picture
                 } else {
                     generate-print-statement
