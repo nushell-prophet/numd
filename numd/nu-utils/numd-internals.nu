@@ -68,7 +68,7 @@ export def create-execution-code [
             }
         } else {}
         | if 'no-output' in $fence_options {} else {
-            if $whole_block and not $picture_output {
+            if $whole_block {
                 create-fence-output
             } else {}
             | if (check-print-append $in) {
