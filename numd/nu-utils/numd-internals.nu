@@ -103,9 +103,7 @@ export def generate-intermediate-script [
         }
 
         $input.line
-        | if ($fence == 'text' or
-            'no-run' in $env.numd.current_block_options
-        ) {
+        | if $fence == 'text' or 'no-run' in $env.numd.current_block_options {
             generate-print-lines
         } else if $fence =~ '^```nu(shell)?(\s|$)' {
             execute-block-lines
