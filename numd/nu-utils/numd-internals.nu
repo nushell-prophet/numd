@@ -76,7 +76,7 @@ export def create-execution-code [
                     create-indented-output
                 } else {}
                 | if $picture_output {
-                    generate-picture
+                    store-line-in-env
                 } else {
                     generate-print-statement
                 }
@@ -346,7 +346,7 @@ export def create-highlight-command [
     escape-special-characters-and-quote
     | $in + " | nu-highlight"
     | if $picture {
-        generate-picture
+        store-line-in-env
     } else {}
     | $in + " | print\n\n"
 }
@@ -460,7 +460,7 @@ export def generate-table-statement []: string -> string {
     }
 }
 
-export def generate-picture [] {
+export def store-line-in-env [] {
     generate-table-statement
     | $"($in) | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in"
 }
