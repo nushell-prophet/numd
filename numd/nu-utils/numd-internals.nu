@@ -97,19 +97,19 @@ export def generate-intermediate-script [
     | values
     | each {
         let $input = $in
-        let $row_type = $input.row_type.0
-        if $row_type != 'text' {
-            $env.numd.current_block_options = ($row_type | extract-fence-options)
+        let $fence = $input.row_type.0
+        if $fence != 'text' {
+            $env.numd.current_block_options = ($fence | extract-fence-options)
         }
 
         $input.line
-        | if ($row_type == 'text' or
+        | if ($fence == 'text' or
             'no-run' in $env.numd.current_block_options
         ) {
             generate-print-lines
-        } else if $row_type =~ '^```nu(shell)?(\s|$)' {
+        } else if $fence =~ '^```nu(shell)?(\s|$)' {
             execute-block-lines
-            | prepend $"\"($row_type)\" | print"
+            | prepend $"\"($fence)\" | print"
             | append $"\"```\" | print"
             | if 'picture-output' in $env.numd.current_block_options {
                 prepend "$env.numd.capture_lines = []"
