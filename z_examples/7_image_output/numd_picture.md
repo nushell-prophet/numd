@@ -17,15 +17,6 @@ ls ~ | first 2
 ls ~ | first 2 | print
 ls ~ | last 4 | drop 2
 ```
-
-Output:
-
-```
-╭─#─┬───────name────────┬─type─┬─size──┬──modified───╮
-│ 0 │ /Users/user/Music │ dir  │ 288 B │ 2 years ago │
-│ 1 │ /Users/user/temp  │ dir  │ 480 B │ a day ago   │
-╰─#─┴───────name────────┴─type─┴─size──┴──modified───╯
-```
 ![](media/numd/18.png) <!-- numd-image -->
 
 ```nu p
