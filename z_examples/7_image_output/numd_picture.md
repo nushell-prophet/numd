@@ -7,19 +7,24 @@ the block below will be executed as it is, but won't yield any output
 ```nu p
 ls ~ | first 2
 ```
-![](media/7.png)
+![](media/numd/7.png) <!-- numd-image -->
 ╭─#─┬───────name────────┬─type─┬─size──┬──modified───╮
 │ 0 │ /Users/user/Music │ dir  │ 288 B │ 2 years ago │
 │ 1 │ /Users/user/temp  │ dir  │ 480 B │ 5 hours ago │
 ╰─#─┴───────name────────┴─type─┴─size──┴──modified───╯
 
 ```nu p
+ls ~ | first 2 | print
+ls ~ | last 4 | drop 2
+```
+
+```nu p
 > ls ~ | last 2
 ```
-![](media/16.png)
+![](media/numd/16.png) <!-- numd-image -->
 
 ```nu p
 > ls ~ | skip 2 | first 2
 > ls ~ | skip 4 | first 2
 ```
-![](media/21.png)
+![](media/numd/21.png) <!-- numd-image -->
