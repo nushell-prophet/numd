@@ -122,7 +122,7 @@ export def generate-intermediate-script [
             prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
         } else {}
     } else {}
-    | prepend "'media' | path join 'numd' | if ($in | path exists) {rm -r $in; mkdir $in}"
+    | prepend "'media' | path join 'numd' | if ($in | path exists) {rm -r $in; mkdir $in}" # as I heard that windows doesn't support `'numd' | path join '*' | glob $in`
     | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend "# https://github.com/nushell-prophet/numd\n"
     | prepend '# this script was generated automatically using numd'
