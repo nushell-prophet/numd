@@ -6,7 +6,7 @@ export def find-code-blocks []: string -> table {
     let $row_type = $file_lines
         | each {
             str trim --right
-            | if $in =~ '^```' {} else {'text'}
+            | if $in starts-with '```' {} else {'text'}
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
