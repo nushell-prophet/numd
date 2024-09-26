@@ -6,7 +6,10 @@ export def find-code-blocks []: string -> table {
     let $row_type = $file_lines
         | each {
             str trim --right
-            | if $in starts-with '```' {} else {'text'}
+            | if $in starts-with '```' {
+            } else if $in =~ '<!-- numd-picture -->$' {
+                'numd-picture'
+            } else {'text'}
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
@@ -93,7 +96,7 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | where row_type != '```output-numd'
+    | where row_type not-in ['```output-numd' 'numd-picture']
     | group-by block_line
     | values
     | each {
