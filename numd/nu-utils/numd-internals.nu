@@ -110,10 +110,7 @@ export def generate-intermediate-script [
             | prepend $"\"($fence)\" | print"
             | append $"\"```\" | print"
             | if 'picture-output' in $env.numd.current_block_options {
-                prepend "$env.numd.capture_lines = []"
-                | append $"let $screen_path = '('media' | path join $'($input.block_line.0).png')'"
-                | append $"$env.numd.capture_lines | to text | freeze -o $screen_path --language ansi | complete | null"
-                | append ('"![](" + ($screen_path | str replace -a '\' '/') + ") <!-- numd-image -->" | print')
+                generate-capture-picture $input.block_line.0
             } else {}
             | append '' # add an empty line for visual distinction
         }
@@ -464,6 +461,14 @@ export def generate-picture [] {
     | $"($in) | do --env {|i| $env.numd.capture_lines ++= $i; $i} $in"
 }
 
+export def generate-capture-picture [
+    $image_name
+] {
+    prepend "$env.numd.capture_lines = []"
+    | append $"let $screen_path = '('media' | path join $'($image_name).png')'"
+    | append $"$env.numd.capture_lines | to text | freeze -o $screen_path --language ansi | complete | null"
+    | append ('"![](" + ($screen_path | str replace -a '\' '/') + ") <!-- numd-image -->" | print')
+}
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
 #
