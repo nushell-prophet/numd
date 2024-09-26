@@ -123,8 +123,8 @@ export def generate-intermediate-script [
         } else {}
     } else {}
     | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
-    | prepend ( '# this script was generated automatically using numd' +
-        "\n# https://github.com/nushell-prophet/numd\n" )
+    | prepend "# https://github.com/nushell-prophet/numd\n"
+    | prepend '# this script was generated automatically using numd'
     | flatten
     | str join (char nl)
     | str replace -r "\n*$" "\n"
