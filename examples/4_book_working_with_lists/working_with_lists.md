@@ -12,13 +12,13 @@ You can [`update`](/commands/docs/update.md) and [`insert`](/commands/docs/inser
 
 ```nu
 > [1, 2, 3, 4] | insert 2 10
-╭────╮
-│  1 │
-│  2 │
-│ 10 │
-│  3 │
-│  4 │
-╰────╯
+╭───┬────╮
+│ 0 │  1 │
+│ 1 │  2 │
+│ 2 │ 10 │
+│ 3 │  3 │
+│ 4 │  4 │
+╰───┴────╯
 
 # [1, 2, 10, 3, 4]
 ```
@@ -27,12 +27,12 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 
 ```nu
 > [1, 2, 3, 4] | update 1 10
-╭────╮
-│  1 │
-│ 10 │
-│  3 │
-│  4 │
-╰────╯
+╭───┬────╮
+│ 0 │  1 │
+│ 1 │ 10 │
+│ 2 │  3 │
+│ 3 │  4 │
+╰───┴────╯
 
 # [1, 10, 3, 4]
 ```
@@ -55,14 +55,14 @@ $colors # [black red yellow green purple blue]
 Output:
 
 ```
-╭────────╮
-│ black  │
-│ red    │
-│ yellow │
-│ green  │
-│ purple │
-│ blue   │
-╰────────╯
+╭───┬────────╮
+│ 0 │ black  │
+│ 1 │ red    │
+│ 2 │ yellow │
+│ 3 │ green  │
+│ 4 │ purple │
+│ 5 │ blue   │
+╰───┴────────╯
 ```
 
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
@@ -77,9 +77,9 @@ $colors # [yellow]
 Output:
 
 ```
-╭────────╮
-│ yellow │
-╰────────╯
+╭───┬────────╮
+│ 0 │ yellow │
+╰───┴────────╯
 ```
 
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
@@ -93,11 +93,11 @@ $colors # [purple black magenta]
 Output:
 
 ```
-╭─────────╮
-│ purple  │
-│ black   │
-│ magenta │
-╰─────────╯
+╭───┬─────────╮
+│ 0 │ purple  │
+│ 1 │ black   │
+│ 2 │ magenta │
+╰───┴─────────╯
 ```
 
 And from the beginning of a list,
@@ -111,10 +111,10 @@ $colors # [yellow green]
 Output:
 
 ```
-╭────────╮
-│ yellow │
-│ green  │
-╰────────╯
+╭───┬────────╮
+│ 0 │ yellow │
+│ 1 │ green  │
+╰───┴────────╯
 ```
 
 ## Iterating over lists
@@ -135,12 +135,12 @@ $names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
 Output:
 
 ```
-╭────────────╮
-│ 1 - Mark   │
-│ 2 - Tami   │
-│ 3 - Amanda │
-│ 4 - Jeremy │
-╰────────────╯
+╭───┬────────────╮
+│ 0 │ 1 - Mark   │
+│ 1 │ 2 - Tami   │
+│ 2 │ 3 - Amanda │
+│ 3 │ 4 - Jeremy │
+╰───┴────────────╯
 ```
 
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
@@ -164,10 +164,10 @@ $scores | where $it > 7 # [10 8]
 Output:
 
 ```
-╭────╮
-│ 10 │
-│  8 │
-╰────╯
+╭───┬────╮
+│ 0 │ 10 │
+│ 1 │  8 │
+╰───┴────╯
 ```
 
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
@@ -327,16 +327,16 @@ For example:
 Output:
 
 ```
-╭───╮
-│ 1 │
-│ 2 │
-│ 3 │
-│ 4 │
-│ 5 │
-│ 6 │
-│ 7 │
-│ 8 │
-╰───╯
+╭───┬───╮
+│ 0 │ 1 │
+│ 1 │ 2 │
+│ 2 │ 3 │
+│ 3 │ 4 │
+│ 4 │ 5 │
+│ 5 │ 6 │
+│ 6 │ 7 │
+│ 7 │ 8 │
+╰───┴───╯
 ```
 
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
@@ -353,3 +353,4 @@ be converted to a separate row with a single column:
 │ Asia/Yekaterinburg │ 2024.06.17 11:06 │
 ╰────────Zone────────┴───────Time───────╯
 ```
+

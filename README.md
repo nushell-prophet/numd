@@ -38,28 +38,28 @@ Usage:
   > run {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
-  --print-block-results - print the block's execution results immediately.
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
+  --print-block-results - print blocks one by one as they are executed
   --echo - output resulting markdown to the terminal
   --save-ansi - save ANSI formatted version
   --no-backup - overwrite the existing `.md` file without backup
   --no-save - do not save changes to the `.md` file
   --no-stats - do not output stats of changes
-  --intermid-script <Filepath> - optional path for an intermediate script (useful for debugging purposes)
+  --intermid-script <path> - optional path for an intermediate script (useful for debugging purposes)
   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-intermid <String> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
+  --prepend-intermid <string> - prepend text (code) into the intermediate script, useful for customizing Nushell output settings
   --diff - use diff for printing changes
-  --width <Int> - set the `table --width` option value
+  --width <int> - set the `table --width` option value
 
 Parameters:
   file <path>: path to a `.md` file containing Nushell code to be executed
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  │ nothing │ record  │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  │ 2 │ nothing │ record  │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Supported nushell code block options
@@ -68,13 +68,13 @@ Input/output types:
 
 ```nushell
 > numd code-block-options --list
-╭─────long──────┬─short─┬───────────────────────────description────────────────────────────╮
-│ indent-output │ i     │ indent the output visually                                       │
-│ no-output     │ O     │ execute the code without outputting the results                  │
-│ no-run        │ N     │ do not execute the code in the block                             │
-│ try           │ t     │ execute the block inside the `try {}` for handling errors        │
-│ new-instance  │ n     │ execute the block in the new Nushell instance, useful with `try` │
-╰─────long──────┴─short─┴───────────────────────────description────────────────────────────╯
+╭─#─┬─────long──────┬─short─┬───────────────────────────description────────────────────────────╮
+│ 0 │ indent-output │ i     │ indent the output visually                                       │
+│ 1 │ no-output     │ O     │ execute the code without outputting the results                  │
+│ 2 │ no-run        │ N     │ do not execute the code in the block                             │
+│ 3 │ try           │ t     │ execute the block inside the `try {}` for handling errors        │
+│ 4 │ new-instance  │ n     │ execute the block in the new Nushell instance, useful with `try` │
+╰─#─┴─────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -87,10 +87,10 @@ By default, `numd` provides basic stats on changes made.
 ╭──────────────────┬───────────────────────────────────╮
 │ filename         │ simple_markdown_with_no_output.md │
 │ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 38                                │
-│ diff_lines       │ +9 (37.5%)                        │
+│ levenshtein_dist │ 39                                │
+│ diff_lines       │ +10 (41.7%)                       │
 │ diff_words       │ +6 (10.7%)                        │
-│ diff_chars       │ +38 (11%)                         │
+│ diff_chars       │ +39 (11.3%)                       │
 ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -123,6 +123,7 @@ Output:
 //    > 2 + 2
 //  + 4
 //    ```
+//  +
 ```
 
 ### Styling outputs
@@ -151,11 +152,12 @@ Output:
 //  Output:
 //
 //  ```
-//  +---+---+---+
-//  | a | b | c |
-//  | 1 | 2 | 3 |
-//  +---+---+---+
+//  +---+---+---+---+
+//  | # | a | b | c |
+//  | 0 | 1 | 2 | 3 |
+//  +---+---+---+---+
 //  ```
+//
 ```
 
 ### `numd clear-outputs`
@@ -169,7 +171,7 @@ Usage:
   > clear-outputs {flags} <file>
 
 Flags:
-  -o, --result-md-path <Filepath> - path to a resulting `.md` file; if omitted, updates the original file
+  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
   --echo - output resulting markdown to the terminal instead of writing to file
   --strip-markdown - keep only Nushell script, strip all markdown tags
 
@@ -177,10 +179,10 @@ Parameters:
   file <path>: path to a `.md` file containing numd output to be cleared
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ string  │
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ string  │
+  │ 1 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### `numd capture`
@@ -202,9 +204,32 @@ Parameters:
   file <path>:  (optional, default: 'numd_capture.md')
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
+
+  ======================
+
+  Open a folder, file or website in the default application or viewer.
+
+Search terms:
+  load, folder, directory, run, open
+
+Examples:
+  Open a text file with the default text editor
+  > start file.txt
+
+  Open an image with the default image viewer
+  > start file.jpg
+
+  Open the current directory with the default file manager
+  > start .
+
+  Open a pdf with the default pdf viewer
+  > start file.pdf
+
+  Open a website with default browser
+  > start https://www.nushell.sh
 ```
 
 ```nushell
@@ -218,30 +243,30 @@ Usage:
 Flags:
 
 Input/output types:
-  ╭──input──┬─output──╮
-  │ nothing │ nothing │
-  ╰──input──┴─output──╯
+  ╭─#─┬──input──┬─output──╮
+  │ 0 │ nothing │ nothing │
+  ╰─#─┴──input──┴─output──╯
 ```
 
 ### Some random familiar examples
 
 ```nushell
 > ls examples | sort-by name | reject modified size
-╭─────────────────name──────────────────┬─type─╮
-│ examples/1_simple_markdown            │ dir  │
-│ examples/2_numd_commands_explanations │ dir  │
-│ examples/3_book_types_of_data         │ dir  │
-│ examples/4_book_working_with_lists    │ dir  │
-╰─────────────────name──────────────────┴─type─╯
+╭─#─┬─────────────────name──────────────────┬─type─╮
+│ 0 │ examples/1_simple_markdown            │ dir  │
+│ 1 │ examples/2_numd_commands_explanations │ dir  │
+│ 2 │ examples/3_book_types_of_data         │ dir  │
+│ 3 │ examples/4_book_working_with_lists    │ dir  │
+╰─#─┴─────────────────name──────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 24 May 2024 07:47:14 +0000 (a month ago)
+Fri, 20 Sep 2024 16:27:31 +0000 (6 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.11
+0.1.15
 ```
 
 ## Real fight examples to try
@@ -275,3 +300,4 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 │ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
 ╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
 ```
+
