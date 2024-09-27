@@ -255,10 +255,10 @@ You can iterate over records by first transposing it into a table:
 
 ```nushell
 > {name: sam, rank: 10} | transpose key value
-╭─key──┬─value─╮
-│ name │ sam   │
-│ rank │    10 │
-╰─key──┴─value─╯
+╭─#─┬─key──┬─value─╮
+│ 0 │ name │ sam   │
+│ 1 │ rank │    10 │
+╰─#─┴─key──┴─value─╯
 ```
 
 Accessing records' data is done by placing a `.` before a string, which is usually a bare string:
@@ -293,11 +293,11 @@ Lists are ordered sequences of data values. List syntax is very similar to array
 
 ```nushell
 > [sam fred george]
-╭────────╮
-│ sam    │
-│ fred   │
-│ george │
-╰────────╯
+╭───┬────────╮
+│ 0 │ sam    │
+│ 1 │ fred   │
+│ 2 │ george │
+╰───┴────────╯
 ```
 
 :::tip
@@ -305,10 +305,10 @@ Lists are equivalent to the individual columns of tables. You can think of a lis
 
 ```nushell
 > [bell book candle] | where ($it =~ 'b')
-╭──────╮
-│ bell │
-│ book │
-╰──────╯
+╭───┬──────╮
+│ 0 │ bell │
+│ 1 │ book │
+╰───┴──────╯
 ```
 
 :::
@@ -324,11 +324,11 @@ To get a sub-list from a list, you can use the [`range`](/commands/docs/range.md
 
 ```nushell
 > [a b c d e f] | range 1..3
-╭───╮
-│ b │
-│ c │
-│ d │
-╰───╯
+╭───┬───╮
+│ 0 │ b │
+│ 1 │ c │
+│ 2 │ d │
+╰───┴───╯
 ```
 
 To append one or more lists together, optionally with values interspersed in between, you can use the
@@ -337,13 +337,13 @@ To append one or more lists together, optionally with values interspersed in bet
 ```nushell
 > let x = [1 2]
 > [...$x 3 ...(4..7 | take 2)]
-╭───╮
-│ 1 │
-│ 2 │
-│ 3 │
-│ 4 │
-│ 5 │
-╰───╯
+╭───┬───╮
+│ 0 │ 1 │
+│ 1 │ 2 │
+│ 2 │ 3 │
+│ 3 │ 4 │
+│ 4 │ 5 │
+╰───┴───╯
 ```
 
 ## Tables
@@ -354,20 +354,20 @@ We can create our own tables similarly to how we create a list. Because tables a
 
 ```nushell
 > [[column1, column2]; [Value1, Value2] [Value3, Value4]]
-╭─column1─┬─column2─╮
-│ Value1  │ Value2  │
-│ Value3  │ Value4  │
-╰─column1─┴─column2─╯
+╭─#─┬─column1─┬─column2─╮
+│ 0 │ Value1  │ Value2  │
+│ 1 │ Value3  │ Value4  │
+╰─#─┴─column1─┴─column2─╯
 ```
 
 You can also create a table as a list of records, JSON-style:
 
 ```nushell
 > [{name: sam, rank: 10}, {name: bob, rank: 7}]
-╭─name─┬─rank─╮
-│ sam  │   10 │
-│ bob  │    7 │
-╰─name─┴─rank─╯
+╭─#─┬─name─┬─rank─╮
+│ 0 │ sam  │   10 │
+│ 1 │ bob  │    7 │
+╰─#─┴─name─┴─rank─╯
 ```
 
 :::tip
@@ -405,32 +405,32 @@ Moreover, you can also access entire columns of a table by name, to obtain lists
 
 ```nushell
 > [{x:12 y:5} {x:4 y:7} {x:2 y:2}].x
-╭────╮
-│ 12 │
-│  4 │
-│  2 │
-╰────╯
+╭───┬────╮
+│ 0 │ 12 │
+│ 1 │  4 │
+│ 2 │  2 │
+╰───┴────╯
 ```
 
 Of course, these resulting lists don't have the column names of the table. To remove columns from a table while leaving it as a table, you'll commonly use the [`select`](/commands/docs/select.md) command with column names:
 
 ```nushell
 > [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z
-╭─y─┬─z─╮
-│ 5 │ 1 │
-│ 7 │ 3 │
-│ 2 │ 0 │
-╰─y─┴─z─╯
+╭─#─┬─y─┬─z─╮
+│ 0 │ 5 │ 1 │
+│ 1 │ 7 │ 3 │
+│ 2 │ 2 │ 0 │
+╰─#─┴─y─┴─z─╯
 ```
 
 To remove rows from a table, you'll commonly use the [`select`](/commands/docs/select.md) command with row numbers, as you would with a list:
 
 ```nushell
 > [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2
-╭─x─┬─y─┬─z─╮
-│ 4 │ 7 │ 3 │
-│ 2 │ 2 │ 0 │
-╰─x─┴─y─┴─z─╯
+╭─#─┬─x─┬─y─┬─z─╮
+│ 0 │ 4 │ 7 │ 3 │
+│ 1 │ 2 │ 2 │ 0 │
+╰─#─┴─x─┴─y─┴─z─╯
 ```
 
 #### Optional cell paths
@@ -439,10 +439,10 @@ By default, cell path access will fail if it can't access the requested row or c
 
 ```nushell
 > [{foo: 123}, {}].foo?
-╭─────╮
-│ 123 │
-│     │
-╰─────╯
+╭───┬─────╮
+│ 0 │ 123 │
+│ 1 │     │
+╰───┴─────╯
 ```
 
 When using optional cell path members, missing data is replaced with `null`.
@@ -520,7 +520,7 @@ git checkout featurebranch | null
 > [{a:1 b:2} {b:1}].1.a
 Error: nu::shell::column_not_found
 
-  × Cannot find column
+  × Cannot find column 'a'
    ╭─[source:1:12]
  1 │ [{a:1 b:2} {b:1}].1.a
    ·            ──┬──    ┬

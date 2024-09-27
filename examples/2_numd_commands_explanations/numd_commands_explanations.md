@@ -31,38 +31,38 @@ $md_orig_table
 Output:
 
 ```
-//  ╭─────────────────────────────────line──────────────────────────────────┬────row_type────┬─block_line─╮
-//  │ # This is a simple markdown example                                   │                │          1 │
-//  │                                                                       │                │          1 │
-//  │ ## Example 1                                                          │                │          1 │
-//  │                                                                       │                │          1 │
-//  │ the block below will be executed as it is, but won't yield any output │                │          1 │
-//  │                                                                       │                │          1 │
-//  │ ```nu                                                                 │ ```nu          │          7 │
-//  │ let $var1 = 'foo'                                                     │ ```nu          │          7 │
-//  │ ```                                                                   │ ```nu          │          7 │
-//  │                                                                       │                │         10 │
-//  │ ## Example 2                                                          │                │         10 │
-//  │                                                                       │                │         10 │
-//  │ ```nu                                                                 │ ```nu          │         13 │
-//  │ # This block will produce some output in a separate block             │ ```nu          │         13 │
-//  │ $var1 | path join 'baz' 'bar'                                         │ ```nu          │         13 │
-//  │ ```                                                                   │ ```nu          │         13 │
-//  │ ```output-numd                                                        │ ```output-numd │         17 │
-//  │ foo/baz/bar                                                           │ ```output-numd │         17 │
-//  │ ```                                                                   │ ```output-numd │         17 │
-//  │                                                                       │                │         20 │
-//  │ ## Example 3                                                          │                │         20 │
-//  │                                                                       │                │         20 │
-//  │ ```nu                                                                 │ ```nu          │         23 │
-//  │ # This block will output results inline                               │ ```nu          │         23 │
-//  │ > whoami                                                              │ ```nu          │         23 │
-//  │ user                                                                  │ ```nu          │         23 │
-//  │                                                                       │ ```nu          │         23 │
-//  │ > 2 + 2                                                               │ ```nu          │         23 │
-//  │ 4                                                                     │ ```nu          │         23 │
-//  │ ```                                                                   │ ```nu          │         23 │
-//  ╰─────────────────────────────────line──────────────────────────────────┴────row_type────┴─block_line─╯
+//  ╭─#──┬─────────────────────────────────line──────────────────────────────────┬────row_type────┬─block_line─╮
+//  │ 0  │ # This is a simple markdown example                                   │                │          1 │
+//  │ 1  │                                                                       │                │          1 │
+//  │ 2  │ ## Example 1                                                          │                │          1 │
+//  │ 3  │                                                                       │                │          1 │
+//  │ 4  │ the block below will be executed as it is, but won't yield any output │                │          1 │
+//  │ 5  │                                                                       │                │          1 │
+//  │ 6  │ ```nu                                                                 │ ```nu          │          7 │
+//  │ 7  │ let $var1 = 'foo'                                                     │ ```nu          │          7 │
+//  │ 8  │ ```                                                                   │ ```nu          │          7 │
+//  │ 9  │                                                                       │                │         10 │
+//  │ 10 │ ## Example 2                                                          │                │         10 │
+//  │ 11 │                                                                       │                │         10 │
+//  │ 12 │ ```nu                                                                 │ ```nu          │         13 │
+//  │ 13 │ # This block will produce some output in a separate block             │ ```nu          │         13 │
+//  │ 14 │ $var1 | path join 'baz' 'bar'                                         │ ```nu          │         13 │
+//  │ 15 │ ```                                                                   │ ```nu          │         13 │
+//  │ 16 │ ```output-numd                                                        │ ```output-numd │         17 │
+//  │ 17 │ foo/baz/bar                                                           │ ```output-numd │         17 │
+//  │ 18 │ ```                                                                   │ ```output-numd │         17 │
+//  │ 19 │                                                                       │                │         20 │
+//  │ 20 │ ## Example 3                                                          │                │         20 │
+//  │ 21 │                                                                       │                │         20 │
+//  │ 22 │ ```nu                                                                 │ ```nu          │         23 │
+//  │ 23 │ # This block will output results inline                               │ ```nu          │         23 │
+//  │ 24 │ > whoami                                                              │ ```nu          │         23 │
+//  │ 25 │ user                                                                  │ ```nu          │         23 │
+//  │ 26 │                                                                       │ ```nu          │         23 │
+//  │ 27 │ > 2 + 2                                                               │ ```nu          │         23 │
+//  │ 28 │ 4                                                                     │ ```nu          │         23 │
+//  │ 29 │ ```                                                                   │ ```nu          │         23 │
+//  ╰─#──┴─────────────────────────────────line──────────────────────────────────┴────row_type────┴─block_line─╯
 ```
 
 ## gen-intermid-script
@@ -140,33 +140,33 @@ $nu_res_stdout_lines
 Output:
 
 ```
-//  ╭───────────────────────────────────────────────────────────╮
-//  │ #code-block-starting-line-in-original-md-7                │
-//  │ ```nu                                                     │
-//  │ let $var1 = 'foo'                                         │
-//  │ ```                                                       │
-//  │ ```output-numd                                            │
-//  │ ```                                                       │
-//  │ #code-block-starting-line-in-original-md-13               │
-//  │ ```nu                                                     │
-//  │ # This block will produce some output in a separate block │
-//  │ $var1 | path join 'baz' 'bar'                             │
-//  │ ```                                                       │
-//  │ ```output-numd                                            │
-//  │ foo/baz/bar                                               │
-//  │                                                           │
-//  │ ```                                                       │
-//  │ #code-block-starting-line-in-original-md-23               │
-//  │ ```nu                                                     │
-//  │ # This block will output results inline                   │
-//  │ > whoami                                                  │
-//  │ user                                                      │
-//  │                                                           │
-//  │ > 2 + 2                                                   │
-//  │ 4                                                         │
-//  │                                                           │
-//  │ ```                                                       │
-//  ╰───────────────────────────────────────────────────────────╯
+//  ╭────┬───────────────────────────────────────────────────────────╮
+//  │  0 │ #code-block-starting-line-in-original-md-7                │
+//  │  1 │ ```nu                                                     │
+//  │  2 │ let $var1 = 'foo'                                         │
+//  │  3 │ ```                                                       │
+//  │  4 │ ```output-numd                                            │
+//  │  5 │ ```                                                       │
+//  │  6 │ #code-block-starting-line-in-original-md-13               │
+//  │  7 │ ```nu                                                     │
+//  │  8 │ # This block will produce some output in a separate block │
+//  │  9 │ $var1 | path join 'baz' 'bar'                             │
+//  │ 10 │ ```                                                       │
+//  │ 11 │ ```output-numd                                            │
+//  │ 12 │ foo/baz/bar                                               │
+//  │ 13 │                                                           │
+//  │ 14 │ ```                                                       │
+//  │ 15 │ #code-block-starting-line-in-original-md-23               │
+//  │ 16 │ ```nu                                                     │
+//  │ 17 │ # This block will output results inline                   │
+//  │ 18 │ > whoami                                                  │
+//  │ 19 │ user                                                      │
+//  │ 20 │                                                           │
+//  │ 21 │ > 2 + 2                                                   │
+//  │ 22 │ 4                                                         │
+//  │ 23 │                                                           │
+//  │ 24 │ ```                                                       │
+//  ╰────┴───────────────────────────────────────────────────────────╯
 ```
 
 ## parse-block-index
@@ -181,30 +181,30 @@ $nu_res_with_block_index
 Output:
 
 ```
-//  ╭─block_line─┬───────────────────────────line────────────────────────────╮
-//  │          7 │ ```nu                                                     │
-//  │            │ let $var1 = 'foo'                                         │
-//  │            │ ```                                                       │
-//  │            │ ```output-numd                                            │
-//  │            │ ```                                                       │
-//  │         13 │ ```nu                                                     │
-//  │            │ # This block will produce some output in a separate block │
-//  │            │ $var1 | path join 'baz' 'bar'                             │
-//  │            │ ```                                                       │
-//  │            │ ```output-numd                                            │
-//  │            │ foo/baz/bar                                               │
-//  │            │                                                           │
-//  │            │ ```                                                       │
-//  │         23 │ ```nu                                                     │
-//  │            │ # This block will output results inline                   │
-//  │            │ > whoami                                                  │
-//  │            │ user                                                      │
-//  │            │                                                           │
-//  │            │ > 2 + 2                                                   │
-//  │            │ 4                                                         │
-//  │            │                                                           │
-//  │            │ ```                                                       │
-//  ╰─block_line─┴───────────────────────────line────────────────────────────╯
+//  ╭─#─┬─block_line─┬───────────────────────────line────────────────────────────╮
+//  │ 0 │          7 │ ```nu                                                     │
+//  │   │            │ let $var1 = 'foo'                                         │
+//  │   │            │ ```                                                       │
+//  │   │            │ ```output-numd                                            │
+//  │   │            │ ```                                                       │
+//  │ 1 │         13 │ ```nu                                                     │
+//  │   │            │ # This block will produce some output in a separate block │
+//  │   │            │ $var1 | path join 'baz' 'bar'                             │
+//  │   │            │ ```                                                       │
+//  │   │            │ ```output-numd                                            │
+//  │   │            │ foo/baz/bar                                               │
+//  │   │            │                                                           │
+//  │   │            │ ```                                                       │
+//  │ 2 │         23 │ ```nu                                                     │
+//  │   │            │ # This block will output results inline                   │
+//  │   │            │ > whoami                                                  │
+//  │   │            │ user                                                      │
+//  │   │            │                                                           │
+//  │   │            │ > 2 + 2                                                   │
+//  │   │            │ 4                                                         │
+//  │   │            │                                                           │
+//  │   │            │ ```                                                       │
+//  ╰─#─┴─block_line─┴───────────────────────────line────────────────────────────╯
 ```
 
 ## assemble-markdown
