@@ -181,7 +181,7 @@ export def merge-markdown [
     $nu_res_with_block_line: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '^(```nu(shell)?(\s(?!.*no-run)|$))|(```output-numd$)'
+    | where row_type !~ '^(```nu(shell)?(\s.*(?!no-run)|$))|(```output-numd$)'
     | append $nu_res_with_block_line
     | sort-by block_line
     | get line
