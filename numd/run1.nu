@@ -36,7 +36,11 @@ export def run [
     generate-intermediate-script $original_md_table
     | save -f $intermediate_script_path
 
-    let $updated_md_ansi = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let $intermed_result = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+
+    $intermed_result | save -f ($file + 'intermed_exec.txt')
+
+    let $updated_md_ansi = $intermed_result
         | if $in == '' {
             return { filename: $file,
                 comment: "the script didn't produce any output" }
