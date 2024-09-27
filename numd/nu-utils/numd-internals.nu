@@ -145,7 +145,10 @@ export def execute-block-lines [ ]: list -> list {
 export def extract-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-    let $block_start_line = $nu_res_stdout_lines
+    let $clean_lines = $nu_res_stdout_lines
+        | skip until {|x| $x =~ (mark-code-block)}
+
+    let $block_start_line = $clean_lines
         | each {
             if $in =~ $"^(mark-code-block)\\d+$" {
                 split row '-' | last | into int
@@ -158,7 +161,7 @@ export def extract-block-index [
         }
         | wrap block_line
 
-    $nu_res_stdout_lines
+    $clean_lines
     | wrap 'nu_out'
     | merge $block_start_line
     | group-by block_line --to-table
