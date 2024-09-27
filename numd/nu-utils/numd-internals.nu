@@ -105,6 +105,7 @@ export def generate-intermediate-script [
         } else if $row_type =~ '^```nu(shell)?(\s|$)' {
             execute-block-lines
             | prepend $"\"($row_type)\" | print"
+            | prepend $"\"(mark-code-block $input.block_line.0)\" | print"
             | append $"\"```\" | print"
             | append '' # add an empty line for visual distinction
         }
