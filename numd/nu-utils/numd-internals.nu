@@ -153,7 +153,7 @@ export def extract-block-index [
                 -1
             }
         }
-        | scan --noinit 0 {|prev_index curr_index|
+        | scan --noinit (-1) {|prev_index curr_index|
             if $curr_index == -1 {$prev_index} else {$curr_index}
         }
         | wrap block_line
