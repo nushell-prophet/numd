@@ -32,35 +32,39 @@ Experienced nushell users can understand the logic better by looking at [example
 ```nushell
 > use numd
 > numd run --help | numd parse-help
-Description:
-  Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
-
-Usage:
-  > run {flags} <file>
-
-Flags:
-  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
-  --print-block-results - print blocks one by one as they are executed
-  --echo - output resulting markdown to the terminal
-  --save-ansi - save ANSI formatted version
-  --no-backup - overwrite the existing `.md` file without backup
-  --no-save - do not save changes to the `.md` file
-  --no-stats - do not output stats of changes
-  --intermed-script <path> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-  --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-  --prepend-code <string> - prepend code into the intermediate script, useful for customizing Nushell output settings
-  --table-width <int> - set the `table --width` option value
-  --config-path <path> - path to a config file (default: '')
-
-Parameters:
-  file <path>: path to a `.md` file containing Nushell code to be executed
-
-Input/output types:
-  ╭─#─┬──input──┬─output──╮
-  │ 0 │ nothing │ string  │
-  │ 1 │ nothing │ nothing │
-  │ 2 │ nothing │ record  │
-  ╰─#─┴──input──┴─output──╯
+// Description:
+//   Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+//
+//
+// Usage:
+//   > run {flags} <file>
+//
+//
+// Flags:
+//   -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
+//   --print-block-results - print blocks one by one as they are executed
+//   --echo - output resulting markdown to the terminal
+//   --save-ansi - save ANSI formatted version
+//   --no-backup - overwrite the existing `.md` file without backup
+//   --no-save - do not save changes to the `.md` file
+//   --no-stats - do not output stats of changes
+//   --intermed-script <path> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+//   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
+//   --prepend-code <string> - prepend code into the intermediate script, useful for customizing Nushell output settings
+//   --table-width <int> - set the `table --width` option value
+//   --config-path <path> - path to a config file (default: '')
+//
+//
+// Parameters:
+//   file <path>: path to a `.md` file containing Nushell code to be executed
+//
+//
+// Input/output types:
+//   ╭─#─┬──input──┬─output──╮
+//   │ 0 │ nothing │ string  │
+//   │ 1 │ nothing │ nothing │
+//   │ 2 │ nothing │ record  │
+//   ╰─#─┴──input──┴─output──╯
 ```
 
 ### Supported nushell code block options
@@ -133,25 +137,29 @@ Output:
 
 ```nu
 > numd clear-outputs --help | numd parse-help
-Description:
-  Remove numd execution outputs from the file
-
-Usage:
-  > clear-outputs {flags} <file>
-
-Flags:
-  -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
-  --echo - output resulting markdown to the terminal instead of writing to file
-  --strip-markdown - keep only Nushell script, strip all markdown tags
-
-Parameters:
-  file <path>: path to a `.md` file containing numd output to be cleared
-
-Input/output types:
-  ╭─#─┬──input──┬─output──╮
-  │ 0 │ nothing │ string  │
-  │ 1 │ nothing │ nothing │
-  ╰─#─┴──input──┴─output──╯
+// Description:
+//   Remove numd execution outputs from the file
+//
+//
+// Usage:
+//   > clear-outputs {flags} <file>
+//
+//
+// Flags:
+//   -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
+//   --echo - output resulting markdown to the terminal instead of writing to file
+//   --strip-markdown - keep only Nushell script, strip all markdown tags
+//
+//
+// Parameters:
+//   file <path>: path to a `.md` file containing numd output to be cleared
+//
+//
+// Input/output types:
+//   ╭─#─┬──input──┬─output──╮
+//   │ 0 │ nothing │ string  │
+//   │ 1 │ nothing │ nothing │
+//   ╰─#─┴──input──┴─output──╯
 ```
 
 ### `numd capture`
@@ -160,36 +168,42 @@ Input/output types:
 
 ```nushell
 > numd capture start --help | numd parse-help
-Description:
-  start capturing commands and their outputs into a file
-
-Usage:
-  > start {flags} (file)
-
-Flags:
-  --separate - don't use `>` notation, create separate blocks for each pipeline
-
-Parameters:
-  file <path>:  (optional, default: 'numd_capture.md')
-
-Input/output types:
-  ╭─#─┬──input──┬─output──╮
-  │ 0 │ nothing │ nothing │
-  ╰─#─┴──input──┴─output──╯
+// Description:
+//   start capturing commands and their outputs into a file
+//
+//
+// Usage:
+//   > start {flags} (file)
+//
+//
+// Flags:
+//   --separate - don't use `>` notation, create separate blocks for each pipeline
+//
+//
+// Parameters:
+//   file <path>:  (optional, default: 'numd_capture.md')
+//
+//
+// Input/output types:
+//   ╭─#─┬──input──┬─output──╮
+//   │ 0 │ nothing │ nothing │
+//   ╰─#─┴──input──┴─output──╯
 ```
 
 ```nushell
 > numd capture stop --help | numd parse-help
-Description:
-  stop capturing commands and their outputs
-
-Usage:
-  > stop
-
-Input/output types:
-  ╭─#─┬──input──┬─output──╮
-  │ 0 │ nothing │ nothing │
-  ╰─#─┴──input──┴─output──╯
+// Description:
+//   stop capturing commands and their outputs
+//
+//
+// Usage:
+//   > stop
+//
+//
+// Input/output types:
+//   ╭─#─┬──input──┬─output──╮
+//   │ 0 │ nothing │ nothing │
+//   ╰─#─┴──input──┴─output──╯
 ```
 
 ### Some random familiar examples
@@ -203,18 +217,19 @@ Input/output types:
 │ z_examples/4_book_working_with_lists    │ dir  │
 │ z_examples/5_simple_nu_table            │ dir  │
 │ z_examples/6_edge_cases                 │ dir  │
+│ z_examples/7_image_output               │ dir  │
 │ z_examples/999_numd_internals           │ dir  │
 │ z_examples/99_strip_markdown            │ dir  │
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Thu, 22 Aug 2024 11:02:48 +0000 (2 days ago)
+Fri, 20 Sep 2024 16:27:31 +0000 (4 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.14
+0.1.15
 ```
 
 ## Real fight examples to try

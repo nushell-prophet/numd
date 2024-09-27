@@ -23,7 +23,7 @@ export def main [
             Examples
         ]
         | str join '|'
-        | $"^\(($in)\):"
+        | '^(' + $in + '):'
 
     let $existing_sections = $help_lines
         | where $it =~ $regex
@@ -50,17 +50,18 @@ export def main [
         select -i ...$sections
     } else {}
     | if $record {
-        items {|k v| $v
-            | str join (char nl)
-            | {section: $k, value: $in}
+        items {|k v|
+            {$k: ($v | to text)}
         }
-        | transpose -idr
+        | into record
     } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
-            | str join (char nl)
+            | to text
             | $"($k):\n($in)"
         }
-        | str join "\n"
+        | to text
+        | str replace -ar '[\n\s]+$' '' # empty trailing new lines
+        | str replace -arm '^' '// '
     }
 }

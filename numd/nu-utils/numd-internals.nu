@@ -46,11 +46,10 @@ export def find-code-blocks []: string -> table {
 #
 # > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
-    --fence: string # opening code fence string with options for executing the current block
     --whole_block
 ]: string -> string {
     let $code_content = $in
-    let $fence_options = $fence | extract-fence-options
+    let $fence_options = $env.numd.current_block_options
 
     let $highlighted_command = $code_content | create-highlight-command
 
@@ -92,13 +91,22 @@ export def generate-intermediate-script [
     | group-by block_line
     | values
     | each {
-        if ($in.row_type.0 == 'text' or
-            'no-run' in ($in.row_type.0 | extract-fence-options)
+        let $input = $in
+        let $row_type = $input.row_type.0
+        if $row_type != 'text' {
+            $env.numd.current_block_options = ($row_type | extract-fence-options)
+        }
+
+        $input.line
+        | if ($row_type == 'text' or
+            'no-run' in $env.numd.current_block_options
         ) {
-            $in.line
-            | generate-print-lines
-        } else if $in.row_type.0 =~ '^```nu(shell)?(\s|$)' {
-            execute-block-lines $in.line $in.row_type.0
+            generate-print-lines
+        } else if $row_type =~ '^```nu(shell)?(\s|$)' {
+            execute-block-lines
+            | prepend $"\"($row_type)\" | print"
+            | append $"\"```\" | print"
+            | append '' # add an empty line for visual distinction
         }
     }
     | if $env.numd?.prepend-code? != null {
@@ -115,27 +123,20 @@ export def generate-intermediate-script [
     | str replace -r "\n*$" "\n"
 }
 
-export def execute-block-lines [
-    rows: list
-    row_type: string
-] {
-    $rows
-    | skip | drop # skip code fences
+export def execute-block-lines [ ]: list -> list {
+    skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {  # find blocks with no `>` symbol to execute them entirely
         str join (char nl)
-        | create-execution-code --whole_block --fence $row_type
+        | create-execution-code --whole_block
     } else {
         each { # define what to do with each line of the current block one by one
             if $in starts-with '>' { # if a line starts with `>`, execute it
-                create-execution-code --fence $row_type
+                create-execution-code
             } else if $in starts-with '#' { # if a line starts with `#`, print it
                 create-highlight-command
             }
         }
     }
-    | prepend $"\"($row_type)\" | print"
-    | append $"\"```\" | print"
-    | append '' # add an empty line for visual distinction
 }
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
@@ -333,14 +334,14 @@ export def create-highlight-command [ ]: string -> string {
     | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
-# Trim comments and extra whitespace from code blocks for use in the generated script.
+# Trim comments and extra whitespaces from code blocks for use in the generated script.
 export def remove-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
-# Extract the last span from a command to decide if `| print` can be appended
+# Extract the last span from a command to determine if `| print` can be appended
 #
 # > get-last-span 'let a = 1..10; $a | length'
 # length
@@ -457,7 +458,7 @@ export def create-catch-error-current-instance []: string -> string {
 export def create-catch-error-outside []: string -> string {
     escape-special-characters-and-quote
     | ($'($nu.current-exe) -c ($in)' +
-        "| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
+        " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}")
 }
 
 # Generate a fenced code block for output with a specific format.
