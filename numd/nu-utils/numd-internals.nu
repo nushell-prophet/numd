@@ -146,7 +146,6 @@ export def extract-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
     let $block_start_line = $nu_res_stdout_lines
-        | prepend '' # in case of code block starting from the first line
         | each {
             if $in =~ $"^(mark-code-block)\\d+$" {
                 split row '-' | last | into int
@@ -157,7 +156,6 @@ export def extract-block-index [
         | scan --noinit (-1) {|prev_index curr_index|
             if $curr_index == -1 {$prev_index} else {$curr_index}
         }
-        | skip # in case of code block starting from the first line
         | wrap block_line
 
     $nu_res_stdout_lines
