@@ -165,6 +165,7 @@ export def extract-block-index [
     | upsert items {
         |i| $i.items.nu_out
         | skip
+        | take until {|x| $x =~ (mark-code-block --end)}
         | str join (char nl)
     }
     | rename block_line line
