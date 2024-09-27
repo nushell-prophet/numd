@@ -107,6 +107,7 @@ export def generate-intermediate-script [
             | prepend $"\"($row_type)\" | print"
             | prepend $"\"(mark-code-block $input.block_line.0)\" | print"
             | append $"\"```\" | print"
+            | append $"\"(mark-code-block --end $input.block_line.0)\" | print"
             | append '' # add an empty line for visual distinction
         }
     }
@@ -322,8 +323,12 @@ export def execute-intermediate-script [
 # #code-block-starting-line-in-original-md-3
 export def mark-code-block [
     index?: int
+    --end
 ]: nothing -> string {
-    $"#code-block-starting-line-in-original-md-($index)"
+    $"#code-block-starting-line-in-original-md-open-($index)"
+    | if $end {
+        str replace 'open' 'close'
+    } else {}
 }
 # TODO NUON can be used in mark-code-blocks to set display options
 
