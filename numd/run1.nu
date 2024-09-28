@@ -40,16 +40,16 @@ export def run [
     | save -f $intermediate_script_path
 
     let $intermed_result = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+        | if $in == '' {
+            return { filename: $file,
+                comment: "the script didn't produce any output" }
+        } else {}
         | lines
         | extract-block-index $in
 
     $intermed_result | save -f ($file + '_intermed_exec.json')
 
     let $updated_md_ansi = merge-markdown $original_md_table $intermed_result
-        | if $in == '' {
-            return { filename: $file,
-                comment: "the script didn't produce any output" }
-        } else {}
         | clean-markdown
         | toggle-output-fences --back
 
