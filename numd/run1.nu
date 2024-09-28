@@ -95,7 +95,7 @@ export def clear-outputs [
 
     $original_md_table
     | where row_type =~ '^```nu(shell)?(\s|$)'
-    | group-by block_line
+    | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line
         | if ($in | where $it =~ '^>' | is-empty) {} else {

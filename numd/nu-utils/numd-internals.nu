@@ -19,13 +19,12 @@ export def find-code-blocks []: string -> table {
             if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
         }
 
-    let $block_start_line = $row_type
+    let $block_index = $row_type
         | window --remainder 2
         | scan 0 {|prev_line curr_line|
             if $curr_line.0 == $curr_line.1? {
                 $prev_line
             } else {
-                # output the line number with the opening fence of the current block
                 $prev_line + 1
             }
         }
@@ -33,7 +32,7 @@ export def find-code-blocks []: string -> table {
     # Wrap lists into columns because the `window` command was used previously
     $file_lines | wrap line
     | merge ($row_type | wrap row_type)
-    | merge ($block_start_line | wrap block_line)
+    | merge ($block_index | wrap block_index)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
         error make {
             msg: 'A closing code block fence (```) is missing; the markdown might be invalid.'
@@ -87,7 +86,7 @@ export def generate-intermediate-script [
 
     $md_classified
     | where row_type != '```output-numd'
-    | group-by block_line
+    | group-by block_index
     | values
     | each {
         let $input = $in
@@ -104,9 +103,9 @@ export def generate-intermediate-script [
         } else if $row_type =~ '^```nu(shell)?(\s|$)' {
             execute-block-lines
             | prepend $"\"($row_type)\" | print"
-            | prepend $"\"(mark-code-block $input.block_line.0)\" | print"
+            | prepend $"\"(mark-code-block $input.block_index.0)\" | print"
             | append $"\"```\" | print"
-            | append $"\"(mark-code-block --end $input.block_line.0)\" | print"
+            | append $"\"(mark-code-block --end $input.block_index.0)\" | print"
             | append '' # add an empty line for visual distinction
         }
     }
@@ -147,7 +146,7 @@ export def extract-block-index [
     let $clean_lines = $nu_res_stdout_lines
         | skip until {|x| $x =~ (mark-code-block)}
 
-    let $block_start_line = $clean_lines
+    let $block_index = $clean_lines
         | each {
             if $in =~ $"^(mark-code-block)\\d+$" {
                 split row '-' | last | into int
@@ -158,31 +157,31 @@ export def extract-block-index [
         | scan --noinit 0 {|prev_index curr_index|
             if $curr_index == -1 {$prev_index} else {$curr_index}
         }
-        | wrap block_line
+        | wrap block_index
 
     $clean_lines
     | wrap 'nu_out'
-    | merge $block_start_line
-    | group-by block_line --to-table
+    | merge $block_index
+    | group-by block_index --to-table
     | upsert items {
         |i| $i.items.nu_out
         | skip
         | take until {|x| $x =~ (mark-code-block --end)}
         | str join (char nl)
     }
-    | rename block_line line
-    | into int block_line
+    | rename block_index line
+    | into int block_index
 }
 
 # Assemble the final markdown by merging the original classified markdown with parsed results of the generated script.
 export def merge-markdown [
     $md_classified: table
-    $nu_res_with_block_line: table
+    $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
-    | append $nu_res_with_block_line
-    | sort-by block_line
+    | append $nu_res_with_block_index
+    | sort-by block_index
     | get line
     | str join (char nl)
     | $in + (char nl)
@@ -223,7 +222,7 @@ export def compute-change-stats [
     let $nushell_blocks = $new_file_content
         | find-code-blocks
         | where row_type =~ '^```nu'
-        | get block_line
+        | get block_index
         | uniq
         | length
 
