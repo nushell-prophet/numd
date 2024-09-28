@@ -90,16 +90,14 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | group-by block_index
-    | values
     | each {
         let $input = $in
-        let $row_type = $input.row_type.0
+        let $row_type = $input.row_type
         if $row_type != 'text' {
             $env.numd.current_block_options = ($row_type | extract-fence-options)
         }
 
-        $input.line
+        $input.lines
         | if ($row_type == 'text' or
             'no-run' in $env.numd.current_block_options
         ) {
