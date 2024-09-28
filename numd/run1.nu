@@ -39,7 +39,7 @@ export def run [
     generate-intermediate-script $original_md_table
     | save -f $intermediate_script_path
 
-    let $intermed_result = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let $nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
             return { filename: $file,
                 comment: "the script didn't produce any output" }
@@ -47,9 +47,9 @@ export def run [
         | lines
         | extract-block-index $in
 
-    $intermed_result | save -f ($file + '_intermed_exec.json')
+    $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
 
-    let $updated_md_ansi = merge-markdown $original_md_table $intermed_result
+    let $updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
         | clean-markdown
         | toggle-output-fences --back
 
