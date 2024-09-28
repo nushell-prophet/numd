@@ -38,6 +38,11 @@ export def find-code-blocks []: string -> table {
             msg: 'A closing code block fence (```) is missing; the markdown might be invalid.'
         }
     } else {}
+    | group-by block_index --to-table
+    | insert row_type {|i| $i.items.row_type.0}
+    | update items {get line}
+    | rename block_index lines row_type
+    | select block_index row_type lines
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
