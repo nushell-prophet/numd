@@ -322,12 +322,12 @@ export def execute-intermediate-script [
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 #
 # > mark-code-block 3
-# #code-block-starting-line-in-original-md-3
+# #code-block-marker-3
 export def mark-code-block [
     index?: int
     --end
 ]: nothing -> string {
-    $"#code-block-starting-line-in-original-md-open-($index)"
+    $"#code-block-marker-open-($index)"
     | if $end {
         str replace 'open' 'close'
     } else {}
