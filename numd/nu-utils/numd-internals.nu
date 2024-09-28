@@ -20,14 +20,13 @@ export def find-code-blocks []: string -> table {
         }
 
     let $block_start_line = $row_type
-        | enumerate # enumerate starting index is 0
         | window --remainder 2
-        | scan 1 {|prev_line curr_line|
-            if $curr_line.item.0? == $curr_line.item.1? {
+        | scan 0 {|prev_line curr_line|
+            if $curr_line.0 == $curr_line.1? {
                 $prev_line
             } else {
                 # output the line number with the opening fence of the current block
-                $curr_line.index.0 + 2
+                $prev_line + 1
             }
         }
 
