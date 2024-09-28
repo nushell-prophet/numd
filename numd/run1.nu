@@ -25,6 +25,7 @@ export def run [
     let $original_md_table = $original_md
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
+        | where row_type != '```output-numd'
 
     $original_md_table | save -f ($file + '_original_md_table.json')
 

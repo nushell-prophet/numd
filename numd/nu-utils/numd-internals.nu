@@ -90,7 +90,6 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | where row_type != '```output-numd'
     | group-by block_index
     | values
     | each {
