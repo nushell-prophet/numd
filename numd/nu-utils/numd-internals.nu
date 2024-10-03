@@ -49,10 +49,11 @@ export def find-code-blocks []: string -> table {
 #
 # > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
+    $fence_options
     --whole_block
 ]: string -> string {
     let $code_content = $in
-    let $fence_options = $env.numd.current_block_options
+    # let $fence_options = $env.numd.current_block_options
 
     let $highlighted_command = $code_content | create-highlight-command
 
@@ -103,7 +104,7 @@ export def generate-intermediate-script [
         ) {
             generate-print-lines
         } else if $row_type =~ '^```nu(shell)?(\s|$)' {
-            execute-block-lines
+            execute-block-lines $env.numd.current_block_options
             | prepend $"\"($row_type)\" | print"
             | prepend $"\"(mark-code-block $input.block_index.0)\" | print"
             | append $"\"```\" | print"
@@ -125,15 +126,17 @@ export def generate-intermediate-script [
     | str replace -r "\n*$" "\n"
 }
 
-export def execute-block-lines [ ]: list -> list {
+export def execute-block-lines [
+    $fence_options
+ ]: list -> list {
     skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {  # find blocks with no `>` symbol to execute them entirely
         str join (char nl)
-        | create-execution-code --whole_block
+        | create-execution-code $fence_options --whole_block
     } else {
         each { # define what to do with each line of the current block one by one
             if $in starts-with '>' { # if a line starts with `>`, execute it
-                create-execution-code
+                create-execution-code $fence_options
             } else if $in starts-with '#' { # if a line starts with `#`, print it
                 create-highlight-command
             }
