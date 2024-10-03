@@ -486,6 +486,20 @@ export def generate-print-lines []: list -> string {
     | $'($in) | print'
 }
 
+export def generate-tags [
+    $block_number
+    $fence
+]: list -> string {
+    let $input = $in
+    
+    mark-code-block $block_number
+    | append $fence
+    | generate-print-lines
+    | append $input
+    | append '"```" | print'
+    | to text
+}
+
 # Parse options from a code fence and return them as a list.
 #
 # > '```nu no-run, t' | extract-fence-options
