@@ -43,6 +43,7 @@ export def find-code-blocks []: string -> table {
     | update items {get line}
     | rename block_index line row_type
     | select block_index row_type line
+    | into int block_index
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
