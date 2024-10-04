@@ -41,8 +41,8 @@ export def find-code-blocks []: string -> table {
     | group-by block_index --to-table
     | insert row_type {|i| $i.items.row_type.0}
     | update items {get line}
-    | rename block_index lines row_type
-    | select block_index row_type lines
+    | rename block_index line row_type
+    | select block_index row_type line
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
@@ -91,27 +91,12 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | each {
-        let $input = $in
-        let $row_type = $input.row_type
-        if $row_type != 'text' {
-            $env.numd.current_block_options = ($row_type | extract-fence-options)
-        }
-
-        $input.lines
-        | if ($row_type == 'text' or
-            'no-run' in $env.numd.current_block_options
-        ) {
-            generate-print-lines
-        } else if $row_type =~ '^```nu(shell)?(\s|$)' {
-            execute-block-lines $env.numd.current_block_options
-            | prepend $"\"($row_type)\" | print"
-            | prepend $"\"(mark-code-block $input.block_index.0)\" | print"
-            | append $"\"```\" | print"
-            | append $"\"(mark-code-block --end $input.block_index.0)\" | print"
-            | append '' # add an empty line for visual distinction
-        }
+    | where row_type != text
+    | insert code {|i| $i.line
+        | execute-block-lines ($i.row_type | extract-fence-options)
+        | generate-tags $i.block_index $i.row_type
     }
+    | get code -i
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
@@ -491,7 +476,7 @@ export def generate-tags [
     $fence
 ]: list -> string {
     let $input = $in
-    
+
     mark-code-block $block_number
     | append $fence
     | generate-print-lines
