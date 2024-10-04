@@ -170,6 +170,7 @@ export def merge-markdown [
 ]: nothing -> string {
     $md_classified
     | where row_type !~ '^(```nu(shell)?(\s|$))'
+    | update line {to text}
     | append $nu_res_with_block_index
     | sort-by block_index
     | get line
