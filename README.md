@@ -41,18 +41,18 @@ Experienced nushell users can understand the logic better by looking at [example
 //
 //
 // Flags:
-//   -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
-//   --print-block-results - print blocks one by one as they are executed
-//   --echo - output resulting markdown to the terminal
-//   --save-ansi - save ANSI formatted version
-//   --no-backup - overwrite the existing `.md` file without backup
-//   --no-save - do not save changes to the `.md` file
-//   --no-stats - do not output stats of changes
-//   --intermed-script <path> - optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-//   --no-fail-on-error - skip errors (and don't update markdown in case of errors anyway)
-//   --prepend-code <string> - prepend code into the intermediate script, useful for customizing Nushell output settings
-//   --table-width <int> - set the `table --width` option value
-//   --config-path <path> - path to a config file (default: '')
+//   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
+//   --print-block-results: print blocks one by one as they are executed
+//   --echo: output resulting markdown to the terminal
+//   --save-ansi: save ANSI formatted version
+//   --no-backup: overwrite the existing `.md` file without backup
+//   --no-save: do not save changes to the `.md` file
+//   --no-stats: do not output stats of changes
+//   --intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+//   --no-fail-on-error: skip errors (and don't update markdown in case of errors anyway)
+//   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
+//   --table-width <int>: set the `table --width` option value
+//   --config-path <path>: path to a config file (default: '')
 //
 //
 // Parameters:
@@ -146,9 +146,9 @@ Output:
 //
 //
 // Flags:
-//   -o, --result-md-path <path> - path to a resulting `.md` file; if omitted, updates the original file
-//   --echo - output resulting markdown to the terminal instead of writing to file
-//   --strip-markdown - keep only Nushell script, strip all markdown tags
+//   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
+//   --echo: output resulting markdown to the terminal instead of writing to file
+//   --strip-markdown: keep only Nushell script, strip all markdown tags
 //
 //
 // Parameters:
@@ -177,7 +177,7 @@ Output:
 //
 //
 // Flags:
-//   --separate - don't use `>` notation, create separate blocks for each pipeline
+//   --separate: don't use `>` notation, create separate blocks for each pipeline
 //
 //
 // Parameters:
@@ -223,7 +223,7 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Fri, 20 Sep 2024 16:27:31 +0000 (4 days ago)
+Sat, 5 Oct 2024 20:17:26 -0300 (2 weeks ago)
 
 > 2 + 2
 4
