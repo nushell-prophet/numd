@@ -11,11 +11,8 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"# numd commands explanation
-
-In the code block below, we set settings and variables for executing this entire document.
-" | print
-"```nu" | print
+"#code-block-marker-open-1
+```nu" | print
 "# This setting is for overriding the author's usual small number of `abbreviated_row_count`.
 $env.config.table.abbreviated_row_count = 100
 
@@ -38,14 +35,8 @@ use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
 
 "```" | print
 
-"
-## numd-internals.nu
-
-### find-code-blocks
-
-This command is used for parsing initial markdown to detect executable code blocks.
-" | print
-"```nu indent-output" | print
+"#code-block-marker-open-3
+```nu indent-output" | print
 "# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
@@ -64,12 +55,8 @@ $md_orig_table | table | lines | each {$'//  ($in)' | str trim --right} | str jo
 
 "```" | print
 
-"
-## generate-intermediate-script
-
-The `generate-intermediate-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
-" | print
-"```nu indent-output" | print
+"#code-block-marker-open-6
+```nu indent-output" | print
 "# Here we emulate that the `$intermed_script_path` options is not set
 let $intermed_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
@@ -92,12 +79,8 @@ open $intermed_script_path | table | lines | each {$'//  ($in)' | str trim --rig
 
 "```" | print
 
-"
-## execute-intermediate-script
-
-The `execute-intermediate-script` command runs and captures outputs of the executed intermediate script.
-" | print
-"```nu indent-output" | print
+"#code-block-marker-open-9
+```nu indent-output" | print
 "# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
@@ -116,8 +99,8 @@ $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim --right} | 
 
 "```" | print
 
-"" | print
-"```nu indent-output" | print
+"#code-block-marker-open-12
+```nu indent-output" | print
 "let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
@@ -134,12 +117,8 @@ $md_res | table | lines | each {$'//  ($in)' | str trim --right} | str join (cha
 
 "```" | print
 
-"
-## compute-change-stats
-
-The `compute-change-stats` command displays stats on the changes made.
-" | print
-"```nu indent-output" | print
+"#code-block-marker-open-15
+```nu indent-output" | print
 "compute-change-stats $file $md_orig $md_res" | nu-highlight | print
 
 "```\n```output-numd" | print

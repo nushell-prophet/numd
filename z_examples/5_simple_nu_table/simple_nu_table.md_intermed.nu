@@ -11,15 +11,16 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"```nushell" | print
+"#code-block-marker-open-0
+```nushell" | print
 "> $env.numd?" | nu-highlight | print
 
 $env.numd? | table | print; print ''
 
 "```" | print
 
-"" | print
-"```nushell" | print
+"#code-block-marker-open-2
+```nushell" | print
 "[[a b c]; [1 2 3]]" | nu-highlight | print
 
 "```\n```output-numd" | print
@@ -28,8 +29,8 @@ $env.numd? | table | print; print ''
 
 "```" | print
 
-"" | print
-"```nushell" | print
+"#code-block-marker-open-5
+```nushell" | print
 "[[column long_text];
 
 ['value_1' ('Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.' +
