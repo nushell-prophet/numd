@@ -27,7 +27,7 @@ export def run [
         | find-code-blocks
         | where row_type != '```output-numd'
 
-    $original_md_table | save -f ($file + '_original_md_table.json')
+    # $original_md_table | save -f ($file + '_original_md_table.json')
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
@@ -47,7 +47,7 @@ export def run [
         | lines
         | extract-block-index $in
 
-    $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
+    # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
 
     let $updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
         | clean-markdown
