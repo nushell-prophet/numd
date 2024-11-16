@@ -98,7 +98,7 @@ export def clear-outputs [
     | where row_type =~ '^```nu(shell)?(\s|$)'
     | group-by block_index
     | items {|block_index block_lines|
-        $block_lines.line
+        $block_lines.line.0
         | if ($in | where $it =~ '^>' | is-empty) {} else {
             where $it =~ '^(>|#|```)'
         }
