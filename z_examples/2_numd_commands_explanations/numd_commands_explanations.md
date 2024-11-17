@@ -31,15 +31,52 @@ $md_orig_table | table -e
 Output:
 
 ```
-//  ╭─block_index─┬────row_type────┬──────line──────┬─────action─────╮
-//  │           0 │ text           │ [list 6 items] │ print-as-it-is │
-//  │           1 │ ```nu          │ [list 3 items] │ execute        │
-//  │           2 │ text           │ [list 3 items] │ print-as-it-is │
-//  │           3 │ ```nu          │ [list 4 items] │ execute        │
-//  │           4 │ ```output-numd │ [list 3 items] │ delete         │
-//  │           5 │ text           │ [list 3 items] │ print-as-it-is │
-//  │           6 │ ```nu          │ [list 8 items] │ execute        │
-//  ╰─block_index─┴────row_type────┴──────line──────┴─────action─────╯
+//  ╭─block_index──┬────row_type─────┬────────────────────────────────────line────────────────────────────────────┬─────action──────╮
+//  │            0 │ text            │ ╭───────────────────────────────────────────────────────────────────────╮  │ print-as-it-is  │
+//  │              │                 │ │ # This is a simple markdown example                                   │  │                 │
+//  │              │                 │ │                                                                       │  │                 │
+//  │              │                 │ │ ## Example 1                                                          │  │                 │
+//  │              │                 │ │                                                                       │  │                 │
+//  │              │                 │ │ the block below will be executed as it is, but won't yield any output │  │                 │
+//  │              │                 │ │                                                                       │  │                 │
+//  │              │                 │ ╰───────────────────────────────────────────────────────────────────────╯  │                 │
+//  │            1 │ ```nu           │ ╭───────────────────╮                                                      │ execute         │
+//  │              │                 │ │ ```nu             │                                                      │                 │
+//  │              │                 │ │ let $var1 = 'foo' │                                                      │                 │
+//  │              │                 │ │ ```               │                                                      │                 │
+//  │              │                 │ ╰───────────────────╯                                                      │                 │
+//  │            2 │ text            │ ╭──────────────╮                                                           │ print-as-it-is  │
+//  │              │                 │ │              │                                                           │                 │
+//  │              │                 │ │ ## Example 2 │                                                           │                 │
+//  │              │                 │ │              │                                                           │                 │
+//  │              │                 │ ╰──────────────╯                                                           │                 │
+//  │            3 │ ```nu           │ ╭───────────────────────────────────────────────────────────╮              │ execute         │
+//  │              │                 │ │ ```nu                                                     │              │                 │
+//  │              │                 │ │ # This block will produce some output in a separate block │              │                 │
+//  │              │                 │ │ $var1 | path join 'baz' 'bar'                             │              │                 │
+//  │              │                 │ │ ```                                                       │              │                 │
+//  │              │                 │ ╰───────────────────────────────────────────────────────────╯              │                 │
+//  │            4 │ ```output-numd  │ ╭────────────────╮                                                         │ delete          │
+//  │              │                 │ │ ```output-numd │                                                         │                 │
+//  │              │                 │ │ foo/baz/bar    │                                                         │                 │
+//  │              │                 │ │ ```            │                                                         │                 │
+//  │              │                 │ ╰────────────────╯                                                         │                 │
+//  │            5 │ text            │ ╭──────────────╮                                                           │ print-as-it-is  │
+//  │              │                 │ │              │                                                           │                 │
+//  │              │                 │ │ ## Example 3 │                                                           │                 │
+//  │              │                 │ │              │                                                           │                 │
+//  │              │                 │ ╰──────────────╯                                                           │                 │
+//  │            6 │ ```nu           │ ╭─────────────────────────────────────────╮                                │ execute         │
+//  │              │                 │ │ ```nu                                   │                                │                 │
+//  │              │                 │ │ # This block will output results inline │                                │                 │
+//  │              │                 │ │ > whoami                                │                                │                 │
+//  │              │                 │ │ user                                    │                                │                 │
+//  │              │                 │ │                                         │                                │                 │
+//  │              │                 │ │ > 2 + 2                                 │                                │                 │
+//  │              │                 │ │ 4                                       │                                │                 │
+//  │              │                 │ │ ```                                     │                                │                 │
+//  │              │                 │ ╰─────────────────────────────────────────╯                                │                 │
+//  ╰─block_index──┴────row_type─────┴────────────────────────────────────line────────────────────────────────────┴─────action──────╯
 ```
 
 ## generate-intermediate-script

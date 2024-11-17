@@ -42,7 +42,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table" | nu-highlight | print
+$md_orig_table | table -e" | nu-highlight | print
 
 "```\n```output-numd" | print
 
@@ -51,7 +51,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+$md_orig_table | table -e | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
