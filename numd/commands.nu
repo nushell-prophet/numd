@@ -449,8 +449,7 @@ export def merge-markdown [
     | append $nu_res_with_block_index
     | sort-by block_index
     | get line
-    | str join (char nl)
-    | $in + (char nl)
+    | to text
 }
 
 # Prettify markdown by removing unnecessary empty lines and trailing spaces.
