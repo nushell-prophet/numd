@@ -295,16 +295,6 @@ print $x | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-61
-```nushell no-run" | print
-"git checkout featurebranch | null" | nu-highlight | print
-
-"```\n```output-numd" | print
-
-git checkout featurebranch | null
-
-"```" | print
-
 "#code-block-marker-open-63
 ```nushell try,new-instance" | print
 "> [{a:1 b:2} {b:1}]" | nu-highlight | print
