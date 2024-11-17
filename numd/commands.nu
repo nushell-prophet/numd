@@ -322,7 +322,7 @@ export def match-action [
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['indent-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
     $fence_options
     --whole_block
@@ -585,7 +585,7 @@ export def execute-intermediate-script [
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 #
 # > mark-code-block 3
-# #code-block-marker-3
+# #code-block-marker-open-3
 export def mark-code-block [
     index?: int
     --end
@@ -725,7 +725,7 @@ export def create-catch-error-current-instance []: string -> string {
 # Execute the command outside to obtain a formatted error message if any.
 #
 # > 'ls' | create-catch-error-outside
-# /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
+# /Users/user/.cargo/bin/nu -c "ls" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def create-catch-error-outside []: string -> string {
     escape-special-characters-and-quote
     | ($'($nu.current-exe) -c ($in)' +
@@ -839,7 +839,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20240825_091300
+# 20241117_202547
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
