@@ -47,9 +47,9 @@ export def match-action [
     $row_type: string
 ] {
     match $row_type {
-        'text' => {'print-block'}
+        'text' => {'print-as-it-is'}
         '```output-numd' => {'delete'}
-        $i if 'no-run' in $i => {'print-block'}
+        $i if 'no-run' in $i => {'print-as-it-is'}
         _ => {'execute'}
     }
 }
@@ -178,7 +178,7 @@ export def merge-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where action == 'print-block'
+    | where action == 'print-as-it-is'
     | update line {to text}
     | append $nu_res_with_block_index
     | sort-by block_index
