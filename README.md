@@ -175,7 +175,7 @@ Output:
 //
 //
 // Usage:
-//   > start {flags} (file)
+//   > capture start {flags} (file)
 //
 //
 // Flags:
@@ -199,7 +199,7 @@ Output:
 //
 //
 // Usage:
-//   > stop
+//   > capture stop
 //
 //
 // Input/output types:
@@ -225,7 +225,7 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Tue, 29 Oct 2024 18:51:25 -0300 (2 weeks ago)
+Tue, 29 Oct 2024 18:51:22 -0300 (2 weeks ago)
 
 > 2 + 2
 4

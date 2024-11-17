@@ -1,4 +1,4 @@
-const numdinternals = ([numd nu-utils numd-internals.nu] | path join)
+const numdinternals = ([numd commands.nu] | path join)
 use $numdinternals [modify-path]
 
 def main [] {}
