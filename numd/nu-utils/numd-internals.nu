@@ -10,23 +10,19 @@ export def find-code-blocks []: string -> table {
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
-                'text' => { if $prev_fence == 'closing-fence' {'text'} else {$prev_fence} }
-                '```' => { if $prev_fence == 'text' {'```'} else {'closing-fence'} }
+                'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
+                '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
                 _ => { $curr_fence }
             }
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
-            if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
+            if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
         }
 
     let $block_index = $row_type
         | window --remainder 2
         | scan 0 {|prev_line curr_line|
-            if $curr_line.0 == $curr_line.1? {
-                $prev_line
-            } else {
-                $prev_line + 1
-            }
+            if $curr_line.0 == $curr_line.1? { $prev_line } else { $prev_line + 1 }
         }
 
     # Wrap lists into columns because the `window` command was used previously
