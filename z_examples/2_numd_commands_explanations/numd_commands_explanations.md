@@ -25,7 +25,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table
+$md_orig_table | table -e
 ```
 
 Output:
