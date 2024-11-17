@@ -130,10 +130,6 @@ if true {
 print $x
 
 
-    # ```nushell no-run
-git checkout featurebranch | null
-
-
     # ```nushell try,new-instance
 [{a:1 b:2} {b:1}]
 [{a:1 b:2} {b:1}].1.a

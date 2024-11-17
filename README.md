@@ -91,7 +91,7 @@ By default, `numd` provides basic stats on changes made.
 > numd run --no-save $path
 ╭──────────────────┬───────────────────────────────────╮
 │ filename         │ simple_markdown_with_no_output.md │
-│ nushell_blocks   │ 3                                 │
+│ nushell_blocks   │ 4                                 │
 │ levenshtein_dist │ 38                                │
 │ diff_lines       │ +9 (37.5%)                        │
 │ diff_words       │ +6 (10.7%)                        │
@@ -110,10 +110,12 @@ let path = $nu.temp-path | path join simple_nu_table.md
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
 # let's run this file to see it's outputs
-numd run $path --echo --no-save --no-stats --prepend-code "$env.config.footer_mode = 'never'
+numd run $path --echo --no-save --no-stats --prepend-code "
+    $env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
     $env.config.table.index_mode = 'never'
-    $env.config.table.mode = 'basic_compact'"
+    $env.config.table.mode = 'basic_compact'
+"
 ```
 
 Output:
@@ -223,7 +225,7 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Tue, 29 Oct 2024 18:51:21 -0300 (2 weeks ago)
+Tue, 29 Oct 2024 18:51:25 -0300 (2 weeks ago)
 
 > 2 + 2
 4
@@ -241,10 +243,10 @@ Tue, 29 Oct 2024 18:51:21 -0300 (2 weeks ago)
 | numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
-# save intermed nushell script to `types_of_data.md_intermed.nu`
+# save intermed nushell script to `types_of_data.md_intermed_from_readme.nu`
 [z_examples 3_book_types_of_data types_of_data.md]
 | path join
-| numd run $in --no-backup --intermed-script $'($in)_intermed.nu'
+| numd run $in --no-backup --intermed-script $'($in)_intermed_from_readme.nu'
 ```
 
 ## Development and testing

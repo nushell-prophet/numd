@@ -347,9 +347,9 @@ be converted to a separate row with a single column:
 # Show world clock for selected time zones
 > $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}
 ╭────────Zone────────┬───────Time───────╮
-│ UTC                │ 2024.06.17 06:06 │
-│ CET                │ 2024.06.17 08:06 │
-│ Europe/Moscow      │ 2024.06.17 09:06 │
-│ Asia/Yekaterinburg │ 2024.06.17 11:06 │
+│ UTC                │ 2024.11.16 20:52 │
+│ CET                │ 2024.11.16 21:52 │
+│ Europe/Moscow      │ 2024.11.16 23:52 │
+│ Asia/Yekaterinburg │ 2024.11.17 01:52 │
 ╰────────Zone────────┴───────Time───────╯
 ```

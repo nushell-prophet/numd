@@ -10,46 +10,59 @@ export def find-code-blocks []: string -> table {
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
             match $curr_fence {
-                'text' => { if $prev_fence == 'closing-fence' {'text'} else {$prev_fence} }
-                '```' => { if $prev_fence == 'text' {'```'} else {'closing-fence'} }
+                'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
+                '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
                 _ => { $curr_fence }
             }
         }
         | scan --noinit 'text' {|prev_fence curr_fence|
-            if $curr_fence == 'closing-fence' {$prev_fence} else {$curr_fence}
+            if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
         }
 
-    let $block_start_line = $row_type
-        | enumerate # enumerate starting index is 0
+    let $block_index = $row_type
         | window --remainder 2
-        | scan 1 {|prev_line curr_line|
-            if $curr_line.item.0? == $curr_line.item.1? {
-                $prev_line
-            } else {
-                # output the line number with the opening fence of the current block
-                $curr_line.index.0 + 2
-            }
+        | scan 0 {|prev_line curr_line|
+            if $curr_line.0 == $curr_line.1? { $prev_line } else { $prev_line + 1 }
         }
 
     # Wrap lists into columns because the `window` command was used previously
     $file_lines | wrap line
     | merge ($row_type | wrap row_type)
-    | merge ($block_start_line | wrap block_line)
+    | merge ($block_index | wrap block_index)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
         error make {
             msg: 'A closing code block fence (```) is missing; the markdown might be invalid.'
         }
     } else {}
+    | group-by block_index --to-table
+    | insert row_type {|i| $i.items.row_type.0}
+    | update items {get line}
+    | rename block_index line row_type
+    | select block_index row_type line
+    | into int block_index
+    | insert action {|i| match-action $i.row_type}
+}
+
+export def match-action [
+    $row_type: string
+] {
+    match $row_type {
+        'text' => {'print-as-it-is'}
+        '```output-numd' => {'delete'}
+        $i if ($i =~ 'no-run') => {'print-as-it-is'}
+        _ => {'execute'}
+    }
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
 # > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
+    $fence_options
     --whole_block
 ]: string -> string {
     let $code_content = $in
-    let $fence_options = $env.numd.current_block_options
+    # let $fence_options = $env.numd.current_block_options
 
     let $highlighted_command = $code_content | create-highlight-command
 
@@ -87,28 +100,12 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | where row_type != '```output-numd'
-    | group-by block_line
-    | values
-    | each {
-        let $input = $in
-        let $row_type = $input.row_type.0
-        if $row_type != 'text' {
-            $env.numd.current_block_options = ($row_type | extract-fence-options)
-        }
-
-        $input.line
-        | if ($row_type == 'text' or
-            'no-run' in $env.numd.current_block_options
-        ) {
-            generate-print-lines
-        } else if $row_type =~ '^```nu(shell)?(\s|$)' {
-            execute-block-lines
-            | prepend $"\"($row_type)\" | print"
-            | append $"\"```\" | print"
-            | append '' # add an empty line for visual distinction
-        }
+    | where action == 'execute'
+    | insert code {|i| $i.line
+        | execute-block-lines ($i.row_type | extract-fence-options)
+        | generate-tags $i.block_index $i.row_type
     }
+    | get code -i
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
@@ -123,15 +120,17 @@ export def generate-intermediate-script [
     | str replace -r "\n*$" "\n"
 }
 
-export def execute-block-lines [ ]: list -> list {
+export def execute-block-lines [
+    $fence_options
+ ]: list -> list {
     skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {  # find blocks with no `>` symbol to execute them entirely
         str join (char nl)
-        | create-execution-code --whole_block
+        | create-execution-code $fence_options --whole_block
     } else {
         each { # define what to do with each line of the current block one by one
             if $in starts-with '>' { # if a line starts with `>`, execute it
-                create-execution-code
+                create-execution-code $fence_options
             } else if $in starts-with '#' { # if a line starts with `#`, print it
                 create-highlight-command
             }
@@ -143,7 +142,10 @@ export def execute-block-lines [ ]: list -> list {
 export def extract-block-index [
     $nu_res_stdout_lines: list
 ]: nothing -> table {
-    let $block_start_line = $nu_res_stdout_lines
+    let $clean_lines = $nu_res_stdout_lines
+        | skip until {|x| $x =~ (mark-code-block)}
+
+    let $block_index = $clean_lines
         | each {
             if $in =~ $"^(mark-code-block)\\d+$" {
                 split row '-' | last | into int
@@ -154,30 +156,32 @@ export def extract-block-index [
         | scan --noinit 0 {|prev_index curr_index|
             if $curr_index == -1 {$prev_index} else {$curr_index}
         }
-        | wrap block_line
+        | wrap block_index
 
-    $nu_res_stdout_lines
+    $clean_lines
     | wrap 'nu_out'
-    | merge $block_start_line
-    | group-by block_line --to-table
+    | merge $block_index
+    | group-by block_index --to-table
     | upsert items {
         |i| $i.items.nu_out
         | skip
+        | take until {|x| $x =~ (mark-code-block --end)}
         | str join (char nl)
     }
-    | rename block_line line
-    | into int block_line
+    | rename block_index line
+    | into int block_index
 }
 
 # Assemble the final markdown by merging the original classified markdown with parsed results of the generated script.
 export def merge-markdown [
     $md_classified: table
-    $nu_res_with_block_line: table
+    $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '^(```nu(shell)?(\s|$))|(```output-numd$)'
-    | append $nu_res_with_block_line
-    | sort-by block_line
+    | where action == 'print-as-it-is'
+    | update line {to text}
+    | append $nu_res_with_block_index
+    | sort-by block_index
     | get line
     | str join (char nl)
     | $in + (char nl)
@@ -217,8 +221,8 @@ export def compute-change-stats [
 
     let $nushell_blocks = $new_file_content
         | find-code-blocks
-        | where row_type =~ '^```nu'
-        | get block_line
+        | where action == 'execute'
+        | get block_index
         | uniq
         | length
 
@@ -318,11 +322,15 @@ export def execute-intermediate-script [
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 #
 # > mark-code-block 3
-# #code-block-starting-line-in-original-md-3
+# #code-block-marker-3
 export def mark-code-block [
     index?: int
+    --end
 ]: nothing -> string {
-    $"#code-block-starting-line-in-original-md-($index)"
+    $"#code-block-marker-open-($index)"
+    | if $end {
+        str replace 'open' 'close'
+    } else {}
 }
 # TODO NUON can be used in mark-code-blocks to set display options
 
@@ -471,6 +479,20 @@ export def generate-print-lines []: list -> string {
     str join (char nl)
     | escape-special-characters-and-quote
     | $'($in) | print'
+}
+
+export def generate-tags [
+    $block_number
+    $fence
+]: list -> string {
+    let $input = $in
+
+    mark-code-block $block_number
+    | append $fence
+    | generate-print-lines
+    | append $input
+    | append '"```" | print'
+    | to text
 }
 
 # Parse options from a code fence and return them as a list.

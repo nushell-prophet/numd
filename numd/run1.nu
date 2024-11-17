@@ -26,6 +26,8 @@ export def run [
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
 
+    # $original_md_table | save -f ($file + '_original_md_table.json')
+
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
     let $intermediate_script_path = $intermed_script
@@ -36,11 +38,17 @@ export def run [
     generate-intermediate-script $original_md_table
     | save -f $intermediate_script_path
 
-    let $updated_md_ansi = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let $nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
         | if $in == '' {
             return { filename: $file,
                 comment: "the script didn't produce any output" }
         } else {}
+        | lines
+        | extract-block-index $in
+
+    # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
+
+    let $updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
         | clean-markdown
         | toggle-output-fences --back
 
@@ -86,10 +94,10 @@ export def clear-outputs [
     let $result_md_path = $result_md_path | default $file
 
     $original_md_table
-    | where row_type =~ '^```nu(shell)?(\s|$)'
-    | group-by block_line
+    | where action == 'execute'
+    | group-by block_index
     | items {|block_index block_lines|
-        $block_lines.line
+        $block_lines.line.0
         | if ($in | where $it =~ '^>' | is-empty) {} else {
             where $it =~ '^(>|#|```)'
         }
@@ -111,6 +119,7 @@ export def clear-outputs [
         | return $in # we return the stripped script here to not spoil original md
     } else {
         merge-markdown $original_md_table $in
+        | clean-markdown
     }
     | if $echo {} else {
         save -f $result_md_path
