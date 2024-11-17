@@ -569,9 +569,7 @@ export def execute-intermediate-script [
 ]: nothing -> string {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
         --plugin-config $nu.plugin-path $intermed_script_path)
-    | if $print_block_results {
-        tee {print}
-    } else {}
+    | if $print_block_results { tee {print} } else {}
     | complete
     | if $in.exit_code == 0 {
         get stdout
