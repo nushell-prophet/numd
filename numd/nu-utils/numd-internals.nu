@@ -49,7 +49,7 @@ export def match-action [
     match $row_type {
         'text' => {'print-as-it-is'}
         '```output-numd' => {'delete'}
-        $i if 'no-run' in $i => {'print-as-it-is'}
+        $i if ($i =~ 'no-run') => {'print-as-it-is'}
         _ => {'execute'}
     }
 }
