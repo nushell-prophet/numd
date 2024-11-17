@@ -311,8 +311,12 @@ export def match-action [
     match $row_type {
         'text' => {'print-as-it-is'}
         '```output-numd' => {'delete'}
-        $i if ($i =~ 'no-run') => {'print-as-it-is'}
-        _ => {'execute'}
+
+        $i if ($i =~ '^```nu(shell)?(\s|$)') => {
+            if $i =~ 'no-run' {'print-as-it-is'} else {'execute'}
+        }
+
+        _ => {'print-as-it-is'}
     }
 }
 
