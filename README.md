@@ -243,10 +243,10 @@ Tue, 29 Oct 2024 18:51:25 -0300 (2 weeks ago)
 | numd run $in --echo --no-save
 
 # run examples in the `types_of_data.md` file,
-# save intermed nushell script to `types_of_data.md_intermed.nu`
+# save intermed nushell script to `types_of_data.md_intermed_from_readme.nu`
 [z_examples 3_book_types_of_data types_of_data.md]
 | path join
-| numd run $in --no-backup --intermed-script $'($in)_intermed.nu'
+| numd run $in --no-backup --intermed-script $'($in)_intermed_from_readme.nu'
 ```
 
 ## Development and testing
