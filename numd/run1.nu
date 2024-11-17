@@ -95,7 +95,7 @@ export def clear-outputs [
     let $result_md_path = $result_md_path | default $file
 
     $original_md_table
-    | where row_type =~ '^```nu(shell)?(\s|$)'
+    | where action == 'execute'
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
