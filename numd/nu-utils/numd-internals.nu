@@ -100,7 +100,7 @@ export def generate-intermediate-script [
     # $md_classified | save $'(date now | into int).json'
 
     $md_classified
-    | where row_type != text
+    | where action == 'execute'
     | insert code {|i| $i.line
         | execute-block-lines ($i.row_type | extract-fence-options)
         | generate-tags $i.block_index $i.row_type
@@ -178,7 +178,7 @@ export def merge-markdown [
     $nu_res_with_block_index: table
 ]: nothing -> string {
     $md_classified
-    | where row_type !~ '^(```nu(shell)?(\s|$))'
+    | where action == 'print-block'
     | update line {to text}
     | append $nu_res_with_block_index
     | sort-by block_index
@@ -221,7 +221,7 @@ export def compute-change-stats [
 
     let $nushell_blocks = $new_file_content
         | find-code-blocks
-        | where row_type =~ '^```nu'
+        | where action == 'execute'
         | get block_index
         | uniq
         | length
