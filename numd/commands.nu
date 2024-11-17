@@ -112,8 +112,7 @@ export def clear-outputs [
             | update 0 {$'(char nl)    # ($in)'} # keep infostring
             | drop
             | str replace --all --regex '^>\s*' ''
-            | str join (char nl)
-            | $in + (char nl)
+            | to text
         }
         | str join (char nl)
         | return $in # we return the stripped script here to not spoil original md
