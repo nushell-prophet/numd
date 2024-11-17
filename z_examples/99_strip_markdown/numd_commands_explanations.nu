@@ -6,8 +6,7 @@ $env.config.table.abbreviated_row_count = 100
 # The `$init_numd_pwd_const` constant points to the current working directory from where the `numd` command was initiated.
 # It is added by `numd` in every intermediate script to make it available in cases like below.
 # We use `path join` here to construct working paths for both Windows and Unix
-use ($init_numd_pwd_const | path join numd run1.nu) *
-use ($init_numd_pwd_const | path join numd nu-utils numd-internals.nu) *
+use ($init_numd_pwd_const | path join numd commands.nu) *
 
 
     # ```nu indent-output
