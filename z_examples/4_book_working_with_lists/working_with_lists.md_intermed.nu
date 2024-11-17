@@ -308,18 +308,3 @@ $scores | all {|it| $it mod 2 == 0 } | table | print; print ''
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | table | print; print ''
 
 "```" | print
-
-"#code-block-marker-open-49
-```nu no-run" | print
-"> let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]" | nu-highlight | print
-
-let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
-"# Show world clock for selected time zones" | nu-highlight | print
-
-
-"> $zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}" | nu-highlight | print
-
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')} | table | print; print ''
-
-"```" | print

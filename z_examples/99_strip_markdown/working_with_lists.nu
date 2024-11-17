@@ -131,9 +131,3 @@ $scores | all {|it| $it mod 2 == 0 } # false
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
-
-
-    # ```nu no-run
-let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-# Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|it| (date now | date to-timezone $it.Zone | format date '%Y.%m.%d %H:%M')}

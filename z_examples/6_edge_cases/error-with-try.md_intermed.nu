@@ -11,14 +11,6 @@ show_empty: false, padding: {left: 1, right: 1},
 trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
 header_on_separator: true, abbreviated_row_count: 1000}
 
-"#code-block-marker-open-0
-```nushell no-run" | print
-"> lssomething" | nu-highlight | print
-
-lssomething | table | print; print ''
-
-"```" | print
-
 "#code-block-marker-open-2
 ```nushell try, new-instance" | print
 "> lssomething" | nu-highlight | print
