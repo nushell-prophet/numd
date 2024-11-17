@@ -119,6 +119,7 @@ export def clear-outputs [
         | return $in # we return the stripped script here to not spoil original md
     } else {
         merge-markdown $original_md_table $in
+        | clean-markdown
     }
     | if $echo {} else {
         save -f $result_md_path
