@@ -40,6 +40,18 @@ export def find-code-blocks []: string -> table {
     | rename block_index line row_type
     | select block_index row_type line
     | into int block_index
+    | insert action {|i| match-action $i.row_type}
+}
+
+export def match-action [
+    $row_type: string
+] {
+    match $row_type {
+        'text' => {'print-block'}
+        '```output-numd' => {'delete'}
+        $i if 'no-run' in $i => {'print-block'}
+        _ => {'execute'}
+    }
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
