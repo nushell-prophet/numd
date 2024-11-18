@@ -342,13 +342,9 @@ export def create-execution-code [
             }
         } else {}
         | if 'no-output' in $fence_options {} else {
-            if $whole_block {
-                create-fence-output
-            } else {}
+            if $whole_block { create-fence-output } else {}
             | if (check-print-append $in) {
-                if 'indent-output' in $fence_options {
-                    create-indented-output
-                } else {}
+                if 'indent-output' in $fence_options { create-indented-output } else {}
                 | generate-print-statement
             } else {}
         }
