@@ -587,9 +587,7 @@ export def mark-code-block [
     --end
 ]: nothing -> string {
     $"#code-block-marker-open-($index)"
-    | if $end {
-        str replace 'open' 'close'
-    } else {}
+    | if $end { str replace 'open' 'close' } else {}
 }
 # TODO NUON can be used in mark-code-blocks to set display options
 
@@ -641,10 +639,7 @@ export def get-last-span [
     let longest_last_span_start = $spans
         | where f == $last_span_end
         | get s
-        | if ($in | length) == 1 {} else {
-            sort
-            | skip
-        }
+        | if ($in | length) == 1 {} else { sort | skip }
         | first
 
     let $len = $longest_last_span_start - $last_span_end
@@ -781,14 +776,9 @@ export def modify-path [
 ]: path -> path {
     path parse
     | update stem {$'($prefix)($in)($suffix)'}
-    | if $extension != null {
-        update extension {$in + $extension}
-    } else {}
+    | if $extension != null { update extension {$in + $extension} } else {}
     | if $parent_dir != null {
-        update parent {
-            path join $parent_dir
-            | $'(mkdir $in)($in)' # The author doesn't like it, but tee in 0.91 somehow consumes and produces a list here
-        }
+        update parent { path join $parent_dir | $'(mkdir $in)($in)' }
     } else {}
     | path join
 }
@@ -835,7 +825,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20241117_202547
+# 20241117_203613
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
