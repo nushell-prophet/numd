@@ -52,18 +52,14 @@ export def run [
         | toggle-output-fences --back
 
     # if $intermed_script param wasn't set - remove the temporary intermediate script
-    if $intermed_script == null {
-        rm $intermediate_script_path
-    }
+    if $intermed_script == null { rm $intermediate_script_path }
 
     let $output_path = $result_md_path | default $file
     if not $no_save {
         if not $no_backup { create-file-backup $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
     }
-    if $save_ansi {
-        $updated_md_ansi | save -f $'($output_path).ans'
-    }
+    if $save_ansi { $updated_md_ansi | save -f $'($output_path).ans' }
 
     if not $no_stats {
         compute-change-stats $output_path $original_md $updated_md_ansi
@@ -74,9 +70,7 @@ export def run [
         }
     } else {}
     | if $echo {prepend $updated_md_ansi} else {} # output the changes stat table below the resulting markdown
-    | if $in == null {} else {
-        str join (char nl)
-    }
+    | if $in == null {} else { str join (char nl) }
 }
 
 # Remove numd execution outputs from the file
