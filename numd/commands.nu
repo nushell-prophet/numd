@@ -34,7 +34,8 @@ export def run [
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
 
-    generate-intermediate-script $original_md_table
+    decortate-original-code-blocks $original_md_table
+    | generate-intermediate-script
     | save -f $intermediate_script_path
 
     let $nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
@@ -341,29 +342,29 @@ export def create-execution-code [
     $highlighted_command + $code_execution
 }
 
+# generates additional service code necessary for execution and capturing results, while preserving the original code.
+export def decortate-original-code-blocks [
+    $md_classified: table
+]: nothing -> table {
+    $md_classified
+    | where action == 'execute'
+    | insert code {|i|
+        $i.line
+        | execute-block-lines ($i.row_type | extract-fence-options)
+        | generate-tags $i.block_index $i.row_type
+    }
+}
+
 # Generate an intermediate script from a table of classified markdown code blocks.
-export def generate-intermediate-script [
-    md_classified: table
-]: nothing -> string {
-    let $current_dir = pwd
-
-    let $table_with_original_blocks_and_intermed_helpers = $md_classified
-        | where action == 'execute'
-        | insert code {|i|
-            $i.line
-            | execute-block-lines ($i.row_type | extract-fence-options)
-            | generate-tags $i.block_index $i.row_type
-        }
-
-    $table_with_original_blocks_and_intermed_helpers
-    | get code -i
+export def generate-intermediate-script [ ]: table -> string {
+    get code -i
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
             prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
         } else {}
     } else {}
-    | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
+    | prepend $"const init_numd_pwd_const = '(pwd)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
     | flatten
