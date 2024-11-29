@@ -113,9 +113,7 @@ export def clear-outputs [
         merge-markdown $original_md_table $in
         | clean-markdown
     }
-    | if $echo {} else {
-        save -f $result_md_path
-    }
+    | if $echo {} else { save -f $result_md_path }
 }
 
 
@@ -132,9 +130,7 @@ export def --env 'capture start' [
     $env.numd.path = ($file | path expand)
     $env.numd.separate-blocks = $separate
 
-    if not $separate {
-        "```nushell\n" | save -a $env.numd.path
-    }
+    if not $separate { "```nushell\n" | save -a $env.numd.path }
 
     $env.backup.hooks.display_output = (
         $env.config.hooks?.display_output?
@@ -232,9 +228,7 @@ export def 'parse-help' [
         | update Description ($input.Description | take until {|line| $line == ''} | append '')
         | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == ''} | skip)}
     } else {}
-    | if $sections != null {
-        select -i ...$sections
-    } else {}
+    | if $sections == null {} else { select -i ...$sections }
     | if $record {
         items {|k v|
             {$k: ($v | to text)}
