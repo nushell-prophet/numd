@@ -599,6 +599,8 @@ export def remove-comments-plus []: string -> string {
 # > get-last-span 'let a = 1..10; $a | length'
 # length
 #
+# > get-last-span 'let a = 1..10; let b = $a | length'
+#
 # > get-last-span 'let a = 1..10; ($a | length);'
 # let a = 1..10; ($a | length);
 #
