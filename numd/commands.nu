@@ -347,13 +347,15 @@ export def generate-intermediate-script [
 ]: nothing -> string {
     let $current_dir = pwd
 
+    let $table_with_original_blocks_and_intermed_helpers = $md_classified
+        | where action == 'execute'
+        | insert code {|i|
+            $i.line
+            | execute-block-lines ($i.row_type | extract-fence-options)
+            | generate-tags $i.block_index $i.row_type
+        }
 
-    $md_classified
-    | where action == 'execute'
-    | insert code {|i| $i.line
-        | execute-block-lines ($i.row_type | extract-fence-options)
-        | generate-tags $i.block_index $i.row_type
-    }
+    $table_with_original_blocks_and_intermed_helpers
     | get code -i
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
