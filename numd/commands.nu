@@ -347,7 +347,6 @@ export def generate-intermediate-script [
 ]: nothing -> string {
     let $current_dir = pwd
 
-    # $md_classified | save $'(date now | into int).json'
 
     $md_classified
     | where action == 'execute'
