@@ -600,6 +600,7 @@ export def remove-comments-plus []: string -> string {
 # length
 #
 # > get-last-span 'let a = 1..10; let b = $a | length'
+# let b = $a | length
 #
 # > get-last-span 'let a = 1..10; ($a | length);'
 # let a = 1..10; ($a | length);
@@ -815,7 +816,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20241117_203613
+# 20241128_222140
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
