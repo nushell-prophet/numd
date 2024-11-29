@@ -808,6 +808,7 @@ export def --env load-config [
         } else {}
         | where value != null
         | if ($in | is-empty) {{}} else {
+            # if table_width or prepend code are set via parameters - they will have precendece
             transpose --ignore-titles --as-record --header-row
         }
     )
