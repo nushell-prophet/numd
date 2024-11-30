@@ -205,6 +205,7 @@ Output:
 //  ```
 //  ```output-numd
 //  foo/baz/bar
+//
 //  ```
 //  #code-block-marker-open-6
 //  ```nu
@@ -214,6 +215,7 @@ Output:
 //
 //  > 2 + 2
 //  4
+//
 //  ```
 ```
 
@@ -231,9 +233,9 @@ Output:
 //  ╭──────────────────┬────────────────────╮
 //  │ filename         │ simple_markdown.md │
 //  │ nushell_blocks   │ 3                  │
-//  │ levenshtein_dist │ 155                │
-//  │ diff_lines       │ -9 (-30%)          │
+//  │ levenshtein_dist │ 157                │
+//  │ diff_lines       │ -7 (-23.3%)        │
 //  │ diff_words       │ -11 (-17.5%)       │
-//  │ diff_chars       │ -74 (-19.3%)       │
+//  │ diff_chars       │ -72 (-18.8%)       │
 //  ╰──────────────────┴────────────────────╯
 ```
