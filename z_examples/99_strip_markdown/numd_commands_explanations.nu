@@ -8,6 +8,7 @@ $env.config.table.abbreviated_row_count = 100
 # We use `path join` here to construct working paths for both Windows and Unix
 use ($init_numd_pwd_const | path join numd commands.nu) *
 
+
     # ```nu indent-output
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
@@ -15,6 +16,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
 $original_md_table | table -e
+
 
     # ```nu indent-output
 # Here we emulate that the `$intermed_script_path` options is not set
@@ -27,6 +29,7 @@ decortate-original-code-blocks $original_md_table
 
 open $intermediate_script_path
 
+
     # ```nu indent-output
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
@@ -35,12 +38,14 @@ let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path
 rm $intermediate_script_path
 $nu_res_stdout_lines
 
+
     # ```nu indent-output
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
 
 $md_res
+
 
     # ```nu indent-output
 compute-change-stats $file $md_orig $md_res
