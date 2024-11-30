@@ -110,6 +110,7 @@ export def clear-outputs [
             | drop
             | str replace --all --regex '^>\s*' ''
             | str join (char nl)
+            | str replace -r '\s*$' (char nl)
         }
         | str join (char nl)
         | return $in # we return the stripped script here to not spoil original md
