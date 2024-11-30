@@ -742,6 +742,7 @@ export def generate-tags [
     | generate-print-lines
     | append $input
     | append '"```" | print'
+    | append ''
     | str join (char nl)
 }
 
