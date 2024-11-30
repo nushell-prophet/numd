@@ -740,7 +740,6 @@ export def generate-tags [
     | append $input
     | append '"```" | print'
     | str join (char nl)
-    | $in + (char nl)
 }
 
 # Parse options from a code fence and return them as a list.
