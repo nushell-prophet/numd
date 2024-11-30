@@ -56,10 +56,12 @@ export def run [
     if $intermed_script == null { rm $intermediate_script_path }
 
     let $output_path = $result_md_path | default $file
+
     if not $no_save {
         if not $no_backup { create-file-backup $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
     }
+
     if $save_ansi { $updated_md_ansi | save -f $'($output_path).ans' }
 
     if not $no_stats {
