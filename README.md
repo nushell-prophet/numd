@@ -35,10 +35,8 @@ Experienced nushell users can understand the logic better by looking at [example
 // Description:
 //   Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 //
-//
 // Usage:
 //   > run {flags} <file>
-//
 //
 // Flags:
 //   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
@@ -54,10 +52,8 @@ Experienced nushell users can understand the logic better by looking at [example
 //   --table-width <int>: set the `table --width` option value
 //   --config-path <path>: path to a config file (default: '')
 //
-//
 // Parameters:
 //   file <path>: path to a `.md` file containing Nushell code to be executed
-//
 //
 // Input/output types:
 //   ╭─#─┬──input──┬─output──╮
@@ -142,20 +138,16 @@ Output:
 // Description:
 //   Remove numd execution outputs from the file
 //
-//
 // Usage:
 //   > clear-outputs {flags} <file>
-//
 //
 // Flags:
 //   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
 //   --echo: output resulting markdown to the terminal instead of writing to file
 //   --strip-markdown: keep only Nushell script, strip all markdown tags
 //
-//
 // Parameters:
 //   file <path>: path to a `.md` file containing numd output to be cleared
-//
 //
 // Input/output types:
 //   ╭─#─┬──input──┬─output──╮
@@ -173,18 +165,14 @@ Output:
 // Description:
 //   start capturing commands and their outputs into a file
 //
-//
 // Usage:
 //   > capture start {flags} (file)
-//
 //
 // Flags:
 //   --separate: don't use `>` notation, create separate blocks for each pipeline
 //
-//
 // Parameters:
 //   file <path>:  (optional, default: 'numd_capture.md')
-//
 //
 // Input/output types:
 //   ╭─#─┬──input──┬─output──╮
@@ -197,10 +185,8 @@ Output:
 // Description:
 //   stop capturing commands and their outputs
 //
-//
 // Usage:
 //   > capture stop
-//
 //
 // Input/output types:
 //   ╭─#─┬──input──┬─output──╮
@@ -225,7 +211,7 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Sat, 23 Nov 2024 18:43:06 -0300 (5 days ago)
+Sat, 23 Nov 2024 18:43:06 -0300 (6 days ago)
 
 > 2 + 2
 4
