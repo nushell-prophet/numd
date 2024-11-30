@@ -39,8 +39,8 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | toggle-output-fences
-let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table | table -e" | nu-highlight | print
+let $original_md_table = $md_orig | find-code-blocks
+$original_md_table | table -e" | nu-highlight | print
 
 "```\n```output-numd" | print
 
@@ -48,32 +48,34 @@ $md_orig_table | table -e" | nu-highlight | print
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
 let $md_orig = open -r $file | toggle-output-fences
-let $md_orig_table = $md_orig | find-code-blocks
-$md_orig_table | table -e | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+let $original_md_table = $md_orig | find-code-blocks
+$original_md_table | table -e | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
 "#code-block-marker-open-6
 ```nu indent-output" | print
 "# Here we emulate that the `$intermed_script_path` options is not set
-let $intermed_script_path = $file
+let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-generate-intermediate-script $md_orig_table
-| save -f $intermed_script_path
+decortate-original-code-blocks $original_md_table
+| generate-intermediate-script
+| save -f $intermediate_script_path
 
-open $intermed_script_path" | nu-highlight | print
+open $intermediate_script_path" | nu-highlight | print
 
 "```\n```output-numd" | print
 
 # Here we emulate that the `$intermed_script_path` options is not set
-let $intermed_script_path = $file
+let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-generate-intermediate-script $md_orig_table
-| save -f $intermed_script_path
+decortate-original-code-blocks $original_md_table
+| generate-intermediate-script
+| save -f $intermediate_script_path
 
-open $intermed_script_path | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+open $intermediate_script_path | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print
 
@@ -82,8 +84,8 @@ open $intermed_script_path | table | lines | each {$'//  ($in)' | str trim --rig
 "# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
-rm $intermed_script_path
+let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
+rm $intermediate_script_path
 $nu_res_stdout_lines" | nu-highlight | print
 
 "```\n```output-numd" | print
@@ -91,8 +93,8 @@ $nu_res_stdout_lines" | nu-highlight | print
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
-let $nu_res_stdout_lines = execute-intermediate-script $intermed_script_path $no_fail_on_error false
-rm $intermed_script_path
+let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
+rm $intermediate_script_path
 $nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
 
 "```" | print

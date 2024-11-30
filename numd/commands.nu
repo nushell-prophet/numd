@@ -34,7 +34,8 @@ export def run [
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
 
-    generate-intermediate-script $original_md_table
+    decortate-original-code-blocks $original_md_table
+    | generate-intermediate-script
     | save -f $intermediate_script_path
 
     let $nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
@@ -42,6 +43,7 @@ export def run [
             return { filename: $file,
                 comment: "the script didn't produce any output" }
         } else {}
+        | str replace -ar "\n{2,}```\n" "\n```\n"
         | lines
         | extract-block-index $in
 
@@ -52,18 +54,16 @@ export def run [
         | toggle-output-fences --back
 
     # if $intermed_script param wasn't set - remove the temporary intermediate script
-    if $intermed_script == null {
-        rm $intermediate_script_path
-    }
+    if $intermed_script == null { rm $intermediate_script_path }
 
     let $output_path = $result_md_path | default $file
+
     if not $no_save {
         if not $no_backup { create-file-backup $output_path }
         $updated_md_ansi | ansi strip | save -f $output_path
     }
-    if $save_ansi {
-        $updated_md_ansi | save -f $'($output_path).ans'
-    }
+
+    if $save_ansi { $updated_md_ansi | save -f $'($output_path).ans' }
 
     if not $no_stats {
         compute-change-stats $output_path $original_md $updated_md_ansi
@@ -74,9 +74,7 @@ export def run [
         }
     } else {}
     | if $echo {prepend $updated_md_ansi} else {} # output the changes stat table below the resulting markdown
-    | if $in == null {} else {
-        str join (char nl)
-    }
+    | if $in == null {} else { str join (char nl) }
 }
 
 # Remove numd execution outputs from the file
@@ -111,7 +109,8 @@ export def clear-outputs [
             | update 0 {$'(char nl)    # ($in)'} # keep infostring
             | drop
             | str replace --all --regex '^>\s*' ''
-            | to text
+            | str join (char nl)
+            | str replace -r '\s*$' (char nl)
         }
         | str join (char nl)
         | return $in # we return the stripped script here to not spoil original md
@@ -119,9 +118,7 @@ export def clear-outputs [
         merge-markdown $original_md_table $in
         | clean-markdown
     }
-    | if $echo {} else {
-        save -f $result_md_path
-    }
+    | if $echo {} else { save -f $result_md_path }
 }
 
 
@@ -138,9 +135,7 @@ export def --env 'capture start' [
     $env.numd.path = ($file | path expand)
     $env.numd.separate-blocks = $separate
 
-    if not $separate {
-        "```nushell\n" | save -a $env.numd.path
-    }
+    if not $separate { "```nushell\n" | save -a $env.numd.path }
 
     $env.backup.hooks.display_output = (
         $env.config.hooks?.display_output?
@@ -238,22 +233,20 @@ export def 'parse-help' [
         | update Description ($input.Description | take until {|line| $line == ''} | append '')
         | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == ''} | skip)}
     } else {}
-    | if $sections != null {
-        select -i ...$sections
-    } else {}
+    | if $sections == null {} else { select -i ...$sections }
     | if $record {
         items {|k v|
-            {$k: ($v | to text)}
+            {$k: ($v | str join (char nl))}
         }
         | into record
     } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
-            | to text
+            | str join (char nl)
             | $"($k):\n($in)"
         }
-        | to text
-        | str replace -ar '[\n\s]+$' '' # empty trailing new lines
+        | str join (char nl)
+        | str replace -ar '\s+$' '' # empty trailing new lines
         | str replace -arm '^' '// '
     }
 }
@@ -311,14 +304,18 @@ export def match-action [
     match $row_type {
         'text' => {'print-as-it-is'}
         '```output-numd' => {'delete'}
-        $i if ($i =~ 'no-run') => {'print-as-it-is'}
-        _ => {'execute'}
+
+        $i if ($i =~ '^```nu(shell)?(\s|$)') => {
+            if $i =~ 'no-run' {'print-as-it-is'} else {'execute'}
+        }
+
+        _ => {'print-as-it-is'}
     }
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block --fence '```nu indent-output' | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['indent-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
     $fence_options
     --whole_block
@@ -338,13 +335,9 @@ export def create-execution-code [
             }
         } else {}
         | if 'no-output' in $fence_options {} else {
-            if $whole_block {
-                create-fence-output
-            } else {}
+            if $whole_block { create-fence-output } else {}
             | if (check-print-append $in) {
-                if 'indent-output' in $fence_options {
-                    create-indented-output
-                } else {}
+                if 'indent-output' in $fence_options { create-indented-output } else {}
                 | generate-print-statement
             } else {}
         }
@@ -353,33 +346,34 @@ export def create-execution-code [
     $highlighted_command + $code_execution
 }
 
-# Generate an intermediate script from a table of classified markdown code blocks.
-export def generate-intermediate-script [
-    md_classified: table
-]: nothing -> string {
-    let $current_dir = pwd
-
-    # $md_classified | save $'(date now | into int).json'
-
+# generates additional service code necessary for execution and capturing results, while preserving the original code.
+export def decortate-original-code-blocks [
+    $md_classified: table
+]: nothing -> table {
     $md_classified
     | where action == 'execute'
-    | insert code {|i| $i.line
+    | insert code {|i|
+        $i.line
         | execute-block-lines ($i.row_type | extract-fence-options)
         | generate-tags $i.block_index $i.row_type
     }
-    | get code -i
+}
+
+# Generate an intermediate script from a table of classified markdown code blocks.
+export def generate-intermediate-script [ ]: table -> string {
+    get code -i
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
             prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
         } else {}
     } else {}
-    | prepend $"const init_numd_pwd_const = '($current_dir)'\n" # initialize it here so it will be available in intermediate scripts
+    | prepend $"const init_numd_pwd_const = '(pwd)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend ( '# this script was generated automatically using numd' +
         "\n# https://github.com/nushell-prophet/numd\n" )
     | flatten
     | str join (char nl)
-    | str replace -r "\n*$" "\n"
+    | str replace -r "\\s*$" "\n"
 }
 
 export def execute-block-lines [
@@ -441,21 +435,20 @@ export def merge-markdown [
 ]: nothing -> string {
     $md_classified
     | where action == 'print-as-it-is'
-    | update line {to text}
+    | update line {str join (char nl)}
     | append $nu_res_with_block_index
     | sort-by block_index
     | get line
     | str join (char nl)
-    | $in + (char nl)
 }
 
 # Prettify markdown by removing unnecessary empty lines and trailing spaces.
 export def clean-markdown []: string -> string {
-    str replace --all --regex "```output-numd[\n\\s]+```\n" '' # empty output-numd blocks
+    str replace --all --regex "\n```output-numd\\s+```\n" "\n" # empty output-numd blocks
     | str replace --all --regex "\n{2,}```\n" "\n```\n" # empty lines before closing code fences
     | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
-    | str replace --all --regex " +(\n|$)" "\n" # remove trailing spaces
-    | str replace --all --regex "\n*$" "\n" # ensure a single trailing newline
+    | str replace --all --regex " +\n" "\n" # remove trailing spaces
+    | str replace --all --regex "\\s*$" "\n" # ensure a single trailing newline
 }
 
 # Replacement is needed to distinguish the blocks with outputs from blocks with just ```.
@@ -566,9 +559,7 @@ export def execute-intermediate-script [
 ]: nothing -> string {
     (^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
         --plugin-config $nu.plugin-path $intermed_script_path)
-    | if $print_block_results {
-        tee {print}
-    } else {}
+    | if $print_block_results { tee {print} } else {}
     | complete
     | if $in.exit_code == 0 {
         get stdout
@@ -584,15 +575,13 @@ export def execute-intermediate-script [
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 #
 # > mark-code-block 3
-# #code-block-marker-3
+# #code-block-marker-open-3
 export def mark-code-block [
     index?: int
     --end
 ]: nothing -> string {
     $"#code-block-marker-open-($index)"
-    | if $end {
-        str replace 'open' 'close'
-    } else {}
+    | if $end { str replace 'open' 'close' } else {}
 }
 # TODO NUON can be used in mark-code-blocks to set display options
 
@@ -615,6 +604,9 @@ export def remove-comments-plus []: string -> string {
 #
 # > get-last-span 'let a = 1..10; $a | length'
 # length
+#
+# > get-last-span 'let a = 1..10; let b = $a | length'
+# let b = $a | length
 #
 # > get-last-span 'let a = 1..10; ($a | length);'
 # let a = 1..10; ($a | length);
@@ -644,10 +636,7 @@ export def get-last-span [
     let longest_last_span_start = $spans
         | where f == $last_span_end
         | get s
-        | if ($in | length) == 1 {} else {
-            sort
-            | skip
-        }
+        | if ($in | length) == 1 {} else { sort | skip }
         | first
 
     let $len = $longest_last_span_start - $last_span_end
@@ -724,7 +713,7 @@ export def create-catch-error-current-instance []: string -> string {
 # Execute the command outside to obtain a formatted error message if any.
 #
 # > 'ls' | create-catch-error-outside
-# /Users/user/.cargo/bin/nu -c "ls"| complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
+# /Users/user/.cargo/bin/nu -c "ls" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
 export def create-catch-error-outside []: string -> string {
     escape-special-characters-and-quote
     | ($'($nu.current-exe) -c ($in)' +
@@ -754,7 +743,8 @@ export def generate-tags [
     | generate-print-lines
     | append $input
     | append '"```" | print'
-    | to text
+    | append ''
+    | str join (char nl)
 }
 
 # Parse options from a code fence and return them as a list.
@@ -784,14 +774,9 @@ export def modify-path [
 ]: path -> path {
     path parse
     | update stem {$'($prefix)($in)($suffix)'}
-    | if $extension != null {
-        update extension {$in + $extension}
-    } else {}
+    | if $extension != null { update extension {$in + $extension} } else {}
     | if $parent_dir != null {
-        update parent {
-            path join $parent_dir
-            | $'(mkdir $in)($in)' # The author doesn't like it, but tee in 0.91 somehow consumes and produces a list here
-        }
+        update parent { path join $parent_dir | $'(mkdir $in)($in)' }
     } else {}
     | path join
 }
@@ -830,6 +815,7 @@ export def --env load-config [
         } else {}
         | where value != null
         | if ($in | is-empty) {{}} else {
+            # if table_width or prepend code are set via parameters - they will have precendece
             transpose --ignore-titles --as-record --header-row
         }
     )
@@ -838,7 +824,7 @@ export def --env load-config [
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
 #
 # > generate-timestamp
-# 20240825_091300
+# 20241128_222140
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
