@@ -232,16 +232,16 @@ export def 'parse-help' [
     | if $sections == null {} else { select -i ...$sections }
     | if $record {
         items {|k v|
-            {$k: ($v | to text)}
+            {$k: ($v | str join (char nl))}
         }
         | into record
     } else {
         items {|k v| $v
             | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
-            | to text
+            | str join (char nl)
             | $"($k):\n($in)"
         }
-        | to text
+        | str join (char nl)
         | str replace -ar '\s+$' '' # empty trailing new lines
         | str replace -arm '^' '// '
     }
@@ -431,7 +431,7 @@ export def merge-markdown [
 ]: nothing -> string {
     $md_classified
     | where action == 'print-as-it-is'
-    | update line {to text}
+    | update line {str join (char nl)}
     | append $nu_res_with_block_index
     | sort-by block_index
     | get line
@@ -739,7 +739,8 @@ export def generate-tags [
     | generate-print-lines
     | append $input
     | append '"```" | print'
-    | to text
+    | str join (char nl)
+    | $in + (char nl)
 }
 
 # Parse options from a code fence and return them as a list.
