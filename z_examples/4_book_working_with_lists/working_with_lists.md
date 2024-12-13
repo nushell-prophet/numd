@@ -49,8 +49,7 @@ For example:
 let colors = [yellow green]
 let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
-let colors = ($colors ++ "blue")
-let colors = ("black" ++ $colors)
+let colors = ("black" | append $colors)
 $colors # [black red yellow green purple blue]
 ```
 
@@ -86,11 +85,7 @@ To append one or more lists together, optionally with values interspersed in bet
 
 ```nu
 > let x = [1 2]
-> [
-    ...$x
-    3
-    ...(4..7 | take 2)
-  ]
+> [ ...$x 3 ...(4..7 | take 2) ]
 ╭───┬───╮
 │ 0 │ 1 │
 │ 1 │ 2 │
