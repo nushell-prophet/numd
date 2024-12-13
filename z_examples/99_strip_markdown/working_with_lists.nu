@@ -1,5 +1,9 @@
 
     # ```nu
+[bell book candle] | where ($it =~ 'b')
+
+
+    # ```nu
 [1, 2, 3, 4] | insert 2 10
 # [1, 2, 10, 3, 4]
 
@@ -13,8 +17,7 @@
 let colors = [yellow green]
 let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
-let colors = ($colors ++ "blue")
-let colors = ("black" ++ $colors)
+let colors = ("black" | append $colors)
 $colors # [black red yellow green purple blue]
 
 
@@ -38,11 +41,16 @@ $colors # [yellow green]
 
 
     # ```nu
+let x = [1 2]
+[ ...$x 3 ...(4..7 | take 2) ]
+
+
+    # ```nu
 let names = [Mark Tami Amanda Jeremy]
-$names | each { |it| $"Hello, ($it)!" }
+$names | each { |elt| $"Hello, ($elt)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |it| $"($it.index + 1) - ($it.item)" }
+$names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
 
 
@@ -60,13 +68,13 @@ $scores | where $it > 7 # [10 8]
 
     # ```nu
 let scores = [3 8 4]
-$"total = ($scores | reduce { |it, acc| $acc + $it })" # total = 15
+$"total = ($scores | reduce { |elt, acc| $acc + $elt })" # total = 15
 
 $"total = ($scores | math sum)" # easier approach, same result
 
-$"product = ($scores | reduce --fold 1 { |it, acc| $acc * $it })" # product = 96
+$"product = ($scores | reduce --fold 1 { |elt, acc| $acc * $elt })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |it, acc| $acc + $it.index * $it.item } # 0*3 + 1*8 + 2*4 = 16
+$scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item } # 0*3 + 1*8 + 2*4 = 16
 
 
     # ```nu
@@ -98,36 +106,43 @@ let colors = [red green blue]
     # ```nu
 let colors = [red green blue]
 # Do any color names end with "e"?
-$colors | any {|it| $it | str ends-with "e" } # true
+$colors | any {|elt| $elt | str ends-with "e" } # true
 
 # Is the length of any color name less than 3?
-$colors | any {|it| ($it | str length) < 3 } # false
+$colors | any {|elt| ($elt | str length) < 3 } # false
 
 let scores = [3 8 4]
 # Are any scores greater than 7?
-$scores | any {|it| $it > 7 } # true
+$scores | any {|elt| $elt > 7 } # true
 
 # Are any scores odd?
-$scores | any {|it| $it mod 2 == 1 } # true
+$scores | any {|elt| $elt mod 2 == 1 } # true
 
 
     # ```nu
 let colors = [red green blue]
 # Do all color names end with "e"?
-$colors | all {|it| $it | str ends-with "e" } # false
+$colors | all {|elt| $elt | str ends-with "e" } # false
 
 # Is the length of all color names greater than or equal to 3?
-$colors | all {|it| ($it | str length) >= 3 } # true
+$colors | all {|elt| ($elt | str length) >= 3 } # true
 
 let scores = [3 8 4]
 # Are all scores greater than 7?
-$scores | all {|it| $it > 7 } # false
+$scores | all {|elt| $elt > 7 } # false
 
 # Are all scores even?
-$scores | all {|it| $it mod 2 == 0 } # false
+$scores | all {|elt| $elt mod 2 == 0 } # false
 
 
     # ```nu
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten # [1 2 3 4 5 6 7 8]
+
+
+    # ```nu
+let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
+
+# Show world clock for selected time zones
+$zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
