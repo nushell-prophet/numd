@@ -1,4 +1,20 @@
-use std iter scan
+# use std iter scan
+
+export def scan [ # -> list<any>
+    init: any            # initial value to seed the initial state
+    fn: closure          # the closure to perform the scan
+    --noinit(-n)         # remove the initial value from the result
+] {
+    reduce --fold [$init] {|it, acc|
+        $acc ++ [(do $fn ($acc | last) $it)]
+    }
+    | if $noinit {
+        $in | skip
+    } else {
+        $in
+    }
+}
+
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
@@ -257,7 +273,7 @@ export def 'parse-help' [
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
 export def find-code-blocks []: string -> table {
-    let $file_lines = lines
+    let $file_lines = $in | lines
     let $row_type = $file_lines
         | each {
             str trim --right
