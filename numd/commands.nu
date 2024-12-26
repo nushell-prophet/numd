@@ -274,8 +274,8 @@ export def find-code-blocks []: string -> table {
 
     let $block_index = $row_type
         | window --remainder 2
-        | scan 0 {|curr_line prev_line|
-            if $curr_line.0 == $curr_line.1? { $prev_line } else { $prev_line + 1 }
+        | scan 0 {|window index|
+            if $window.0 == $window.1? { $index } else { $index + 1 }
         }
 
     # Wrap lists into columns because the `window` command was used previously
