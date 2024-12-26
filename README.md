@@ -211,7 +211,7 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Sat, 23 Nov 2024 18:43:07 -0300 (a week ago)
+Sun, 22 Dec 2024 19:11:35 -0300 (3 days ago)
 
 > 2 + 2
 4
