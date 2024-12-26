@@ -59,7 +59,7 @@ $colors | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-9
+"#code-block-marker-open-10
 ```nu" | print
 "let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
@@ -75,7 +75,7 @@ $colors | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-11
+"#code-block-marker-open-13
 ```nu" | print
 "let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
@@ -89,7 +89,7 @@ $colors | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-13
+"#code-block-marker-open-16
 ```nu" | print
 "let colors = [yellow green purple]
 let colors = ($colors | first 2)
@@ -103,7 +103,7 @@ $colors | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-15
+"#code-block-marker-open-19
 ```nu" | print
 "> let x = [1 2]" | nu-highlight | print
 
@@ -115,7 +115,7 @@ let x = [1 2]
 
 "```" | print
 
-"#code-block-marker-open-17
+"#code-block-marker-open-21
 ```nu" | print
 "let names = [Mark Tami Amanda Jeremy]
 $names | each { |elt| $\"Hello, ($elt)!\" }
@@ -134,7 +134,7 @@ $names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" } | table | 
 
 "```" | print
 
-"#code-block-marker-open-19
+"#code-block-marker-open-24
 ```nu" | print
 "let colors = [red orange yellow green blue purple]
 $colors | where ($it | str ends-with 'e')
@@ -149,7 +149,7 @@ $colors | where ($it | str ends-with 'e')
 
 "```" | print
 
-"#code-block-marker-open-21
+"#code-block-marker-open-26
 ```nu" | print
 "let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]" | nu-highlight | print
@@ -161,7 +161,7 @@ $scores | where $it > 7 | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-23
+"#code-block-marker-open-29
 ```nu" | print
 "let scores = [3 8 4]
 $\"total = ($scores | reduce { |elt, acc| $acc + $elt })\" # total = 15
@@ -185,7 +185,7 @@ $scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item
 
 "```" | print
 
-"#code-block-marker-open-25
+"#code-block-marker-open-32
 ```nu" | print
 "let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami" | nu-highlight | print
@@ -197,7 +197,7 @@ $names.1 | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-27
+"#code-block-marker-open-35
 ```nu" | print
 "let names = [Mark Tami Amanda Jeremy]
 let index = 1
@@ -211,7 +211,7 @@ $names | get $index | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-29
+"#code-block-marker-open-38
 ```nu" | print
 "let colors = [red green blue]
 $colors | is-empty # false
@@ -229,7 +229,7 @@ $colors | is-empty | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-31
+"#code-block-marker-open-41
 ```nu" | print
 "let colors = [red green blue]
 'blue' in $colors # true
@@ -245,7 +245,7 @@ let colors = [red green blue]
 
 "```" | print
 
-"#code-block-marker-open-33
+"#code-block-marker-open-44
 ```nu" | print
 "let colors = [red green blue]
 # Do any color names end with \"e\"?
@@ -279,7 +279,7 @@ $scores | any {|elt| $elt mod 2 == 1 } | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-35
+"#code-block-marker-open-47
 ```nu" | print
 "let colors = [red green blue]
 # Do all color names end with \"e\"?
@@ -313,7 +313,7 @@ $scores | all {|elt| $elt mod 2 == 0 } | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-37
+"#code-block-marker-open-50
 ```nu" | print
 "[1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
@@ -327,7 +327,7 @@ $scores | all {|elt| $elt mod 2 == 0 } | table | print; print ''
 
 "```" | print
 
-"#code-block-marker-open-39
+"#code-block-marker-open-53
 ```nu" | print
 "let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
