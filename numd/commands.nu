@@ -1,20 +1,4 @@
-# use std iter scan
-
-export def scan [ # -> list<any>
-    init: any            # initial value to seed the initial state
-    fn: closure          # the closure to perform the scan
-    --noinit(-n)         # remove the initial value from the result
-] {
-    reduce --fold [$init] {|it, acc|
-        $acc ++ [(do $fn ($acc | last) $it)]
-    }
-    | if $noinit {
-        $in | skip
-    } else {
-        $in
-    }
-}
-
+use std iter scan
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
@@ -279,20 +263,20 @@ export def find-code-blocks []: string -> table {
             str trim --right
             | if $in =~ '^```' {} else {'text'}
         }
-        | scan --noinit 'text' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|curr_fence prev_fence|
             match $curr_fence {
                 'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
                 '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
                 _ => { $curr_fence }
             }
         }
-        | scan --noinit 'text' {|prev_fence curr_fence|
+        | scan --noinit 'text' {|curr_fence prev_fence|
             if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
         }
 
     let $block_index = $row_type
         | window --remainder 2
-        | scan 0 {|prev_line curr_line|
+        | scan 0 {|curr_line prev_line|
             if $curr_line.0 == $curr_line.1? { $prev_line } else { $prev_line + 1 }
         }
 
@@ -425,7 +409,7 @@ export def extract-block-index [
                 -1
             }
         }
-        | scan --noinit 0 {|prev_index curr_index|
+        | scan --noinit 0 {|curr_index prev_index|
             if $curr_index == -1 {$prev_index} else {$curr_index}
         }
         | wrap block_index
