@@ -1,6 +1,7 @@
 
 overlay use numd/commands.nu --prefix as 'c'
 
+dotnu parse-docstrings numd/commands.nu | to md | print $in
 
 #: ╭─#──┬────────────command_name─────────────┬─────────────────────────────────────────────command_description─────────────────────────────────────────────┬─...─╮
 #: │ 0  │ run                                 │ Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal    │ ... │
