@@ -22,6 +22,7 @@ export def run [
     let $original_md_table = $original_md
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
+        | group-by-block-index
 
     # $original_md_table | save -f ($file + '_original_md_table.json')
 
@@ -85,6 +86,7 @@ export def clear-outputs [
     let $original_md_table = open -r $file
         | toggle-output-fences
         | find-code-blocks
+        | group-by-block-index
 
     let $result_md_path = $result_md_path | default $file
 
@@ -287,7 +289,10 @@ export def find-code-blocks []: string -> table {
             msg: 'A closing code block fence (```) is missing; the markdown might be invalid.'
         }
     } else {}
-    | group-by block_index --to-table
+}
+
+export def group-by-block-index [] {
+    group-by block_index --to-table
     | insert row_type {|i| $i.items.row_type.0}
     | update items {get line}
     | rename block_index line row_type
@@ -473,6 +478,7 @@ export def compute-change-stats [
 
     let $nushell_blocks = $new_file_content
         | find-code-blocks
+        | group-by-block-index
         | where action == 'execute'
         | get block_index
         | uniq
