@@ -264,7 +264,7 @@ export def find-code-blocks []: string -> table {
             | if $in =~ '^```' {} else {'text'}
         }
         | scan --noinit 'text' {|curr_fence prev_fence|
-            match $curr_fence {
+            match $curr_fence { # to detect starting code blocks without collapsing output: to one line
                 'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
                 '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
                 _ => { $curr_fence }
