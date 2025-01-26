@@ -6,6 +6,7 @@ export def 'h' [
     | each { '#' }
     | append ' '
     | append $header
+    | append "\n\n"
     | str join
 }
 
