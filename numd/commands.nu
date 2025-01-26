@@ -449,7 +449,7 @@ export def merge-markdown [
 
 # Prettify markdown by removing unnecessary empty lines and trailing spaces.
 export def clean-markdown []: string -> string {
-    str replace --all --regex "\n```output-numd\\s+```\n" "\n" # empty output-numd blocks
+    str replace --all --regex "\n+```output-numd\\s+```\n" "\n" # empty output-numd blocks
     | str replace --all --regex "\n{3,}" "\n\n" # multiple newlines
     | str replace --all --regex " +\n" "\n" # remove trailing spaces
     | str replace --all --regex "\\s*$" "\n" # ensure a single trailing newline
