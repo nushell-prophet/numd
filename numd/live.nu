@@ -4,10 +4,8 @@ export def 'h' [
 ] {
     seq 1 $index
     | each { '#' }
-    | append ' '
-    | append $header
-    | append "\n\n"
-    | str join
+    | $"($in) ($header)"
+    | str replace -ar "\n*$" "\n\n"
 }
 
 export def 'h1' [
