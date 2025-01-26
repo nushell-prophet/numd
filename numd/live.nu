@@ -66,8 +66,19 @@ export def 'code' [
             $"# ($comment)\n($in)"
         } else {}
 
+    let $code_fence_with_options = [
+            (if $indent_output {'indent-output'})
+            (if $no_output {'no-output'})
+            (if $no_run {'no-run'})
+            (if $try {'try'})
+            (if $new_instance {'new-instance'})
+        ]
+        | compact
+        | if $in == [] {} else { sort | str join ',' | $' ($in)' }
+        | $'```nushell($in)'
+
     [
-        '```nu'
+        $code_fence_with_options
         $code
         '```'
         ''
