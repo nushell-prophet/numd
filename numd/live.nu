@@ -65,12 +65,12 @@ export def 'code' [
             $"# ($comment)\n($in)"
         } else {}
 
-    null
-    | append '```nu'
-    | append $code_block
-    | append '```'
-    | append ''
-    | to text
+    [
+        '```nu'
+        $code_block
+        '```'
+        ''
+    ] | to text
 }
 
 # add a paragraph
