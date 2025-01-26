@@ -90,5 +90,5 @@ export def 'p' [
     $text
 ] {
     $text
-    | str replace -r "*\\n$" "\n\n"
+    | str replace -r "\\s*$" "\n\n"
 }
