@@ -459,7 +459,7 @@ export def clean-markdown []: string -> string {
 # `find-code-blocks` works only with lines without knowing the previous lines.
 export def toggle-output-fences [
     a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
-    b = "\n```\n```output-numd\n"
+    b = "\n```\n\n\n\n```output-numd\n"
     --back
 ] {
     if $back {
@@ -728,7 +728,7 @@ export def create-catch-error-outside []: string -> string {
 # Generate a fenced code block for output with a specific format.
 export def create-fence-output []: string -> string {
     # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
-    $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
+    $"\"```\\n\\n\\n\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
 export def generate-print-lines []: list -> string {
