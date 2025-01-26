@@ -1,3 +1,14 @@
+export def 'filename-set' [
+    file = 'numdlive.md'
+] {
+    $env.numd.live-filename = $file
+}
+
+export def 'file-name' [] {
+    $env.numd?.live-filename?
+    | default 'numdlive.md'
+}
+
 export def 'h' [
     $index
     $header
@@ -8,6 +19,7 @@ export def 'h' [
     | append $header
     | str join
     | str replace -ar "\n*$" "\n\n"
+    | save -a (file-name)
 }
 
 export def 'h1' [
