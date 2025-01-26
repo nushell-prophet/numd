@@ -68,7 +68,7 @@ export def 'code' [
 
     [
         '```nu'
-        $code_block
+        $code
         '```'
         ''
     ] | to text
