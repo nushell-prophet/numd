@@ -4,7 +4,9 @@ export def 'h' [
 ] {
     seq 1 $index
     | each { '#' }
-    | $"($in) ($header)"
+    | append ' '
+    | append $header
+    | str join
     | str replace -ar "\n*$" "\n\n"
 }
 
