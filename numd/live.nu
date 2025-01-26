@@ -9,6 +9,10 @@ export def 'file-name' [] {
     | default 'numdlive.md'
 }
 
+export def 'append-block' [] {
+    save --append (file-name)
+}
+
 export def 'h' [
     $index
     $header
@@ -19,7 +23,7 @@ export def 'h' [
     | append $header
     | str join
     | str replace -ar "\n*$" "\n\n"
-    | save -a (file-name)
+    | append-block
 }
 
 export def 'h1' [
@@ -94,7 +98,9 @@ export def 'code' [
         $code
         '```'
         ''
-    ] | to text
+    ]
+    | to text
+    | append-block
 }
 
 # add a paragraph
@@ -103,4 +109,5 @@ export def 'p' [
 ] {
     $text
     | str replace -r "\\s*$" "\n\n"
+    | append-block
 }
