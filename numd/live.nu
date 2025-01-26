@@ -55,10 +55,14 @@ export def 'code' [
     --no-run
     --try
     --new-instance
+    --comment: string = '' # add comment to the code
 ] {
     let $code = $code_block
         | if $inline {
             str replace -r '^(> )?' '> '
+        } else {}
+        | if $comment != '' {
+            $"# ($comment)\n($in)"
         } else {}
 
     null
