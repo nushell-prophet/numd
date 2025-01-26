@@ -154,7 +154,7 @@ export def --env 'capture start' [
         | ansi strip
         | default (char nl)
         | if $env.numd.separate-blocks {
-            $"```nushell\n($command)\n```\n```output-numd\n($in)\n```\n\n"
+            $"```nushell\n($command)\n```\n\n\n\n```output-numd\n($in)\n```\n\n"
             | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
         } else {
             $"> ($command)\n($in)\n\n"
