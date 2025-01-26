@@ -282,6 +282,8 @@ export def find-code-blocks []: string -> table {
 
     # Wrap lists into columns because the `window` command was used previously
     $file_lines | wrap line
+    | enumerate
+    | flatten
     | merge ($row_type | wrap row_type)
     | merge ($block_index | wrap block_index)
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
