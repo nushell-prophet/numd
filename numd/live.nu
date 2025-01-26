@@ -78,13 +78,19 @@ export def 'code' [
     --new-instance
     --comment: string = '' # add comment to the code
 ] {
+    let $comment = $comment
+        | if $in != '' {
+            lines
+            | compact --empty
+            | str replace -r '^#? ?' '# '
+            | $"($in)\n"
+        } else {''}
+
     let $code = $code_block
         | if $inline {
             str replace -r '^(> )?' '> '
         } else {}
-        | if $comment != '' {
-            $"# ($comment)\n($in)"
-        } else {}
+        | $'($comment)($in)'
 
     let $code_fence_with_options = [
             (if $indent_output {'indent-output'})
