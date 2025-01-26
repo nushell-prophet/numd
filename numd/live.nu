@@ -10,7 +10,11 @@ export def 'file-name' [] {
 }
 
 export def 'append-block' [] {
-    save --append (file-name)
+    if $env.numd?.live-print? == true {
+        print --no-newline
+    } else {
+        save --append (file-name)
+    }
 }
 
 export def 'h' [
