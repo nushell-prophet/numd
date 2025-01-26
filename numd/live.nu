@@ -47,14 +47,20 @@ export def 'h6' [
 
 # > numd list-code-options | values | each {$'--($in)'} | to text
 
-export def 'code-block' [
+export def 'code' [
     $code_block
     --indent-output
+    --inline
     --no-output
     --no-run
     --try
     --new-instance
 ] {
+    let $code = $code_block
+        | if $inline {
+            str replace -r '^(> )?' '> '
+        } else {}
+
     null
     | append '```nu'
     | append $code_block
