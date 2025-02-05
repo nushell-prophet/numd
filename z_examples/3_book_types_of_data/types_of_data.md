@@ -520,13 +520,13 @@ git checkout featurebranch | null
 > [{a:1 b:2} {b:1}].1.a
 Error: nu::shell::column_not_found
 
-  × Cannot find column 'a'
-   ╭─[source:1:12]
- 1 │ [{a:1 b:2} {b:1}].1.a
-   ·            ──┬──    ┬
-   ·              │      ╰── cannot find column 'a'
-   ·              ╰── value originates here
-   ╰────
+  x Cannot find column 'a'
+   ,-[source:1:12]
+ 1 | [{a:1 b:2} {b:1}].1.a
+   :            ^^|^^    |
+   :              |      `-- cannot find column 'a'
+   :              `-- value originates here
+   `----
 ```
 
 If you would prefer this to return `null`, mark the cell path member as _optional_ like `.1.a?`.
