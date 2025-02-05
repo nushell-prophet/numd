@@ -388,6 +388,7 @@ export def execute-block-lines [
     | if ($in | where $it =~ '^>' | is-empty) {  # find blocks with no `>` symbol to execute them entirely
         str join (char nl)
         | create-execution-code $fence_options --whole_block
+        | [$in] # quick fix so the `execute-block-lines` would always output lists. Should be refactored.
     } else {
         each { # define what to do with each line of the current block one by one
             if $in starts-with '>' { # if a line starts with `>`, execute it
