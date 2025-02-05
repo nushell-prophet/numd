@@ -732,7 +732,7 @@ export def generate-print-lines []: list -> string {
 export def generate-tags [
     $block_number
     $fence
-] {
+]: list -> string {
     let $input = $in
 
     mark-code-block $block_number
