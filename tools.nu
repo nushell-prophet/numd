@@ -18,10 +18,15 @@ def 'main testing' [] {
     | par-each --keep-order {|file|
 
         # Strip markdown
+        let $strip_markdown_path = $file
+            | path parse
+            | get stem
+            | $in + '.nu'
+            | [z_examples 99_strip_markdown $in]
+            | path join
+
         numd clear-outputs $file --strip-markdown --echo
-        | save -f (
-            [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
-        )
+        | save -f $strip_markdown_path
 
         # Run files with yaml config set
         ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
