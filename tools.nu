@@ -6,8 +6,10 @@ def main [] {}
 def 'main testing' [] {
     use numd
 
+    # path join is used for windows compatability
     let $path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
+    # clear outputs from simple markdown
     ['z_examples' '1_simple_markdown' 'simple_markdown.md']
     | path join
     | numd clear-outputs $in -o ($in | str replace 'markdown.md' 'markdown_with_no_output.md')
