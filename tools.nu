@@ -74,6 +74,8 @@ def 'main release' [] {
     # use nupm
     # nupm install --force --path .
 
+    git checkout main
+
     git add nupm.nuon
     git commit -m $'($tag) nupm version'
     git tag $tag
