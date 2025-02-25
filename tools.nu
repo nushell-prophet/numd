@@ -16,14 +16,19 @@ def 'main testing' [] {
 
     glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
     | par-each --keep-order {|file|
+
+        # Strip markdown
         numd clear-outputs $file --strip-markdown --echo
         | save -f (
             [z_examples 99_strip_markdown ($file | path parse | get stem | $in + '.nu')] | path join
         )
+
+        # Run files with yaml config set
         ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
             --config-path numd_config_example1.yaml )
     }
     | append (
+        # Run file with customized width of table
         numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
             $path_simple_table | modify-path --suffix '_customized_width20'
         )
