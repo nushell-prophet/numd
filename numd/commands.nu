@@ -221,7 +221,7 @@ export def 'parse-help' [
 
     $existing_sections
     | merge $elements
-    | transpose -idr
+    | transpose --as-record --ignore-titles --header-row
     | if ($in.Flags? == null) {} else {update 'Flags' {where $it !~ '-h, --help'}}
     | if ($in.Flags? | length) == 1 {reject 'Flags'} else {} # todo now flags contain fields with empty row
     | if ($in.Description? | default '' | split list '' | length) > 1 {
