@@ -34,6 +34,7 @@ def 'main testing' [] {
         )
     )
     | append (
+        # Run file with another config
         numd run $path_simple_table --no-backup --config-path 'numd_config_example2.yaml' --result-md-path (
             $path_simple_table | modify-path --suffix '_customized_example_config'
         )
