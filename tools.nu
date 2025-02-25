@@ -12,7 +12,7 @@ def 'main testing' [] {
     # clear outputs from simple markdown
     ['z_examples' '1_simple_markdown' 'simple_markdown.md']
     | path join
-    | numd clear-outputs $in -o ($in | str replace 'markdown.md' 'markdown_with_no_output.md')
+    | numd clear-outputs $in -o ($in | modify-path --suffix '_with_no_output')
 
     glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
     | par-each --keep-order {|file|
