@@ -38,7 +38,10 @@ def 'main testing' [] {
             $path_simple_table | modify-path --suffix '_customized_example_config'
         )
     )
-    | append (numd run README.md --no-backup --config-path numd_config_example1.yaml)
+    | append (
+        # Run readme
+        numd run README.md --no-backup --config-path numd_config_example1.yaml
+    )
 }
 
 def 'main release' [] {
