@@ -14,9 +14,11 @@ def 'main testing' [] {
     | path join
     | numd clear-outputs $in -o ($in | modify-path --suffix '_with_no_output')
 
+    # I use a long chain of `append` here to obtain a table with statistics on updates upon exit.
+
+    # Strip markdown and run main set of .md files in one loop
     glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
     | par-each --keep-order {|file|
-
         # Strip markdown
         let $strip_markdown_path = $file
             | path parse
@@ -32,20 +34,20 @@ def 'main testing' [] {
         ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
             --config-path numd_config_example1.yaml )
     }
+    # Run file with customized width of table
     | append (
-        # Run file with customized width of table
         numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
             $path_simple_table | modify-path --suffix '_customized_width20'
         )
     )
+    # Run file with another config
     | append (
-        # Run file with another config
         numd run $path_simple_table --no-backup --config-path 'numd_config_example2.yaml' --result-md-path (
             $path_simple_table | modify-path --suffix '_customized_example_config'
         )
     )
+    # Run readme
     | append (
-        # Run readme
         numd run README.md --no-backup --config-path numd_config_example1.yaml
     )
 }
