@@ -1,3 +1,5 @@
+use kv # I use kv here for catching real data structures for test cases
+
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
