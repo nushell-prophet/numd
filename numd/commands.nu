@@ -453,6 +453,9 @@ export def clean-markdown []: string -> string {
 
 # Replacement is needed to distinguish the blocks with outputs from blocks with just ```.
 # `find-code-blocks` works only with lines without knowing the previous lines.
+#
+# > "```nu\n123\n```\n\nOutput:\n\n```\n123" | toggle-output-fences | to json
+# "```nu\n123\n```\n```output-numd\n123"
 export def toggle-output-fences [
     a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
     b = "\n```\n```output-numd\n"
