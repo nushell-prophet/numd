@@ -875,8 +875,11 @@ export def scan [ # -> list<any>
 def kv-catch [
     $key
     $value
+    -p # pass further
 ] {
     if $env.kv-catch? == true {
         kv set $key $value
     }
+
+    if $p {$value}
 }
