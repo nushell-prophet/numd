@@ -1,15 +1,5 @@
 use kv # I use kv here for catching real data structures for test cases
 
-# Helper command to check if `$env.kv-catch == true` to set kv var
-def kv-catch [
-    $key
-    $value
-] {
-    if $env.kv-catch? == true {
-        kv set $key $value
-    }
-}
-
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
@@ -875,5 +865,15 @@ export def scan [ # -> list<any>
         $in | skip
     } else {
         $in
+    }
+}
+
+# Helper command to check if `$env.kv-catch == true` to set kv var
+def kv-catch [
+    $key
+    $value
+] {
+    if $env.kv-catch? == true {
+        kv set $key $value
     }
 }
