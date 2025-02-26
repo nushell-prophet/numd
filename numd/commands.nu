@@ -874,9 +874,11 @@ export def scan [ # -> list<any>
 # Helper command to check if `$env.kv-catch == true` to set kv var
 def kv-catch [
     $key
-    $value
+    $value?
     -p # pass further
 ] {
+    let $value = if $value == null {$in} else {$value}
+
     if $env.kv-catch? == true {
         kv set $key $value
     }
