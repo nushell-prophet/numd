@@ -461,7 +461,7 @@ export def toggle-output-fences [
     a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
     b = "\n```\n```output-numd\n"
     --back
-] {
+]: string -> string {
     if $back {
         str replace --all $b $a
     } else {
