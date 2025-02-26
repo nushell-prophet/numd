@@ -300,7 +300,7 @@ export def find-code-blocks []: string -> table {
 
 export def match-action [
     $row_type: string
-] {
+]: nothing -> string {
     match $row_type {
         'text' => {'print-as-it-is'}
         '```output-numd' => {'delete'}
