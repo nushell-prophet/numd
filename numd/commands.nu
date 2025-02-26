@@ -46,7 +46,7 @@ export def run [
         } else {}
         | str replace -ar "\n{2,}```\n" "\n```\n"
         | lines
-        | extract-block-index $in
+        | extract-block-index
 
     # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
 
@@ -102,7 +102,7 @@ export def clear-outputs [
         | prepend (mark-code-block $block_index)
     }
     | flatten
-    | extract-block-index $in
+    | extract-block-index
     | if $strip_markdown {
         get line
         | each {
@@ -397,11 +397,8 @@ export def execute-block-lines [
 }
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
-export def extract-block-index [
-    $nu_res_stdout_lines: list
-]: nothing -> table {
-    let $clean_lines = $nu_res_stdout_lines
-        | skip until {|x| $x =~ (mark-code-block)}
+export def extract-block-index []: list -> table {
+    let $clean_lines = skip until {|x| $x =~ (mark-code-block)}
 
     let $block_index = $clean_lines
         | each {
