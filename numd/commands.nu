@@ -35,7 +35,7 @@ export def run [
         | toggle-output-fences # should be unnecessary for new files
         | find-code-blocks
 
-    # $original_md_table | save -f ($file + '_original_md_table.json')
+    kv-catch original_md_table $original_md_table
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
