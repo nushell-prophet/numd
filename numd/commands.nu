@@ -46,7 +46,9 @@ export def run [
         } else {}
         | str replace -ar "\n{2,}```\n" "\n```\n"
         | lines
+        | kv-catch -p before-extract-block-index
         | extract-block-index
+        | kv-catch -p extract-block-index
 
     # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
 
