@@ -10,7 +10,7 @@ export def run [
     --no-backup # overwrite the existing `.md` file without backup
     --no-save # do not save changes to the `.md` file
     --no-stats # do not output stats of changes
-    --intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+    --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
     --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
     --table-width: int # set the `table --width` option value
@@ -29,7 +29,7 @@ export def run [
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
-    let $intermediate_script_path = $intermed_script
+    let $intermediate_script_path = $save_intermed_script
         | default ( $file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu' )
         # We don't use a temp directory here as the code in `md` files might contain relative paths,
         # which will only work if we execute the intermediate script from the same folder.
@@ -53,8 +53,8 @@ export def run [
         | clean-markdown
         | toggle-output-fences --back
 
-    # if $intermed_script param wasn't set - remove the temporary intermediate script
-    if $intermed_script == null { rm $intermediate_script_path }
+    # if $save_intermed_script param wasn't set - remove the temporary intermediate script
+    if $save_intermed_script == null { rm $intermediate_script_path }
 
     let $output_path = $result_md_path | default $file
 

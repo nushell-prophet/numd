@@ -31,7 +31,7 @@ def 'main testing' [] {
         | save -f $strip_markdown_path
 
         # Run files with yaml config set
-        ( numd run $file --no-backup --intermed-script $'($file)_intermed.nu'
+        ( numd run $file --no-backup --save-intermed-script $'($file)_intermed.nu'
             --config-path numd_config_example1.yaml )
     }
     # Run file with customized width of table
