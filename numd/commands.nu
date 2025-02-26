@@ -35,6 +35,7 @@ export def run [
         # which will only work if we execute the intermediate script from the same folder.
 
     decortate-original-code-blocks $original_md_table
+    | kv-catch -p decortate-original-code-blocks
     | generate-intermediate-script
     | save -f $intermediate_script_path
 
