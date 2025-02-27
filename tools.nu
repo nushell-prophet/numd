@@ -7,7 +7,7 @@ def 'main testing' [] {
     use numd
 
     # path join is used for windows compatability
-    let $path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
+    let path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
     # clear outputs from simple markdown
     ['z_examples' '1_simple_markdown' 'simple_markdown.md']
@@ -20,7 +20,7 @@ def 'main testing' [] {
     glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
     | par-each --keep-order {|file|
         # Strip markdown
-        let $strip_markdown_path = $file
+        let strip_markdown_path = $file
         | path parse
         | get stem
         | $in + '.nu'
@@ -55,8 +55,8 @@ def 'main testing' [] {
 }
 
 def 'main release' [] {
-    let $description = gh repo view --json description | from json | get description
-    let $tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 { $in + 1 } | str join '.'
+    let description = gh repo view --json description | from json | get description
+    let tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 { $in + 1 } | str join '.'
 
     open nupm.nuon
     | update description ($description | str replace 'numd - ' '')

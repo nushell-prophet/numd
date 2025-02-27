@@ -17,7 +17,7 @@ export def main [
     --indent (-i): int = 0
     --err_msg                       # produce a record with an error message
 ] {
-    let $width_safe = (
+    let width_safe = (
         term size
         | get columns
         | [$in $width] | math min
@@ -44,14 +44,14 @@ export def main [
     }
 
     def frameit [] {
-        let $text = $in;
-        let $width_frame = (
+        let text = $in;
+        let width_frame = (
             $width_safe
             | ($in // ($frame | str length))
             | [$in 1] | math max
         )
 
-        let $frame_line = (
+        let frame_line = (
             ' '
             | fill -a r -w $width_frame -c $frame
             | $'(ansi $frame_color)($in)(ansi reset)'

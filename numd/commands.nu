@@ -16,12 +16,12 @@ export def run [
     --table-width: int # set the `table --width` option value
     --config-path: path = '' # path to a config file
 ]: [nothing -> string nothing -> nothing nothing -> record] {
-    let $original_md = open -r $file
+    let original_md = open -r $file
     | if $nu.os-info.family == windows {
         str replace --all --regex (char crlf) "\n"
     } else { }
 
-    let $original_md_table = $original_md
+    let original_md_table = $original_md
     | toggle-output-fences # should be unnecessary for new files
     | find-code-blocks
 
@@ -29,7 +29,7 @@ export def run [
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
-    let $intermediate_script_path = $save_intermed_script
+    let intermediate_script_path = $save_intermed_script
     | default ($file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
     # We don't use a temp directory here as the code in `md` files might contain relative paths,
     # which will only work if we execute the intermediate script from the same folder.
@@ -39,7 +39,7 @@ export def run [
     | generate-intermediate-script
     | save -f $intermediate_script_path
 
-    let $nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+    let nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
     | if $in == '' {
         return {
             filename: $file
@@ -54,14 +54,14 @@ export def run [
 
     # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
 
-    let $updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
+    let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
     | toggle-output-fences --back
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
 
-    let $output_path = $result_md_path | default $file
+    let output_path = $result_md_path | default $file
 
     if not $no_save {
         if not $no_backup { create-file-backup $output_path }
@@ -89,11 +89,11 @@ export def clear-outputs [
     --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string nothing -> nothing] {
-    let $original_md_table = open -r $file
+    let original_md_table = open -r $file
     | toggle-output-fences
     | find-code-blocks
 
-    let $result_md_path = $result_md_path | default $file
+    let result_md_path = $result_md_path | default $file
 
     $original_md_table
     | where action == 'execute'
@@ -149,8 +149,8 @@ export def --env 'capture start' [
     )
 
     $env.config.hooks.display_output = {
-        let $input = $in
-        let $command = history | last | get command
+        let input = $in
+        let command = history | last | get command
 
         $input
         | if (term size).columns >= 100 { table -e } else { table }
@@ -177,7 +177,7 @@ export def --env 'capture start' [
 export def --env 'capture stop' []: nothing -> nothing {
     $env.config.hooks.display_output = $env.backup.hooks.display_output
 
-    let $file = $env.numd.path
+    let file = $env.numd.path
 
     if not $env.numd.separate-blocks {
         $"(open $file)```\n"
@@ -204,7 +204,7 @@ export def 'parse-help' [
     | str trim
     | if ($in.0 == 'Usage:') { } else { prepend 'Description:' }
 
-    let $regex = [
+    let regex = [
         Description
         "Search terms"
         Usage
@@ -217,12 +217,12 @@ export def 'parse-help' [
     | str join '|'
     | '^(' + $in + '):'
 
-    let $existing_sections = $help_lines
+    let existing_sections = $help_lines
     | where $it =~ $regex
     | str trim --right --char ':'
     | wrap chapter
 
-    let $elements = $help_lines
+    let elements = $help_lines
     | split list -r $regex
     | wrap elements
 
@@ -232,7 +232,7 @@ export def 'parse-help' [
     | if ($in.Flags? == null) { } else { update 'Flags' { where $it !~ '-h, --help' } }
     | if ($in.Flags? | length) == 1 { reject 'Flags' } else { } # todo now flags contain fields with empty row
     | if ($in.Description? | default '' | split list '' | length) > 1 {
-        let $input = $in
+        let input = $in
 
         $input
         | update Description ($input.Description | take until {|line| $line == '' } | append '')
@@ -263,8 +263,8 @@ export def 'parse-help' [
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
 export def find-code-blocks []: string -> table {
-    let $file_lines = $in | lines
-    let $row_type = $file_lines
+    let file_lines = $in | lines
+    let row_type = $file_lines
     | each {
         str trim --right
         | if $in =~ '^```' { } else { 'text' }
@@ -280,7 +280,7 @@ export def find-code-blocks []: string -> table {
         if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
     }
 
-    let $block_index = $row_type
+    let block_index = $row_type
     | window --remainder 2
     | scan 0 {|window index|
         if $window.0 == $window.1? { $index } else { $index + 1 }
@@ -326,12 +326,12 @@ export def create-execution-code [
     $fence_options
     --whole_block
 ]: string -> string {
-    let $code_content = $in
-    # let $fence_options = $env.numd.current_block_options
+    let code_content = $in
+    # let fence_options = $env.numd.current_block_options
 
-    let $highlighted_command = $code_content | create-highlight-command
+    let highlighted_command = $code_content | create-highlight-command
 
-    let $code_execution = $code_content
+    let code_execution = $code_content
     | remove-comments-plus
     | if 'try' in $fence_options {
         if 'new-instance' in $fence_options {
@@ -409,9 +409,9 @@ export def execute-block-lines [
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
 export def extract-block-index []: list -> table {
-    let $clean_lines = skip until {|x| $x =~ (mark-code-block) }
+    let clean_lines = skip until {|x| $x =~ (mark-code-block) }
 
-    let $block_index = $clean_lines
+    let block_index = $clean_lines
     | each {
         if $in =~ $"^(mark-code-block)\\d+$" {
             split row '-' | last | into int
@@ -483,10 +483,10 @@ export def compute-change-stats [
     orig_file: string
     new_file: string
 ]: nothing -> record {
-    let $original_file_content = $orig_file | ansi strip
-    let $new_file_content = $new_file | ansi strip
+    let original_file_content = $orig_file | ansi strip
+    let new_file_content = $new_file | ansi strip
 
-    let $nushell_blocks = $new_file_content
+    let nushell_blocks = $new_file_content
     | find-code-blocks
     | where action == 'execute'
     | get block_index
@@ -496,7 +496,7 @@ export def compute-change-stats [
     $new_file_content | str stats | transpose metric new
     | merge ($original_file_content | str stats | transpose metric old)
     | insert change_percentage {|metric_stats|
-        let $change_value = $metric_stats.new - $metric_stats.old
+        let change_value = $metric_stats.new - $metric_stats.old
 
         ($change_value / $metric_stats.old) * 100
         | math round --precision 1
@@ -542,7 +542,7 @@ export def list-code-options [
 export def convert-short-options [
     $option
 ]: nothing -> string {
-    let $options_dict = list-code-options
+    let options_dict = list-code-options
 
     $options_dict
     | get --ignore-errors --sensitive $option
@@ -636,8 +636,8 @@ export def remove-comments-plus []: string -> string {
 export def get-last-span [
     $command: string
 ] {
-    let $command = $command | str trim -c "\n" | str trim
-    let $spans = ast $command --json
+    let command = $command | str trim -c "\n" | str trim
+    let spans = ast $command --json
     | get block
     | from json
     | to yaml
@@ -653,7 +653,7 @@ export def get-last-span [
     | if ($in | length) == 1 { } else { sort | skip }
     | first
 
-    let $len = $longest_last_span_start - $last_span_end
+    let len = $longest_last_span_start - $last_span_end
 
     $command
     | str substring $len..
@@ -672,7 +672,7 @@ export def get-last-span [
 export def check-print-append [
     command: string
 ]: nothing -> bool {
-    let $last_span = get-last-span $command
+    let last_span = get-last-span $command
 
     if $last_span =~ '(;|print|null)$' {
         false
@@ -752,7 +752,7 @@ export def generate-tags [
     $block_number
     $fence
 ]: list -> string {
-    let $input = $in
+    let input = $in
 
     mark-code-block $block_number
     | append $fence
@@ -891,7 +891,7 @@ def kv-catch [
     $value?
     -p # pass further
 ] {
-    let $value = if $value == null { $in } else { $value }
+    let value = if $value == null { $in } else { $value }
 
     if $env.kv-catch? == true {
         kv set $key $value
