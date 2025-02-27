@@ -2,8 +2,6 @@
 
 Execute blocks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
 
-`numd` is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
-
 ## Quickstart
 
 ```nushell no-run
