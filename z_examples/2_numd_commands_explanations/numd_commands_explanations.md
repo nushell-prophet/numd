@@ -41,7 +41,7 @@ Output:
 //  │              │                 │ ╰───────────────────────────────────────────────────────────────────────╯ │                │
 //  │            1 │ ```nu           │ ╭───────────────────╮                                                     │ execute        │
 //  │              │                 │ │ ```nu             │                                                     │                │
-//  │              │                 │ │ let $var1 = 'foo' │                                                     │                │
+//  │              │                 │ │ let var1 = 'foo' │                                                     │                │
 //  │              │                 │ │ ```               │                                                     │                │
 //  │              │                 │ ╰───────────────────╯                                                     │                │
 //  │            2 │ text            │ ╭──────────────╮                                                          │ print-as-it-is │
@@ -108,7 +108,7 @@ Output:
 //
 //  "```\n```output-numd" | print
 //
-//  let $var1 = 'foo'
+//  let var1 = 'foo'
 //
 //  "```" | print
 //
@@ -158,7 +158,7 @@ Output:
 ```
 //  #code-block-marker-open-1
 //  ```nu
-//  let $var1 = 'foo'
+//  let var1 = 'foo'
 //  ```
 //  ```output-numd
 //  ```
@@ -196,7 +196,7 @@ Output:
 ```
 //  #code-block-marker-open-1
 //  ```nu
-//  let $var1 = 'foo'
+//  let var1 = 'foo'
 //  ```
 //  #code-block-marker-open-3
 //  ```nu

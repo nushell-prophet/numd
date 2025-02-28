@@ -1,9 +1,6 @@
-<h1 align="center">numd</h1>
-<h3 align="center">reproducible Nushell Markdown documents</h3>
+# numd - reproducible Nushell Markdown documents
 
 Execute blocks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
-
-`numd` is inspired by [R Markdown](https://bookdown.org/yihui/rmarkdown/basics.html#basics).
 
 ## Quickstart
 
@@ -46,7 +43,7 @@ Experienced nushell users can understand the logic better by looking at [example
 //   --no-backup: overwrite the existing `.md` file without backup
 //   --no-save: do not save changes to the `.md` file
 //   --no-stats: do not output stats of changes
-//   --intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+//   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
 //   --no-fail-on-error: skip errors (and don't update markdown in case of errors anyway)
 //   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
 //   --table-width <int>: set the `table --width` option value
@@ -97,7 +94,7 @@ By default, `numd` provides basic stats on changes made.
 
 ### Styling outputs
 
-It is possible to set Nushell visual settings (and all the others) using the `--prepend-itermid` option. Just pass a code there to be prepended into our intermed-script.nu and executed before all parts of the code.
+It is possible to set Nushell visual settings (and all the others) using the `--save-intermed-script` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
 
 ```nushell indent-output
 let path = $nu.temp-path | path join simple_nu_table.md
@@ -232,7 +229,7 @@ Sun, 22 Dec 2024 19:11:35 -0300 (3 days ago)
 # save intermed nushell script to `types_of_data.md_intermed_from_readme.nu`
 [z_examples 3_book_types_of_data types_of_data.md]
 | path join
-| numd run $in --no-backup --intermed-script $'($in)_intermed_from_readme.nu'
+| numd run $in --no-backup --save-intermed-script $'($in)_intermed_from_readme.nu'
 ```
 
 ## Development and testing

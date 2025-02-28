@@ -6,5 +6,5 @@ export def main [
     open $file
     | lines
     | enumerate
-    | each {|i| $i.item | parse -r '^(?:(?<h>#+) (?<content>.*))?(?<c>```)?' | get 0 | merge $i}
+    | each {|i| $i.item | parse -r '^(?:(?<h>#+) (?<content>.*))?(?<c>```)?' | get 0 | merge $i }
 }
