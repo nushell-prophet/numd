@@ -10,4 +10,4 @@ export use commands.nu [
     init
 ]
 
-export def main [] {ls}
+export def main [] { ls }
