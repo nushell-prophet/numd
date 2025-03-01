@@ -94,7 +94,7 @@ By default, `numd` provides basic stats on changes made.
 
 ### Styling outputs
 
-It is possible to set Nushell visual settings (and all the others) using the `--save-intermed-script` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
+It is possible to set Nushell visual settings (and all the others) using the `--prepend-code` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
 
 ```nushell indent-output
 let path = $nu.temp-path | path join simple_nu_table.md
