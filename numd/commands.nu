@@ -643,7 +643,7 @@ export def get-last-span [
     | rename s f
     | into int s f
 
-    # I just brutforced ast filter params in nu 0.97, as `ast` waits for better replacement or improvement
+    #  I just brute-forced AST filter parameters in nu 0.97, as `ast` awaits a better replacement or improvement.
     let last_span_end = $spans.f | math max
     let longest_last_span_start = $spans
     | where f == $last_span_end
