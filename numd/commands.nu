@@ -52,8 +52,6 @@ export def run [
     | extract-block-index
     | kv-catch -p extract-block-index
 
-    # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
-
     let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
     | toggle-output-fences --back
