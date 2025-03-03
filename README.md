@@ -86,9 +86,9 @@ By default, `numd` provides basic stats on changes made.
 │ filename         │ simple_markdown_with_no_output.md │
 │ nushell_blocks   │ 3                                 │
 │ levenshtein_dist │ 38                                │
-│ diff_lines       │ +9 (37.5%)                        │
-│ diff_words       │ +6 (10.7%)                        │
-│ diff_chars       │ +38 (11%)                         │
+│ diff_lines       │ +9 (30%)                          │
+│ diff_words       │ +6 (8.7%)                         │
+│ diff_chars       │ +38 (8.7%)                        │
 ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -208,13 +208,13 @@ Output:
 ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-Sun, 22 Dec 2024 19:11:35 -0300 (3 days ago)
+Fri, 28 Feb 2025 13:15:18 -0300 (2 days ago)
 
 > 2 + 2
 4
 
 > git tag | lines | sort -n | last
-0.1.15
+0.1.18
 ```
 
 ## Real fight examples to try

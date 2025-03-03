@@ -22,3 +22,9 @@ $var1 | path join 'baz' 'bar'
 > whoami
 > 2 + 2
 ```
+
+## Example 4
+
+```
+# This block doesn't have a language identifier in the opening fence
+```
