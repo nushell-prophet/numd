@@ -131,7 +131,10 @@ export def --env 'capture start' [
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
         Commands and their outputs of the current nushell instance
-        will be appended to the *($file)* file.'
+        will be appended to the *($file)* file.
+
+        Beware that your `display_output` hook has been changed.
+        It will be reverted when you use `numd capture stop`'
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
