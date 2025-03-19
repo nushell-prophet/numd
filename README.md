@@ -29,6 +29,36 @@ Experienced nushell users can understand the logic better by looking at [example
 ```nushell indent-output
 > use numd
 > numd run --help
+# => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+# =>
+# => Usage:
+# =>   > run {flags} <file>
+# =>
+# => Flags:
+# =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
+# =>   --print-block-results: print blocks one by one as they are executed
+# =>   --echo: output resulting markdown to the terminal
+# =>   --save-ansi: save ANSI formatted version
+# =>   --no-backup: overwrite the existing `.md` file without backup
+# =>   --no-save: do not save changes to the `.md` file
+# =>   --no-stats: do not output stats of changes
+# =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+# =>   --no-fail-on-error: skip errors (and don't update markdown in case of errors anyway)
+# =>   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
+# =>   --table-width <int>: set the `table --width` option value
+# =>   --config-path <path>: path to a config file (default: '')
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Parameters:
+# =>   file <path>: path to a `.md` file containing Nushell code to be executed
+# =>
+# => Input/output types:
+# =>   ╭─#─┬──input──┬─output──╮
+# =>   │ 0 │ nothing │ string  │
+# =>   │ 1 │ nothing │ nothing │
+# =>   │ 2 │ nothing │ record  │
+# =>   ╰─#─┴──input──┴─output──╯
+# =>
 ```
 
 ### Supported nushell code block options
@@ -37,6 +67,13 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > numd list-code-options --list
+╭─#─┬─────long──────┬─short─┬──────────description───────────╮
+│ 0 │ indent-output │ i     │ indent output visually         │
+│ 1 │ no-output     │ O     │ execute code without output... │
+│ 2 │ no-run        │ N     │ do not execute code in block   │
+│ 3 │ try           │ t     │ execute block inside `try {... │
+│ 4 │ new-instance  │ n     │ execute block in new Nushel... │
+╰─#─┴─────long──────┴─short─┴──────────description───────────╯
 ```
 
 ### Stats of changes
@@ -46,6 +83,14 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 > let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
+╭──────────────────┬───────────────────────────────────╮
+│ filename         │ simple_markdown_with_no_output.md │
+│ nushell_blocks   │ 3                                 │
+│ levenshtein_dist │ 38                                │
+│ diff_lines       │ +9 (30%)                          │
+│ diff_words       │ +6 (8.7%)                         │
+│ diff_chars       │ +38 (8.7%)                        │
+╰──────────────────┴───────────────────────────────────╯
 ```
 
 ### Styling outputs
@@ -67,10 +112,47 @@ numd run $path --echo --no-save --no-stats --prepend-code "
 "
 ```
 
+Output:
+
+```
+# => ```nushell
+# => [[a b c]; [1 2 3]]
+# => ```
+# =>
+# => Output:
+# =>
+# => ```
+# => +---+---+---+
+# => | a | b | c |
+# => | 1 | 2 | 3 |
+# => +---+---+---+
+# => ```
+```
+
 ### `numd clear-outputs`
 
 ```nu indent-output
 > numd clear-outputs --help
+# => Remove numd execution outputs from the file
+# =>
+# => Usage:
+# =>   > clear-outputs {flags} <file>
+# =>
+# => Flags:
+# =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
+# =>   --echo: output resulting markdown to the terminal instead of writing to file
+# =>   --strip-markdown: keep only Nushell script, strip all markdown tags
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Parameters:
+# =>   file <path>: path to a `.md` file containing numd output to be cleared
+# =>
+# => Input/output types:
+# =>   ╭─#─┬──input──┬─output──╮
+# =>   │ 0 │ nothing │ string  │
+# =>   │ 1 │ nothing │ nothing │
+# =>   ╰─#─┴──input──┴─output──╯
+# =>
 ```
 
 ### `numd capture`
@@ -79,19 +161,66 @@ numd run $path --echo --no-save --no-stats --prepend-code "
 
 ```nushell indent-output
 > numd capture start --help
+# => start capturing commands and their outputs into a file
+# =>
+# => Usage:
+# =>   > capture start {flags} (file)
+# =>
+# => Flags:
+# =>   --separate: don't use `>` notation, create separate blocks for each pipeline
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Parameters:
+# =>   file <path>:  (optional, default: 'numd_capture.md')
+# =>
+# => Input/output types:
+# =>   ╭─#─┬──input──┬─output──╮
+# =>   │ 0 │ nothing │ nothing │
+# =>   ╰─#─┴──input──┴─output──╯
+# =>
 ```
 
 ```nushell indent-output
 > numd capture stop --help
+# => stop capturing commands and their outputs
+# =>
+# => Usage:
+# =>   > capture stop
+# =>
+# => Flags:
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Input/output types:
+# =>   ╭─#─┬──input──┬─output──╮
+# =>   │ 0 │ nothing │ nothing │
+# =>   ╰─#─┴──input──┴─output──╯
+# =>
 ```
 
 ### Some random familiar examples
 
 ```nushell
 > ls z_examples | sort-by name | reject modified size
+╭─#─┬──────────────────name───────────────────┬─type─╮
+│ 0 │ z_examples/1_simple_markdown            │ dir  │
+│ 1 │ z_examples/2_numd_commands_explanations │ dir  │
+│ 2 │ z_examples/3_book_types_of_data         │ dir  │
+│ 3 │ z_examples/4_book_working_with_lists    │ dir  │
+│ 4 │ z_examples/5_simple_nu_table            │ dir  │
+│ 5 │ z_examples/6_edge_cases                 │ dir  │
+│ 6 │ z_examples/7_image_output               │ dir  │
+│ 7 │ z_examples/999_numd_internals           │ dir  │
+│ 8 │ z_examples/99_strip_markdown            │ dir  │
+╰─#─┴──────────────────name───────────────────┴─type─╯
+
 > sys host | get boot_time
+Thu, 13 Mar 2025 10:41:37 -0300 (6 days ago)
+
 > 2 + 2
+4
+
 > git tag | lines | sort -n | last
+0.1.18
 ```
 
 ## Real fight examples to try
