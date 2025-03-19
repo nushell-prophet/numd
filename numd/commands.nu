@@ -892,8 +892,8 @@ export def scan [
 
 # Helper command to check if `$env.kv-catch == true` to set kv var
 def kv-catch [
-    $key
-    $value?
+    key
+    value?
     -p # pass further
 ] {
     let value = if $value == null { $in } else { $value }
