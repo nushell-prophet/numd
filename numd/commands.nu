@@ -204,7 +204,7 @@ export def 'parse-help' [
     | str replace --all ':  (optional)' ' (optional)'
     | lines
     | str trim
-    | if ($in.0 != 'Usage:') { prepend 'Description:' } else {}
+    | if ($in.0 != 'Usage:') { prepend 'Description:' } else { }
 
     let regex = [
         Description
