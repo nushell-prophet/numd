@@ -323,7 +323,7 @@ b
 To get a sub-list from a list, you can use the [`range`](/commands/docs/range.md) command:
 
 ```nushell
-> [a b c d e f] | range 1..3
+> [a b c d e f] | slice 1..3
 ╭───┬───╮
 │ 0 │ b │
 │ 1 │ c │
