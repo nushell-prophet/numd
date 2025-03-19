@@ -26,38 +26,9 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ### `numd run` flags and params
 
-```nushell
+```nushell indent-output
 > use numd
-> numd run --help | numd parse-help
-// Description:
-//   Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
-//
-// Usage:
-//   > run {flags} <file>
-//
-// Flags:
-//   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
-//   --print-block-results: print blocks one by one as they are executed
-//   --echo: output resulting markdown to the terminal
-//   --save-ansi: save ANSI formatted version
-//   --no-backup: overwrite the existing `.md` file without backup
-//   --no-save: do not save changes to the `.md` file
-//   --no-stats: do not output stats of changes
-//   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-//   --no-fail-on-error: skip errors (and don't update markdown in case of errors anyway)
-//   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
-//   --table-width <int>: set the `table --width` option value
-//   --config-path <path>: path to a config file (default: '')
-//
-// Parameters:
-//   file <path>: path to a `.md` file containing Nushell code to be executed
-//
-// Input/output types:
-//   ╭─#─┬──input──┬─output──╮
-//   │ 0 │ nothing │ string  │
-//   │ 1 │ nothing │ nothing │
-//   │ 2 │ nothing │ record  │
-//   ╰─#─┴──input──┴─output──╯
+> numd run --help
 ```
 
 ### Supported nushell code block options
@@ -66,13 +37,6 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > numd list-code-options --list
-╭─────long──────┬─short─┬───────────────────────────description───────────────────────────╮
-│ indent-output │ i     │ indent output visually                                          │
-│ no-output     │ O     │ execute code without outputting results                         │
-│ no-run        │ N     │ do not execute code in block                                    │
-│ try           │ t     │ execute block inside `try {}` for error handling                │
-│ new-instance  │ n     │ execute block in new Nushell instance (useful with `try` block) │
-╰─────long──────┴─short─┴───────────────────────────description───────────────────────────╯
 ```
 
 ### Stats of changes
@@ -82,14 +46,6 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 > let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
-╭──────────────────┬───────────────────────────────────╮
-│ filename         │ simple_markdown_with_no_output.md │
-│ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 38                                │
-│ diff_lines       │ +9 (30%)                          │
-│ diff_words       │ +6 (8.7%)                         │
-│ diff_chars       │ +38 (8.7%)                        │
-╰──────────────────┴───────────────────────────────────╯
 ```
 
 ### Styling outputs
@@ -111,110 +67,31 @@ numd run $path --echo --no-save --no-stats --prepend-code "
 "
 ```
 
-Output:
-
-```
-//  ```nushell
-//  [[a b c]; [1 2 3]]
-//  ```
-//
-//  Output:
-//
-//  ```
-//  +---+---+---+
-//  | a | b | c |
-//  | 1 | 2 | 3 |
-//  +---+---+---+
-//  ```
-```
-
 ### `numd clear-outputs`
 
-```nu
-> numd clear-outputs --help | numd parse-help
-// Description:
-//   Remove numd execution outputs from the file
-//
-// Usage:
-//   > clear-outputs {flags} <file>
-//
-// Flags:
-//   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
-//   --echo: output resulting markdown to the terminal instead of writing to file
-//   --strip-markdown: keep only Nushell script, strip all markdown tags
-//
-// Parameters:
-//   file <path>: path to a `.md` file containing numd output to be cleared
-//
-// Input/output types:
-//   ╭─#─┬──input──┬─output──╮
-//   │ 0 │ nothing │ string  │
-//   │ 1 │ nothing │ nothing │
-//   ╰─#─┴──input──┴─output──╯
+```nu indent-output
+> numd clear-outputs --help
 ```
 
 ### `numd capture`
 
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
-```nushell
-> numd capture start --help | numd parse-help
-// Description:
-//   start capturing commands and their outputs into a file
-//
-// Usage:
-//   > capture start {flags} (file)
-//
-// Flags:
-//   --separate: don't use `>` notation, create separate blocks for each pipeline
-//
-// Parameters:
-//   file <path>:  (optional, default: 'numd_capture.md')
-//
-// Input/output types:
-//   ╭─#─┬──input──┬─output──╮
-//   │ 0 │ nothing │ nothing │
-//   ╰─#─┴──input──┴─output──╯
+```nushell indent-output
+> numd capture start --help
 ```
 
-```nushell
-> numd capture stop --help | numd parse-help
-// Description:
-//   stop capturing commands and their outputs
-//
-// Usage:
-//   > capture stop
-//
-// Input/output types:
-//   ╭─#─┬──input──┬─output──╮
-//   │ 0 │ nothing │ nothing │
-//   ╰─#─┴──input──┴─output──╯
+```nushell indent-output
+> numd capture stop --help
 ```
 
 ### Some random familiar examples
 
 ```nushell
 > ls z_examples | sort-by name | reject modified size
-╭──────────────────name───────────────────┬─type─╮
-│ z_examples/1_simple_markdown            │ dir  │
-│ z_examples/2_numd_commands_explanations │ dir  │
-│ z_examples/3_book_types_of_data         │ dir  │
-│ z_examples/4_book_working_with_lists    │ dir  │
-│ z_examples/5_simple_nu_table            │ dir  │
-│ z_examples/6_edge_cases                 │ dir  │
-│ z_examples/7_image_output               │ dir  │
-│ z_examples/999_numd_internals           │ dir  │
-│ z_examples/99_strip_markdown            │ dir  │
-╰──────────────────name───────────────────┴─type─╯
-
 > sys host | get boot_time
-Fri, 28 Feb 2025 13:15:18 -0300 (2 days ago)
-
 > 2 + 2
-4
-
 > git tag | lines | sort -n | last
-0.1.18
 ```
 
 ## Real fight examples to try
