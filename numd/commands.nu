@@ -225,6 +225,7 @@ export def 'parse-help' [
 
     let elements = $help_lines
     | split list -r $regex
+    | skip
     | wrap elements
 
     $existing_sections
