@@ -255,7 +255,7 @@ export def 'parse-help' [
         }
         | str join (char nl)
         | str replace -ar '\s+$' '' # empty trailing new lines
-        | str replace -arm '^' '// '
+        | str replace -arm '^' '# => '
     }
 }
 
@@ -688,7 +688,7 @@ export def check-print-append [
 # > 'ls' | create-indented-output
 # ls | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
 export def create-indented-output [
-    --indent: string = '//  '
+    --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
     | $"($in) | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
