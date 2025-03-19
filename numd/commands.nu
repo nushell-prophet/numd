@@ -1,6 +1,9 @@
 use std/iter scan
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+@example "update readme" {
+    numd run README.md
+}
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
     --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
@@ -556,9 +559,9 @@ export def convert-short-options [
 }
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
-#
-# > 'abcd"dfdaf" "' | quote-for-print
-# "abcd\"dfdaf\" \""
+@example '' {
+    'abcd"dfdaf" "' | quote-for-print
+} --result '"abcd\"dfdaf\" \""'
 export def quote-for-print []: string -> string {
     # `to json` might give similar results, yet it replaces new lines
     # which spoils readability of intermediate scripts
@@ -590,9 +593,9 @@ export def execute-intermediate-script [
 }
 
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
-#
-# > code-block-marker 3
-# #code-block-marker-open-3
+@example '' {
+    mark-code-block 3
+} --result "#code-block-marker-open-3"
 export def code-block-marker [
     index?: int
     --end
@@ -603,8 +606,9 @@ export def code-block-marker [
 # TODO NUON can be used in code-block-markers to set display options
 
 # Generate a command to highlight code using Nushell syntax highlighting.
-# > 'ls' | generate-highlight-print
-# "ls" | nu-highlight | print
+@example '' {
+    'ls' | create-highlight-command
+} --result '"ls" | nu-highlight | print'
 export def generate-highlight-print []: string -> string {
     quote-for-print
     | $"($in) | nu-highlight | print(char nl)(char nl)"
