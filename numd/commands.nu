@@ -403,8 +403,10 @@ export def execute-block-lines [
                 # if a line starts with `>`, execute it
                 create-execution-code $fence_options
             } else if $in starts-with '#' {
-                # if a line starts with `#`, print it
-                create-highlight-command
+                if $in !~ '# =>' {
+                    # if a line starts with `#`, print it
+                    create-highlight-command
+                }
             }
         }
     }
