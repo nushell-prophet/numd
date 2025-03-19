@@ -689,7 +689,7 @@ export def check-print-append [
 # Generate indented output for better visual formatting.
 #
 # > 'ls' | create-indented-output
-# ls | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
+# ls | table | lines | each {$'# => ($in)' | str trim --right} | str join (char nl)
 export def create-indented-output [
     --indent: string = '# => '
 ]: string -> string {
