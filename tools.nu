@@ -64,12 +64,12 @@ def 'main release' [] {
     | to nuon --indent 2
     | save --force --raw nupm.nuon
 
-    open README.md -r
-    | lines
-    | update 0 ('<h1 align="center">' + $description + '</h1>')
-    | str join (char nl)
-    | $in + (char nl)
-    | save -r README.md -f
+    # open README.md -r
+    # | lines
+    # | update 0 ('<h1 align="center">' + $description + '</h1>')
+    # | str join (char nl)
+    # | $in + (char nl)
+    # | save -r README.md -f
 
     # prettier README.md -w
 
