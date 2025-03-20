@@ -76,7 +76,7 @@ let data = { name: alice, age: 50 }
 
 
     # ```nushell
-[a b c d e f] | range 1..3
+[a b c d e f] | slice 1..3
 
 
     # ```nushell

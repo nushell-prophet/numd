@@ -173,9 +173,9 @@ let data = { name: alice, age: 50 }
 
 "#code-block-marker-open-35
 ```nushell" | print
-"> [a b c d e f] | range 1..3" | nu-highlight | print
+"> [a b c d e f] | slice 1..3" | nu-highlight | print
 
-[a b c d e f] | range 1..3 | table | print; print ''
+[a b c d e f] | slice 1..3 | table | print; print ''
 
 "```" | print
 

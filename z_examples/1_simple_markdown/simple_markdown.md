@@ -31,3 +31,9 @@ user
 > 2 + 2
 4
 ```
+
+## Example 4
+
+```
+# This block doesn't have a language identifier in the opening fence
+```

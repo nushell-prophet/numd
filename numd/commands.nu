@@ -1,4 +1,5 @@
 use kv # I use kv here for catching real data structures for test cases
+use std/iter scan
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 export def run [
@@ -52,8 +53,6 @@ export def run [
     | extract-block-index
     | kv-catch -p extract-block-index
 
-    # $nu_res_with_block_index | save -f ($file + '_intermed_exec.json')
-
     let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
     | toggle-output-fences --back
@@ -100,6 +99,7 @@ export def clear-outputs [
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
+        | where $it !~ '^# => '
         | if ($in | where $it =~ '^>' | is-empty) { } else {
             where $it =~ '^(>|#|```)'
         }
@@ -133,7 +133,10 @@ export def --env 'capture start' [
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
         Commands and their outputs of the current nushell instance
-        will be appended to the *($file)* file.'
+        will be appended to the *($file)* file.
+
+        Beware that your `display_output` hook has been changed.
+        It will be reverted when you use `numd capture stop`'
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
@@ -202,7 +205,7 @@ export def 'parse-help' [
     | str replace --all ':  (optional)' ' (optional)'
     | lines
     | str trim
-    | if ($in.0 == 'Usage:') { } else { prepend 'Description:' }
+    | if ($in.0 != 'Usage:') { prepend 'Description:' } else { }
 
     let regex = [
         Description
@@ -224,6 +227,7 @@ export def 'parse-help' [
 
     let elements = $help_lines
     | split list -r $regex
+    | skip
     | wrap elements
 
     $existing_sections
@@ -253,7 +257,7 @@ export def 'parse-help' [
         }
         | str join (char nl)
         | str replace -ar '\s+$' '' # empty trailing new lines
-        | str replace -arm '^' '// '
+        | str replace -arm '^' '# => '
     }
 }
 
@@ -400,8 +404,10 @@ export def execute-block-lines [
                 # if a line starts with `>`, execute it
                 create-execution-code $fence_options
             } else if $in starts-with '#' {
-                # if a line starts with `#`, print it
-                create-highlight-command
+                if $in !~ '# =>' {
+                    # if a line starts with `#`, print it
+                    create-highlight-command
+                }
             }
         }
     }
@@ -645,7 +651,7 @@ export def get-last-span [
     | rename s f
     | into int s f
 
-    # I just brutforced ast filter params in nu 0.97, as `ast` waits for better replacement or improvement
+    #  I just brute-forced AST filter parameters in nu 0.97, as `ast` awaits a better replacement or improvement.
     let last_span_end = $spans.f | math max
     let longest_last_span_start = $spans
     | where f == $last_span_end
@@ -684,9 +690,9 @@ export def check-print-append [
 # Generate indented output for better visual formatting.
 #
 # > 'ls' | create-indented-output
-# ls | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl)
+# ls | table | lines | each {$'# => ($in)' | str trim --right} | str join (char nl)
 export def create-indented-output [
-    --indent: string = '//  '
+    --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
     | $"($in) | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
@@ -845,50 +851,10 @@ export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
 
-# I hardcode scan from 0.101 version here, as there were a breaking change
-# to give chance for execution in previous untested nushell versions
-
-# Returns a list of intermediate steps performed by `reduce`
-# (`fold`). It takes two arguments, an initial value to seed the
-# initial state and a closure that takes two arguments, the first
-# being the list element in the current iteration and the second
-# the internal state.
-# The internal state is also provided as pipeline input.
-#
-# # Example
-# ```
-# use std ["assert equal" "iter scan"]
-# let scanned = ([1 2 3] | iter scan 0 {|x, y| $x + $y})
-#
-# assert equal $scanned [0, 1, 3, 6]
-#
-# # use the --noinit(-n) flag to remove the initial value from
-# # the final result
-# let scanned = ([1 2 3] | iter scan 0 {|x, y| $x + $y} -n)
-#
-# assert equal $scanned [1, 3, 6]
-# ```
-export def scan [
-    # -> list<any>
-    init: any # initial value to seed the initial state
-    fn: closure # the closure to perform the scan
-    --noinit (-n) # remove the initial value from the result
-] {
-    reduce --fold [$init] {|it, acc|
-        let acc_last = $acc | last
-        $acc ++ [($acc_last | do $fn $it $acc_last)]
-    }
-    | if $noinit {
-        $in | skip
-    } else {
-        $in
-    }
-}
-
 # Helper command to check if `$env.kv-catch == true` to set kv var
 def kv-catch [
-    $key
-    $value?
+    key
+    value?
     -p # pass further
 ] {
     let value = if $value == null { $in } else { $value }
