@@ -26,7 +26,7 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ### `numd run` flags and params
 
-```nushell indent-output
+```nushell
 > use numd
 > numd run --help
 # => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
@@ -68,7 +68,6 @@ Experienced nushell users can understand the logic better by looking at [example
 ```nushell
 > numd list-code-options --list
 ╭─#─┬─────long──────┬─short─┬──────────description───────────╮
-│ 0 │ indent-output │ i     │ indent output visually         │
 │ 1 │ no-output     │ O     │ execute code without output... │
 │ 2 │ no-run        │ N     │ do not execute code in block   │
 │ 3 │ try           │ t     │ execute block inside `try {... │
@@ -97,7 +96,7 @@ By default, `numd` provides basic stats on changes made.
 
 It is possible to set Nushell visual settings (and all the others) using the `--prepend-code` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
 
-```nushell indent-output
+```nushell
 let path = $nu.temp-path | path join simple_nu_table.md
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
@@ -131,7 +130,7 @@ Output:
 
 ### `numd clear-outputs`
 
-```nu indent-output
+```nu
 > numd clear-outputs --help
 # => Remove numd execution outputs from the file
 # =>
@@ -159,7 +158,7 @@ Output:
 
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
-```nushell indent-output
+```nushell
 > numd capture start --help
 # => start capturing commands and their outputs into a file
 # =>
@@ -180,7 +179,7 @@ Output:
 # =>
 ```
 
-```nushell indent-output
+```nushell
 > numd capture stop --help
 # => stop capturing commands and their outputs
 # =>
