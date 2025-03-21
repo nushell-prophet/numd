@@ -12,7 +12,7 @@ $var1 | path join 'baz' 'bar'
 Output:
 
 ```
-foo/baz/bar
+# => foo/baz/bar
 ```
 
 ## Example 3
@@ -20,8 +20,7 @@ foo/baz/bar
 ```nu
 # This block will output results inline
 > whoami
-user
-
+# => user
 > 2 + 2
-4
+# => 4
 ```

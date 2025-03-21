@@ -34,7 +34,7 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
 "```" | print
 
 "#code-block-marker-open-3
-```nu indent-output" | print
+```nu" | print
 "# Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
@@ -49,12 +49,12 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
-$original_md_table | table -e | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+$original_md_table | table -e | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
 "#code-block-marker-open-6
-```nu indent-output" | print
+```nu" | print
 "# Here we emulate that the `$intermed_script_path` options is not set
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
@@ -75,12 +75,12 @@ decortate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
 
-open $intermediate_script_path | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+open $intermediate_script_path | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
 "#code-block-marker-open-9
-```nu indent-output" | print
+```nu" | print
 "# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
@@ -95,12 +95,12 @@ let $no_fail_on_error = false
 
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
 rm $intermediate_script_path
-$nu_res_stdout_lines | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+$nu_res_stdout_lines | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
 "#code-block-marker-open-12
-```nu indent-output" | print
+```nu" | print
 "let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
@@ -113,16 +113,16 @@ let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
 
-$md_res | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+$md_res | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
 "#code-block-marker-open-15
-```nu indent-output" | print
+```nu" | print
 "compute-change-stats $file $md_orig $md_res" | nu-highlight | print
 
 "```\n```output-numd" | print
 
-compute-change-stats $file $md_orig $md_res | table | lines | each {$'//  ($in)' | str trim --right} | str join (char nl) | table | print; print ''
+compute-change-stats $file $md_orig $md_res | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print

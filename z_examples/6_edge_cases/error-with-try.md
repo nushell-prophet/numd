@@ -9,13 +9,15 @@
 
 ```nushell try, new-instance
 > lssomething
-Error: nu::shell::external_command
-
-  x External command failed
-   ,-[source:1:1]
- 1 | lssomething
-   : ^^^^^|^^^^^
-   :      `-- Command `lssomething` not found
-   `----
-  help: `lssomething` is neither a Nushell built-in or a known external command
+# => Error: nu::shell::external_command
+# =>
+# =>   x External command failed
+# =>    ,-[source:1:1]
+# =>  1 | lssomething
+# =>    : ^^^^^|^^^^^
+# =>    :      `-- Command `lssomething` not found
+# =>    `----
+# =>   help: `lssomething` is neither a Nushell built-in or a
+# =>         known external command
+# =>
 ```

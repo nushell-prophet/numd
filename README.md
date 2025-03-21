@@ -26,7 +26,7 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ### `numd run` flags and params
 
-```nushell indent-output
+```nushell
 > use numd
 > numd run --help
 # => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
@@ -67,13 +67,12 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > numd list-code-options --list
-╭─#─┬─────long──────┬─short─┬──────────description───────────╮
-│ 0 │ indent-output │ i     │ indent output visually         │
-│ 1 │ no-output     │ O     │ execute code without output... │
-│ 2 │ no-run        │ N     │ do not execute code in block   │
-│ 3 │ try           │ t     │ execute block inside `try {... │
-│ 4 │ new-instance  │ n     │ execute block in new Nushel... │
-╰─#─┴─────long──────┴─short─┴──────────description───────────╯
+# => ╭─────long─────┬─short─┬───────────────────────────description───────────────────────────╮
+# => │ no-output    │ O     │ execute code without outputting results                         │
+# => │ no-run       │ N     │ do not execute code in block                                    │
+# => │ try          │ t     │ execute block inside `try {}` for error handling                │
+# => │ new-instance │ n     │ execute block in new Nushell instance (useful with `try` block) │
+# => ╰─────long─────┴─short─┴───────────────────────────description───────────────────────────╯
 ```
 
 ### Stats of changes
@@ -83,21 +82,21 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 > let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
-╭──────────────────┬───────────────────────────────────╮
-│ filename         │ simple_markdown_with_no_output.md │
-│ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 38                                │
-│ diff_lines       │ +9 (30%)                          │
-│ diff_words       │ +6 (8.7%)                         │
-│ diff_chars       │ +38 (8.7%)                        │
-╰──────────────────┴───────────────────────────────────╯
+# => ╭──────────────────┬───────────────────────────────────╮
+# => │ filename         │ simple_markdown_with_no_output.md │
+# => │ nushell_blocks   │ 3                                 │
+# => │ levenshtein_dist │ 52                                │
+# => │ diff_lines       │ +8 (26.7%)                        │
+# => │ diff_words       │ +6 (8.7%)                         │
+# => │ diff_chars       │ +52 (11.9%)                       │
+# => ╰──────────────────┴───────────────────────────────────╯
 ```
 
 ### Styling outputs
 
 It is possible to set Nushell visual settings (and all the others) using the `--prepend-code` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
 
-```nushell indent-output
+```nushell
 let path = $nu.temp-path | path join simple_nu_table.md
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
@@ -122,16 +121,16 @@ Output:
 # => Output:
 # =>
 # => ```
-# => +---+---+---+
-# => | a | b | c |
-# => | 1 | 2 | 3 |
-# => +---+---+---+
+# => # => +---+---+---+
+# => # => | a | b | c |
+# => # => | 1 | 2 | 3 |
+# => # => +---+---+---+
 # => ```
 ```
 
 ### `numd clear-outputs`
 
-```nu indent-output
+```nu
 > numd clear-outputs --help
 # => Remove numd execution outputs from the file
 # =>
@@ -159,7 +158,7 @@ Output:
 
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
-```nushell indent-output
+```nushell
 > numd capture start --help
 # => start capturing commands and their outputs into a file
 # =>
@@ -180,7 +179,7 @@ Output:
 # =>
 ```
 
-```nushell indent-output
+```nushell
 > numd capture stop --help
 # => stop capturing commands and their outputs
 # =>
@@ -201,26 +200,23 @@ Output:
 
 ```nushell
 > ls z_examples | sort-by name | reject modified size
-╭─#─┬──────────────────name───────────────────┬─type─╮
-│ 0 │ z_examples/1_simple_markdown            │ dir  │
-│ 1 │ z_examples/2_numd_commands_explanations │ dir  │
-│ 2 │ z_examples/3_book_types_of_data         │ dir  │
-│ 3 │ z_examples/4_book_working_with_lists    │ dir  │
-│ 4 │ z_examples/5_simple_nu_table            │ dir  │
-│ 5 │ z_examples/6_edge_cases                 │ dir  │
-│ 6 │ z_examples/7_image_output               │ dir  │
-│ 7 │ z_examples/999_numd_internals           │ dir  │
-│ 8 │ z_examples/99_strip_markdown            │ dir  │
-╰─#─┴──────────────────name───────────────────┴─type─╯
-
+# => ╭──────────────────name───────────────────┬─type─╮
+# => │ z_examples/1_simple_markdown            │ dir  │
+# => │ z_examples/2_numd_commands_explanations │ dir  │
+# => │ z_examples/3_book_types_of_data         │ dir  │
+# => │ z_examples/4_book_working_with_lists    │ dir  │
+# => │ z_examples/5_simple_nu_table            │ dir  │
+# => │ z_examples/6_edge_cases                 │ dir  │
+# => │ z_examples/7_image_output               │ dir  │
+# => │ z_examples/999_numd_internals           │ dir  │
+# => │ z_examples/99_strip_markdown            │ dir  │
+# => ╰──────────────────name───────────────────┴─type─╯
 > sys host | get boot_time
-Thu, 13 Mar 2025 10:41:37 -0300 (6 days ago)
-
+# => Thu Mar 13 10:41:37 2025
 > 2 + 2
-4
-
+# => 4
 > git tag | lines | sort -n | last
-0.1.18
+# => 0.1.20
 ```
 
 ## Real fight examples to try

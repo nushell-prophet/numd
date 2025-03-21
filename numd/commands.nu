@@ -99,7 +99,7 @@ export def clear-outputs [
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
-        | where $it !~ '^# => '
+        | where $it !~ '^# => ?'
         | if ($in | where $it =~ '^>' | is-empty) { } else {
             where $it =~ '^(>|#|```)'
         }
@@ -325,7 +325,7 @@ export def match-action [
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['indent-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
     $fence_options
     --whole_block
@@ -347,7 +347,7 @@ export def create-execution-code [
     | if 'no-output' in $fence_options { } else {
         if $whole_block { create-fence-output } else { }
         | if (check-print-append $in) {
-            if 'indent-output' in $fence_options { create-indented-output } else { }
+            create-indented-output
             | generate-print-statement
         } else { }
     }
@@ -528,7 +528,6 @@ export def list-code-options [
     [
         ["long" "short" "description"];
 
-        ["indent-output" "i" "indent output visually"]
         ["no-output" "O" "execute code without outputting results"]
         ["no-run" "N" "do not execute code in block"]
         ["try" "t" "execute block inside `try {}` for error handling"]
@@ -543,8 +542,8 @@ export def list-code-options [
 
 # Expand short options for code block execution to their long forms.
 #
-# > convert-short-options 'i'
-# indent-output
+# > convert-short-options 'O'
+# no-output
 export def convert-short-options [
     $option
 ]: nothing -> string {
@@ -587,7 +586,7 @@ export def execute-intermediate-script [
         if $no_fail_on_error {
             ''
         } else {
-            error make --unspanned {msg: ($in.stderr? | into string)}
+            error make --unspanned {msg: ($in.stderr? | default '' | into string)} # default '' - to refactor later
         }
     }
 }
@@ -695,7 +694,7 @@ export def create-indented-output [
     --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
-    | $"($in) | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
+    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
 }
 
 # Generate a print statement for capturing command output.
@@ -703,8 +702,7 @@ export def create-indented-output [
 # > 'ls' | generate-print-statement
 # ls | table | print; print ''
 export def generate-print-statement []: string -> string {
-    generate-table-statement
-    | $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
+    $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
 # Generate a table statement with optional width specification.
@@ -715,11 +713,7 @@ export def generate-print-statement []: string -> string {
 # > $env.numd.table-width = 10; 'ls' | generate-table-statement
 # ls | table --width 10
 export def generate-table-statement []: string -> string {
-    if $env.numd?.table-width? == null {
-        $"($in) | table"
-    } else {
-        $"($in) | table --width ($env.numd.table-width)"
-    }
+    $"($in) | table --width ($env.numd?.table-width? | default 120)"
 }
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
@@ -859,8 +853,11 @@ def kv-catch [
 ] {
     let value = if $value == null { $in } else { $value }
 
-    if $env.kv-catch? == true {
-        kv set $key $value
+    if $env.kv?.debug-catch? == true {
+        let modified_key = $env.kv?.debug-tag?
+        | if $in != null { $'($key)_($in)' } else { $key }
+
+        kv set $modified_key $value
     }
 
     if $p { $value }
