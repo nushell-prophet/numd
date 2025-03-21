@@ -694,7 +694,7 @@ export def create-indented-output [
     --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
-    | $"($in) | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
+    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
 }
 
 # Generate a print statement for capturing command output.
@@ -702,8 +702,7 @@ export def create-indented-output [
 # > 'ls' | generate-print-statement
 # ls | table | print; print ''
 export def generate-print-statement []: string -> string {
-    generate-table-statement
-    | $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
+    $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
 # Generate a table statement with optional width specification.
