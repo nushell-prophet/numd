@@ -5,10 +5,10 @@ Lists are equivalent to the individual columns of tables. You can think of a lis
 
 ```nu
 > [bell book candle] | where ($it =~ 'b')
-╭──────╮
-│ bell │
-│ book │
-╰──────╯
+# => ╭──────╮
+# => │ bell │
+# => │ book │
+# => ╰──────╯
 ```
 
 :::
@@ -29,14 +29,13 @@ We can [`insert`](/commands/docs/insert.md) values into lists as they flow throu
 
 ```nu
 > [1, 2, 3, 4] | insert 2 10
-╭────╮
-│  1 │
-│  2 │
-│ 10 │
-│  3 │
-│  4 │
-╰────╯
-
+# => ╭────╮
+# => │  1 │
+# => │  2 │
+# => │ 10 │
+# => │  3 │
+# => │  4 │
+# => ╰────╯
 # [1, 2, 10, 3, 4]
 ```
 
@@ -44,13 +43,12 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 
 ```nu
 > [1, 2, 3, 4] | update 1 10
-╭────╮
-│  1 │
-│ 10 │
-│  3 │
-│  4 │
-╰────╯
-
+# => ╭────╮
+# => │  1 │
+# => │ 10 │
+# => │  3 │
+# => │  4 │
+# => ╰────╯
 # [1, 10, 3, 4]
 ```
 
@@ -71,13 +69,13 @@ $colors # [black red yellow green purple blue]
 Output:
 
 ```
-╭────────╮
-│ black  │
-│ red    │
-│ yellow │
-│ green  │
-│ purple │
-╰────────╯
+# => ╭────────╮
+# => │ black  │
+# => │ red    │
+# => │ yellow │
+# => │ green  │
+# => │ purple │
+# => ╰────────╯
 ```
 
 In case you want to remove items from list, there are many ways. [`skip`](/commands/docs/skip.md) allows you skip first rows from input, while [`drop`](/commands/docs/drop.md) allows you to skip specific numbered rows from end of list.
@@ -92,9 +90,9 @@ $colors # [yellow]
 Output:
 
 ```
-╭────────╮
-│ yellow │
-╰────────╯
+# => ╭────────╮
+# => │ yellow │
+# => ╰────────╯
 ```
 
 We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first.md) which allow you to [`take`](/commands/docs/take.md) from the end or beginning of the list, respectively.
@@ -108,11 +106,11 @@ $colors # [purple black magenta]
 Output:
 
 ```
-╭─────────╮
-│ purple  │
-│ black   │
-│ magenta │
-╰─────────╯
+# => ╭─────────╮
+# => │ purple  │
+# => │ black   │
+# => │ magenta │
+# => ╰─────────╯
 ```
 
 And from the beginning of a list,
@@ -126,10 +124,10 @@ $colors # [yellow green]
 Output:
 
 ```
-╭────────╮
-│ yellow │
-│ green  │
-╰────────╯
+# => ╭────────╮
+# => │ yellow │
+# => │ green  │
+# => ╰────────╯
 ```
 
 ### Using the Spread Operator
@@ -140,13 +138,13 @@ To append one or more lists together, optionally with values interspersed in bet
 ```nu
 > let x = [1 2]
 > [ ...$x 3 ...(4..7 | take 2) ]
-╭───╮
-│ 1 │
-│ 2 │
-│ 3 │
-│ 4 │
-│ 5 │
-╰───╯
+# => ╭───╮
+# => │ 1 │
+# => │ 2 │
+# => │ 3 │
+# => │ 4 │
+# => │ 5 │
+# => ╰───╯
 ```
 
 ## Iterating over Lists
@@ -167,12 +165,12 @@ $names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" }
 Output:
 
 ```
-╭────────────╮
-│ 1 - Mark   │
-│ 2 - Tami   │
-│ 3 - Amanda │
-│ 4 - Jeremy │
-╰────────────╯
+# => ╭────────────╮
+# => │ 1 - Mark   │
+# => │ 2 - Tami   │
+# => │ 3 - Amanda │
+# => │ 4 - Jeremy │
+# => ╰────────────╯
 ```
 
 The [`where`](/commands/docs/where.md) command can be used to create a subset of a list, effectively filtering the list based on a condition.
@@ -196,10 +194,10 @@ $scores | where $it > 7 # [10 8]
 Output:
 
 ```
-╭────╮
-│ 10 │
-│  8 │
-╰────╯
+# => ╭────╮
+# => │ 10 │
+# => │  8 │
+# => ╰────╯
 ```
 
 The [`reduce`](/commands/docs/reduce.md) command computes a single value from a list.
@@ -222,7 +220,7 @@ $scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item
 Output:
 
 ```
-16
+# => 16
 ```
 
 ## Accessing the List
@@ -243,7 +241,7 @@ $names.1 # gives Tami
 Output:
 
 ```
-Tami
+# => Tami
 ```
 
 If the index is in some variable `$index` we can use the `get` command to extract the item from the list.
@@ -257,7 +255,7 @@ $names | get $index # gives Tami
 Output:
 
 ```
-Tami
+# => Tami
 ```
 
 The [`length`](/commands/docs/length.md) command returns the number of items in a list.
@@ -277,7 +275,7 @@ $colors | is-empty # true
 Output:
 
 ```
-true
+# => true
 ```
 
 The `in` and `not-in` operators are used to test whether a value is in a list. For example:
@@ -292,7 +290,7 @@ let colors = [red green blue]
 Output:
 
 ```
-true
+# => true
 ```
 
 The [`any`](/commands/docs/any.md) command determines if any item in a list
@@ -318,7 +316,7 @@ $scores | any {|elt| $elt mod 2 == 1 } # true
 Output:
 
 ```
-true
+# => true
 ```
 
 The [`all`](/commands/docs/all.md) command determines if every item in a list
@@ -344,7 +342,7 @@ $scores | all {|elt| $elt mod 2 == 0 } # false
 Output:
 
 ```
-false
+# => false
 ```
 
 ## Converting the List
@@ -363,16 +361,16 @@ For example:
 Output:
 
 ```
-╭───╮
-│ 1 │
-│ 2 │
-│ 3 │
-│ 4 │
-│ 5 │
-│ 6 │
-│ 7 │
-│ 8 │
-╰───╯
+# => ╭───╮
+# => │ 1 │
+# => │ 2 │
+# => │ 3 │
+# => │ 4 │
+# => │ 5 │
+# => │ 6 │
+# => │ 7 │
+# => │ 8 │
+# => ╰───╯
 ```
 
 The [`wrap`](/commands/docs/wrap.md) command converts a list to a table. Each list value will
@@ -388,10 +386,10 @@ $zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone
 Output:
 
 ```
-╭────────Zone────────┬───────Time───────╮
-│ UTC                │ 2025.03.19 20:21 │
-│ CET                │ 2025.03.19 21:21 │
-│ Europe/Moscow      │ 2025.03.19 23:21 │
-│ Asia/Yekaterinburg │ 2025.03.20 01:21 │
-╰────────Zone────────┴───────Time───────╯
+# => ╭────────Zone────────┬───────Time───────╮
+# => │ UTC                │ 2025.03.21 02:06 │
+# => │ CET                │ 2025.03.21 03:06 │
+# => │ Europe/Moscow      │ 2025.03.21 05:06 │
+# => │ Asia/Yekaterinburg │ 2025.03.21 07:06 │
+# => ╰────────Zone────────┴───────Time───────╯
 ```

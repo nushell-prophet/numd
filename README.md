@@ -67,12 +67,12 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > numd list-code-options --list
-╭─#─┬─────long──────┬─short─┬──────────description───────────╮
-│ 1 │ no-output     │ O     │ execute code without output... │
-│ 2 │ no-run        │ N     │ do not execute code in block   │
-│ 3 │ try           │ t     │ execute block inside `try {... │
-│ 4 │ new-instance  │ n     │ execute block in new Nushel... │
-╰─#─┴─────long──────┴─short─┴──────────description───────────╯
+# => ╭─────long─────┬─short─┬─────────────description─────────────╮
+# => │ no-output    │ O     │ execute code without outputting ... │
+# => │ no-run       │ N     │ do not execute code in block        │
+# => │ try          │ t     │ execute block inside `try {}` fo... │
+# => │ new-instance │ n     │ execute block in new Nushell ins... │
+# => ╰─────long─────┴─short─┴─────────────description─────────────╯
 ```
 
 ### Stats of changes
@@ -82,14 +82,14 @@ By default, `numd` provides basic stats on changes made.
 ```nushell
 > let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
 > numd run --no-save $path
-╭──────────────────┬───────────────────────────────────╮
-│ filename         │ simple_markdown_with_no_output.md │
-│ nushell_blocks   │ 3                                 │
-│ levenshtein_dist │ 38                                │
-│ diff_lines       │ +9 (30%)                          │
-│ diff_words       │ +6 (8.7%)                         │
-│ diff_chars       │ +38 (8.7%)                        │
-╰──────────────────┴───────────────────────────────────╯
+# => ╭──────────────────┬───────────────────────────────────╮
+# => │ filename         │ simple_markdown_with_no_output.md │
+# => │ nushell_blocks   │ 3                                 │
+# => │ levenshtein_dist │ 52                                │
+# => │ diff_lines       │ +8 (26.7%)                        │
+# => │ diff_words       │ +6 (8.7%)                         │
+# => │ diff_chars       │ +52 (11.9%)                       │
+# => ╰──────────────────┴───────────────────────────────────╯
 ```
 
 ### Styling outputs
@@ -121,10 +121,10 @@ Output:
 # => Output:
 # =>
 # => ```
-# => +---+---+---+
-# => | a | b | c |
-# => | 1 | 2 | 3 |
-# => +---+---+---+
+# => # => +---+---+---+
+# => # => | a | b | c |
+# => # => | 1 | 2 | 3 |
+# => # => +---+---+---+
 # => ```
 ```
 
@@ -200,26 +200,23 @@ Output:
 
 ```nushell
 > ls z_examples | sort-by name | reject modified size
-╭─#─┬──────────────────name───────────────────┬─type─╮
-│ 0 │ z_examples/1_simple_markdown            │ dir  │
-│ 1 │ z_examples/2_numd_commands_explanations │ dir  │
-│ 2 │ z_examples/3_book_types_of_data         │ dir  │
-│ 3 │ z_examples/4_book_working_with_lists    │ dir  │
-│ 4 │ z_examples/5_simple_nu_table            │ dir  │
-│ 5 │ z_examples/6_edge_cases                 │ dir  │
-│ 6 │ z_examples/7_image_output               │ dir  │
-│ 7 │ z_examples/999_numd_internals           │ dir  │
-│ 8 │ z_examples/99_strip_markdown            │ dir  │
-╰─#─┴──────────────────name───────────────────┴─type─╯
-
+# => ╭──────────────────name───────────────────┬─type─╮
+# => │ z_examples/1_simple_markdown            │ dir  │
+# => │ z_examples/2_numd_commands_explanations │ dir  │
+# => │ z_examples/3_book_types_of_data         │ dir  │
+# => │ z_examples/4_book_working_with_lists    │ dir  │
+# => │ z_examples/5_simple_nu_table            │ dir  │
+# => │ z_examples/6_edge_cases                 │ dir  │
+# => │ z_examples/7_image_output               │ dir  │
+# => │ z_examples/999_numd_internals           │ dir  │
+# => │ z_examples/99_strip_markdown            │ dir  │
+# => ╰──────────────────name───────────────────┴─type─╯
 > sys host | get boot_time
-Thu, 13 Mar 2025 10:41:37 -0300 (6 days ago)
-
+# => Thu Mar 13 10:41:37 2025
 > 2 + 2
-4
-
+# => 4
 > git tag | lines | sort -n | last
-0.1.18
+# => 0.1.20
 ```
 
 ## Real fight examples to try

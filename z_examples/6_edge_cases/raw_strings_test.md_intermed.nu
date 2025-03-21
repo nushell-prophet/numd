@@ -29,6 +29,6 @@ let $two_single_lines_text = r#'"High up in the mountains, a Snake crawled and l
 
 "```\n```output-numd" | print
 
-$two_single_lines_text | table | print; print ''
+$two_single_lines_text | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print

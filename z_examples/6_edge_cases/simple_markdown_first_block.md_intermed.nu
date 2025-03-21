@@ -29,7 +29,7 @@ $var1 | path join 'baz' 'bar'" | nu-highlight | print
 "```\n```output-numd" | print
 
 # This block will produce some output in a separate block
-$var1 | path join 'baz' 'bar' | table | print; print ''
+$var1 | path join 'baz' 'bar' | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -40,10 +40,10 @@ $var1 | path join 'baz' 'bar' | table | print; print ''
 
 "> whoami" | nu-highlight | print
 
-whoami | table | print; print ''
+whoami | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "> 2 + 2" | nu-highlight | print
 
-2 + 2 | table | print; print ''
+2 + 2 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print

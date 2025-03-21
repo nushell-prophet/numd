@@ -9,7 +9,7 @@ $env.config.table.abbreviated_row_count = 100
 use ($init_numd_pwd_const | path join numd commands.nu) *
 
 
-    # ```nu indent-output
+    # ```nu
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
@@ -18,7 +18,7 @@ let $original_md_table = $md_orig | find-code-blocks
 $original_md_table | table -e
 
 
-    # ```nu indent-output
+    # ```nu
 # Here we emulate that the `$intermed_script_path` options is not set
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
@@ -30,7 +30,7 @@ decortate-original-code-blocks $original_md_table
 open $intermediate_script_path
 
 
-    # ```nu indent-output
+    # ```nu
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
@@ -39,7 +39,7 @@ rm $intermediate_script_path
 $nu_res_stdout_lines
 
 
-    # ```nu indent-output
+    # ```nu
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
@@ -47,5 +47,5 @@ let $md_res = $nu_res_stdout_lines
 $md_res
 
 
-    # ```nu indent-output
+    # ```nu
 compute-change-stats $file $md_orig $md_res

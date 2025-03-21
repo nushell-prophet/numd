@@ -15,7 +15,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nushell" | print
 "> $env.numd?" | nu-highlight | print
 
-$env.numd? | table | print; print ''
+$env.numd? | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -25,7 +25,7 @@ $env.numd? | table | print; print ''
 
 "```\n```output-numd" | print
 
-[[a b c]; [1 2 3]] | table | print; print ''
+[[a b c]; [1 2 3]] | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -59,6 +59,6 @@ $env.numd? | table | print; print ''
                 'ut. Exercitation dolore fugiat nulla ut adipiscing laboris elit. Fugiat nulla ut ' +
                 'adipiscing, laboris elit quis pariatur. Adipiscing laboris elit quis pariatur. ' +
                 'Elit quis pariatur, in ut anim anim ut.')]
-] | table | print; print ''
+] | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print

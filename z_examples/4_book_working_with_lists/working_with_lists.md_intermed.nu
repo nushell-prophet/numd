@@ -15,7 +15,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nu" | print
 "> [bell book candle] | where ($it =~ 'b')" | nu-highlight | print
 
-[bell book candle] | where ($it =~ 'b') | table | print; print ''
+[bell book candle] | where ($it =~ 'b') | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -23,7 +23,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nu" | print
 "> [1, 2, 3, 4] | insert 2 10" | nu-highlight | print
 
-[1, 2, 3, 4] | insert 2 10 | table | print; print ''
+[1, 2, 3, 4] | insert 2 10 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "# [1, 2, 10, 3, 4]" | nu-highlight | print
 
@@ -34,7 +34,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nu" | print
 "> [1, 2, 3, 4] | update 1 10" | nu-highlight | print
 
-[1, 2, 3, 4] | update 1 10 | table | print; print ''
+[1, 2, 3, 4] | update 1 10 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "# [1, 10, 3, 4]" | nu-highlight | print
 
@@ -55,7 +55,7 @@ let colors = [yellow green]
 let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ("black" | append $colors)
-$colors | table | print; print ''
+$colors | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -71,7 +71,7 @@ $colors # [yellow]" | nu-highlight | print
 let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
-$colors | table | print; print ''
+$colors | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -85,7 +85,7 @@ $colors # [purple black magenta]" | nu-highlight | print
 
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
-$colors | table | print; print ''
+$colors | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -99,7 +99,7 @@ $colors # [yellow green]" | nu-highlight | print
 
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
-$colors | table | print; print ''
+$colors | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -111,7 +111,7 @@ let x = [1 2]
 
 "> [ ...$x 3 ...(4..7 | take 2) ]" | nu-highlight | print
 
-[ ...$x 3 ...(4..7 | take 2) ] | table | print; print ''
+[ ...$x 3 ...(4..7 | take 2) ] | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -130,7 +130,7 @@ let names = [Mark Tami Amanda Jeremy]
 $names | each { |elt| $"Hello, ($elt)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
 
-$names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" } | table | print; print ''
+$names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" } | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -157,7 +157,7 @@ $scores | where $it > 7 # [10 8]" | nu-highlight | print
 "```\n```output-numd" | print
 
 let scores = [7 10 8 6 7]
-$scores | where $it > 7 | table | print; print ''
+$scores | where $it > 7 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -181,7 +181,7 @@ $"total = ($scores | math sum)" # easier approach, same result
 
 $"product = ($scores | reduce --fold 1 { |elt, acc| $acc * $elt })" # product = 96
 
-$scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item } | table | print; print ''
+$scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item } | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -193,7 +193,7 @@ $names.1 # gives Tami" | nu-highlight | print
 "```\n```output-numd" | print
 
 let names = [Mark Tami Amanda Jeremy]
-$names.1 | table | print; print ''
+$names.1 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -207,7 +207,7 @@ $names | get $index # gives Tami" | nu-highlight | print
 
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
-$names | get $index | table | print; print ''
+$names | get $index | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -225,7 +225,7 @@ let colors = [red green blue]
 $colors | is-empty # false
 
 let colors = []
-$colors | is-empty | table | print; print ''
+$colors | is-empty | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -241,7 +241,7 @@ $colors | is-empty | table | print; print ''
 let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
-'gold' not-in $colors | table | print; print ''
+'gold' not-in $colors | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -275,7 +275,7 @@ let scores = [3 8 4]
 $scores | any {|elt| $elt > 7 } # true
 
 # Are any scores odd?
-$scores | any {|elt| $elt mod 2 == 1 } | table | print; print ''
+$scores | any {|elt| $elt mod 2 == 1 } | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -309,7 +309,7 @@ let scores = [3 8 4]
 $scores | all {|elt| $elt > 7 } # false
 
 # Are all scores even?
-$scores | all {|elt| $elt mod 2 == 0 } | table | print; print ''
+$scores | all {|elt| $elt mod 2 == 0 } | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -323,7 +323,7 @@ $scores | all {|elt| $elt mod 2 == 0 } | table | print; print ''
 
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
 
-[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | table | print; print ''
+[[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
 
@@ -339,6 +339,6 @@ $zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')} | table | print; print ''
+$zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')} | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 
 "```" | print
