@@ -99,7 +99,7 @@ export def clear-outputs [
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
-        | where $it !~ '^# => '
+        | where $it !~ '^# => ?'
         | if ($in | where $it =~ '^>' | is-empty) { } else {
             where $it =~ '^(>|#|```)'
         }
