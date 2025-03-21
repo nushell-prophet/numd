@@ -144,7 +144,7 @@ Output:
 # => "```\n```output-numd" | print
 # =>
 # => # This block will produce some output in a separate block
-# => $var1 | path join 'baz' 'bar' | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 # =>
 # => "```" | print
 # =>
@@ -155,11 +155,11 @@ Output:
 # =>
 # => "> whoami" | nu-highlight | print
 # =>
-# => whoami | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 # =>
 # => "> 2 + 2" | nu-highlight | print
 # =>
-# => 2 + 2 | table | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
 # =>
 # => "```" | print
 ```

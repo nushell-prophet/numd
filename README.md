@@ -67,12 +67,12 @@ Experienced nushell users can understand the logic better by looking at [example
 
 ```nushell
 > numd list-code-options --list
-# => ╭─────long─────┬─short─┬─────────────description─────────────╮
-# => │ no-output    │ O     │ execute code without outputting ... │
-# => │ no-run       │ N     │ do not execute code in block        │
-# => │ try          │ t     │ execute block inside `try {}` fo... │
-# => │ new-instance │ n     │ execute block in new Nushell ins... │
-# => ╰─────long─────┴─short─┴─────────────description─────────────╯
+# => ╭─────long─────┬─short─┬───────────────────────────description───────────────────────────╮
+# => │ no-output    │ O     │ execute code without outputting results                         │
+# => │ no-run       │ N     │ do not execute code in block                                    │
+# => │ try          │ t     │ execute block inside `try {}` for error handling                │
+# => │ new-instance │ n     │ execute block in new Nushell instance (useful with `try` block) │
+# => ╰─────long─────┴─short─┴───────────────────────────description───────────────────────────╯
 ```
 
 ### Stats of changes
