@@ -713,11 +713,7 @@ export def generate-print-statement []: string -> string {
 # > $env.numd.table-width = 10; 'ls' | generate-table-statement
 # ls | table --width 10
 export def generate-table-statement []: string -> string {
-    if $env.numd?.table-width? == null {
-        $"($in) | table"
-    } else {
-        $"($in) | table --width ($env.numd.table-width)"
-    }
+    $"($in) | table --width ($env.numd?.table-width? | default 120)"
 }
 
 # Generate a try-catch block to handle errors in the current Nushell instance.
