@@ -18,7 +18,7 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
 
 This command is used for parsing initial markdown to detect executable code blocks.
 
-```nu indent-output
+```nu
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 
@@ -92,7 +92,7 @@ Output:
 
 The `generate-intermediate-script` command generates a script that contains code from all executable blocks and `numd` service commands used for capturing outputs.
 
-```nu indent-output
+```nu
 # Here we emulate that the `$intermed_script_path` options is not set
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
@@ -154,7 +154,7 @@ Output:
 
 The `execute-intermediate-script` command runs and captures outputs of the executed intermediate script.
 
-```nu indent-output
+```nu
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 
@@ -193,7 +193,7 @@ Output:
 //  ```
 ```
 
-```nu indent-output
+```nu
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
@@ -233,7 +233,7 @@ Output:
 
 The `compute-change-stats` command displays stats on the changes made.
 
-```nu indent-output
+```nu
 compute-change-stats $file $md_orig $md_res
 ```
 
