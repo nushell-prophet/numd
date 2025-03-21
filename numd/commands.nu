@@ -325,7 +325,7 @@ export def match-action [
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['indent-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
     $fence_options
     --whole_block
@@ -528,7 +528,6 @@ export def list-code-options [
     [
         ["long" "short" "description"];
 
-        ["indent-output" "i" "indent output visually"]
         ["no-output" "O" "execute code without outputting results"]
         ["no-run" "N" "do not execute code in block"]
         ["try" "t" "execute block inside `try {}` for error handling"]
@@ -543,8 +542,8 @@ export def list-code-options [
 
 # Expand short options for code block execution to their long forms.
 #
-# > convert-short-options 'i'
-# indent-output
+# > convert-short-options 'O'
+# no-output
 export def convert-short-options [
     $option
 ]: nothing -> string {
