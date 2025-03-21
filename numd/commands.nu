@@ -859,8 +859,11 @@ def kv-catch [
 ] {
     let value = if $value == null { $in } else { $value }
 
-    if $env.kv-catch? == true {
-        kv set $key $value
+    if $env.kv?.debug-catch? == true {
+        let modified_key = $env.kv?.debug-tag?
+        | if $in != null { $'($key)_($in)' } else { $key }
+
+        kv set $modified_key $value
     }
 
     if $p { $value }
