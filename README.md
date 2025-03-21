@@ -242,11 +242,19 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 
 ```nushell no-run
 > nu tools.nu testing
-╭───────────filename────────────┬─nushell_blocks─┬─levenshtein_dist─┬─diff_lines─┬─diff_words─┬─diff_chars─╮
-│ types_of_data.md              │             31 │                0 │ 0%         │ 0%         │ 0%         │
-│ simple_markdown.md            │              3 │                0 │ 0%         │ 0%         │ 0%         │
-│ numd_commands_explanations.md │              7 │                0 │ 0%         │ 0%         │ 0%         │
-│ working_with_lists.md         │             18 │                0 │ 0%         │ 0%         │ 0%         │
-│ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
-╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
+# => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
+# => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
+# => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
+# => │ types_of_data.md                              │              30 │               204 │ 0%         │ -29 (-1.1%)  │ ... │
+# => │ working_with_lists.md                         │              20 │                 4 │ 0%         │ 0%           │ ... │
+# => │ numd_commands_explanations.md                 │               6 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_markdown.md                            │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ error-with-try.md                             │               1 │                13 │ -1 (-4.3%) │ 0%           │ ... │
+# => │ simple_markdown_first_block.md                │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ raw_strings_test.md                           │               2 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_nu_table.md                            │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_nu_table_customized_width20.md         │               3 │               458 │ 0%         │ -42 (-23.7%) │ ... │
+# => │ simple_nu_table_customized_example_config.md  │               3 │                56 │ 0%         │ -4 (-2.3%)   │ ... │
+# => │ README.md                                     │               9 │                 0 │ 0%         │ 0%           │ ... │
+# => ╰───────────────────────────────────────────────┴─────────────────┴───────────────────┴────────────┴──────────────┴─────╯
 ```
