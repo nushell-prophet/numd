@@ -586,7 +586,7 @@ export def execute-intermediate-script [
         if $no_fail_on_error {
             ''
         } else {
-            error make --unspanned {msg: ($in.stderr? | into string)}
+            error make --unspanned {msg: ($in.stderr? | default '' | into string)} # default '' - to refactor later
         }
     }
 }
