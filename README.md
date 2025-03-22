@@ -85,10 +85,10 @@ By default, `numd` provides basic stats on changes made.
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 52                                │
-# => │ diff_lines       │ +8 (26.7%)                        │
+# => │ levenshtein_dist │ 53                                │
+# => │ diff_lines       │ +9 (30%)                          │
 # => │ diff_words       │ +6 (8.7%)                         │
-# => │ diff_chars       │ +52 (11.9%)                       │
+# => │ diff_chars       │ +53 (12.1%)                       │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -211,10 +211,13 @@ Output:
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
+
 > sys host | get boot_time
 # => Thu Mar 13 10:41:37 2025
+
 > 2 + 2
 # => 4
+
 > git tag | lines | sort -n | last
 # => 0.1.20
 ```

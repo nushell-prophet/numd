@@ -21,6 +21,7 @@ Output:
 # This block will output results inline
 > whoami
 # => user
+
 > 2 + 2
 # => 4
 ```

@@ -78,6 +78,7 @@ There are just two boolean values: `true` and `false`. Rather than writing the v
 > let mybool = 2 > 1
 > $mybool
 # => true
+
 > let mybool = ($nu.home-path | path exists)
 > $mybool
 # => true
@@ -150,8 +151,10 @@ As with durations, you can make fractional file sizes, and do calculations:
 ```nushell
 > 1Gb / 1b
 # => 1000000000
+
 > 1Gib / 1b
 # => 1073741824
+
 > (1Gib / 1b) == 2 ** 30
 # => true
 ```
@@ -202,9 +205,11 @@ You can write binary as a literal using any of the `0x[...]`, `0b[...]`, or `0o[
 > 0x[1F FF]  # Hexadecimal
 # => Length: 2 (0x2) bytes | printable whitespace ascii_other non_ascii
 # => 00000000:   1f ff                                                •×
+
 > 0b[1 1010] # Binary
 # => Length: 1 (0x1) bytes | printable whitespace ascii_other non_ascii
 # => 00000000:   1a                                                   •
+
 > 0o[377]    # Octal
 # => Length: 1 (0x1) bytes | printable whitespace ascii_other non_ascii
 # => 00000000:   ff                                                   ×
@@ -511,6 +516,7 @@ git checkout featurebranch | null
 # => │ 0 │  1 │ 2 │
 # => │ 1 │ ❎ │ 1 │
 # => ╰───┴────┴───╯
+
 > [{a:1 b:2} {b:1}].1.a
 # => Error: nu::shell::column_not_found
 # =>

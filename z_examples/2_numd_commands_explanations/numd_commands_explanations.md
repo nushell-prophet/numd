@@ -70,6 +70,7 @@ Output:
 # => │             │                │ │ # This block will output results inline │                               │           │
 # => │             │                │ │ > whoami                                │                               │           │
 # => │             │                │ │ # => user                               │                               │           │
+# => │             │                │ │                                         │                               │           │
 # => │             │                │ │ > 2 + 2                                 │                               │           │
 # => │             │                │ │ # => 4                                  │                               │           │
 # => │             │                │ │ ```                                     │                               │           │
@@ -129,7 +130,7 @@ Output:
 # => "```\n```output-numd" | print
 # =>
 # => # This block will produce some output in a separate block
-# => $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "```" | print
 # =>
@@ -140,11 +141,11 @@ Output:
 # =>
 # => "> whoami" | nu-highlight | print
 # =>
-# => whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "> 2 + 2" | nu-highlight | print
 # =>
-# => 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "```" | print
 ```
@@ -178,14 +179,20 @@ Output:
 # => ```
 # => ```output-numd
 # => # => foo/baz/bar
+# =>
+# =>
 # => ```
 # => #code-block-marker-open-6
 # => ```nu
 # => # This block will output results inline
 # => > whoami
 # => # => user
+# =>
+# =>
 # => > 2 + 2
 # => # => 4
+# =>
+# =>
 # => ```
 ```
 
@@ -211,14 +218,17 @@ Output:
 # => ```
 # => ```output-numd
 # => # => foo/baz/bar
+# =>
 # => ```
 # => #code-block-marker-open-6
 # => ```nu
 # => # This block will output results inline
 # => > whoami
 # => # => user
+# =>
 # => > 2 + 2
 # => # => 4
+# =>
 # => ```
 ```
 
@@ -237,8 +247,8 @@ Output:
 # => │ filename         │ simple_markdown.md │
 # => │ nushell_blocks   │ 3                  │
 # => │ levenshtein_dist │ 247                │
-# => │ diff_lines       │ -15 (-42.9%)       │
+# => │ diff_lines       │ -13 (-36.1%)       │
 # => │ diff_words       │ -24 (-31.6%)       │
-# => │ diff_chars       │ -166 (-33.9%)      │
+# => │ diff_chars       │ -164 (-33.4%)      │
 # => ╰──────────────────┴────────────────────╯
 ```

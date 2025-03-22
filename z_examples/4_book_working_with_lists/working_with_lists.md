@@ -36,6 +36,7 @@ We can [`insert`](/commands/docs/insert.md) values into lists as they flow throu
 # => │  3 │
 # => │  4 │
 # => ╰────╯
+
 # [1, 2, 10, 3, 4]
 ```
 
@@ -49,6 +50,7 @@ We can also use [`update`](/commands/docs/update.md) to replace the 2nd element 
 # => │  3 │
 # => │  4 │
 # => ╰────╯
+
 # [1, 10, 3, 4]
 ```
 
@@ -387,9 +389,9 @@ Output:
 
 ```
 # => ╭────────Zone────────┬───────Time───────╮
-# => │ UTC                │ 2025.03.21 02:24 │
-# => │ CET                │ 2025.03.21 03:24 │
-# => │ Europe/Moscow      │ 2025.03.21 05:24 │
-# => │ Asia/Yekaterinburg │ 2025.03.21 07:24 │
+# => │ UTC                │ 2025.03.22 01:34 │
+# => │ CET                │ 2025.03.22 02:34 │
+# => │ Europe/Moscow      │ 2025.03.22 04:34 │
+# => │ Asia/Yekaterinburg │ 2025.03.22 06:34 │
 # => ╰────────Zone────────┴───────Time───────╯
 ```
