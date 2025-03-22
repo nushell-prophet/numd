@@ -24,82 +24,68 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
-$original_md_table | table -e
+$original_md_table | table -e --width 120
 ```
 
 Output:
 
 ```
-# => ╭─block_index─┬────row_type────┬─────────line──────────┬─...─╮
-# => │           0 │ text           │ ╭───────────────────╮ │ ... │
-# => │             │                │ │ # This is a simpl │ │     │
-# => │             │                │ │ e markdown exampl │ │     │
-# => │             │                │ │ e                 │ │     │
-# => │             │                │ │                   │ │     │
-# => │             │                │ │ ## Example 1      │ │     │
-# => │             │                │ │                   │ │     │
-# => │             │                │ │ the block below w │ │     │
-# => │             │                │ │ ill be executed a │ │     │
-# => │             │                │ │ s it is, but won' │ │     │
-# => │             │                │ │ t yield any outpu │ │     │
-# => │             │                │ │ t                 │ │     │
-# => │             │                │ │                   │ │     │
-# => │             │                │ ╰───────────────────╯ │     │
-# => │           1 │ ```nu          │ ╭───────────────────╮ │ ... │
-# => │             │                │ │ ```nu             │ │     │
-# => │             │                │ │ let $var1 = 'foo' │ │     │
-# => │             │                │ │ ```               │ │     │
-# => │             │                │ ╰───────────────────╯ │     │
-# => │           2 │ text           │ ╭──────────────╮      │ ... │
-# => │             │                │ │              │      │     │
-# => │             │                │ │ ## Example 2 │      │     │
-# => │             │                │ │              │      │     │
-# => │             │                │ ╰──────────────╯      │     │
-# => │           3 │ ```nu          │ ╭───────────────────╮ │ ... │
-# => │             │                │ │ ```nu             │ │     │
-# => │             │                │ │ # This block will │ │     │
-# => │             │                │ │  produce some out │ │     │
-# => │             │                │ │ put in a separate │ │     │
-# => │             │                │ │  block            │ │     │
-# => │             │                │ │ $var1 | path join │ │     │
-# => │             │                │ │  'baz' 'bar'      │ │     │
-# => │             │                │ │ ```               │ │     │
-# => │             │                │ ╰───────────────────╯ │     │
-# => │           4 │ ```output-numd │ ╭──────────────────╮  │ ... │
-# => │             │                │ │ ```output-numd   │  │     │
-# => │             │                │ │ # => foo/baz/bar │  │     │
-# => │             │                │ │ ```              │  │     │
-# => │             │                │ ╰──────────────────╯  │     │
-# => │           5 │ text           │ ╭──────────────╮      │ ... │
-# => │             │                │ │              │      │     │
-# => │             │                │ │ ## Example 3 │      │     │
-# => │             │                │ │              │      │     │
-# => │             │                │ ╰──────────────╯      │     │
-# => │           6 │ ```nu          │ ╭───────────────────╮ │ ... │
-# => │             │                │ │ ```nu             │ │     │
-# => │             │                │ │ # This block will │ │     │
-# => │             │                │ │  output results i │ │     │
-# => │             │                │ │ nline             │ │     │
-# => │             │                │ │ > whoami          │ │     │
-# => │             │                │ │ # => user         │ │     │
-# => │             │                │ │ > 2 + 2           │ │     │
-# => │             │                │ │ # => 4            │ │     │
-# => │             │                │ │ ```               │ │     │
-# => │             │                │ ╰───────────────────╯ │     │
-# => │           7 │ text           │ ╭──────────────╮      │ ... │
-# => │             │                │ │              │      │     │
-# => │             │                │ │ ## Example 4 │      │     │
-# => │             │                │ │              │      │     │
-# => │             │                │ ╰──────────────╯      │     │
-# => │           8 │ ```            │ ╭───────────────────╮ │ ... │
-# => │             │                │ │ ```               │ │     │
-# => │             │                │ │ # This block does │ │     │
-# => │             │                │ │ n't have a langua │ │     │
-# => │             │                │ │ ge identifier in  │ │     │
-# => │             │                │ │ the opening fence │ │     │
-# => │             │                │ │ ```               │ │     │
-# => │             │                │ ╰───────────────────╯ │     │
-# => ╰─block_index─┴────row_type────┴─────────line──────────┴─...─╯
+# => ╭─block_index─┬────row_type────┬───────────────────────────────────line────────────────────────────────────┬──action───╮
+# => │           0 │ text           │ ╭───────────────────────────────────────────────────────────────────────╮ │ print-as- │
+# => │             │                │ │ # This is a simple markdown example                                   │ │ it-is     │
+# => │             │                │ │                                                                       │ │           │
+# => │             │                │ │ ## Example 1                                                          │ │           │
+# => │             │                │ │                                                                       │ │           │
+# => │             │                │ │ the block below will be executed as it is, but won't yield any output │ │           │
+# => │             │                │ │                                                                       │ │           │
+# => │             │                │ ╰───────────────────────────────────────────────────────────────────────╯ │           │
+# => │           1 │ ```nu          │ ╭───────────────────╮                                                     │ execute   │
+# => │             │                │ │ ```nu             │                                                     │           │
+# => │             │                │ │ let $var1 = 'foo' │                                                     │           │
+# => │             │                │ │ ```               │                                                     │           │
+# => │             │                │ ╰───────────────────╯                                                     │           │
+# => │           2 │ text           │ ╭──────────────╮                                                          │ print-as- │
+# => │             │                │ │              │                                                          │ it-is     │
+# => │             │                │ │ ## Example 2 │                                                          │           │
+# => │             │                │ │              │                                                          │           │
+# => │             │                │ ╰──────────────╯                                                          │           │
+# => │           3 │ ```nu          │ ╭───────────────────────────────────────────────────────────╮             │ execute   │
+# => │             │                │ │ ```nu                                                     │             │           │
+# => │             │                │ │ # This block will produce some output in a separate block │             │           │
+# => │             │                │ │ $var1 | path join 'baz' 'bar'                             │             │           │
+# => │             │                │ │ ```                                                       │             │           │
+# => │             │                │ ╰───────────────────────────────────────────────────────────╯             │           │
+# => │           4 │ ```output-numd │ ╭──────────────────╮                                                      │ delete    │
+# => │             │                │ │ ```output-numd   │                                                      │           │
+# => │             │                │ │ # => foo/baz/bar │                                                      │           │
+# => │             │                │ │ ```              │                                                      │           │
+# => │             │                │ ╰──────────────────╯                                                      │           │
+# => │           5 │ text           │ ╭──────────────╮                                                          │ print-as- │
+# => │             │                │ │              │                                                          │ it-is     │
+# => │             │                │ │ ## Example 3 │                                                          │           │
+# => │             │                │ │              │                                                          │           │
+# => │             │                │ ╰──────────────╯                                                          │           │
+# => │           6 │ ```nu          │ ╭─────────────────────────────────────────╮                               │ execute   │
+# => │             │                │ │ ```nu                                   │                               │           │
+# => │             │                │ │ # This block will output results inline │                               │           │
+# => │             │                │ │ > whoami                                │                               │           │
+# => │             │                │ │ # => user                               │                               │           │
+# => │             │                │ │                                         │                               │           │
+# => │             │                │ │ > 2 + 2                                 │                               │           │
+# => │             │                │ │ # => 4                                  │                               │           │
+# => │             │                │ │ ```                                     │                               │           │
+# => │             │                │ ╰─────────────────────────────────────────╯                               │           │
+# => │           7 │ text           │ ╭──────────────╮                                                          │ print-as- │
+# => │             │                │ │              │                                                          │ it-is     │
+# => │             │                │ │ ## Example 4 │                                                          │           │
+# => │             │                │ │              │                                                          │           │
+# => │             │                │ ╰──────────────╯                                                          │           │
+# => │           8 │ ```            │ ╭──────────────────────────────────────────────────────────────────────╮  │ print-as- │
+# => │             │                │ │ ```                                                                  │  │ it-is     │
+# => │             │                │ │ # This block doesn't have a language identifier in the opening fence │  │           │
+# => │             │                │ │ ```                                                                  │  │           │
+# => │             │                │ ╰──────────────────────────────────────────────────────────────────────╯  │           │
+# => ╰─block_index─┴────row_type────┴───────────────────────────────────line────────────────────────────────────┴──action───╯
 ```
 
 ## generate-intermediate-script
@@ -144,7 +130,7 @@ Output:
 # => "```\n```output-numd" | print
 # =>
 # => # This block will produce some output in a separate block
-# => $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "```" | print
 # =>
@@ -155,11 +141,11 @@ Output:
 # =>
 # => "> whoami" | nu-highlight | print
 # =>
-# => whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "> 2 + 2" | nu-highlight | print
 # =>
-# => 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+# => 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 # =>
 # => "```" | print
 ```
@@ -193,14 +179,20 @@ Output:
 # => ```
 # => ```output-numd
 # => # => foo/baz/bar
+# =>
+# =>
 # => ```
 # => #code-block-marker-open-6
 # => ```nu
 # => # This block will output results inline
 # => > whoami
 # => # => user
+# =>
+# =>
 # => > 2 + 2
 # => # => 4
+# =>
+# =>
 # => ```
 ```
 
@@ -226,14 +218,17 @@ Output:
 # => ```
 # => ```output-numd
 # => # => foo/baz/bar
+# =>
 # => ```
 # => #code-block-marker-open-6
 # => ```nu
 # => # This block will output results inline
 # => > whoami
 # => # => user
+# =>
 # => > 2 + 2
 # => # => 4
+# =>
 # => ```
 ```
 
@@ -252,8 +247,8 @@ Output:
 # => │ filename         │ simple_markdown.md │
 # => │ nushell_blocks   │ 3                  │
 # => │ levenshtein_dist │ 247                │
-# => │ diff_lines       │ -15 (-42.9%)       │
+# => │ diff_lines       │ -13 (-36.1%)       │
 # => │ diff_words       │ -24 (-31.6%)       │
-# => │ diff_chars       │ -166 (-33.9%)      │
+# => │ diff_chars       │ -164 (-33.4%)      │
 # => ╰──────────────────┴────────────────────╯
 ```

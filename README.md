@@ -85,10 +85,10 @@ By default, `numd` provides basic stats on changes made.
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 52                                │
-# => │ diff_lines       │ +8 (26.7%)                        │
+# => │ levenshtein_dist │ 53                                │
+# => │ diff_lines       │ +9 (30%)                          │
 # => │ diff_words       │ +6 (8.7%)                         │
-# => │ diff_chars       │ +52 (11.9%)                       │
+# => │ diff_chars       │ +53 (12.1%)                       │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -211,10 +211,13 @@ Output:
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
+
 > sys host | get boot_time
 # => Thu Mar 13 10:41:37 2025
+
 > 2 + 2
 # => 4
+
 > git tag | lines | sort -n | last
 # => 0.1.20
 ```
@@ -242,11 +245,19 @@ Testing of the `numd` module itself is done via the `testing` command in `tools.
 
 ```nushell no-run
 > nu tools.nu testing
-╭───────────filename────────────┬─nushell_blocks─┬─levenshtein_dist─┬─diff_lines─┬─diff_words─┬─diff_chars─╮
-│ types_of_data.md              │             31 │                0 │ 0%         │ 0%         │ 0%         │
-│ simple_markdown.md            │              3 │                0 │ 0%         │ 0%         │ 0%         │
-│ numd_commands_explanations.md │              7 │                0 │ 0%         │ 0%         │ 0%         │
-│ working_with_lists.md         │             18 │                0 │ 0%         │ 0%         │ 0%         │
-│ README.md                     │             10 │                0 │ 0%         │ 0%         │ 0%         │
-╰───────────filename────────────┴─nushell_blocks─┴─levenshtein_dist─┴─diff_lines─┴─diff_words─┴─diff_chars─╯
+# => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
+# => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
+# => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
+# => │ types_of_data.md                              │              30 │               204 │ 0%         │ -29 (-1.1%)  │ ... │
+# => │ working_with_lists.md                         │              20 │                 4 │ 0%         │ 0%           │ ... │
+# => │ numd_commands_explanations.md                 │               6 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_markdown.md                            │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ error-with-try.md                             │               1 │                13 │ -1 (-4.3%) │ 0%           │ ... │
+# => │ simple_markdown_first_block.md                │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ raw_strings_test.md                           │               2 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_nu_table.md                            │               3 │                 0 │ 0%         │ 0%           │ ... │
+# => │ simple_nu_table_customized_width20.md         │               3 │               458 │ 0%         │ -42 (-23.7%) │ ... │
+# => │ simple_nu_table_customized_example_config.md  │               3 │                56 │ 0%         │ -4 (-2.3%)   │ ... │
+# => │ README.md                                     │               9 │                 0 │ 0%         │ 0%           │ ... │
+# => ╰───────────────────────────────────────────────┴─────────────────┴───────────────────┴────────────┴──────────────┴─────╯
 ```

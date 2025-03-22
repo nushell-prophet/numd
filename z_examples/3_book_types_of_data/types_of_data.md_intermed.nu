@@ -15,7 +15,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nushell" | print
 "> 42 | describe" | nu-highlight | print
 
-42 | describe | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+42 | describe | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -23,7 +23,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nushell" | print
 "> \"-5\" | into int" | nu-highlight | print
 
-"-5" | into int | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+"-5" | into int | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -31,7 +31,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nushell" | print
 "> \"1.2\" | into float" | nu-highlight | print
 
-"1.2" | into float | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+"1.2" | into float | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -43,7 +43,7 @@ let mybool = 2 > 1
 
 "> $mybool" | nu-highlight | print
 
-$mybool | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+$mybool | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> let mybool = ($nu.home-path | path exists)" | nu-highlight | print
 
@@ -51,7 +51,7 @@ let mybool = ($nu.home-path | path exists)
 
 "> $mybool" | nu-highlight | print
 
-$mybool | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+$mybool | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -59,7 +59,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> 3.14day" | nu-highlight | print
 
-3.14day | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+3.14day | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -67,7 +67,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> 30day / 1sec  # How many seconds in 30 days?" | nu-highlight | print
 
-30day / 1sec | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+30day / 1sec | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -75,15 +75,15 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> 1Gb / 1b" | nu-highlight | print
 
-1Gb / 1b | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+1Gb / 1b | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> 1Gib / 1b" | nu-highlight | print
 
-1Gib / 1b | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+1Gib / 1b | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> (1Gib / 1b) == 2 ** 30" | nu-highlight | print
 
-(1Gib / 1b) == 2 ** 30 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+(1Gib / 1b) == 2 ** 30 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -91,15 +91,15 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> 0x[1F FF]  # Hexadecimal" | nu-highlight | print
 
-0x[1F FF] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+0x[1F FF] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> 0b[1 1010] # Binary" | nu-highlight | print
 
-0b[1 1010] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+0b[1 1010] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> 0o[377]    # Octal" | nu-highlight | print
 
-0o[377] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+0o[377] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -107,7 +107,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> {name: sam rank: 10}" | nu-highlight | print
 
-{name: sam rank: 10} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{name: sam rank: 10} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -115,7 +115,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> {x:3 y:1} | insert z 0" | nu-highlight | print
 
-{x:3 y:1} | insert z 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{x:3 y:1} | insert z 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -123,7 +123,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> {name: sam, rank: 10} | transpose key value" | nu-highlight | print
 
-{name: sam, rank: 10} | transpose key value | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{name: sam, rank: 10} | transpose key value | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -131,7 +131,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> {x:12 y:4}.x" | nu-highlight | print
 
-{x:12 y:4}.x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{x:12 y:4}.x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -139,7 +139,7 @@ $mybool | table --width 120 | default '' | into string | lines | each {$'# => ($
 ```nushell" | print
 "> {\"1\":true \" \":false}.\" \"" | nu-highlight | print
 
-{"1":true " ":false}." " | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{"1":true " ":false}." " | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -151,7 +151,7 @@ let data = { name: alice, age: 50 }
 
 "> { ...$data, hobby: cricket }" | nu-highlight | print
 
-{ ...$data, hobby: cricket } | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+{ ...$data, hobby: cricket } | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -159,7 +159,7 @@ let data = { name: alice, age: 50 }
 ```nushell" | print
 "> [sam fred george]" | nu-highlight | print
 
-[sam fred george] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[sam fred george] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -167,7 +167,7 @@ let data = { name: alice, age: 50 }
 ```nushell" | print
 "> [bell book candle] | where ($it =~ 'b')" | nu-highlight | print
 
-[bell book candle] | where ($it =~ 'b') | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[bell book candle] | where ($it =~ 'b') | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -175,7 +175,7 @@ let data = { name: alice, age: 50 }
 ```nushell" | print
 "> [a b c].1" | nu-highlight | print
 
-[a b c].1 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[a b c].1 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -183,7 +183,7 @@ let data = { name: alice, age: 50 }
 ```nushell" | print
 "> [a b c d e f] | slice 1..3" | nu-highlight | print
 
-[a b c d e f] | slice 1..3 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[a b c d e f] | slice 1..3 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -195,7 +195,7 @@ let x = [1 2]
 
 "> [...$x 3 ...(4..7 | take 2)]" | nu-highlight | print
 
-[...$x 3 ...(4..7 | take 2)] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[...$x 3 ...(4..7 | take 2)] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -203,7 +203,7 @@ let x = [1 2]
 ```nushell" | print
 "> [[column1, column2]; [Value1, Value2] [Value3, Value4]]" | nu-highlight | print
 
-[[column1, column2]; [Value1, Value2] [Value3, Value4]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[[column1, column2]; [Value1, Value2] [Value3, Value4]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -211,7 +211,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{name: sam, rank: 10}, {name: bob, rank: 7}]" | nu-highlight | print
 
-[{name: sam, rank: 10}, {name: bob, rank: 7}] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{name: sam, rank: 10}, {name: bob, rank: 7}] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -219,7 +219,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{x:12, y:5}, {x:3, y:6}] | get 0" | nu-highlight | print
 
-[{x:12, y:5}, {x:3, y:6}] | get 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{x:12, y:5}, {x:3, y:6}] | get 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -227,7 +227,7 @@ let x = [1 2]
 ```nushell" | print
 "> [[x,y];[12,5],[3,6]] | get 0" | nu-highlight | print
 
-[[x,y];[12,5],[3,6]] | get 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[[x,y];[12,5],[3,6]] | get 0 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -235,7 +235,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{x:12 y:5} {x:4 y:7} {x:2 y:2}].x" | nu-highlight | print
 
-[{x:12 y:5} {x:4 y:7} {x:2 y:2}].x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{x:12 y:5} {x:4 y:7} {x:2 y:2}].x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -243,7 +243,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z" | nu-highlight | print
 
-[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select y z | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -251,7 +251,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2" | nu-highlight | print
 
-[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{x:0 y:5 z:1} {x:4 y:7 z:3} {x:2 y:2 z:0}] | select 1 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -259,7 +259,7 @@ let x = [1 2]
 ```nushell" | print
 "> [{foo: 123}, {}].foo?" | nu-highlight | print
 
-[{foo: 123}, {}].foo? | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+[{foo: 123}, {}].foo? | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -273,7 +273,7 @@ do $greet \"Julian\"" | nu-highlight | print
 
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
-do $greet "Julian" | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+do $greet "Julian" | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -291,7 +291,7 @@ mut x = 1
 if true {
     $x += 1000
 }
-print $x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+print $x | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
 
@@ -299,10 +299,10 @@ print $x | table --width 120 | default '' | into string | lines | each {$'# => (
 ```nushell try,new-instance" | print
 "> [{a:1 b:2} {b:1}]" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}]" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}]" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> [{a:1 b:2} {b:1}].1.a" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}].1.a" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | print; print ''
+/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}].1.a" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print
