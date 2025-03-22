@@ -694,7 +694,7 @@ export def create-indented-output [
     --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
-    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\)"
+    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \"\\n\""
 }
 
 # Generate a print statement for capturing command output.
