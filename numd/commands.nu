@@ -26,8 +26,6 @@ export def run [
     | toggle-output-fences # should be unnecessary for new files
     | find-code-blocks
 
-    kv-catch original_md_table $original_md_table
-
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
     let intermediate_script_path = $save_intermed_script
@@ -36,7 +34,6 @@ export def run [
     # which will only work if we execute the intermediate script from the same folder.
 
     decortate-original-code-blocks $original_md_table
-    | kv-catch -p decortate-original-code-blocks
     | generate-intermediate-script
     | save -f $intermediate_script_path
 
@@ -49,9 +46,7 @@ export def run [
     } else { }
     | str replace -ar "\n{2,}```\n" "\n```\n"
     | lines
-    | kv-catch -p before-extract-block-index
     | extract-block-index
-    | kv-catch -p extract-block-index
 
     let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
@@ -843,22 +838,4 @@ export def --env load-config [
 # 20241128_222140
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
-}
-
-# Helper command to check if `$env.kv-catch == true` to set kv var
-def kv-catch [
-    key
-    value?
-    -p # pass further
-] {
-    let value = if $value == null { $in } else { $value }
-
-    if $env.kv?.debug-catch? == true {
-        let modified_key = $env.kv?.debug-tag?
-        | if $in != null { $'($key)_($in)' } else { $key }
-
-        kv set $modified_key $value
-    }
-
-    if $p { $value }
 }
