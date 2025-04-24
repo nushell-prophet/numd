@@ -19,7 +19,7 @@ export def run [
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
     | if $nu.os-info.family == windows {
-        str replace --all --regex (char crlf) "\n"
+        str replace --all (char crlf) "\n"
     } else { }
 
     let original_md_table = $original_md
