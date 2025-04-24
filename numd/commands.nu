@@ -1,4 +1,3 @@
-use kv # I use kv here for catching real data structures for test cases
 use std/iter scan
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
