@@ -544,7 +544,7 @@ export def convert-short-options [
     let options_dict = list-code-options
 
     $options_dict
-    | get --ignore-errors --sensitive $option
+    | get --ignore-errors $option
     | default $option
     | if $in not-in ($options_dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
