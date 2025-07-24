@@ -86,7 +86,7 @@ By default, `numd` provides basic stats on changes made.
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
 # => │ levenshtein_dist │ 53                                │
-# => │ diff_lines       │ +9 (30%)                          │
+# => │ diff_lines       │ +9 (30.0%)                        │
 # => │ diff_words       │ +6 (8.7%)                         │
 # => │ diff_chars       │ +53 (12.1%)                       │
 # => ╰──────────────────┴───────────────────────────────────╯
@@ -213,7 +213,7 @@ Output:
 # => ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-# => Thu Mar 13 10:41:37 2025
+# => Mon Jul 14 17:03:27 2025
 
 > 2 + 2
 # => 4
