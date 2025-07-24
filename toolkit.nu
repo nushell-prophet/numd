@@ -1,9 +1,9 @@
 const numdinternals = ([numd commands.nu] | path join)
 use $numdinternals [ modify-path ]
 
-def main [] { }
+export def main [] { }
 
-def 'main testing' [] {
+export def 'main testing' [] {
     use numd
 
     # path join is used for windows compatability
@@ -54,7 +54,7 @@ def 'main testing' [] {
     )
 }
 
-def 'main release' [] {
+export def 'main release' [] {
     let description = gh repo view --json description | from json | get description
     let tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 { $in + 1 } | str join '.'
 
