@@ -3,7 +3,7 @@
 
 const init_numd_pwd_const = '/Users/user/git/numd'
 
-# numd config loaded from `/Users/user/git/numd/numd_config_example1.yaml`
+# numd config loaded from `numd_config_example1.yaml`
 
 $env.config.footer_mode = 'always';
 $env.config.table = {mode: rounded, index_mode: never,

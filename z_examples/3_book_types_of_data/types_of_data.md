@@ -116,7 +116,7 @@ You can make fractional durations:
 
 ```nushell
 > 3.14day
-# => 3day 3hr 21min
+# => 3day 3hr 21min 36sec
 ```
 
 And you can do calculations with durations:
