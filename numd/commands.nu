@@ -236,7 +236,7 @@ export def 'parse-help' [
         | update Description ($input.Description | take until {|line| $line == '' } | append '')
         | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == '' } | skip) }
     } else { }
-    | if $sections == null { } else { select -i ...$sections }
+    | if $sections == null { } else { select -o ...$sections }
     | if $record {
         items {|k v|
             {$k: ($v | str join (char nl))}
@@ -365,7 +365,7 @@ export def decortate-original-code-blocks [
 
 # Generate an intermediate script from a table of classified markdown code blocks.
 export def generate-intermediate-script []: table -> string {
-    get code -i
+    get code -o
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
         | if $env.numd.config-path? != null {
@@ -544,7 +544,7 @@ export def convert-short-options [
     let options_dict = list-code-options
 
     $options_dict
-    | get --ignore-errors $option
+    | get --optional $option
     | default $option
     | if $in not-in ($options_dict | values) {
         print $'(ansi red)($in) is unknown option(ansi reset)'
