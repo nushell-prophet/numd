@@ -150,6 +150,7 @@ export def --env 'capture start' [
         let command = history | last | get command
 
         $input
+        | default ''
         | if (term size).columns >= 100 { table -e } else { table }
         | into string
         | ansi strip
