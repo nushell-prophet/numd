@@ -7,4 +7,4 @@ export use commands.nu [
     parse-help
 ]
 
-export use parse.nu [ 'from md' ]
+export use parse.nu [ 'from md' 'to md' ]

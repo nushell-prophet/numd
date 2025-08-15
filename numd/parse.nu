@@ -10,3 +10,16 @@ export def 'from md' [] {
 
     $yaml | insert content $list.2
 }
+
+alias core_to_md = to md
+
+export def 'to md' [] {
+    let input = $in
+
+    let frontmatter = $input | reject content | to yaml
+
+    ''
+    | append $frontmatter
+    | append $input.content
+    | str join "---\n"
+}
