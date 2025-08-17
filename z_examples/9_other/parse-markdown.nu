@@ -25,3 +25,4 @@ open nushell_readme.md
     }
     $line | insert in_code $new_state.in_code
 }
+| update in_code {|i| if $i.code? == '```' { true } else $i.in_code? }
