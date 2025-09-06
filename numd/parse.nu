@@ -16,10 +16,10 @@ alias core_to_md = to md
 export def 'to md' [] {
     let input = $in
 
-    let frontmatter = $input | reject content | to yaml
+    let frontmatter = $input | reject --optional content | to yaml
 
     ''
     | append $frontmatter
-    | append $input.content
+    | append ($input.content? | default '')
     | str join "---\n"
 }
