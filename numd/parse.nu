@@ -22,6 +22,8 @@ alias core_to_md = to md
 export def 'to md' []: record -> string {
     let input = $in
 
+    $input | columns | if $in == ['content'] { return $input.content }
+
     let frontmatter = $input | reject --optional content | to yaml
 
     ''
