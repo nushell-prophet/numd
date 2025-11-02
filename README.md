@@ -221,7 +221,7 @@ Output:
 # => 4
 
 > git tag | lines | sort -n | last
-# => 0.1.20
+# => 0.1.21
 ```
 
 ## Real fight examples to try
@@ -246,7 +246,7 @@ Nushell Markdown documents used together with Git could often serve as a conveni
 Testing of the `numd` module itself is done via the `testing` command in `tools.nu` in the root repository folder: whatever changes are made in the module - it could be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions) . Please, feel free to try it on your own.
 
 ```nushell no-run
-> nu tools.nu testing
+> nu toolkit.nu testing
 # => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
 # => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
 # => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
