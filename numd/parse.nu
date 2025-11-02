@@ -9,7 +9,7 @@ export def 'from md' [
 
     let list = $input | split row "---\n" --number 3
 
-    # it means now frontmatter
+    # it means no frontmatter
     if $list.0 != '' { return {content: $input} }
 
     let yaml = $list.1 | from yaml
