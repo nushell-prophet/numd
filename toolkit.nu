@@ -17,7 +17,11 @@ export def 'main testing' [] {
     # I use a long chain of `append` here to obtain a table with statistics on updates upon exit.
 
     # Strip markdown and run main set of .md files in one loop
-    glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
+    glob z_examples/*/*.md --exclude [
+        */*_with_no_output*
+        */*_customized*
+        */9_parse_frontmatter
+    ]
     | par-each --keep-order {|file|
         # Strip markdown
         let strip_markdown_path = $file
