@@ -20,7 +20,7 @@ export def 'main testing' [] {
     glob z_examples/*/*.md --exclude [
         */*_with_no_output*
         */*_customized*
-        */9_parse_frontmatter
+        */8_parse_frontmatter
     ]
     | par-each --keep-order {|file|
         # Strip markdown
@@ -64,7 +64,7 @@ def update-dotnu-embeds [] {
     | is-empty
     | if $in { return }
 
-    dotnu embeds-update z_examples/9_parse_frontmatter/dotnu-test.nu
+    dotnu embeds-update z_examples/8_parse_frontmatter/dotnu-test.nu
 }
 
 export def 'main release' [] {
