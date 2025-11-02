@@ -1,6 +1,6 @@
 # Parse frontmatter from markdown, output record
-export def 'from md' [
-    file?: path # path to a markdown file. Might be omitted if markdown content is piped in
+export def 'parse-frontmatter' [
+    file?: path # path to a markdow file. Might be ommited if markdown content is piped in
 ]: [string -> record nothing -> record] {
     let input = if $file == null { } else { open $file }
     | if $in != null { } else {
@@ -19,9 +19,9 @@ export def 'from md' [
 
 alias core_to_md = to md
 
-# produce markdown from record. All fields except `content` go to frontmatter.
+# produce markdown from record. All fields except of `content` go to frontmatter.
 # And content becomes the body
-export def 'to md' []: record -> string {
+export def 'to md-with-frontmatter' []: record -> string {
     let input = $in
 
     $input | columns | if $in == ['content'] { return $input.content }
