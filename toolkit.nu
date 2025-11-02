@@ -54,6 +54,15 @@ export def 'main testing' [] {
     )
 }
 
+def update-dotnu-embeds [] {
+    scope modules
+    | where name == 'dotnu'
+    | is-empty
+    | if $in { return }
+
+    dotnu embeds-update z_examples/9_parse_frontmatter/dotnu-test.nu
+}
+
 export def 'main release' [] {
     let description = gh repo view --json description | from json | get description
     let tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 { $in + 1 } | str join '.'
