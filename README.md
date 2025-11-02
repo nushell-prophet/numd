@@ -35,6 +35,7 @@ Experienced nushell users can understand the logic better by looking at [example
 # =>   > run {flags} <file>
 # =>
 # => Flags:
+# =>   -h, --help: Display the help message for this command
 # =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
 # =>   --print-block-results: print blocks one by one as they are executed
 # =>   --echo: output resulting markdown to the terminal
@@ -47,7 +48,6 @@ Experienced nushell users can understand the logic better by looking at [example
 # =>   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
 # =>   --table-width <int>: set the `table --width` option value
 # =>   --config-path <path>: path to a config file (default: '')
-# =>   -h, --help: Display the help message for this command
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -138,10 +138,10 @@ Output:
 # =>   > clear-outputs {flags} <file>
 # =>
 # => Flags:
+# =>   -h, --help: Display the help message for this command
 # =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
 # =>   --echo: output resulting markdown to the terminal instead of writing to file
 # =>   --strip-markdown: keep only Nushell script, strip all markdown tags
-# =>   -h, --help: Display the help message for this command
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing numd output to be cleared
@@ -166,8 +166,8 @@ Output:
 # =>   > capture start {flags} (file)
 # =>
 # => Flags:
-# =>   --separate: don't use `>` notation, create separate blocks for each pipeline
 # =>   -h, --help: Display the help message for this command
+# =>   --separate: don't use `>` notation, create separate blocks for each pipeline
 # =>
 # => Parameters:
 # =>   file <path>:  (optional, default: 'numd_capture.md')
@@ -208,12 +208,14 @@ Output:
 # => │ z_examples/5_simple_nu_table            │ dir  │
 # => │ z_examples/6_edge_cases                 │ dir  │
 # => │ z_examples/7_image_output               │ dir  │
+# => │ z_examples/8_parse_frontmatter          │ dir  │
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
+# => │ z_examples/9_other                      │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-# => Mon Jul 14 17:03:27 2025
+# => Mon Oct 27 12:21:08 2025
 
 > 2 + 2
 # => 4

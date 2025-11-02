@@ -6,6 +6,9 @@ export def main [] { }
 export def 'main testing' [] {
     use numd
 
+    # will be executed if dotnu-embeds-are-available
+    update-dotnu-embeds
+
     # path join is used for windows compatability
     let path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
@@ -17,7 +20,11 @@ export def 'main testing' [] {
     # I use a long chain of `append` here to obtain a table with statistics on updates upon exit.
 
     # Strip markdown and run main set of .md files in one loop
-    glob z_examples/*/*.md --exclude [*/*_with_no_output* */*_customized*]
+    glob z_examples/*/*.md --exclude [
+        */*_with_no_output*
+        */*_customized*
+        */8_parse_frontmatter
+    ]
     | par-each --keep-order {|file|
         # Strip markdown
         let strip_markdown_path = $file
@@ -52,6 +59,15 @@ export def 'main testing' [] {
     | append (
         numd run README.md --no-backup --config-path numd_config_example1.yaml
     )
+}
+
+def update-dotnu-embeds [] {
+    scope modules
+    | where name == 'dotnu'
+    | is-empty
+    | if $in { return }
+
+    dotnu embeds-update z_examples/8_parse_frontmatter/dotnu-test.nu
 }
 
 export def 'main release' [] {
