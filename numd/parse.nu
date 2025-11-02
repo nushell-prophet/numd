@@ -1,15 +1,14 @@
 export def 'from md' [
-    file?
+    file?: path # path to a markdow file. Might be ommited if markdown content is piped in
 ]: [string -> record nothing -> record] {
-    let input = if $file == null { } else { $file }
-    | if ($in | path exists) { open } else { }
+    let input = if $file == null { } else { open $file }
     | if $in != null { } else {
         error make {msg: 'no path or content of file were provided'}
     }
 
     let list = $input | split row "---\n" --number 3
 
-    # it means no frontmatter
+    # it means there is no frontmatter
     if $list.0 != '' { return {content: $input} }
 
     let yaml = $list.1 | from yaml
