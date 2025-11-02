@@ -6,6 +6,9 @@ export def main [] { }
 export def 'main testing' [] {
     use numd
 
+    # will be executed if dotnu-embeds-are-available
+    update-dotnu-embeds
+
     # path join is used for windows compatability
     let path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
