@@ -214,7 +214,7 @@ Output:
 # => ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-# => Fri Dec  5 00:43:02 2025
+# => Fri Dec  5 01:08:37 2025
 
 > 2 + 2
 # => 4
@@ -242,10 +242,29 @@ Output:
 
 Nushell Markdown documents used together with Git could often serve as a convenient way to test custom and built-in Nushell commands.
 
-Testing of the `numd` module itself is done via the `testing` command in `tools.nu` in the root repository folder: whatever changes are made in the module - it could be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions) . Please, feel free to try it on your own.
+Testing of the `numd` module is done via `toolkit.nu`:
 
 ```nushell no-run
+# Run all tests (unit + integration)
 > nu toolkit.nu testing
+
+# Run only unit tests (uses nutest framework)
+> nu toolkit.nu testing-unit
+
+# Run only integration tests (executes example markdown files)
+> nu toolkit.nu testing-integration
+```
+
+### Unit tests
+
+Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framework to test internal functions like `find-code-blocks`, `match-action`, `extract-fence-options`, etc.
+
+### Integration tests
+
+Integration tests run all example files in `z_examples/` through numd and report changes via Levenshtein distance. Whatever changes are made in the module - it can be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions).
+
+```nushell no-run
+> nu toolkit.nu testing-integration
 # => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
 # => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
 # => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
