@@ -3,7 +3,29 @@ use $numdinternals [ modify-path ]
 
 export def main [] { }
 
+# Run all tests (unit tests + integration tests)
 export def 'main testing' [
+    --json # output results as JSON for external consumption
+] {
+    let unit = main testing-unit
+    let integration = main testing-integration
+
+    {unit: $unit integration: $integration}
+    | if $json { to json } else { }
+}
+
+# Run unit tests using nutest
+export def 'main testing-unit' [
+    --json # output results as JSON for external consumption
+] {
+    use ../nutest/nutest
+
+    nutest run-tests --path tests/ --returns summary --display terminal
+    | if $json { to json } else { }
+}
+
+# Run integration tests (execute example markdown files)
+export def 'main testing-integration' [
     --json # output results as JSON for external consumption
 ] {
     use numd
