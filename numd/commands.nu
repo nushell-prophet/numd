@@ -190,9 +190,9 @@ export def --env 'capture stop' []: nothing -> nothing {
 
 # Beautify and adapt the standard `--help` for markdown output
 export def 'parse-help' [
-    --sections: list
+    --sections: list<string>
     --record
-] {
+]: string -> any {
     let help_lines = split row '======================'
     | first # quick fix for https://github.com/nushell/nushell/issues/13470
     | ansi strip
@@ -322,7 +322,7 @@ export def match-action [
 #
 # > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
-    $fence_options
+    fence_options: list<string>
     --whole_block
 ]: string -> string {
     let code_content = $in
@@ -384,8 +384,8 @@ export def generate-intermediate-script []: table -> string {
 }
 
 export def execute-block-lines [
-    $fence_options
-]: list -> list {
+    fence_options: list<string>
+]: list<string> -> list<string> {
     skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {
         # find blocks with no `>` symbol to execute them entirely
@@ -540,7 +540,7 @@ export def list-code-options [
 # > convert-short-options 'O'
 # no-output
 export def convert-short-options [
-    $option
+    option: string
 ]: nothing -> string {
     let options_dict = list-code-options
 
@@ -634,8 +634,8 @@ export def remove-comments-plus []: string -> string {
 # > get-last-span '"abc"'
 # "abc"
 export def get-last-span [
-    $command: string
-] {
+    command: string
+]: nothing -> string {
     let command = $command | str trim -c "\n" | str trim
     let spans = ast $command --json
     | get block
@@ -744,9 +744,9 @@ export def generate-print-lines []: list -> string {
 }
 
 export def generate-tags [
-    $block_number
-    $fence
-]: list -> string {
+    block_number: int
+    fence: string
+]: list<string> -> string {
     let input = $in
 
     mark-code-block $block_number
@@ -807,9 +807,9 @@ export def create-file-backup [
 
 export def --env load-config [
     path: path # path to .yaml numd config file
-    --prepend_code: any
-    --table_width: any
-] {
+    --prepend_code: string
+    --table_width: int
+]: nothing -> nothing {
     $env.numd = (
         [
             [key value];
