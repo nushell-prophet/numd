@@ -207,7 +207,6 @@ Output:
 # => │ z_examples/4_book_working_with_lists    │ dir  │
 # => │ z_examples/5_simple_nu_table            │ dir  │
 # => │ z_examples/6_edge_cases                 │ dir  │
-# => │ z_examples/7_image_output               │ dir  │
 # => │ z_examples/8_parse_frontmatter          │ dir  │
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
@@ -215,7 +214,7 @@ Output:
 # => ╰──────────────────name───────────────────┴─type─╯
 
 > sys host | get boot_time
-# => Mon Oct 27 12:21:08 2025
+# => Fri Dec  5 00:43:02 2025
 
 > 2 + 2
 # => 4
