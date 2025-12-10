@@ -261,7 +261,7 @@ export def 'parse-help' [
 ###
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
-export def find-code-blocks []: string -> table {
+export def find-code-blocks []: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
     let file_lines = $in | lines
     let row_type = $file_lines
     | each {
@@ -353,8 +353,8 @@ export def create-execution-code [
 
 # generates additional service code necessary for execution and capturing results, while preserving the original code.
 export def decortate-original-code-blocks [
-    $md_classified: table
-]: nothing -> table {
+    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string>
+]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string, code: string> {
     $md_classified
     | where action == 'execute'
     | insert code {|i|
@@ -365,7 +365,7 @@ export def decortate-original-code-blocks [
 }
 
 # Generate an intermediate script from a table of classified markdown code blocks.
-export def generate-intermediate-script []: table -> string {
+export def generate-intermediate-script []: table<block_index: int, row_type: string, line: list<string>, action: string, code: string> -> string {
     get code -o
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd?.prepend-code?)\n"
@@ -409,7 +409,7 @@ export def execute-block-lines [
 }
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
-export def extract-block-index []: list -> table {
+export def extract-block-index []: list<string> -> table<block_index: int, line: string> {
     let clean_lines = skip until {|x| $x =~ (mark-code-block) }
 
     let block_index = $clean_lines
@@ -441,8 +441,8 @@ export def extract-block-index []: list -> table {
 
 # Assemble the final markdown by merging the original classified markdown with parsed results of the generated script.
 export def merge-markdown [
-    $md_classified: table
-    $nu_res_with_block_index: table
+    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string>
+    nu_res_with_block_index: table<block_index: int, line: string>
 ]: nothing -> string {
     $md_classified
     | where action == 'print-as-it-is'
@@ -737,7 +737,7 @@ export def create-fence-output []: string -> string {
     $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
-export def generate-print-lines []: list -> string {
+export def generate-print-lines []: list<string> -> string {
     str join (char nl)
     | escape-special-characters-and-quote
     | $'($in) | print'
@@ -765,7 +765,7 @@ export def generate-tags [
 # │ 0 │ no-run │
 # │ 1 │ try    │
 # ╰───┴────────╯
-export def extract-fence-options []: string -> list {
+export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
