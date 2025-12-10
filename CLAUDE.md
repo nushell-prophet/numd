@@ -8,10 +8,7 @@ numd is a Nushell module for creating reproducible Markdown documents. It execut
 
 ## Common Commands
 
-```bash
-# Install the module via nupm
-nupm install --force --path .
-
+```nushell
 # Run numd on a markdown file (updates file with execution results)
 use numd; numd run README.md
 
@@ -19,7 +16,7 @@ use numd; numd run README.md
 use numd; numd run README.md --no-save --echo
 
 # Run tests (executes all example files and reports changes)
-nu toolkit.nu testing
+nu toolkit.nu testing --json
 
 # Clear outputs from a markdown file
 use numd; numd clear-outputs path/to/file.md
@@ -74,6 +71,7 @@ Example files serve as integration tests - use both the Levenshtein stats and `g
 nu toolkit.nu testing --json
 
 # Check actual file changes after testing
+# Seing that there are no changes in files with no dynamic content means the test passed correctly
 git diff
 ```
 
@@ -81,7 +79,7 @@ git diff
 
 Some files legitimately differ on each run due to:
 - **Dynamic content**: `sys host | get boot_time` in README.md, timezone examples in `working_with_lists.md`
-- **Nushell version changes**: Error message formatting, table truncation characters (`...` vs `…`)
+- **Nushell version changes**: Error message formatting, etc
 
 A zero `levenshtein_dist` for most files + expected diffs in time-dependent files = passing tests.
 
