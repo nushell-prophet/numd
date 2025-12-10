@@ -67,7 +67,23 @@ The `toolkit.nu testing` command:
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
 3. Reports Levenshtein distance and diff stats to detect changes
 
-Example files serve as integration tests - any breaking changes show up as diffs.
+Example files serve as integration tests - use both the Levenshtein stats and `git diff` to verify changes.
+
+```bash
+# Run tests with JSON output (for external tools/CI)
+nu toolkit.nu testing --json
+
+# Check actual file changes after testing
+git diff
+```
+
+### Expected Non-Zero Diffs
+
+Some files legitimately differ on each run due to:
+- **Dynamic content**: `sys host | get boot_time` in README.md, timezone examples in `working_with_lists.md`
+- **Nushell version changes**: Error message formatting, table truncation characters (`...` vs `…`)
+
+A zero `levenshtein_dist` for most files + expected diffs in time-dependent files = passing tests.
 
 ## Configuration
 
