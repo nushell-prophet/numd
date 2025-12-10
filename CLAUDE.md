@@ -71,7 +71,6 @@ Example files serve as integration tests - use both the Levenshtein stats and `g
 nu toolkit.nu testing --json
 
 # Check actual file changes after testing
-# Seing that there are no changes in files with no dynamic content means the test passed correctly
 git diff
 ```
 
