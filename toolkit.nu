@@ -3,7 +3,9 @@ use $numdinternals [ modify-path ]
 
 export def main [] { }
 
-export def 'main testing' [] {
+export def 'main testing' [
+    --json # output results as JSON for external consumption
+] {
     use numd
 
     # will be executed if dotnu-embeds-are-available
@@ -59,6 +61,7 @@ export def 'main testing' [] {
     | append (
         numd run README.md --no-backup --config-path numd_config_example1.yaml
     )
+    | if $json { to json } else { }
 }
 
 def update-dotnu-embeds [] {
