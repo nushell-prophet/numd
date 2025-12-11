@@ -1,18 +1,83 @@
 ---
-status: draft
+status: in-progress
 created: 20251210-171238
 updated: 20251210-171238
 ---
-Now we have notation,
 
-<selected-text file="/Users/user/git/numd/README.md" lines="24-26">2. In code blocks that do not contain any lines starting with the `>` symbol, `numd` executes the entire code block as is. If the code produces any output, the output is added next to the code block after an empty line, a line with the word `Output:`, and another empty line. The output is enclosed in code fences without a language identifier.
-3. In code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol. It executes or prints those lines one by one, and outputs the results immediately after the executed line.
-</selected-text>
+## Goal: Remove `>` Notation for Command Execution
 
-So I would like to get rid of `>` notation for distinguishing commands to execute.
+### Current Behavior (to be removed)
+- Code blocks **with** `>` prefix: lines starting with `>` or `#` are filtered, executed one-by-one, results output immediately after each line
+- Code blocks **without** `>` prefix: entire block executed as single unit, output appended after block
 
-Numd now should parse the block totaly, execute commands delimited by blocks of double new lines, to put their output (if there are any them into `# =>`-starting lines just after those blocks).
+### New Behavior
+1. **Parse entire block** without `>` notation
+2. **Group commands by double newlines** (blank lines delimit command groups)
+3. **Output results** in `# =>` comment lines immediately after each command group
+4. **`separate-block` option** in fence produces separate output blocks instead of inline comments
+5. **On re-run**: `# =>` lines are stripped and regenerated; plain `#` comments are preserved
 
-And produce separte blocks if there is `separate-block` option in the fence.
+### Example
 
-First, rewrite todo for clarity and ask user for confirmation.
+Input:
+```nushell
+ls | length
+
+ls
+| length
+
+echo "hello"
+```
+
+Output after execution:
+```nushell
+ls | length
+# => 5
+
+ls
+| length
+# => 5
+
+echo "hello"
+# => hello
+```
+
+With `separate-block` fence option, output goes into a separate code fence instead of inline.
+
+## Functions to Modify in `numd/commands.nu`
+
+### Primary Changes
+
+| Function | Lines | Current Role | Change Required |
+|----------|-------|--------------|-----------------|
+| `execute-block-lines` | 386-409 | Detects `>` prefix, branches to line-by-line vs whole-block | Rewrite: split by blank lines, execute each group, insert `# =>` output |
+| `remove-comments-plus` | 611-615 | Strips `>` prefix before execution | Remove `>` stripping logic |
+| `clear-outputs` | 79-121 | Preserves `>` lines, removes `# =>` | Remove `>` preservation, keep `# =>` stripping |
+| `capture start` | 124-172 | Generates `> command` format | Remove `>` notation generation |
+| `create-indented-output` | 688-693 | Generates `# => ` prefix for output | Keep, but adjust calling context |
+
+### Supporting Changes
+
+| Function | Lines | Role | Change |
+|----------|-------|------|--------|
+| `create-execution-code` | ~360-385 | Wraps code for execution | May need adjustment for group-based execution |
+| `decortate-original-code-blocks` | ~320-360 | Calls `execute-block-lines` | Update to pass groups |
+| `create-highlight-command` | ~617-625 | Highlights comment lines | Review if still needed |
+
+### New Code Required
+
+- [ ] Function to split block content by blank lines into command groups
+- [ ] Logic to execute each group and capture output
+- [ ] Insert `# =>` lines after each group in the result
+
+## Implementation Tasks
+
+- [ ] Rewrite `execute-block-lines` for blank-line grouping
+- [ ] Remove `>` stripping from `remove-comments-plus`
+- [ ] Update `clear-outputs` to not preserve `>` lines
+- [ ] Update `capture start` to remove `>` notation generation
+- [ ] Add `separate-block` fence option support
+- [ ] Update README.md documentation
+- [ ] Update example files in `z_examples/`
+- [ ] Add/update unit tests in `tests/test_commands.nu`
+- [ ] Run integration tests and verify
