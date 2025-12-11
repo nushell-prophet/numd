@@ -14,6 +14,7 @@
     # ```nushell
 let mybool = 2 > 1
 $mybool
+
 let mybool = ($nu.home-path | path exists)
 $mybool
 
@@ -28,13 +29,17 @@ $mybool
 
     # ```nushell
 1Gb / 1b
+
 1Gib / 1b
+
 (1Gib / 1b) == 2 ** 30
 
 
     # ```nushell
 0x[1F FF]  # Hexadecimal
+
 0b[1 1010] # Binary
+
 0o[377]    # Octal
 
 
@@ -119,6 +124,7 @@ let x = [1 2]
     # ```nushell
 # Assign a closure to a variable
 let greet = { |name| print $"Hello ($name)"}
+
 do $greet "Julian"
 
 
@@ -127,9 +133,14 @@ mut x = 1
 if true {
     $x += 1000
 }
+
 print $x
+1001
+1001
+1001
 
 
     # ```nushell try,new-instance
 [{a:1 b:2} {b:1}]
+
 [{a:1 b:2} {b:1}].1.a
