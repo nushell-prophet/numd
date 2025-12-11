@@ -7,11 +7,6 @@ let $var1 = 'foo'
 ```nu
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'
-```
-
-Output:
-
-```
 # => foo/baz/bar
 ```
 
@@ -19,9 +14,9 @@ Output:
 
 ```nu
 # This block will output results inline
-> whoami
+whoami
 # => user
 
-> 2 + 2
+2 + 2
 # => 4
 ```

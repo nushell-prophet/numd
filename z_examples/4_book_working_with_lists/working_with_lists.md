@@ -4,7 +4,7 @@
 Lists are equivalent to the individual columns of tables. You can think of a list as essentially being a "one-column table" (with no column name). Thus, any command which operates on a column _also_ operates on a list. For instance, [`where`](/commands/docs/where.md) can be used with lists:
 
 ```nu
-> [bell book candle] | where ($it =~ 'b')
+[bell book candle] | where ($it =~ 'b')
 # => ╭──────╮
 # => │ bell │
 # => │ book │
@@ -28,7 +28,7 @@ Nushell lists are similar to JSON arrays. The same `[ "Item1", "Item2", "Item3" 
 We can [`insert`](/commands/docs/insert.md) values into lists as they flow through the pipeline, for example let's insert the value `10` into the middle of a list:
 
 ```nu
-> [1, 2, 3, 4] | insert 2 10
+[1, 2, 3, 4] | insert 2 10
 # => ╭────╮
 # => │  1 │
 # => │  2 │
@@ -43,7 +43,7 @@ We can [`insert`](/commands/docs/insert.md) values into lists as they flow throu
 We can also use [`update`](/commands/docs/update.md) to replace the 2nd element with the value `10`.
 
 ```nu
-> [1, 2, 3, 4] | update 1 10
+[1, 2, 3, 4] | update 1 10
 # => ╭────╮
 # => │  1 │
 # => │ 10 │
@@ -66,11 +66,6 @@ let colors = ($colors | prepend red)
 let colors = ($colors | append purple)
 let colors = ("black" | append $colors)
 $colors # [black red yellow green purple blue]
-```
-
-Output:
-
-```
 # => ╭────────╮
 # => │ black  │
 # => │ red    │
@@ -87,11 +82,6 @@ let colors = [red yellow green purple]
 let colors = ($colors | skip 1)
 let colors = ($colors | drop 2)
 $colors # [yellow]
-```
-
-Output:
-
-```
 # => ╭────────╮
 # => │ yellow │
 # => ╰────────╯
@@ -103,11 +93,6 @@ We also have [`last`](/commands/docs/last.md) and [`first`](/commands/docs/first
 let colors = [red yellow green purple black magenta]
 let colors = ($colors | last 3)
 $colors # [purple black magenta]
-```
-
-Output:
-
-```
 # => ╭─────────╮
 # => │ purple  │
 # => │ black   │
@@ -121,11 +106,6 @@ And from the beginning of a list,
 let colors = [yellow green purple]
 let colors = ($colors | first 2)
 $colors # [yellow green]
-```
-
-Output:
-
-```
 # => ╭────────╮
 # => │ yellow │
 # => │ green  │
@@ -138,8 +118,8 @@ To append one or more lists together, optionally with values interspersed in bet
 [spread operator](/book/operators#spread-operator) (`...`):
 
 ```nu
-> let x = [1 2]
-> [ ...$x 3 ...(4..7 | take 2) ]
+let x = [1 2]
+[ ...$x 3 ...(4..7 | take 2) ]
 # => ╭───╮
 # => │ 1 │
 # => │ 2 │
@@ -159,14 +139,15 @@ item, but the [`enumerate`](/commands/docs/enumerate.md) filter can be used to p
 let names = [Mark Tami Amanda Jeremy]
 $names | each { |elt| $"Hello, ($elt)!" }
 # Outputs "Hello, Mark!" and three more similar lines.
+# => ╭────────────────╮
+# => │ Hello, Mark!   │
+# => │ Hello, Tami!   │
+# => │ Hello, Amanda! │
+# => │ Hello, Jeremy! │
+# => ╰────────────────╯
 
 $names | enumerate | each { |elt| $"($elt.index + 1) - ($elt.item)" }
 # Outputs "1 - Mark", "2 - Tami", etc.
-```
-
-Output:
-
-```
 # => ╭────────────╮
 # => │ 1 - Mark   │
 # => │ 2 - Tami   │
@@ -191,11 +172,6 @@ In this example, we keep only values higher than `7`.
 ```nu
 let scores = [7 10 8 6 7]
 $scores | where $it > 7 # [10 8]
-```
-
-Output:
-
-```
 # => ╭────╮
 # => │ 10 │
 # => │  8 │
@@ -211,17 +187,9 @@ For example:
 ```nu
 let scores = [3 8 4]
 $"total = ($scores | reduce { |elt, acc| $acc + $elt })" # total = 15
-
 $"total = ($scores | math sum)" # easier approach, same result
-
 $"product = ($scores | reduce --fold 1 { |elt, acc| $acc * $elt })" # product = 96
-
 $scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item } # 0*3 + 1*8 + 2*4 = 16
-```
-
-Output:
-
-```
 # => 16
 ```
 
@@ -238,11 +206,6 @@ For example, the second element in the list below can be accessed with `$names.1
 ```nu
 let names = [Mark Tami Amanda Jeremy]
 $names.1 # gives Tami
-```
-
-Output:
-
-```
 # => Tami
 ```
 
@@ -252,11 +215,6 @@ If the index is in some variable `$index` we can use the `get` command to extrac
 let names = [Mark Tami Amanda Jeremy]
 let index = 1
 $names | get $index # gives Tami
-```
-
-Output:
-
-```
 # => Tami
 ```
 
@@ -269,14 +227,10 @@ It can be used with lists as follows:
 ```nu
 let colors = [red green blue]
 $colors | is-empty # false
+# => false
 
 let colors = []
 $colors | is-empty # true
-```
-
-Output:
-
-```
 # => true
 ```
 
@@ -287,11 +241,6 @@ let colors = [red green blue]
 'blue' in $colors # true
 'yellow' in $colors # false
 'gold' not-in $colors # true
-```
-
-Output:
-
-```
 # => true
 ```
 
@@ -303,21 +252,19 @@ For example:
 let colors = [red green blue]
 # Do any color names end with "e"?
 $colors | any {|elt| $elt | str ends-with "e" } # true
+# => true
 
 # Is the length of any color name less than 3?
 $colors | any {|elt| ($elt | str length) < 3 } # false
+# => false
 
 let scores = [3 8 4]
 # Are any scores greater than 7?
 $scores | any {|elt| $elt > 7 } # true
+# => true
 
 # Are any scores odd?
 $scores | any {|elt| $elt mod 2 == 1 } # true
-```
-
-Output:
-
-```
 # => true
 ```
 
@@ -329,21 +276,19 @@ For example:
 let colors = [red green blue]
 # Do all color names end with "e"?
 $colors | all {|elt| $elt | str ends-with "e" } # false
+# => false
 
 # Is the length of all color names greater than or equal to 3?
 $colors | all {|elt| ($elt | str length) >= 3 } # true
+# => true
 
 let scores = [3 8 4]
 # Are all scores greater than 7?
 $scores | all {|elt| $elt > 7 } # false
+# => false
 
 # Are all scores even?
 $scores | all {|elt| $elt mod 2 == 0 } # false
-```
-
-Output:
-
-```
 # => false
 ```
 
@@ -356,13 +301,16 @@ For example:
 
 ```nu
 [1 [2 3] 4 [5 6]] | flatten # [1 2 3 4 5 6]
+# => ╭───╮
+# => │ 1 │
+# => │ 2 │
+# => │ 3 │
+# => │ 4 │
+# => │ 5 │
+# => │ 6 │
+# => ╰───╯
 
 [[1 2] [3 [4 5 [6 7 8]]]] | flatten | flatten | flatten # [1 2 3 4 5 6 7 8]
-```
-
-Output:
-
-```
 # => ╭───╮
 # => │ 1 │
 # => │ 2 │
@@ -380,14 +328,8 @@ be converted to a separate row with a single column:
 
 ```nu
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
-```
-
-Output:
-
-```
 # => ╭────────Zone────────┬───────Time───────╮
 # => │ UTC                │ 2025.12.11 19:01 │
 # => │ CET                │ 2025.12.11 20:01 │
