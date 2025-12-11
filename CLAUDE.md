@@ -59,20 +59,32 @@ Blocks support options in the infostring (e.g., ` ```nushell try, no-output `):
 
 ## Testing
 
-The `toolkit.nu testing` command:
+```nushell
+# Run all tests (unit + integration)
+nu toolkit.nu testing
+
+# Run only unit tests (nutest-based, tests internal functions)
+nu toolkit.nu testing-unit
+
+# Run only integration tests (executes example markdown files)
+nu toolkit.nu testing-integration
+
+# All commands support --json for CI
+nu toolkit.nu testing --json
+```
+
+### Unit Tests (`tests/`)
+
+Unit tests use [nutest](https://github.com/vyadh/nutest) framework. Tests import internal functions via `use ../numd/commands.nu *` to test parsing and transformation logic directly.
+
+### Integration Tests (`z_examples/`)
+
+The `testing-integration` command:
 1. Runs all example files in `z_examples/` through numd
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
 3. Reports Levenshtein distance and diff stats to detect changes
 
 Example files serve as integration tests - use both the Levenshtein stats and `git diff` to verify changes.
-
-```bash
-# Run tests with JSON output (for external tools/CI)
-nu toolkit.nu testing --json
-
-# Check actual file changes after testing
-git diff
-```
 
 ### Expected Non-Zero Diffs
 
