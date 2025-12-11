@@ -17,7 +17,6 @@
 # =>    : ^^^^^|^^^^^
 # =>    :      `-- Command `lssomething` not found
 # =>    `----
-# =>   help: `lssomething` is neither a Nushell built-in or a known external
-# =>         command
+# =>   help: `lssomething` is neither a Nushell built-in or a known external command
 # =>
 ```

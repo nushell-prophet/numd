@@ -37,7 +37,7 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 1. **`find-code-blocks`**: Parses markdown into a table classifying each block by type (`text`, ` ```nushell `, ` ```output-numd `) and action (`execute`, `print-as-it-is`, `delete`)
 
-2. **`decortate-original-code-blocks`** + **`generate-intermediate-script`**: Transforms executable code blocks into a temporary `.nu` script with markers for output capture
+2. **`decorate-original-code-blocks`** + **`generate-intermediate-script`**: Transforms executable code blocks into a temporary `.nu` script with markers for output capture
 
 3. **`execute-intermediate-script`**: Runs the generated script in a new Nushell instance, capturing stdout
 
