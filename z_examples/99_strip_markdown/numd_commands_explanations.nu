@@ -23,7 +23,7 @@ $original_md_table | table -e --width 120
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-decortate-original-code-blocks $original_md_table
+decorate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
 
