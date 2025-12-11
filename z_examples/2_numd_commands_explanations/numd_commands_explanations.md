@@ -22,6 +22,7 @@ This command is used for parsing initial markdown to detect executable code bloc
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
+
 $original_md_table | table -e --width 120
 # => ╭─block─┬─row_type──┬─────────────────────────────────────line─────────────────────────────────────┬──────action───────╮
 # => │     0 │ text      │ ╭───────────────────────────────────────────────────────────────────────╮    │ print-as-it-is    │
@@ -85,6 +86,7 @@ The `generate-intermediate-script` command generates a script that contains code
 # Here we emulate that the `$intermed_script_path` options is not set
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
+
 decortate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
@@ -137,6 +139,7 @@ The `execute-intermediate-script` command runs and captures outputs of the execu
 let $no_fail_on_error = false
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
 rm $intermediate_script_path
+
 $nu_res_stdout_lines
 # => #code-block-marker-open-1
 # => ```nu
@@ -168,6 +171,7 @@ $nu_res_stdout_lines
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
+
 $md_res
 # => #code-block-marker-open-1
 # => ```nu
