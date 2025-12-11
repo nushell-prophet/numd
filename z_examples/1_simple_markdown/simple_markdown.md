@@ -10,9 +10,14 @@ let $var1 = 'foo'
 
 ## Example 2
 
-```nu
+```nu separate-block
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'
+```
+
+Output:
+
+```
 # => foo/baz/bar
 ```
 
