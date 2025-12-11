@@ -92,10 +92,10 @@ numd run --no-save $path
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 34                                │
-# => │ diff_lines       │ +3 (9.7%)                         │
-# => │ diff_words       │ +5 (7.2%)                         │
-# => │ diff_chars       │ +34 (7.8%)                        │
+# => │ levenshtein_dist │ 52                                │
+# => │ diff_lines       │ +8 (25.8%)                        │
+# => │ diff_words       │ +6 (8.5%)                         │
+# => │ diff_chars       │ +52 (11.6%)                       │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 

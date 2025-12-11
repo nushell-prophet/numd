@@ -13,6 +13,7 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
+
 $original_md_table | table -e --width 120
 
 
@@ -33,6 +34,7 @@ open $intermediate_script_path
 let $no_fail_on_error = false
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
 rm $intermediate_script_path
+
 $nu_res_stdout_lines
 
 
@@ -40,6 +42,7 @@ $nu_res_stdout_lines
 let $md_res = $nu_res_stdout_lines
     | str join (char nl)
     | clean-markdown
+
 $md_res
 
 

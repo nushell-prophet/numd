@@ -16,5 +16,5 @@ header_on_separator: true, abbreviated_row_count: 1000}
 "lssomething" | nu-highlight | print
 
 /opt/homebrew/bin/nu -c "lssomething" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
