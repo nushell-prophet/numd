@@ -5,11 +5,13 @@
 
     # ```nu
 [1, 2, 3, 4] | insert 2 10
+
 # [1, 2, 10, 3, 4]
 
 
     # ```nu
 [1, 2, 3, 4] | update 1 10
+
 # [1, 10, 3, 4]
 
 
@@ -69,11 +71,8 @@ $scores | where $it > 7 # [10 8]
     # ```nu
 let scores = [3 8 4]
 $"total = ($scores | reduce { |elt, acc| $acc + $elt })" # total = 15
-
 $"total = ($scores | math sum)" # easier approach, same result
-
 $"product = ($scores | reduce --fold 1 { |elt, acc| $acc * $elt })" # product = 96
-
 $scores | enumerate | reduce --fold 0 { |elt, acc| $acc + $elt.index * $elt.item } # 0*3 + 1*8 + 2*4 = 16
 
 
@@ -143,6 +142,5 @@ $scores | all {|elt| $elt mod 2 == 0 } # false
 
     # ```nu
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
-
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}

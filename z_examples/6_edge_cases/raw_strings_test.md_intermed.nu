@@ -16,8 +16,6 @@ header_on_separator: true, abbreviated_row_count: 1000}
 "let $two_single_lines_text = r#'\"High up in the mountains, a Snake crawled and lay in a damp gorge, coiled
     into a knot, staring out at the sea.'#" | nu-highlight | print
 
-"```\n```output-numd" | print
-
 let $two_single_lines_text = r#'"High up in the mountains, a Snake crawled and lay in a damp gorge, coiled
     into a knot, staring out at the sea.'#
 
@@ -26,8 +24,6 @@ let $two_single_lines_text = r#'"High up in the mountains, a Snake crawled and l
 "#code-block-marker-open-3
 ```nu" | print
 "$two_single_lines_text" | nu-highlight | print
-
-"```\n```output-numd" | print
 
 $two_single_lines_text | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
