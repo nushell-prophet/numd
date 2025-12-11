@@ -1,3 +1,3 @@
 ```nushell
-> lssomething
+lssomething
 ```
