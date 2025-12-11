@@ -93,10 +93,7 @@ export def clear-outputs [
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
-        | where $it !~ '^# => ?'
-        | if ($in | where $it =~ '^>' | is-empty) { } else {
-            where $it =~ '^(>|#|```)'
-        }
+        | where $it !~ '^# => ?' # strip `# =>` output lines, preserve plain `#` comments
         | prepend (mark-code-block $block_index)
     }
     | flatten
@@ -107,7 +104,6 @@ export def clear-outputs [
             lines
             | update 0 { $'(char nl)    # ($in)' } # keep infostring
             | drop
-            | str replace --all --regex '^>\s*' ''
             | str join (char nl)
             | str replace -r '\s*$' (char nl)
         }
@@ -123,7 +119,7 @@ export def clear-outputs [
 # start capturing commands and their outputs into a file
 export def --env 'capture start' [
     file: path = 'numd_capture.md'
-    --separate # don't use `>` notation, create separate blocks for each pipeline
+    --separate-blocks # create separate code blocks for each pipeline instead of inline `# =>` output
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
         Commands and their outputs of the current nushell instance
@@ -134,9 +130,9 @@ export def --env 'capture start' [
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
-    $env.numd.separate-blocks = $separate
+    $env.numd.separate-blocks = $separate_blocks
 
-    if not $separate { "```nushell\n" | save -a $env.numd.path }
+    if not $separate_blocks { "```nushell\n" | save -a $env.numd.path }
 
     $env.backup.hooks.display_output = (
         $env.config.hooks?.display_output?
@@ -159,7 +155,9 @@ export def --env 'capture start' [
             $"```nushell\n($command)\n```\n```output-numd\n($in)\n```\n\n"
             | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
         } else {
-            $"> ($command)\n($in)\n\n"
+            # inline output format: command followed by `# =>` prefixed output
+            let output_lines = $in | lines | each {$'# => ($in)'} | str join (char nl)
+            $"($command)\n($output_lines)\n\n"
         }
         | str replace --regex "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') {
@@ -340,7 +338,9 @@ export def create-execution-code [
         }
     } else { }
     | if 'no-output' in $fence_options { } else {
-        if $whole_block { create-fence-output } else { }
+        # separate-block: output goes to a separate ```output-numd``` fence
+        # default: output is inline with `# =>` prefix
+        if 'separate-block' in $fence_options { create-fence-output } else { }
         | if (check-print-append $in) {
             create-indented-output
             | generate-print-statement
@@ -383,29 +383,33 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     | str replace -r "\\s*$" "\n"
 }
 
+# Split code block content by blank lines into command groups, execute each, insert `# =>` output.
 export def execute-block-lines [
     fence_options: list<string>
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
-    | if ($in | where $it =~ '^>' | is-empty) {
-        # find blocks with no `>` symbol to execute them entirely
-        str join (char nl)
-        | create-execution-code $fence_options --whole_block
-        | [$in] # quick fix so the `execute-block-lines` would always output lists. Should be refactored.
-    } else {
-        each {
-            # define what to do with each line of the current block one by one
-            if $in starts-with '>' {
-                # if a line starts with `>`, execute it
-                create-execution-code $fence_options
-            } else if $in starts-with '#' {
-                if $in !~ '# =>' {
-                    # if a line starts with `#`, print it
-                    create-highlight-command
-                }
-            }
+    | where not ($it =~ '^# =>') # strip existing `# =>` output lines (keep plain `#` comments)
+    | str join (char nl)
+    | split-by-blank-lines
+    | each {|group|
+        if ($group | str trim | is-empty) {
+            # preserve blank line separators
+            ''
+        } else if ($group | str trim | str starts-with '#') and ($group | str trim | lines | all {|line| $line =~ '^#'}) {
+            # pure comment group - just highlight it
+            $group | create-highlight-command
+        } else {
+            # executable command group
+            $group | create-execution-code $fence_options --whole_block
         }
     }
+}
+
+# Split string by blank lines (double newlines) into command groups.
+# Preserves multiline commands that don't have blank lines between them.
+export def split-by-blank-lines []: string -> list<string> {
+    split row "\n\n"
+    | each { str trim -c "\n" }
 }
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
@@ -527,6 +531,7 @@ export def list-code-options [
         ["no-run" "N" "do not execute code in block"]
         ["try" "t" "execute block inside `try {}` for error handling"]
         ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
+        ["separate-block" "s" "output results in a separate code block instead of inline `# =>`"]
         # ["picture-output" "p" "capture output as picture and place after block"]
     ]
     | if $list { } else {
@@ -609,8 +614,7 @@ export def create-highlight-command []: string -> string {
 
 # Trim comments and extra whitespaces from code blocks for use in the generated script.
 export def remove-comments-plus []: string -> string {
-    str replace -r '^[>\s]+' '' # trim starting `>`
-    | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
+    str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
