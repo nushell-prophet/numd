@@ -16,7 +16,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 "$env.numd?" | nu-highlight | print
 
 $env.numd? | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
 
 "#code-block-marker-open-2
@@ -24,7 +24,7 @@ $env.numd? | table --width 120 | default '' | into string | lines | each {$'# =>
 "[[a b c]; [1 2 3]]" | nu-highlight | print
 
 [[a b c]; [1 2 3]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
 
 "#code-block-marker-open-4
@@ -50,5 +50,5 @@ $env.numd? | table --width 120 | default '' | into string | lines | each {$'# =>
                 'ut. Exercitation dolore fugiat nulla ut adipiscing laboris elit. Fugiat nulla ut ' +
                 'adipiscing, laboris elit quis pariatur. Adipiscing laboris elit quis pariatur. ' +
                 'Elit quis pariatur, in ut anim anim ut.')]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
