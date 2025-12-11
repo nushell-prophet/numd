@@ -105,6 +105,7 @@ It is possible to set Nushell visual settings (and all the others) using the `--
 
 ```nushell
 let path = $nu.temp-path | path join simple_nu_table.md
+
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
@@ -235,13 +236,13 @@ Testing of the `numd` module is done via `toolkit.nu`:
 
 ```nushell no-run
 # Run all tests (unit + integration)
-> nu toolkit.nu testing
+nu toolkit.nu testing
 
 # Run only unit tests (uses nutest framework)
-> nu toolkit.nu testing-unit
+nu toolkit.nu testing-unit
 
 # Run only integration tests (executes example markdown files)
-> nu toolkit.nu testing-integration
+nu toolkit.nu testing-integration
 ```
 
 ### Unit tests
@@ -253,7 +254,7 @@ Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framewo
 Integration tests run all example files in `z_examples/` through numd and report changes via Levenshtein distance. Whatever changes are made in the module - it can be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions).
 
 ```nushell no-run
-> nu toolkit.nu testing-integration
+nu toolkit.nu testing-integration
 # => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
 # => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
 # => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
