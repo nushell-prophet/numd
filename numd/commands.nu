@@ -347,6 +347,8 @@ export def create-execution-code [
         } else { }
     }
     | $in + (char nl)
+    # Always print a blank line after each command group to preserve visual separation
+    | $in + "print ''"
 
     $highlighted_command + $code_execution
 }
