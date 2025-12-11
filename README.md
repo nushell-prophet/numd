@@ -6,13 +6,16 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ```nushell no-run
 # this block won't run as it has the option `no-run` in its code fence
+
 git clone https://github.com/nushell-prophet/numd; cd numd
 
-nupm install --force --path . # optionally you can install this module via nupm
+# optionally you can install this module via nupm
+nupm install --force --path .
 
 use numd
 
-numd run README.md --no-save
+# run it on any file to check
+numd run z_examples/1_simple_markdown/simple_markdown.md --no-save
 ```
 
 ## How it works
