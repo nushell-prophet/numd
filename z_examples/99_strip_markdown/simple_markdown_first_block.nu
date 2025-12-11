@@ -11,4 +11,5 @@ $var1 | path join 'baz' 'bar'
     # ```nu
 # This block will output results inline
 whoami
+
 2 + 2
