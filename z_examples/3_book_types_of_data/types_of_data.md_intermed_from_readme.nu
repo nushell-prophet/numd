@@ -291,10 +291,10 @@ print $x | table --width 120 | default '' | into string | lines | each {$'# => (
 ```nushell try,new-instance" | print
 "> [{a:1 b:2} {b:1}]" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}]" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+/opt/homebrew/bin/nu -c "[{a:1 b:2} {b:1}]" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "> [{a:1 b:2} {b:1}].1.a" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "[{a:1 b:2} {b:1}].1.a" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+/opt/homebrew/bin/nu -c "[{a:1 b:2} {b:1}].1.a" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 
 "```" | print

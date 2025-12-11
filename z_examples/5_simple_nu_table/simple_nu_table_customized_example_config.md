@@ -34,7 +34,7 @@ Output:
 
 ```
 # => ╭─#─┬─column──┬───────────────────────────────────────────────long_text────────────────────────────────────────────────╮
-# => │ 0 │ value_1 │ Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.Eu aute lorem ullamco sed ... │
-# => │ 1 │ value_2 │ Irure quis magna ipsum anim. Magna ipsum anim aliquip elit lorem ut. Anim aliquip elit lorem, ut qu... │
+# => │ 0 │ value_1 │ Veniam cillum et et. Et et qui enim magna. Qui enim, magna eu aute lorem.Eu aute lorem ullamco sed ip… │
+# => │ 1 │ value_2 │ Irure quis magna ipsum anim. Magna ipsum anim aliquip elit lorem ut. Anim aliquip elit lorem, ut quis… │
 # => ╰───┴─────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
