@@ -1,5 +1,5 @@
 ```nushell no-run
-> lssomething
+lssomething
 ╭───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ msg   │ External command failed                                                                                                                                                                    │
 │ debug │ ExternalCommand { label: "Command `lssomething` not found", help: "`lssomething` is neither a Nushell built-in or a known external command", span: Span { start: 1967901, end: 1967912 } } │
@@ -8,7 +8,7 @@
 ```
 
 ```nushell try, new-instance
-> lssomething
+lssomething
 # => Error: nu::shell::external_command
 # =>
 # =>   x External command failed
