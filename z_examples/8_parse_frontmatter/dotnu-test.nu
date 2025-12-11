@@ -1,4 +1,4 @@
-use ../../numd
+use ../../numd/
 
 let parse = open example.md
 | numd parse-frontmatter
