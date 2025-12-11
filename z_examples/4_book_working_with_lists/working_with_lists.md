@@ -331,9 +331,9 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
 $zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
 # => ╭────────Zone────────┬───────Time───────╮
-# => │ UTC                │ 2025.12.11 00:49 │
-# => │ CET                │ 2025.12.11 01:49 │
-# => │ Europe/Moscow      │ 2025.12.11 03:49 │
-# => │ Asia/Yekaterinburg │ 2025.12.11 05:49 │
+# => │ UTC                │ 2025.12.11 01:24 │
+# => │ CET                │ 2025.12.11 02:24 │
+# => │ Europe/Moscow      │ 2025.12.11 04:24 │
+# => │ Asia/Yekaterinburg │ 2025.12.11 06:24 │
 # => ╰────────Zone────────┴───────Time───────╯
 ```

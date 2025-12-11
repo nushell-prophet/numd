@@ -18,7 +18,7 @@ header_on_separator: true, abbreviated_row_count: 1000}
 
 let $two_single_lines_text = r#'"High up in the mountains, a Snake crawled and lay in a damp gorge, coiled
     into a knot, staring out at the sea.'#
-
+print ''
 "```" | print
 
 "#code-block-marker-open-3
@@ -26,5 +26,5 @@ let $two_single_lines_text = r#'"High up in the mountains, a Snake crawled and l
 "$two_single_lines_text" | nu-highlight | print
 
 $two_single_lines_text | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
