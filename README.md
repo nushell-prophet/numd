@@ -6,10 +6,13 @@ Execute blocks of nushell code within markdown documents, write results back to 
 
 ```nushell no-run
 # this block won't run as it has the option `no-run` in its code fence
-> git clone https://github.com/nushell-prophet/numd; cd numd
-> nupm install --force --path . # optionally you can install this module via nupm
-> use numd
-> numd run README.md --no-save
+git clone https://github.com/nushell-prophet/numd; cd numd
+
+nupm install --force --path . # optionally you can install this module via nupm
+
+use numd
+
+numd run README.md --no-save
 ```
 
 ## How it works
@@ -21,14 +24,17 @@ Experienced nushell users can understand the logic better by looking at [example
 ### Details on parsing code blocks and displaying the output
 
 1. `numd` looks for code blocks marked with ` ```nushell ` or ` ```nu `.
-2. In code blocks that do not contain any lines starting with the `>` symbol, `numd` executes the entire code block as is. If the code produces any output, the output is added next to the code block after an empty line, a line with the word `Output:`, and another empty line. The output is enclosed in code fences without a language identifier.
-3. In code blocks that contain one or more lines starting with the `>` symbol, `numd` filters only lines that start with the `>` or `#` symbol. It executes or prints those lines one by one, and outputs the results immediately after the executed line.
+2. Code blocks are split into command groups by blank lines (double newlines). Each command group is executed separately.
+3. Output from each command group is displayed inline with `# =>` prefix immediately after the command.
+4. Multiline commands (pipelines split across lines without blank lines) are treated as a single command group.
+5. Plain `#` comments are preserved; `# =>` output lines are regenerated on each run.
+6. Use the `separate-block` fence option to output results in a separate code block instead of inline.
 
 ### `numd run` flags and params
 
 ```nushell
-> use numd
-> numd run --help
+use numd
+numd run --help
 # => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 # =>
 # => Usage:
@@ -66,13 +72,14 @@ Experienced nushell users can understand the logic better by looking at [example
 `numd` understands the following block options. Several comma-separated block options will be combined together. The block options should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
 
 ```nushell
-> numd list-code-options --list
-# => ╭─────long─────┬─short─┬───────────────────────────description───────────────────────────╮
-# => │ no-output    │ O     │ execute code without outputting results                         │
-# => │ no-run       │ N     │ do not execute code in block                                    │
-# => │ try          │ t     │ execute block inside `try {}` for error handling                │
-# => │ new-instance │ n     │ execute block in new Nushell instance (useful with `try` block) │
-# => ╰─────long─────┴─short─┴───────────────────────────description───────────────────────────╯
+numd list-code-options --list
+# => ╭──────long──────┬─short─┬───────────────────────────description────────────────────────────╮
+# => │ no-output      │ O     │ execute code without outputting results                          │
+# => │ no-run         │ N     │ do not execute code in block                                     │
+# => │ try            │ t     │ execute block inside `try {}` for error handling                 │
+# => │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
+# => │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
+# => ╰──────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -80,15 +87,15 @@ Experienced nushell users can understand the logic better by looking at [example
 By default, `numd` provides basic stats on changes made.
 
 ```nushell
-> let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-> numd run --no-save $path
+let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
+numd run --no-save $path
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 53                                │
-# => │ diff_lines       │ +9 (30.0%)                        │
-# => │ diff_words       │ +6 (8.7%)                         │
-# => │ diff_chars       │ +53 (12.1%)                       │
+# => │ levenshtein_dist │ 34                                │
+# => │ diff_lines       │ +3 (9.7%)                         │
+# => │ diff_words       │ +5 (7.2%)                         │
+# => │ diff_chars       │ +34 (7.8%)                        │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -98,7 +105,6 @@ It is possible to set Nushell visual settings (and all the others) using the `--
 
 ```nushell
 let path = $nu.temp-path | path join simple_nu_table.md
-
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
@@ -109,18 +115,8 @@ numd run $path --echo --no-save --no-stats --prepend-code "
     $env.config.table.index_mode = 'never'
     $env.config.table.mode = 'basic_compact'
 "
-```
-
-Output:
-
-```
 # => ```nushell
 # => [[a b c]; [1 2 3]]
-# => ```
-# =>
-# => Output:
-# =>
-# => ```
 # => # => +---+---+---+
 # => # => | a | b | c |
 # => # => | 1 | 2 | 3 |
@@ -131,7 +127,7 @@ Output:
 ### `numd clear-outputs`
 
 ```nu
-> numd clear-outputs --help
+numd clear-outputs --help
 # => Remove numd execution outputs from the file
 # =>
 # => Usage:
@@ -159,7 +155,7 @@ Output:
 `numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
 
 ```nushell
-> numd capture start --help
+numd capture start --help
 # => start capturing commands and their outputs into a file
 # =>
 # => Usage:
@@ -167,7 +163,7 @@ Output:
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
-# =>   --separate: don't use `>` notation, create separate blocks for each pipeline
+# =>   --separate-blocks: create separate code blocks for each pipeline instead of inline `# =>` output
 # =>
 # => Parameters:
 # =>   file <path>:  (optional, default: 'numd_capture.md')
@@ -180,7 +176,7 @@ Output:
 ```
 
 ```nushell
-> numd capture stop --help
+numd capture stop --help
 # => stop capturing commands and their outputs
 # =>
 # => Usage:
@@ -199,11 +195,10 @@ Output:
 ### Some random familiar examples
 
 ```nushell
-> ls z_examples | sort-by name | reject modified size
+ls z_examples | sort-by name | reject modified size
 # => ╭──────────────────name───────────────────┬─type─╮
 # => │ z_examples/1_simple_markdown            │ dir  │
 # => │ z_examples/2_numd_commands_explanations │ dir  │
-# => │ z_examples/3_book_types_of_data         │ dir  │
 # => │ z_examples/4_book_working_with_lists    │ dir  │
 # => │ z_examples/5_simple_nu_table            │ dir  │
 # => │ z_examples/6_edge_cases                 │ dir  │
@@ -213,13 +208,13 @@ Output:
 # => │ z_examples/9_other                      │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
 
-> sys host | get boot_time
-# => Fri Dec  5 01:08:37 2025
+sys host | get boot_time
+# => Fri Dec  5 03:49:33 2025
 
-> 2 + 2
+2 + 2
 # => 4
 
-> git tag | lines | sort -n | last
+git tag | lines | sort -n | last
 # => 0.1.21
 ```
 
@@ -230,12 +225,6 @@ Output:
 [z_examples 1_simple_markdown simple_markdown.md]
 | path join
 | numd run $in --echo --no-save
-
-# run examples in the `types_of_data.md` file,
-# save intermed nushell script to `types_of_data.md_intermed_from_readme.nu`
-[z_examples 3_book_types_of_data types_of_data.md]
-| path join
-| numd run $in --no-backup --save-intermed-script $'($in)_intermed_from_readme.nu'
 ```
 
 ## Development and testing
