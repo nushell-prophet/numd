@@ -7,21 +7,23 @@ export def main [] { }
 export def 'main testing' [
     --json # output results as JSON for external consumption
 ] {
-    let unit = main testing-unit
+    let unit = main testing-unit --quiet=$json
     let integration = main testing-integration
 
     {unit: $unit integration: $integration}
-    | if $json { to json } else { }
+    | if $json { to json --raw } else { }
 }
 
 # Run unit tests using nutest
 export def 'main testing-unit' [
     --json # output results as JSON for external consumption
+    --quiet # suppress terminal output (for use when called from main testing)
 ] {
     use ../nutest/nutest
 
-    nutest run-tests --path tests/ --returns summary --display terminal
-    | if $json { to json } else { }
+    let display = if ($json or $quiet) { 'nothing' } else { 'terminal' }
+    nutest run-tests --path tests/ --returns summary --display $display
+    | if $json { to json --raw } else { }
 }
 
 # Run integration tests (execute example markdown files)
@@ -83,7 +85,7 @@ export def 'main testing-integration' [
     | append (
         numd run README.md --no-backup --config-path numd_config_example1.yaml
     )
-    | if $json { to json } else { }
+    | if $json { to json --raw } else { }
 }
 
 def update-dotnu-embeds [] {
