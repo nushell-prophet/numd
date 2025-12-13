@@ -93,10 +93,7 @@ export def clear-outputs [
     | group-by block_index
     | items {|block_index block_lines|
         $block_lines.line.0
-        | where $it !~ '^# => ?'
-        | if ($in | where $it =~ '^>' | is-empty) { } else {
-            where $it =~ '^(>|#|```)'
-        }
+        | where $it !~ '^# => ?' # strip `# =>` output lines, preserve plain `#` comments
         | prepend (mark-code-block $block_index)
     }
     | flatten
@@ -107,7 +104,6 @@ export def clear-outputs [
             lines
             | update 0 { $'(char nl)    # ($in)' } # keep infostring
             | drop
-            | str replace --all --regex '^>\s*' ''
             | str join (char nl)
             | str replace -r '\s*$' (char nl)
         }
@@ -123,7 +119,7 @@ export def clear-outputs [
 # start capturing commands and their outputs into a file
 export def --env 'capture start' [
     file: path = 'numd_capture.md'
-    --separate # don't use `>` notation, create separate blocks for each pipeline
+    --separate-blocks # create separate code blocks for each pipeline instead of inline `# =>` output
 ]: nothing -> nothing {
     cprint $'numd commands capture has been started.
         Commands and their outputs of the current nushell instance
@@ -134,9 +130,9 @@ export def --env 'capture start' [
 
     $env.numd.status = 'running'
     $env.numd.path = ($file | path expand)
-    $env.numd.separate-blocks = $separate
+    $env.numd.separate-blocks = $separate_blocks
 
-    if not $separate { "```nushell\n" | save -a $env.numd.path }
+    if not $separate_blocks { "```nushell\n" | save -a $env.numd.path }
 
     $env.backup.hooks.display_output = (
         $env.config.hooks?.display_output?
@@ -159,7 +155,9 @@ export def --env 'capture start' [
             $"```nushell\n($command)\n```\n```output-numd\n($in)\n```\n\n"
             | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
         } else {
-            $"> ($command)\n($in)\n\n"
+            # inline output format: command followed by `# =>` prefixed output
+            let output_lines = $in | lines | each { $'# => ($in)' } | str join (char nl)
+            $"($command)\n($output_lines)\n\n"
         }
         | str replace --regex "\n{3,}$" "\n\n"
         | if ($in !~ 'numd capture') {
@@ -234,8 +232,8 @@ export def 'parse-help' [
         let input = $in
 
         $input
-        | update Description ($input.Description | take until {|line| $line == '' } | append '')
-        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == '' } | skip) }
+        | update Description ($input.Description | take until { $in == '' } | append '')
+        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until { $in == '' } | skip) }
     } else { }
     | if $sections == null { } else { select -o ...$sections }
     | if $record {
@@ -295,12 +293,12 @@ export def find-code-blocks []: string -> table<block_index: int, row_type: stri
         }
     } else { }
     | group-by block_index --to-table
-    | insert row_type {|i| $i.items.row_type.0 }
+    | insert row_type { $in.items.row_type.0 }
     | update items { get line }
     | rename block_index line row_type
     | select block_index row_type line
     | into int block_index
-    | insert action {|i| match-action $i.row_type }
+    | insert action { match-action $in.row_type }
 }
 
 export def match-action [
@@ -320,10 +318,9 @@ export def match-action [
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
-    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
-    --whole_block # treat input as a complete block rather than a single line
+    fence_options: list<string>
 ]: string -> string {
     let code_content = $in
     # let fence_options = $env.numd.current_block_options
@@ -340,13 +337,17 @@ export def create-execution-code [
         }
     } else { }
     | if 'no-output' in $fence_options { } else {
-        if $whole_block { create-fence-output } else { }
+        # separate-block: output goes to a separate ```output-numd``` fence
+        # default: output is inline with `# =>` prefix
+        if 'separate-block' in $fence_options { create-fence-output } else { }
         | if (check-print-append $in) {
             create-indented-output
             | generate-print-statement
         } else { }
     }
     | $in + (char nl)
+    # Always print a blank line after each command group to preserve visual separation
+    | $in + "print ''"
 
     $highlighted_command + $code_execution
 }
@@ -385,37 +386,36 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     | str replace -r "\\s*$" "\n"
 }
 
-# Process lines within a code block and generate execution code for each line.
-#
-# Handles both REPL-style blocks (lines starting with '>') and whole-block execution.
+# Split code block content by blank lines into command groups, execute each, insert `# =>` output.
 export def execute-block-lines [
     fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
-    | if ($in | where $it =~ '^>' | is-empty) {
-        # find blocks with no `>` symbol to execute them entirely
-        str join (char nl)
-        | create-execution-code $fence_options --whole_block
-        | [$in] # quick fix so the `execute-block-lines` would always output lists. Should be refactored.
-    } else {
-        each {
-            # define what to do with each line of the current block one by one
-            if $in starts-with '>' {
-                # if a line starts with `>`, execute it
-                create-execution-code $fence_options
-            } else if $in starts-with '#' {
-                if $in !~ '# =>' {
-                    # if a line starts with `#`, print it
-                    create-highlight-command
-                }
-            }
+    | where $it !~ '^# =>' # strip existing `# =>` output lines (keep plain `#` comments)
+    | str join (char nl)
+    | split-by-blank-lines
+    | each {|group|
+        let trimmed = $group | str trim
+        if ($trimmed | is-empty) {
+            ''
+        } else if ($trimmed | lines | all { $in =~ '^#' }) {
+            $group | create-highlight-command
+        } else {
+            $group | create-execution-code $fence_options
         }
     }
 }
 
+# Split string by blank lines (double newlines) into command groups.
+# Preserves multiline commands that don't have blank lines between them.
+export def split-by-blank-lines []: string -> list<string> {
+    split row "\n\n"
+    | each { str trim -c "\n" }
+}
+
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
 export def extract-block-index []: list<string> -> table<block_index: int, line: string> {
-    let clean_lines = skip until {|x| $x =~ (mark-code-block) }
+    let clean_lines = skip until { $in =~ (mark-code-block) }
 
     let block_index = $clean_lines
     | each {
@@ -437,7 +437,7 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
     | upsert items {|i|
         $i.items.nu_out
         | skip
-        | take until {|x| $x =~ (mark-code-block --end) }
+        | take until { $in =~ (mark-code-block --end) }
         | str join (char nl)
     }
     | rename block_index line
@@ -532,6 +532,7 @@ export def list-code-options [
         ["no-run" "N" "do not execute code in block"]
         ["try" "t" "execute block inside `try {}` for error handling"]
         ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
+        ["separate-block" "s" "output results in a separate code block instead of inline `# =>`"]
         # ["picture-output" "p" "capture output as picture and place after block"]
     ]
     | if $list { } else {
@@ -548,13 +549,13 @@ export def convert-short-options [
     option: string
 ]: nothing -> string {
     let options_dict = list-code-options
+    let result = $options_dict | get --optional $option | default $option
 
-    $options_dict
-    | get --optional $option
-    | default $option
-    | if $in not-in ($options_dict | values) {
-        print $'(ansi red)($in) is unknown option(ansi reset)'
-    } else { }
+    if $result not-in ($options_dict | values) {
+        print $'(ansi red)($result) is unknown option(ansi reset)'
+    }
+
+    $result
 }
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
@@ -614,9 +615,8 @@ export def create-highlight-command []: string -> string {
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
 export def remove-comments-plus []: string -> string {
-    str replace -r '^[>\s]+' '' # trim starting `>`
-    | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
-    | str replace -r '\s+#.*$' '' # remove comments from the last line. May affect code blocks where # is used for non-comment purposes
+    str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
+    | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
 # Extract the last span from a command to determine if `| print` can be appended.
@@ -641,7 +641,7 @@ export def remove-comments-plus []: string -> string {
 export def get-last-span [
     command: string
 ]: nothing -> string {
-    let command = $command | str trim -c "\n" | str trim
+    let command = $command | str trim
     let spans = ast $command --json
     | get block
     | from json
@@ -679,11 +679,11 @@ export def check-print-append [
 ]: nothing -> bool {
     let last_span = get-last-span $command
 
-    if $last_span =~ '(;|print|null)$' {
-        false
-    } else {
-        $last_span !~ '\b(let|mut|def|use)\b' and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
-    }
+    (
+        $last_span !~ '(;|print|null)$'
+        and $last_span !~ '\b(let|mut|def|use)\b'
+        and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
+    )
 }
 
 # Generate indented output for better visual formatting.
@@ -777,7 +777,7 @@ export def extract-fence-options []: string -> list<string> {
     | split row ','
     | str trim
     | compact --empty
-    | each {|option| convert-short-options $option }
+    | each { convert-short-options $in }
 }
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.

@@ -2,7 +2,6 @@
     # ```nu
 # This setting is for overriding the author's usual small number of `abbreviated_row_count`.
 $env.config.table.abbreviated_row_count = 100
-
 # The `$init_numd_pwd_const` constant points to the current working directory from where the `numd` command was initiated.
 # It is added by `numd` in every intermediate script to make it available in cases like below.
 # We use `path join` here to construct working paths for both Windows and Unix
@@ -12,9 +11,9 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
     # ```nu
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
-
 let $md_orig = open -r $file | toggle-output-fences
 let $original_md_table = $md_orig | find-code-blocks
+
 $original_md_table | table -e --width 120
 
 
@@ -33,9 +32,9 @@ open $intermediate_script_path
     # ```nu
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
-
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
 rm $intermediate_script_path
+
 $nu_res_stdout_lines
 
 

@@ -10,7 +10,7 @@ let $var1 = 'foo'
 
 ## Example 2
 
-```nu
+```nu separate-block
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'
 ```
@@ -25,10 +25,10 @@ Output:
 
 ```nu
 # This block will output results inline
-> whoami
+whoami
 # => user
 
-> 2 + 2
+2 + 2
 # => 4
 ```
 

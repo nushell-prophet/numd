@@ -15,10 +15,8 @@ header_on_separator: true, abbreviated_row_count: 1000}
 ```nu" | print
 "let $var1 = 'foo'" | nu-highlight | print
 
-"```\n```output-numd" | print
-
 let $var1 = 'foo'
-
+print ''
 "```" | print
 
 "#code-block-marker-open-2
@@ -26,24 +24,21 @@ let $var1 = 'foo'
 "# This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar'" | nu-highlight | print
 
-"```\n```output-numd" | print
-
 # This block will produce some output in a separate block
 $var1 | path join 'baz' 'bar' | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
 
-"#code-block-marker-open-5
+"#code-block-marker-open-4
 ```nu" | print
-"# This block will output results inline" | nu-highlight | print
+"# This block will output results inline
+whoami" | nu-highlight | print
 
-
-"> whoami" | nu-highlight | print
-
+# This block will output results inline
 whoami | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
-"> 2 + 2" | nu-highlight | print
+print ''
+"2 + 2" | nu-highlight | print
 
 2 + 2 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
-
+print ''
 "```" | print
