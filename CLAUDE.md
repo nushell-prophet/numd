@@ -30,7 +30,8 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 ### Module Structure (`numd/`)
 
 - **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-code-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
-- **commands.nu**: Core implementation (~840 lines) containing all main logic
+- **commands.nu**: Core implementation (~865 lines) containing all main logic
+- **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
 - **parse.nu**: Frontmatter parsing utilities for YAML frontmatter in markdown
 
 ### Core Processing Pipeline (in `commands.nu`)
@@ -50,6 +51,7 @@ Blocks support options in the infostring (e.g., ` ```nushell try, no-output `):
 - `no-output` / `O`: Execute but hide output
 - `try` / `t`: Wrap in try-catch
 - `new-instance` / `n`: Execute in separate Nushell instance
+- `separate-block` / `s`: Output results in separate code block instead of inline `# =>`
 
 ### Output Format Conventions
 
@@ -91,10 +93,10 @@ Example files serve as integration tests - use both the Levenshtein stats and `g
 ### Expected Non-Zero Diffs
 
 Some files legitimately differ on each run due to:
-- **Dynamic content**: `sys host | get boot_time` in README.md, timezone examples in `working_with_lists.md`
-- **Nushell version changes**: Error message formatting, etc
+- **Dynamic content**: `git tag` output in README.md (version changes over time)
+- **Nushell version changes**: Error message formatting, table rendering differences
 
-A zero `levenshtein_dist` for most files + expected diffs in time-dependent files = passing tests.
+A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests.
 
 ## Configuration
 
