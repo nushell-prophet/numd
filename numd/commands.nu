@@ -389,7 +389,7 @@ export def execute-block-lines [
     fence_options: list<string>
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
-    | where not ($it =~ '^# =>') # strip existing `# =>` output lines (keep plain `#` comments)
+    | where $it !~ '^# =>' # strip existing `# =>` output lines (keep plain `#` comments)
     | str join (char nl)
     | split-by-blank-lines
     | each {|group|
@@ -677,9 +677,11 @@ export def check-print-append [
 ]: nothing -> bool {
     let last_span = get-last-span $command
 
-    ($last_span !~ '(;|print|null)$'
-    and $last_span !~ '\b(let|mut|def|use)\b'
-    and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = ')
+    (
+        $last_span !~ '(;|print|null)$'
+        and $last_span !~ '\b(let|mut|def|use)\b'
+        and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
+    )
 }
 
 # Generate indented output for better visual formatting.
