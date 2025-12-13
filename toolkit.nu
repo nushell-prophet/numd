@@ -97,9 +97,19 @@ def update-dotnu-embeds [] {
     dotnu embeds-update z_examples/8_parse_frontmatter/dotnu-test.nu
 }
 
-export def 'main release' [] {
+export def 'main release' [
+    --major (-M)  # Bump major version (X.0.0)
+    --minor (-m)  # Bump minor version (x.Y.0)
+] {
     let description = gh repo view --json description | from json | get description
-    let tag = git tag | lines | sort -n | last | split row '.' | into int | update 2 { $in + 1 } | str join '.'
+    let parts = git tag | lines | sort -n | last | split row '.' | into int
+    let tag = if $major {
+        [($parts.0 + 1) 0 0]
+    } else if $minor {
+        [$parts.0 ($parts.1 + 1) 0]
+    } else {
+        [$parts.0 $parts.1 ($parts.2 + 1)]
+    } | str join '.'
 
     open nupm.nuon
     | update description ($description | str replace 'numd - ' '')
