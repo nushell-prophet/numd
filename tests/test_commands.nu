@@ -237,19 +237,19 @@ def "convert-output-fences converts back" [] {
 }
 
 # =============================================================================
-# Tests for escape-special-characters-and-quote
+# Tests for quote-for-print
 # =============================================================================
 
 @test
-def "escape-special-characters-and-quote escapes quotes" [] {
-    let result = 'hello "world"' | escape-special-characters-and-quote
+def "quote-for-print escapes quotes" [] {
+    let result = 'hello "world"' | quote-for-print
 
     assert equal $result '"hello \"world\""'
 }
 
 @test
-def "escape-special-characters-and-quote escapes backslashes" [] {
-    let result = 'path\to\file' | escape-special-characters-and-quote
+def "quote-for-print escapes backslashes" [] {
+    let result = 'path\to\file' | quote-for-print
 
     assert equal $result '"path\\to\\file"'
 }

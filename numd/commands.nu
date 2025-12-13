@@ -317,9 +317,9 @@ export def classify-block-action [
 }
 
 # Apply output formatting based on fence options (separate-block vs inline `# =>`).
-def apply-output-formatting [fence_options: list<string>]: string -> string {
+def format-command-output [fence_options: list<string>]: string -> string {
     if 'no-output' in $fence_options { return $in } else { }
-    | if 'separate-block' in $fence_options { create-fence-output } else { }
+    | if 'separate-block' in $fence_options { generate-separate-block-fence } else { }
     | if (can-append-print $in) {
         generate-inline-output-pipeline
         | generate-print-statement
@@ -341,7 +341,7 @@ export def generate-block-execution [
     | if 'try' in $fence_options {
         wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
     } else { }
-    | apply-output-formatting $fence_options
+    | format-command-output $fence_options
     | $in + (char nl)
     # Always print a blank line after each command group to preserve visual separation
     | $in + "print ''"
@@ -357,7 +357,7 @@ export def decorate-original-code-blocks [
     | where action == 'execute'
     | insert code {|i|
         $i.line
-        | execute-block-lines ($i.row_type | extract-fence-options)
+        | process-code-block-content ($i.row_type | extract-fence-options)
         | generate-block-markers $i.block_index $i.row_type
     }
 }
@@ -384,7 +384,7 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
 }
 
 # Split code block content by blank lines into command groups, execute each, insert `# =>` output.
-export def execute-block-lines [
+export def process-code-block-content [
     fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
@@ -557,9 +557,9 @@ export def convert-short-options [
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
 #
-# > 'abcd"dfdaf" "' | escape-special-characters-and-quote
+# > 'abcd"dfdaf" "' | quote-for-print
 # "abcd\"dfdaf\" \""
-export def escape-special-characters-and-quote []: string -> string {
+export def quote-for-print []: string -> string {
     # `to json` might give similar results, yet it replaces new lines
     # which spoils readability of intermediate scripts
     str replace --all --regex '(\\|\")' '\$1'
@@ -606,7 +606,7 @@ export def code-block-marker [
 # > 'ls' | generate-highlight-print
 # "ls" | nu-highlight | print
 export def generate-highlight-print []: string -> string {
-    escape-special-characters-and-quote
+    quote-for-print
     | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
@@ -724,7 +724,7 @@ export def wrap-in-try-catch [
     --new-instance # execute in a separate Nushell instance to get formatted error messages
 ]: string -> string {
     if $new_instance {
-        escape-special-characters-and-quote
+        quote-for-print
         | (
             $'($nu.current-exe) -c ($in)' +
             " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}"
@@ -735,15 +735,15 @@ export def wrap-in-try-catch [
 }
 
 # Generate a fenced code block for output with a specific format.
-export def create-fence-output []: string -> string {
+export def generate-separate-block-fence []: string -> string {
     # We use a combination of "\n" and (char nl) here for intermediate script formatting aesthetics
     $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
 # Join a list of strings and generate a print statement for the combined output.
-export def generate-print-lines []: list<string> -> string {
+export def join-and-print []: list<string> -> string {
     str join (char nl)
-    | escape-special-characters-and-quote
+    | quote-for-print
     | $'($in) | print'
 }
 
@@ -756,7 +756,7 @@ export def generate-block-markers [
 
     code-block-marker $block_number
     | append $fence
-    | generate-print-lines
+    | join-and-print
     | append $input
     | append '"```" | print'
     | append ''
