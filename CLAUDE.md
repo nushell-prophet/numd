@@ -53,9 +53,11 @@ Blocks support options in the infostring (e.g., ` ```nushell try, no-output `):
 
 ### Output Format Conventions
 
-- Lines starting with `>` are treated as REPL-style commands (executed line-by-line)
-- Lines starting with `# =>` contain output from previous command
-- Blocks without `>` are executed as a single script unit
+- Code blocks are split by blank lines (double newlines) into command groups
+- Each command group is executed separately via `split-by-blank-lines`
+- Lines starting with `# =>` contain output from previous command group
+- Plain `#` comments are preserved; `# =>` output lines are regenerated on each run
+- Use `separate-block` fence option to output results in a separate code block instead of inline `# =>`
 
 ## Testing
 
