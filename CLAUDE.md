@@ -86,7 +86,8 @@ Unit tests use [nutest](https://github.com/vyadh/nutest) framework. Tests import
 The `testing-integration` command:
 1. Runs all example files in `z_examples/` through numd
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
-3. Reports Levenshtein distance and diff stats to detect changes
+3. Runs `numd run README.md` to update README with latest outputs
+4. Reports Levenshtein distance and diff stats to detect changes
 
 Example files serve as integration tests - use both the Levenshtein stats and `git diff` to verify changes.
 
