@@ -318,15 +318,12 @@ export def match-action [
 
 # Apply output formatting based on fence options (separate-block vs inline `# =>`).
 def apply-output-formatting [fence_options: list<string>]: string -> string {
-    let input = $in
-
-    if 'no-output' in $fence_options { return $input }
-
-    $input
+    if 'no-output' in $fence_options { return $in } else { }
     | if 'separate-block' in $fence_options { create-fence-output } else { }
-    | if not (check-print-append $input) { } else {
-        create-indented-output | generate-print-statement
-    }
+    | if (check-print-append $in) {
+        create-indented-output
+        | generate-print-statement
+    } else { }
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
