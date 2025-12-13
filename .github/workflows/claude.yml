@@ -30,11 +30,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Nushell
-        uses: hustcer/setup-nu@v3
-        with:
-          version: 'latest'
-
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
