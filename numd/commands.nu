@@ -396,7 +396,7 @@ export def execute-block-lines [
         let trimmed = $group | str trim
         if ($trimmed | is-empty) {
             ''
-        } else if ($trimmed | lines | all {$in =~ '^#'}) {
+        } else if ($trimmed | lines | all { $in =~ '^#' }) {
             $group | create-highlight-command
         } else {
             $group | create-execution-code $fence_options
@@ -547,13 +547,13 @@ export def convert-short-options [
     option: string
 ]: nothing -> string {
     let options_dict = list-code-options
+    let result = $options_dict | get --optional $option | default $option
 
-    $options_dict
-    | get --optional $option
-    | default $option
-    | if $in not-in ($options_dict | values) {
-        print $'(ansi red)($in) is unknown option(ansi reset)'
-    } else { }
+    if $result not-in ($options_dict | values) {
+        print $'(ansi red)($result) is unknown option(ansi reset)'
+    }
+
+    $result
 }
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
@@ -639,7 +639,7 @@ export def remove-comments-plus []: string -> string {
 export def get-last-span [
     command: string
 ]: nothing -> string {
-    let command = $command | str trim -c "\n" | str trim
+    let command = $command | str trim
     let spans = ast $command --json
     | get block
     | from json
@@ -677,11 +677,9 @@ export def check-print-append [
 ]: nothing -> bool {
     let last_span = get-last-span $command
 
-    if $last_span =~ '(;|print|null)$' {
-        false
-    } else {
-        $last_span !~ '\b(let|mut|def|use)\b' and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
-    }
+    ($last_span !~ '(;|print|null)$'
+    and $last_span !~ '\b(let|mut|def|use)\b'
+    and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = ')
 }
 
 # Generate indented output for better visual formatting.
