@@ -232,8 +232,8 @@ export def 'parse-help' [
         let input = $in
 
         $input
-        | update Description ($input.Description | take until {|line| $line == '' } | append '')
-        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until {|line| $line == '' } | skip) }
+        | update Description ($input.Description | take until { $in == '' } | append '')
+        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until { $in == '' } | skip) }
     } else { }
     | if $sections == null { } else { select -o ...$sections }
     | if $record {
@@ -293,12 +293,12 @@ export def find-code-blocks []: string -> table<block_index: int, row_type: stri
         }
     } else { }
     | group-by block_index --to-table
-    | insert row_type {|i| $i.items.row_type.0 }
+    | insert row_type { $in.items.row_type.0 }
     | update items { get line }
     | rename block_index line row_type
     | select block_index row_type line
     | into int block_index
-    | insert action {|i| match-action $i.row_type }
+    | insert action { match-action $in.row_type }
 }
 
 export def match-action [
@@ -415,7 +415,7 @@ export def split-by-blank-lines []: string -> list<string> {
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
 export def extract-block-index []: list<string> -> table<block_index: int, line: string> {
-    let clean_lines = skip until {|x| $x =~ (mark-code-block) }
+    let clean_lines = skip until { $in =~ (mark-code-block) }
 
     let block_index = $clean_lines
     | each {
@@ -437,7 +437,7 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
     | upsert items {|i|
         $i.items.nu_out
         | skip
-        | take until {|x| $x =~ (mark-code-block --end) }
+        | take until { $in =~ (mark-code-block --end) }
         | str join (char nl)
     }
     | rename block_index line
@@ -777,7 +777,7 @@ export def extract-fence-options []: string -> list<string> {
     | split row ','
     | str trim
     | compact --empty
-    | each {|option| convert-short-options $option }
+    | each { convert-short-options $in }
 }
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
