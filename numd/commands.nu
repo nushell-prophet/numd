@@ -156,7 +156,7 @@ export def --env 'capture start' [
             | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
         } else {
             # inline output format: command followed by `# =>` prefixed output
-            let output_lines = $in | lines | each {$'# => ($in)'} | str join (char nl)
+            let output_lines = $in | lines | each { $'# => ($in)' } | str join (char nl)
             $"($command)\n($output_lines)\n\n"
         }
         | str replace --regex "\n{3,}$" "\n\n"
@@ -318,10 +318,9 @@ export def match-action [
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
+# > 'ls | sort-by modified -r' | create-execution-code ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
-    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
-    --whole_block # treat input as a complete block rather than a single line
+    fence_options: list<string>
 ]: string -> string {
     let code_content = $in
     # let fence_options = $env.numd.current_block_options
@@ -399,12 +398,12 @@ export def execute-block-lines [
         if ($group | str trim | is-empty) {
             # preserve blank line separators
             ''
-        } else if ($group | str trim | str starts-with '#') and ($group | str trim | lines | all {|line| $line =~ '^#'}) {
+        } else if ($group | str trim | str starts-with '#') and ($group | str trim | lines | all {|line| $line =~ '^#' }) {
             # pure comment group - just highlight it
             $group | create-highlight-command
         } else {
             # executable command group
-            $group | create-execution-code $fence_options --whole_block
+            $group | create-execution-code $fence_options
         }
     }
 }
