@@ -32,7 +32,7 @@ export def run [
     # We don't use a temp directory here as the code in `md` files might contain relative paths,
     # which will only work if we execute the intermediate script from the same folder.
 
-    decorate-original-code-blocks $original_md_table
+    decortate-original-code-blocks $original_md_table
     | generate-intermediate-script
     | save -f $intermediate_script_path
 
@@ -190,8 +190,8 @@ export def --env 'capture stop' []: nothing -> nothing {
 
 # Beautify and adapt the standard `--help` for markdown output
 export def 'parse-help' [
-    --sections: list<string> # filter to only include these sections (e.g., ['Usage', 'Flags'])
-    --record # return result as a record instead of formatted string
+    --sections: list<string>
+    --record
 ]: string -> any {
     let help_lines = split row '======================'
     | first # quick fix for https://github.com/nushell/nushell/issues/13470
@@ -257,7 +257,7 @@ export def 'parse-help' [
 }
 
 ####
-# I keep commands here with `export` to make them available for testing script, yet I do not export them in the mod.nu
+# I keep commands here with `export` to make them availible for testing script, yet I do not export them in the mod.nu
 ###
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
@@ -322,8 +322,8 @@ export def match-action [
 #
 # > 'ls | sort-by modified -r' | create-execution-code --whole_block ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
 export def create-execution-code [
-    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
-    --whole_block # treat input as a complete block rather than a single line
+    fence_options: list<string>
+    --whole_block
 ]: string -> string {
     let code_content = $in
     # let fence_options = $env.numd.current_block_options
@@ -351,9 +351,9 @@ export def create-execution-code [
     $highlighted_command + $code_execution
 }
 
-# Generate additional service code necessary for execution and capturing results, while preserving the original code.
-export def decorate-original-code-blocks [
-    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from find-code-blocks
+# generates additional service code necessary for execution and capturing results, while preserving the original code.
+export def decortate-original-code-blocks [
+    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string>
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string, code: string> {
     $md_classified
     | where action == 'execute'
@@ -365,8 +365,6 @@ export def decorate-original-code-blocks [
 }
 
 # Generate an intermediate script from a table of classified markdown code blocks.
-#
-# Takes decorated code blocks and produces a complete Nushell script ready for execution.
 export def generate-intermediate-script []: table<block_index: int, row_type: string, line: list<string>, action: string, code: string> -> string {
     get code -o
     | if $env.numd?.prepend-code? != null {
@@ -385,11 +383,8 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     | str replace -r "\\s*$" "\n"
 }
 
-# Process lines within a code block and generate execution code for each line.
-#
-# Handles both REPL-style blocks (lines starting with '>') and whole-block execution.
 export def execute-block-lines [
-    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
+    fence_options: list<string>
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
     | if ($in | where $it =~ '^>' | is-empty) {
@@ -568,10 +563,10 @@ export def escape-special-characters-and-quote []: string -> string {
     | $'"($in)"'
 }
 
-# Run the intermediate script and return its output as a string.
+# Run the intermediate script and return its output lines as a list.
 export def execute-intermediate-script [
-    intermed_script_path: path # path to the generated intermediate script
-    no_fail_on_error: bool # if true, return empty string on error instead of failing
+    intermed_script_path: path
+    no_fail_on_error: bool
     print_block_results: bool # print blocks one by one as they execute
 ]: nothing -> string {
     (
@@ -612,14 +607,14 @@ export def create-highlight-command []: string -> string {
     | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
-# Trim comments and extra whitespace from code blocks for use in the generated script.
+# Trim comments and extra whitespaces from code blocks for use in the generated script.
 export def remove-comments-plus []: string -> string {
     str replace -r '^[>\s]+' '' # trim starting `>`
     | str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
-    | str replace -r '\s+#.*$' '' # remove comments from the last line. May affect code blocks where # is used for non-comment purposes
+    | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
-# Extract the last span from a command to determine if `| print` can be appended.
+# Extract the last span from a command to determine if `| print` can be appended
 #
 # > get-last-span 'let a = 1..10; $a | length'
 # length
@@ -664,7 +659,7 @@ export def get-last-span [
     | str substring $len..
 }
 
-# Check if the command can have `| print` appended by analyzing its last span for semicolons or declaration keywords.
+# Check if the last span of the input ends with a semicolon or contains certain keywords to determine if appending ` | print` is possible.
 #
 # > check-print-append 'let a = ls'
 # false
@@ -691,7 +686,7 @@ export def check-print-append [
 # > 'ls' | create-indented-output
 # ls | table | lines | each {$'# => ($in)' | str trim --right} | str join (char nl)
 export def create-indented-output [
-    --indent: string = '# => ' # prefix string for each output line
+    --indent: string = '# => '
 ]: string -> string {
     generate-table-statement
     | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \"\\n\""
@@ -738,21 +733,19 @@ export def create-catch-error-outside []: string -> string {
 
 # Generate a fenced code block for output with a specific format.
 export def create-fence-output []: string -> string {
-    # We use a combination of "\n" and (char nl) here for intermediate script formatting aesthetics
+    # We use a combination of "\n" and (char nl) here for itermid script formatting aesthetics
     $"\"```\\n```output-numd\" | print(char nl)(char nl)($in)"
 }
 
-# Join a list of strings and generate a print statement for the combined output.
 export def generate-print-lines []: list<string> -> string {
     str join (char nl)
     | escape-special-characters-and-quote
     | $'($in) | print'
 }
 
-# Generate marker tags and code block delimiters for tracking output in the intermediate script.
 export def generate-tags [
-    block_number: int # index of the code block in the markdown
-    fence: string # the original fence line (e.g., '```nushell')
+    block_number: int
+    fence: string
 ]: list<string> -> string {
     let input = $in
 
@@ -799,9 +792,9 @@ export def modify-path [
     | path join
 }
 
-# Create a backup of a file by moving it to a subdirectory with a timestamp suffix.
+# Create a backup of a file by moving it to a specified directory with a timestamp.
 export def create-file-backup [
-    file_path: path # path to the file to back up
+    file_path: path
 ]: nothing -> nothing {
     $file_path
     | if ($in | path exists) and ($in | path type) == 'file' {
@@ -810,13 +803,12 @@ export def create-file-backup [
     }
 }
 
-# TODO: make config an env record
+#todo make config - an env record
 
-# Load numd configuration from a YAML file or command-line options into the environment.
 export def --env load-config [
-    path: path # path to a .yaml numd config file
-    --prepend_code: string # code to prepend to the intermediate script
-    --table_width: int # width for table output formatting
+    path: path # path to .yaml numd config file
+    --prepend_code: string
+    --table_width: int
 ]: nothing -> nothing {
     $env.numd = (
         [
@@ -834,7 +826,7 @@ export def --env load-config [
         } else { }
         | where value != null
         | if ($in | is-empty) { {} } else {
-            # if table_width or prepend code are set via parameters - they will have precedence
+            # if table_width or prepend code are set via parameters - they will have precendece
             transpose --ignore-titles --as-record --header-row
         }
     )

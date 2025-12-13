@@ -59,7 +59,7 @@ $original_md_table | table -e --width 120 | table --width 120 | default '' | int
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-decorate-original-code-blocks $original_md_table
+decortate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
 
@@ -71,7 +71,7 @@ open $intermediate_script_path" | nu-highlight | print
 let $intermediate_script_path = $file
     | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
-decorate-original-code-blocks $original_md_table
+decortate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
 
