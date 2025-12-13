@@ -250,7 +250,7 @@ nu toolkit.nu testing-integration
 
 ### Unit tests
 
-Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framework to test internal functions like `find-code-blocks`, `match-action`, `extract-fence-options`, etc.
+Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framework to test internal functions like `parse-markdown-to-blocks`, `classify-block-action`, `extract-fence-options`, etc.
 
 ### Integration tests
 

@@ -22,13 +22,13 @@ export def run [
     } else { }
 
     let original_md_table = $original_md
-    | toggle-output-fences # should be unnecessary for new files
-    | find-code-blocks
+    | convert-output-fences # should be unnecessary for new files
+    | parse-markdown-to-blocks
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
     let intermediate_script_path = $save_intermed_script
-    | default ($file | modify-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
+    | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
     # We don't use a temp directory here as the code in `md` files might contain relative paths,
     # which will only work if we execute the intermediate script from the same folder.
 
@@ -49,7 +49,7 @@ export def run [
 
     let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
-    | toggle-output-fences --back
+    | convert-output-fences --back
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -83,8 +83,8 @@ export def clear-outputs [
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string nothing -> nothing] {
     let original_md_table = open -r $file
-    | toggle-output-fences
-    | find-code-blocks
+    | convert-output-fences
+    | parse-markdown-to-blocks
 
     let result_md_path = $result_md_path | default $file
 
@@ -94,7 +94,7 @@ export def clear-outputs [
     | items {|block_index block_lines|
         $block_lines.line.0
         | where $it !~ '^# => ?' # strip `# =>` output lines, preserve plain `#` comments
-        | prepend (mark-code-block $block_index)
+        | prepend (code-block-marker $block_index)
     }
     | flatten
     | extract-block-index
@@ -259,7 +259,7 @@ export def 'parse-help' [
 ###
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
-export def find-code-blocks []: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
+export def parse-markdown-to-blocks []: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
     let file_lines = $in | lines
     let row_type = $file_lines
     | each {
@@ -298,10 +298,10 @@ export def find-code-blocks []: string -> table<block_index: int, row_type: stri
     | rename block_index line row_type
     | select block_index row_type line
     | into int block_index
-    | insert action { match-action $in.row_type }
+    | insert action { classify-block-action $in.row_type }
 }
 
-export def match-action [
+export def classify-block-action [
     $row_type: string
 ]: nothing -> string {
     match $row_type {
@@ -320,24 +320,24 @@ export def match-action [
 def apply-output-formatting [fence_options: list<string>]: string -> string {
     if 'no-output' in $fence_options { return $in } else { }
     | if 'separate-block' in $fence_options { create-fence-output } else { }
-    | if (check-print-append $in) {
-        create-indented-output
+    | if (can-append-print $in) {
+        generate-inline-output-pipeline
         | generate-print-statement
     } else { }
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
 #
-# > 'ls | sort-by modified -r' | create-execution-code ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
-export def create-execution-code [
+# > 'ls | sort-by modified -r' | generate-block-execution ['no-output'] | save z_examples/999_numd_internals/generate-block-execution_0.nu -f
+export def generate-block-execution [
     fence_options: list<string>
 ]: string -> string {
     let code_content = $in
 
-    let highlighted_command = $code_content | create-highlight-command
+    let highlighted_command = $code_content | generate-highlight-print
 
     let code_execution = $code_content
-    | remove-comments-plus
+    | trim-trailing-comments
     | if 'try' in $fence_options {
         wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
     } else { }
@@ -351,14 +351,14 @@ export def create-execution-code [
 
 # Generate additional service code necessary for execution and capturing results, while preserving the original code.
 export def decorate-original-code-blocks [
-    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from find-code-blocks
+    md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from parse-markdown-to-blocks
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string, code: string> {
     $md_classified
     | where action == 'execute'
     | insert code {|i|
         $i.line
         | execute-block-lines ($i.row_type | extract-fence-options)
-        | generate-tags $i.block_index $i.row_type
+        | generate-block-markers $i.block_index $i.row_type
     }
 }
 
@@ -396,9 +396,9 @@ export def execute-block-lines [
         if ($trimmed | is-empty) {
             ''
         } else if ($trimmed | lines | all { $in =~ '^#' }) {
-            $group | create-highlight-command
+            $group | generate-highlight-print
         } else {
-            $group | create-execution-code $fence_options
+            $group | generate-block-execution $fence_options
         }
     }
 }
@@ -412,11 +412,11 @@ export def split-by-blank-lines []: string -> list<string> {
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
 export def extract-block-index []: list<string> -> table<block_index: int, line: string> {
-    let clean_lines = skip until { $in =~ (mark-code-block) }
+    let clean_lines = skip until { $in =~ (code-block-marker) }
 
     let block_index = $clean_lines
     | each {
-        if $in =~ $"^(mark-code-block)\\d+$" {
+        if $in =~ $"^(code-block-marker)\\d+$" {
             split row '-' | last | into int
         } else {
             -1
@@ -434,7 +434,7 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
     | upsert items {|i|
         $i.items.nu_out
         | skip
-        | take until { $in =~ (mark-code-block --end) }
+        | take until { $in =~ (code-block-marker --end) }
         | str join (char nl)
     }
     | rename block_index line
@@ -464,11 +464,11 @@ export def clean-markdown []: string -> string {
 }
 
 # Replacement is needed to distinguish the blocks with outputs from blocks with just ```.
-# `find-code-blocks` works only with lines without knowing the previous lines.
+# `parse-markdown-to-blocks` works only with lines without knowing the previous lines.
 #
-# > "```nu\n123\n```\n\nOutput:\n\n```\n123" | toggle-output-fences | to json
+# > "```nu\n123\n```\n\nOutput:\n\n```\n123" | convert-output-fences | to json
 # "```nu\n123\n```\n```output-numd\n123"
-export def toggle-output-fences [
+export def convert-output-fences [
     a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
     b = "\n```\n```output-numd\n"
     --back
@@ -490,7 +490,7 @@ export def compute-change-stats [
     let new_file_content = $new_file | ansi strip
 
     let nushell_blocks = $new_file_content
-    | find-code-blocks
+    | parse-markdown-to-blocks
     | where action == 'execute'
     | get block_index
     | uniq
@@ -591,27 +591,27 @@ export def execute-intermediate-script [
 
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 #
-# > mark-code-block 3
+# > code-block-marker 3
 # #code-block-marker-open-3
-export def mark-code-block [
+export def code-block-marker [
     index?: int
     --end
 ]: nothing -> string {
     $"#code-block-marker-open-($index)"
     | if $end { str replace 'open' 'close' } else { }
 }
-# TODO NUON can be used in mark-code-blocks to set display options
+# TODO NUON can be used in code-block-markers to set display options
 
 # Generate a command to highlight code using Nushell syntax highlighting.
-# > 'ls' | create-highlight-command
+# > 'ls' | generate-highlight-print
 # "ls" | nu-highlight | print
-export def create-highlight-command []: string -> string {
+export def generate-highlight-print []: string -> string {
     escape-special-characters-and-quote
     | $"($in) | nu-highlight | print(char nl)(char nl)"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
-export def remove-comments-plus []: string -> string {
+export def trim-trailing-comments []: string -> string {
     str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
     | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
@@ -663,15 +663,15 @@ export def get-last-span [
 
 # Check if the command can have `| print` appended by analyzing its last span for semicolons or declaration keywords.
 #
-# > check-print-append 'let a = ls'
+# > can-append-print 'let a = ls'
 # false
 #
-# > check-print-append 'ls'
+# > can-append-print 'ls'
 # true
 #
-# > check-print-append 'mut a = 1; $a = 2'
+# > can-append-print 'mut a = 1; $a = 2'
 # false
-export def check-print-append [
+export def can-append-print [
     command: string
 ]: nothing -> bool {
     let last_span = get-last-span $command
@@ -685,9 +685,9 @@ export def check-print-append [
 
 # Generate indented output for better visual formatting.
 #
-# > 'ls' | create-indented-output
+# > 'ls' | generate-inline-output-pipeline
 # ls | table | lines | each {$'# => ($in)' | str trim --right} | str join (char nl)
-export def create-indented-output [
+export def generate-inline-output-pipeline [
     --indent: string = '# => ' # prefix string for each output line
 ]: string -> string {
     generate-table-statement
@@ -748,13 +748,13 @@ export def generate-print-lines []: list<string> -> string {
 }
 
 # Generate marker tags and code block delimiters for tracking output in the intermediate script.
-export def generate-tags [
+export def generate-block-markers [
     block_number: int # index of the code block in the markdown
     fence: string # the original fence line (e.g., '```nushell')
 ]: list<string> -> string {
     let input = $in
 
-    mark-code-block $block_number
+    code-block-marker $block_number
     | append $fence
     | generate-print-lines
     | append $input
@@ -780,9 +780,9 @@ export def extract-fence-options []: string -> list<string> {
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
 #
-# > 'numd/capture.nu' | modify-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
+# > 'numd/capture.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
 # numd/abc/pref_capture_suf.nu.md
-export def modify-path [
+export def build-modified-path [
     --prefix: string
     --suffix: string
     --extension: string
@@ -803,7 +803,7 @@ export def create-file-backup [
 ]: nothing -> nothing {
     $file_path
     | if ($in | path exists) and ($in | path type) == 'file' {
-        modify-path --parent_dir 'zzz_md_backups' --suffix $'-(generate-timestamp)'
+        build-modified-path --parent_dir 'zzz_md_backups' --suffix $'-(generate-timestamp)'
         | mv $file_path $in
     }
 }

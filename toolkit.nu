@@ -1,5 +1,5 @@
 const numdinternals = ([numd commands.nu] | path join)
-use $numdinternals [ modify-path ]
+use $numdinternals [ build-modified-path ]
 
 export def main [] { }
 
@@ -41,7 +41,7 @@ export def 'main testing-integration' [
     # clear outputs from simple markdown
     ['z_examples' '1_simple_markdown' 'simple_markdown.md']
     | path join
-    | numd clear-outputs $in -o ($in | modify-path --suffix '_with_no_output')
+    | numd clear-outputs $in -o ($in | build-modified-path --suffix '_with_no_output')
 
     # I use a long chain of `append` here to obtain a table with statistics on updates upon exit.
 
@@ -72,13 +72,13 @@ export def 'main testing-integration' [
     # Run file with customized width of table
     | append (
         numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
-            $path_simple_table | modify-path --suffix '_customized_width20'
+            $path_simple_table | build-modified-path --suffix '_customized_width20'
         )
     )
     # Run file with another config
     | append (
         numd run $path_simple_table --no-backup --config-path 'numd_config_example2.yaml' --result-md-path (
-            $path_simple_table | modify-path --suffix '_customized_example_config'
+            $path_simple_table | build-modified-path --suffix '_customized_example_config'
         )
     )
     # Run readme
