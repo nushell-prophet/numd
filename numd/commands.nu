@@ -316,6 +316,19 @@ export def match-action [
     }
 }
 
+# Apply output formatting based on fence options (separate-block vs inline `# =>`).
+def apply-output-formatting [fence_options: list<string>]: string -> string {
+    let input = $in
+
+    if 'no-output' in $fence_options { return $input }
+
+    $input
+    | if 'separate-block' in $fence_options { create-fence-output } else { }
+    | if not (check-print-append $input) { } else {
+        create-indented-output | generate-print-statement
+    }
+}
+
 # Generate code for execution in the intermediate script within a given code fence.
 #
 # > 'ls | sort-by modified -r' | create-execution-code ['no-output'] | save z_examples/999_numd_internals/create-execution-code_0.nu -f
@@ -323,7 +336,6 @@ export def create-execution-code [
     fence_options: list<string>
 ]: string -> string {
     let code_content = $in
-    # let fence_options = $env.numd.current_block_options
 
     let highlighted_command = $code_content | create-highlight-command
 
@@ -332,15 +344,7 @@ export def create-execution-code [
     | if 'try' in $fence_options {
         wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
     } else { }
-    | if 'no-output' in $fence_options { } else {
-        # separate-block: output goes to a separate ```output-numd``` fence
-        # default: output is inline with `# =>` prefix
-        if 'separate-block' in $fence_options { create-fence-output } else { }
-        | if (check-print-append $in) {
-            create-indented-output
-            | generate-print-statement
-        } else { }
-    }
+    | apply-output-formatting $fence_options
     | $in + (char nl)
     # Always print a blank line after each command group to preserve visual separation
     | $in + "print ''"
