@@ -393,14 +393,12 @@ export def execute-block-lines [
     | str join (char nl)
     | split-by-blank-lines
     | each {|group|
-        if ($group | str trim | is-empty) {
-            # preserve blank line separators
+        let trimmed = $group | str trim
+        if ($trimmed | is-empty) {
             ''
-        } else if ($group | str trim | str starts-with '#') and ($group | str trim | lines | all {|line| $line =~ '^#' }) {
-            # pure comment group - just highlight it
+        } else if ($trimmed | lines | all {$in =~ '^#'}) {
             $group | create-highlight-command
         } else {
-            # executable command group
             $group | create-execution-code $fence_options
         }
     }
