@@ -11,8 +11,8 @@ use ($init_numd_pwd_const | path join numd commands.nu) *
     # ```nu
 # Here we set the `$file` variable (which will be used in several commands throughout this script) to point to `z_examples/1_simple_markdown/simple_markdown.md`.
 let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple_markdown.md
-let $md_orig = open -r $file | toggle-output-fences
-let $original_md_table = $md_orig | find-code-blocks
+let $md_orig = open -r $file | convert-output-fences
+let $original_md_table = $md_orig | parse-markdown-to-blocks
 
 $original_md_table | table -e --width 120
 
@@ -20,7 +20,7 @@ $original_md_table | table -e --width 120
     # ```nu
 # Here we emulate that the `$intermed_script_path` options is not set
 let $intermediate_script_path = $file
-    | modify-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
+    | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --suffix '.nu'
 
 decorate-original-code-blocks $original_md_table
 | generate-intermediate-script

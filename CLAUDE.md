@@ -30,12 +30,13 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 ### Module Structure (`numd/`)
 
 - **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-code-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
-- **commands.nu**: Core implementation (~840 lines) containing all main logic
+- **commands.nu**: Core implementation (~865 lines) containing all main logic
+- **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
 - **parse.nu**: Frontmatter parsing utilities for YAML frontmatter in markdown
 
 ### Core Processing Pipeline (in `commands.nu`)
 
-1. **`find-code-blocks`**: Parses markdown into a table classifying each block by type (`text`, ` ```nushell `, ` ```output-numd `) and action (`execute`, `print-as-it-is`, `delete`)
+1. **`parse-markdown-to-blocks`**: Parses markdown into a table classifying each block by type (`text`, ` ```nushell `, ` ```output-numd `) and action (`execute`, `print-as-it-is`, `delete`)
 
 2. **`decorate-original-code-blocks`** + **`generate-intermediate-script`**: Transforms executable code blocks into a temporary `.nu` script with markers for output capture
 
@@ -50,12 +51,15 @@ Blocks support options in the infostring (e.g., ` ```nushell try, no-output `):
 - `no-output` / `O`: Execute but hide output
 - `try` / `t`: Wrap in try-catch
 - `new-instance` / `n`: Execute in separate Nushell instance
+- `separate-block` / `s`: Output results in separate code block instead of inline `# =>`
 
 ### Output Format Conventions
 
-- Lines starting with `>` are treated as REPL-style commands (executed line-by-line)
-- Lines starting with `# =>` contain output from previous command
-- Blocks without `>` are executed as a single script unit
+- Code blocks are split by blank lines (double newlines) into command groups
+- Each command group is executed separately via `split-by-blank-lines`
+- Lines starting with `# =>` contain output from previous command group
+- Plain `#` comments are preserved; `# =>` output lines are regenerated on each run
+- Use `separate-block` fence option to output results in a separate code block instead of inline `# =>`
 
 ## Testing
 
@@ -82,17 +86,18 @@ Unit tests use [nutest](https://github.com/vyadh/nutest) framework. Tests import
 The `testing-integration` command:
 1. Runs all example files in `z_examples/` through numd
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
-3. Reports Levenshtein distance and diff stats to detect changes
+3. Runs `numd run README.md` to update README with latest outputs
+4. Reports Levenshtein distance and diff stats to detect changes
 
 Example files serve as integration tests - use both the Levenshtein stats and `git diff` to verify changes.
 
 ### Expected Non-Zero Diffs
 
 Some files legitimately differ on each run due to:
-- **Dynamic content**: `sys host | get boot_time` in README.md, timezone examples in `working_with_lists.md`
-- **Nushell version changes**: Error message formatting, etc
+- **Dynamic content**: `git tag` output in README.md (version changes over time)
+- **Nushell version changes**: Error message formatting, table rendering differences
 
-A zero `levenshtein_dist` for most files + expected diffs in time-dependent files = passing tests.
+A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests.
 
 ## Configuration
 

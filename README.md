@@ -212,8 +212,8 @@ ls z_examples | sort-by name | reject modified size
 # => │ z_examples/9_other                      │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
 
-sys host | get boot_time
-# => Fri Dec  5 03:49:33 2025
+'hello world' | str length
+# => 11
 
 2 + 2
 # => 4
@@ -250,7 +250,7 @@ nu toolkit.nu testing-integration
 
 ### Unit tests
 
-Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framework to test internal functions like `find-code-blocks`, `match-action`, `extract-fence-options`, etc.
+Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framework to test internal functions like `parse-markdown-to-blocks`, `classify-block-action`, `extract-fence-options`, etc.
 
 ### Integration tests
 
