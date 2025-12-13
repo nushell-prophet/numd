@@ -290,6 +290,46 @@ def "check-print-append returns false for print ending" [] {
     assert equal (check-print-append "ls | print") false
 }
 
+@test
+def "check-print-append returns false for source statements" [] {
+    assert equal (check-print-append "source a.nu") false
+    assert equal (check-print-append "overlay use foo") false
+    assert equal (check-print-append "alias ll = ls -la") false
+}
+
+@test
+def "check-print-append handles multi-statement commands" [] {
+    # Last span is echo - should be true
+    assert equal (check-print-append "source a.nu; echo abc") true
+    # Last span is source - should be false
+    assert equal (check-print-append "echo abc; source a.nu") false
+    # Multi-line: last is echo
+    assert equal (check-print-append "source a.nu\necho hello") true
+    # Last span is use - should be false
+    assert equal (check-print-append "ls; use std") false
+}
+
+# =============================================================================
+# Tests for get-last-span
+# =============================================================================
+
+@test
+def "get-last-span returns whole command for simple commands" [] {
+    assert equal (get-last-span "ls") "ls"
+    assert equal (get-last-span "echo hello") "echo hello"
+}
+
+@test
+def "get-last-span returns last statement after semicolon" [] {
+    assert equal (get-last-span "source a.nu; echo abc") "echo abc"
+    assert equal (get-last-span "echo abc; source a.nu") "source a.nu"
+}
+
+@test
+def "get-last-span handles multi-line commands" [] {
+    assert equal (get-last-span "source a.nu\necho hello") "echo hello"
+}
+
 # =============================================================================
 # Tests for modify-path
 # =============================================================================
