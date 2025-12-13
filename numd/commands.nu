@@ -330,11 +330,7 @@ export def create-execution-code [
     let code_execution = $code_content
     | remove-comments-plus
     | if 'try' in $fence_options {
-        if 'new-instance' in $fence_options {
-            create-catch-error-outside
-        } else {
-            create-catch-error-current-instance
-        }
+        wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
     } else { }
     | if 'no-output' in $fence_options { } else {
         # separate-block: output goes to a separate ```output-numd``` fence
@@ -716,24 +712,25 @@ export def generate-table-statement []: string -> string {
     $"($in) | table --width ($env.numd?.table-width? | default 120)"
 }
 
-# Generate a try-catch block to handle errors in the current Nushell instance.
+# Wrap code in a try-catch block to handle errors gracefully.
 #
-# > 'ls' | create-catch-error-current-instance
+# > 'ls' | wrap-in-try-catch
 # try {ls} catch {|error| $error}
-export def create-catch-error-current-instance []: string -> string {
-    $"try {($in)} catch {|error| $error}"
-}
-
-# Execute the command outside to obtain a formatted error message if any.
 #
-# > 'ls' | create-catch-error-outside
+# > 'ls' | wrap-in-try-catch --new-instance
 # /Users/user/.cargo/bin/nu -c "ls" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
-export def create-catch-error-outside []: string -> string {
-    escape-special-characters-and-quote
-    | (
-        $'($nu.current-exe) -c ($in)' +
-        " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}"
-    )
+export def wrap-in-try-catch [
+    --new-instance # execute in a separate Nushell instance to get formatted error messages
+]: string -> string {
+    if $new_instance {
+        escape-special-characters-and-quote
+        | (
+            $'($nu.current-exe) -c ($in)' +
+            " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}"
+        )
+    } else {
+        $"try {($in)} catch {|error| $error}"
+    }
 }
 
 # Generate a fenced code block for output with a specific format.
