@@ -681,7 +681,7 @@ export def check-print-append [
 
     (
         $last_span !~ '(;|print|null)$'
-        and $last_span !~ '\b(let|mut|def|use)\b'
+        and $last_span !~ '\b(let|mut|def|use|source|overlay|alias)\b'
         and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
     )
 }
