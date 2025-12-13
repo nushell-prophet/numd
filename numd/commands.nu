@@ -49,7 +49,7 @@ export def run [
 
     let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
-    | convert-output-fences --back
+    | convert-output-fences --restore
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -469,14 +469,14 @@ export def clean-markdown []: string -> string {
 # > "```nu\n123\n```\n\nOutput:\n\n```\n123" | convert-output-fences | to json
 # "```nu\n123\n```\n```output-numd\n123"
 export def convert-output-fences [
-    a = "\n```\n\nOutput:\n\n```\n" # I set variables here to prevent collecting $in var
-    b = "\n```\n```output-numd\n"
-    --back
+    expanded_format = "\n```\n\nOutput:\n\n```\n" # default params to prevent collecting $in
+    compact_format = "\n```\n```output-numd\n"
+    --restore # convert back from compact to expanded format
 ]: string -> string {
-    if $back {
-        str replace --all $b $a
+    if $restore {
+        str replace --all $compact_format $expanded_format
     } else {
-        str replace --all $a $b
+        str replace --all $expanded_format $compact_format
     }
 }
 
@@ -644,21 +644,21 @@ export def get-last-span [
     | from json
     | to yaml
     | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
-    | rename s f
-    | into int s f
+    | rename start end
+    | into int start end
 
     #  I just brute-forced AST filter parameters in nu 0.97, as `ast` awaits a better replacement or improvement.
-    let last_span_end = $spans.f | math max
+    let last_span_end = $spans.end | math max
     let longest_last_span_start = $spans
-    | where f == $last_span_end
-    | get s
+    | where end == $last_span_end
+    | get start
     | if ($in | length) == 1 { } else { sort | skip }
     | first
 
-    let len = $longest_last_span_start - $last_span_end
+    let offset = $longest_last_span_start - $last_span_end
 
     $command
-    | str substring $len..
+    | str substring $offset..
 }
 
 # Check if the command can have `| print` appended by analyzing its last span for semicolons or declaration keywords.

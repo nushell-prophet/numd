@@ -228,9 +228,9 @@ def "convert-output-fences converts output format" [] {
 }
 
 @test
-def "convert-output-fences converts back" [] {
+def "convert-output-fences restores expanded format" [] {
     let input = "```nu\n123\n```\n```output-numd\n456\n```"
-    let result = $input | convert-output-fences --back
+    let result = $input | convert-output-fences --restore
 
     assert ($result =~ "Output:")
     assert ($result !~ "output-numd")
