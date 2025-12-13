@@ -143,4 +143,5 @@ $scores | all {|elt| $elt mod 2 == 0 } # false
     # ```nu
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
+let base_time = '2024-01-15 12:00:00' | into datetime --timezone UTC
+$zones | wrap 'Zone' | upsert Time {|row| ($base_time | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}

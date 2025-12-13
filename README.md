@@ -212,8 +212,8 @@ ls z_examples | sort-by name | reject modified size
 # => │ z_examples/9_other                      │ dir  │
 # => ╰──────────────────name───────────────────┴─type─╯
 
-sys host | get boot_time
-# => Fri Dec  5 03:49:33 2025
+'hello world' | str length
+# => 11
 
 2 + 2
 # => 4

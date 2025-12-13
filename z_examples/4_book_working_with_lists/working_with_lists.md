@@ -329,11 +329,12 @@ be converted to a separate row with a single column:
 ```nu
 let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 # Show world clock for selected time zones
-$zones | wrap 'Zone' | upsert Time {|row| (date now | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
+let base_time = '2024-01-15 12:00:00' | into datetime --timezone UTC
+$zones | wrap 'Zone' | upsert Time {|row| ($base_time | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
 # => ╭────────Zone────────┬───────Time───────╮
-# => │ UTC                │ 2025.12.11 01:24 │
-# => │ CET                │ 2025.12.11 02:24 │
-# => │ Europe/Moscow      │ 2025.12.11 04:24 │
-# => │ Asia/Yekaterinburg │ 2025.12.11 06:24 │
+# => │ UTC                │ 2024.01.15 15:00 │
+# => │ CET                │ 2024.01.15 16:00 │
+# => │ Europe/Moscow      │ 2024.01.15 18:00 │
+# => │ Asia/Yekaterinburg │ 2024.01.15 20:00 │
 # => ╰────────Zone────────┴───────Time───────╯
 ```
