@@ -101,8 +101,10 @@ export def 'main release' [
     --major (-M)  # Bump major version (X.0.0)
     --minor (-m)  # Bump minor version (x.Y.0)
 ] {
+    git checkout main
+
     let description = gh repo view --json description | from json | get description
-    let parts = git tag | lines | sort -n | last | split row '.' | into int
+    let parts = git tag | lines | sort --natural | last | split row '.' | into int
     let tag = if $major {
         [($parts.0 + 1) 0 0]
     } else if $minor {
@@ -117,22 +119,8 @@ export def 'main release' [
     | to nuon --indent 2
     | save --force --raw nupm.nuon
 
-    # open README.md -r
-    # | lines
-    # | update 0 ('<h1 align="center">' + $description + '</h1>')
-    # | str join (char nl)
-    # | $in + (char nl)
-    # | save -r README.md -f
-
-    # prettier README.md -w
-
-    # use nupm
-    # nupm install --force --path .
-
-    git checkout main
-
     git add nupm.nuon
     git commit -m $'($tag) nupm version'
     git tag $tag
-    git push origin $tag
+    git push origin main --tags
 }
