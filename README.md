@@ -5,13 +5,11 @@ Execute blocks of nushell code within markdown documents, write results back to 
 ## Quickstart
 
 ```nushell no-run
-# this block won't run as it has the option `no-run` in its code fence
+# clone the repo and `cd` into it
+git clone https://github.com/nushell-prophet/numd
+cd numd
 
-git clone https://github.com/nushell-prophet/numd; cd numd
-
-# optionally you can install this module via nupm
-nupm install --force --path .
-
+# use definitions from the module
 use numd
 
 # run it on any file to check
@@ -32,6 +30,9 @@ Experienced nushell users can understand the logic better by looking at [example
 4. Multiline commands (pipelines split across lines without blank lines) are treated as a single command group.
 5. Plain `#` comments are preserved; `# =>` output lines are regenerated on each run.
 6. Use the `separate-block` fence option to output results in a separate code block instead of inline.
+
+> [!NOTE] 
+> This readme is a live `numd` document
 
 ### `numd run` flags and params
 
