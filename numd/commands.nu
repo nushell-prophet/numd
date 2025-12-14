@@ -468,9 +468,9 @@ export def clean-markdown []: string -> string {
 
 # Replacement is needed to distinguish the blocks with outputs from blocks with just ```.
 # `parse-markdown-to-blocks` works only with lines without knowing the previous lines.
-#
-# > "```nu\n123\n```\n\nOutput:\n\n```\n123" | convert-output-fences | to json
-# "```nu\n123\n```\n```output-numd\n123"
+@example '' {
+    "```nu\n123\n```\n\nOutput:\n\n```\n123" | convert-output-fences
+} --result "```nu\n123\n```\n```output-numd\n123"
 export def convert-output-fences [
     expanded_format = "\n```\n\nOutput:\n\n```\n" # default params to prevent collecting $in
     compact_format = "\n```\n```output-numd\n"
@@ -542,9 +542,9 @@ export def list-code-options [
 }
 
 # Expand short options for code block execution to their long forms.
-#
-# > convert-short-options 'O'
-# no-output
+@example '' {
+    convert-short-options 'O'
+} --result 'no-output'
 export def convert-short-options [
     option: string
 ]: nothing -> string {
@@ -594,7 +594,7 @@ export def execute-intermediate-script [
 
 # Generate a unique identifier for code blocks in markdown to distinguish their output.
 @example '' {
-    mark-code-block 3
+    code-block-marker 3
 } --result "#code-block-marker-open-3"
 export def code-block-marker [
     index?: int
@@ -607,8 +607,8 @@ export def code-block-marker [
 
 # Generate a command to highlight code using Nushell syntax highlighting.
 @example '' {
-    'ls' | create-highlight-command
-} --result '"ls" | nu-highlight | print'
+    'ls' | generate-highlight-print
+} --result "\"ls\" | nu-highlight | print\n\n"
 export def generate-highlight-print []: string -> string {
     quote-for-print
     | $"($in) | nu-highlight | print(char nl)(char nl)"
@@ -621,24 +621,12 @@ export def trim-trailing-comments []: string -> string {
 }
 
 # Extract the last span from a command to determine if `| print` can be appended.
-#
-# > get-last-span 'let a = 1..10; $a | length'
-# length
-#
-# > get-last-span 'let a = 1..10; let b = $a | length'
-# let b = $a | length
-#
-# > get-last-span 'let a = 1..10; ($a | length);'
-# let a = 1..10; ($a | length);
-#
-# > get-last-span 'let a = 1..10; ($a | length)'
-# ($a | length)
-#
-# > get-last-span 'let a = 1..10'
-# let a = 1..10
-#
-# > get-last-span '"abc"'
-# "abc"
+@example '' { get-last-span 'let a = 1..10; $a | length' } --result 'length'
+@example '' { get-last-span 'let a = 1..10; let b = $a | length' } --result 'let b = $a | length'
+@example '' { get-last-span 'let a = 1..10; ($a | length);' } --result 'let a = 1..10; ($a | length);'
+@example '' { get-last-span 'let a = 1..10; ($a | length)' } --result '($a | length)'
+@example '' { get-last-span 'let a = 1..10' } --result 'let a = 1..10'
+@example '' { get-last-span '"abc"' } --result '"abc"'
 export def get-last-span [
     command: string
 ]: nothing -> string {
@@ -666,15 +654,9 @@ export def get-last-span [
 }
 
 # Check if the command can have `| print` appended by analyzing its last span for semicolons or declaration keywords.
-#
-# > can-append-print 'let a = ls'
-# false
-#
-# > can-append-print 'ls'
-# true
-#
-# > can-append-print 'mut a = 1; $a = 2'
-# false
+@example '' { can-append-print 'let a = ls' } --result false
+@example '' { can-append-print 'ls' } --result true
+@example '' { can-append-print 'mut a = 1; $a = 2' } --result false
 export def can-append-print [
     command: string
 ]: nothing -> bool {
@@ -688,9 +670,9 @@ export def can-append-print [
 }
 
 # Generate indented output for better visual formatting.
-#
-# > 'ls' | generate-inline-output-pipeline
-# ls | table | lines | each {$'# => ($in)' | str trim --right} | str join (char nl)
+@example '' {
+    'ls' | generate-inline-output-pipeline
+} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' \"\\n\""
 export def generate-inline-output-pipeline [
     --indent: string = '# => ' # prefix string for each output line
 ]: string -> string {
@@ -699,31 +681,20 @@ export def generate-inline-output-pipeline [
 }
 
 # Generate a print statement for capturing command output.
-#
-# > 'ls' | generate-print-statement
-# ls | table | print; print ''
+@example '' { 'ls' | generate-print-statement } --result "ls | print; print ''"
 export def generate-print-statement []: string -> string {
     $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
 # Generate a table statement with optional width specification.
-#
-# > 'ls' | generate-table-statement
-# ls | table
-#
-# > $env.numd.table-width = 10; 'ls' | generate-table-statement
-# ls | table --width 10
+@example '' { 'ls' | generate-table-statement } --result 'ls | table --width 120'
+@example '' { $env.numd.table-width = 10; 'ls' | generate-table-statement } --result 'ls | table --width 10'
 export def generate-table-statement []: string -> string {
     $"($in) | table --width ($env.numd?.table-width? | default 120)"
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
-#
-# > 'ls' | wrap-in-try-catch
-# try {ls} catch {|error| $error}
-#
-# > 'ls' | wrap-in-try-catch --new-instance
-# /Users/user/.cargo/bin/nu -c "ls" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}
+@example '' { 'ls' | wrap-in-try-catch } --result 'try {ls} catch {|error| $error}'
 export def wrap-in-try-catch [
     --new-instance # execute in a separate Nushell instance to get formatted error messages
 ]: string -> string {
@@ -768,12 +739,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-#
-# > '```nu no-run, t' | extract-fence-options
-# ╭───┬────────╮
-# │ 0 │ no-run │
-# │ 1 │ try    │
-# ╰───┴────────╯
+@example '' { '```nu no-run, t' | extract-fence-options } --result ['no-run' 'try']
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -783,9 +749,9 @@ export def extract-fence-options []: string -> list<string> {
 }
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
-#
-# > 'numd/capture.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
-# numd/abc/pref_capture_suf.nu.md
+@example '' {
+    'numd/capture.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
+} --result 'numd/abc/pref_capture_suf.nu.md'
 export def build-modified-path [
     --prefix: string
     --suffix: string
@@ -843,9 +809,6 @@ export def --env load-config [
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
-#
-# > generate-timestamp
-# 20241128_222140
 export def generate-timestamp []: nothing -> string {
     date now | format date "%Y%m%d_%H%M%S"
 }
