@@ -330,8 +330,6 @@ def format-command-output [fence_options: list<string>]: string -> string {
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
-#
-# > 'ls | sort-by modified -r' | generate-block-execution ['no-output'] | save z_examples/999_numd_internals/generate-block-execution_0.nu -f
 export def generate-block-execution [
     fence_options: list<string>
 ]: string -> string {
@@ -386,7 +384,7 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     | str replace -r "\\s*$" "\n"
 }
 
-# Split code block content by blank lines into command groups, execute each, insert `# =>` output.
+# Split code block content by blank lines into command groups and generate execution code for each.
 export def process-code-block-content [
     fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
 ]: list<string> -> list<string> {
@@ -669,7 +667,7 @@ export def can-append-print [
     )
 }
 
-# Generate indented output for better visual formatting.
+# Generate a pipeline that captures command output with `# =>` prefix for inline display.
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
 } --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' \"\\n\""
@@ -739,7 +737,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run' 'try']
+@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run', 'try']
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
