@@ -3,6 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
   pull_request:
     branches: [main]
 
@@ -18,6 +21,9 @@ jobs:
         uses: hustcer/setup-nu@v3
         with:
           version: "*"
+
+      - name: Install nutest
+        run: git clone https://github.com/vyadh/nutest.git ../nutest
 
       - name: Run tests
         run: nu toolkit.nu testing --json
