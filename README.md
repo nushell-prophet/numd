@@ -1,3 +1,5 @@
+[![CI](https://github.com/nushell-prophet/numd/actions/workflows/ci.yml/badge.svg)](https://github.com/nushell-prophet/numd/actions/workflows/ci.yml)
+
 # numd - reproducible Nushell Markdown documents
 
 Execute blocks of nushell code within markdown documents, write results back to your `.md` document, or output them to the terminal.
