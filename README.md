@@ -33,7 +33,7 @@ Experienced nushell users can understand the logic better by looking at [example
 5. Plain `#` comments are preserved; `# =>` output lines are regenerated on each run.
 6. Use the `separate-block` fence option to output results in a separate code block instead of inline.
 
-> [!NOTE] 
+> [!NOTE]
 > This readme is a live `numd` document
 
 ### `numd run` flags and params
@@ -70,6 +70,10 @@ numd run --help
 # =>   │ 1 │ nothing │ nothing │
 # =>   │ 2 │ nothing │ record  │
 # =>   ╰─#─┴──input──┴─output──╯
+# =>
+# => Examples:
+# =>   update readme
+# =>   > numd run README.md
 # =>
 ```
 
@@ -206,9 +210,11 @@ ls z_examples | sort-by name | reject modified size
 # => ╭──────────────────name───────────────────┬─type─╮
 # => │ z_examples/1_simple_markdown            │ dir  │
 # => │ z_examples/2_numd_commands_explanations │ dir  │
+# => │ z_examples/3_book_types_of_data         │ dir  │
 # => │ z_examples/4_book_working_with_lists    │ dir  │
 # => │ z_examples/5_simple_nu_table            │ dir  │
 # => │ z_examples/6_edge_cases                 │ dir  │
+# => │ z_examples/7_image_output               │ dir  │
 # => │ z_examples/8_parse_frontmatter          │ dir  │
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
@@ -222,7 +228,7 @@ ls z_examples | sort-by name | reject modified size
 # => 4
 
 git tag | lines | sort -n | last
-# => 0.1.21
+# => 0.2.2
 ```
 
 ## Real fight examples to try
