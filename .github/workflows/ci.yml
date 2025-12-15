@@ -32,3 +32,6 @@ jobs:
 
       - name: Run tests
         run: nu toolkit.nu testing --json
+
+      - name: Show diff of changed files
+        run: git diff
