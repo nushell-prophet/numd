@@ -11,7 +11,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout repository
@@ -27,3 +32,7 @@ jobs:
 
       - name: Run tests
         run: nu toolkit.nu testing --json
+
+      - name: Show diff of changed files
+        if: always()
+        run: git diff
