@@ -34,4 +34,5 @@ jobs:
         run: nu toolkit.nu testing --json
 
       - name: Show diff of changed files
+        if: always()
         run: git diff
