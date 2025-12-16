@@ -107,8 +107,9 @@ export def clear-outputs [
         | clean-markdown
     }
     | if $echo { } else {
+        let result = $in
         check-git-clean $file
-        save -f $file
+        $result | save -f $file
     }
 }
 
