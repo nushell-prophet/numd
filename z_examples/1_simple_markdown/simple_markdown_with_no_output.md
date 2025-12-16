@@ -15,13 +15,21 @@ let $var1 = 'foo'
 $var1 | path join 'baz' 'bar'
 ```
 
+Output:
+
+```
+# => foo/baz/bar
+```
+
 ## Example 3
 
 ```nu
 # This block will output results inline
 whoami
+# => user
 
 2 + 2
+# => 4
 ```
 
 ## Example 4
