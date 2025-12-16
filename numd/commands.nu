@@ -772,7 +772,7 @@ export def check-git-clean [
     # Check if file is tracked by git
     let is_tracked = (do { git ls-files --error-unmatch $file } | complete).exit_code == 0
     if not $is_tracked {
-        print $"(ansi yellow)Warning: ($file_path) is not tracked by git(ansi reset)"
+        print -e $"(ansi yellow)Warning: ($file_path) is not tracked by git(ansi reset)"
         return
     }
 
@@ -780,7 +780,7 @@ export def check-git-clean [
     let has_changes = (git diff --name-only $file | str trim) != ''
     let is_staged = (git diff --staged --name-only $file | str trim) != ''
     if $has_changes or $is_staged {
-        print $"(ansi yellow)Warning: ($file_path) has uncommitted changes(ansi reset)"
+        print -e $"(ansi yellow)Warning: ($file_path) has uncommitted changes(ansi reset)"
     }
 }
 
