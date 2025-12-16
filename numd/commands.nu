@@ -6,12 +6,8 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
     --print-block-results # print blocks one by one as they are executed
-    --echo # output resulting markdown to the terminal
-    --save-ansi # save ANSI formatted version
-    --no-backup # overwrite the existing `.md` file without backup
-    --no-save # do not save changes to the `.md` file
+    --echo # output resulting markdown to stdout instead of saving to file
     --no-stats # do not output stats of changes
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
@@ -57,17 +53,14 @@ export def run [
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
 
-    let output_path = $result_md_path | default $file
-
-    if not $no_save {
-        if not $no_backup { create-file-backup $output_path }
-        $updated_md_ansi | ansi strip | save -f $output_path
+    # When --echo is used, output to stdout; otherwise save to file
+    if not $echo {
+        check-git-clean $file
+        $updated_md_ansi | ansi strip | save -f $file
     }
 
-    if $save_ansi { $updated_md_ansi | save -f $'($output_path).ans' }
-
     if not $no_stats {
-        compute-change-stats $output_path $original_md $updated_md_ansi
+        compute-change-stats $file $original_md $updated_md_ansi
         | if not $echo {
             return $in # default variant: we return here a record
         } else {
@@ -81,15 +74,12 @@ export def run [
 # Remove numd execution outputs from the file
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
-    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
-    --echo # output resulting markdown to the terminal instead of writing to file
+    --echo # output resulting markdown to stdout instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string nothing -> nothing] {
     let original_md_table = open -r $file
     | convert-output-fences
     | parse-markdown-to-blocks
-
-    let result_md_path = $result_md_path | default $file
 
     $original_md_table
     | where action == 'execute'
@@ -116,7 +106,10 @@ export def clear-outputs [
         merge-markdown $original_md_table $in
         | clean-markdown
     }
-    | if $echo { } else { save -f $result_md_path }
+    | if $echo { } else {
+        check-git-clean $file
+        save -f $file
+    }
 }
 
 # start capturing commands and their outputs into a file
@@ -765,14 +758,29 @@ export def build-modified-path [
     | path join
 }
 
-# Create a backup of a file by moving it to a subdirectory with a timestamp suffix.
-export def create-file-backup [
-    file_path: path # path to the file to back up
+# Check if file is safely tracked in git before overwriting.
+# Warns if file has uncommitted changes or is not tracked by git.
+export def check-git-clean [
+    file_path: path # path to the file to check
 ]: nothing -> nothing {
-    $file_path
-    | if ($in | path exists) and ($in | path type) == 'file' {
-        build-modified-path --parent_dir 'zzz_md_backups' --suffix $'-(generate-timestamp)'
-        | mv $file_path $in
+    let file = $file_path | path expand
+
+    # Check if we're in a git repo
+    let in_git_repo = (do { git rev-parse --git-dir } | complete).exit_code == 0
+    if not $in_git_repo { return }
+
+    # Check if file is tracked by git
+    let is_tracked = (do { git ls-files --error-unmatch $file } | complete).exit_code == 0
+    if not $is_tracked {
+        print $"(ansi yellow)Warning: ($file_path) is not tracked by git(ansi reset)"
+        return
+    }
+
+    # Check if file has uncommitted changes
+    let has_changes = (git diff --name-only $file | str trim) != ''
+    let is_staged = (git diff --staged --name-only $file | str trim) != ''
+    if $has_changes or $is_staged {
+        print $"(ansi yellow)Warning: ($file_path) has uncommitted changes(ansi reset)"
     }
 }
 
