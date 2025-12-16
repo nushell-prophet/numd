@@ -53,22 +53,17 @@ export def run [
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
 
-    # When --echo is used, output to stdout; otherwise save to file
-    if not $echo {
+    # When --echo is used, output markdown to stdout (for piping); otherwise save to file
+    if $echo {
+        $updated_md_ansi
+    } else {
         check-git-clean $file
         $updated_md_ansi | ansi strip | save -f $file
-    }
 
-    if not $no_stats {
-        compute-change-stats $file $original_md $updated_md_ansi
-        | if not $echo {
-            return $in # default variant: we return here a record
-        } else {
-            table # we continue here with `string` as it will be appended to the resulting `string` markdown
+        if not $no_stats {
+            compute-change-stats $file $original_md $updated_md_ansi
         }
-    } else { }
-    | if $echo { prepend $updated_md_ansi } else { } # output the changes stat table below the resulting markdown
-    | if $in == null { } else { str join (char nl) }
+    }
 }
 
 # Remove numd execution outputs from the file
