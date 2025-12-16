@@ -16,7 +16,7 @@ use numd; numd run README.md
 use numd; numd run README.md --no-save --echo
 
 # Run tests (executes all example files and reports changes)
-nu toolkit.nu testing --json
+nu toolkit.nu test --json
 
 # Clear outputs from a markdown file
 use numd; numd clear-outputs path/to/file.md
@@ -65,16 +65,16 @@ Blocks support fence options (e.g., ` ```nushell try, no-output `):
 
 ```nushell
 # Run all tests (unit + integration)
-nu toolkit.nu testing
+nu toolkit.nu test
 
 # Run only unit tests (nutest-based, tests internal functions)
-nu toolkit.nu testing-unit
+nu toolkit.nu test-unit
 
 # Run only integration tests (executes example markdown files)
-nu toolkit.nu testing-integration
+nu toolkit.nu test-integration
 
 # All commands support --json for CI
-nu toolkit.nu testing --json
+nu toolkit.nu test --json
 ```
 
 ### Unit Tests (`tests/`)
@@ -83,7 +83,7 @@ Unit tests use [nutest](https://github.com/vyadh/nutest) framework. Tests import
 
 ### Integration Tests (`z_examples/`)
 
-The `testing-integration` command:
+The `test-integration` command:
 1. Runs all example files in `z_examples/` through numd
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
 3. Runs `numd run README.md` to update README with latest outputs

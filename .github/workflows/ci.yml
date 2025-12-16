@@ -31,7 +31,7 @@ jobs:
         run: git clone https://github.com/vyadh/nutest.git ../nutest
 
       - name: Run tests
-        run: nu toolkit.nu testing --json
+        run: nu toolkit.nu test --json
 
       - name: Show diff of changed files
         if: always()

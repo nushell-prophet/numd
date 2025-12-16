@@ -248,13 +248,13 @@ Testing of the `numd` module is done via `toolkit.nu`:
 
 ```nushell no-run
 # Run all tests (unit + integration)
-nu toolkit.nu testing
+nu toolkit.nu test
 
 # Run only unit tests (uses nutest framework)
-nu toolkit.nu testing-unit
+nu toolkit.nu test-unit
 
 # Run only integration tests (executes example markdown files)
-nu toolkit.nu testing-integration
+nu toolkit.nu test-integration
 ```
 
 ### Unit tests
@@ -266,7 +266,7 @@ Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framewo
 Integration tests run all example files in `z_examples/` through numd and report changes via Levenshtein distance. Whatever changes are made in the module - it can be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions).
 
 ```nushell no-run
-nu toolkit.nu testing-integration
+nu toolkit.nu test-integration
 # => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
 # => │                   filename                    │ nushell_blocks  │ levenshtein_dist  │ diff_lines │  diff_words  │ ... │
 # => ├───────────────────────────────────────────────┼─────────────────┼───────────────────┼────────────┼──────────────┼─────┤
