@@ -90,11 +90,12 @@ numd list-fence-options --list
 
 ### Stats of changes
 
-By default, `numd` provides basic stats on changes made.
+By default, `numd` provides basic stats on changes made (when not using `--echo`).
 
 ```nushell
+# Running without --echo saves the file and returns stats
 let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-numd run --echo $path
+numd run $path
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
