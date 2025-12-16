@@ -77,12 +77,12 @@ numd run --help
 # =>
 ```
 
-### Supported nushell code block options
+### Supported fence options
 
-`numd` understands the following block options. Several comma-separated block options will be combined together. The block options should be in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence like the example: ` ```nushell try, new-instance `
+`numd` understands the following fence options. Several comma-separated fence options can be combined together. Fence options are placed in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence, for example: ` ```nushell try, new-instance `
 
 ```nushell
-numd list-code-options --list
+numd list-fence-options --list
 # => ╭──────long──────┬─short─┬───────────────────────────description────────────────────────────╮
 # => │ no-output      │ O     │ execute code without outputting results                          │
 # => │ no-run         │ N     │ do not execute code in block                                     │

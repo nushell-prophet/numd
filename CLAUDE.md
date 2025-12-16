@@ -29,7 +29,7 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 ### Module Structure (`numd/`)
 
-- **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-code-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
+- **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-fence-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
 - **commands.nu**: Core implementation (~865 lines) containing all main logic
 - **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
 - **parse.nu**: Frontmatter parsing utilities for YAML frontmatter in markdown
@@ -44,9 +44,9 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 4. **`extract-block-index`** + **`merge-markdown`**: Parses execution results using `#code-block-marker-open-N` markers and merges them back into the original markdown structure
 
-### Code Block Options
+### Fence Options
 
-Blocks support options in the infostring (e.g., ` ```nushell try, no-output `):
+Blocks support fence options (e.g., ` ```nushell try, no-output `):
 - `no-run` / `N`: Skip execution
 - `no-output` / `O`: Execute but hide output
 - `try` / `t`: Wrap in try-catch

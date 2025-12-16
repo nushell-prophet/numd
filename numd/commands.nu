@@ -519,8 +519,8 @@ export def compute-change-stats [
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
-# List code block options for execution and output customization.
-export def list-code-options [
+# List fence options for execution and output customization.
+export def list-fence-options [
     --list # display options as a table
 ]: [nothing -> record nothing -> table] {
     [
@@ -546,7 +546,7 @@ export def list-code-options [
 export def convert-short-options [
     option: string
 ]: nothing -> string {
-    let options_dict = list-code-options
+    let options_dict = list-fence-options
     let result = $options_dict | get --optional $option | default $option
 
     if $result not-in ($options_dict | values) {

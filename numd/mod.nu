@@ -1,7 +1,7 @@
 export use commands.nu [
     run
     clear-outputs
-    list-code-options
+    list-fence-options
     'capture start'
     'capture stop'
     parse-help
