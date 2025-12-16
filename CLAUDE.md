@@ -12,8 +12,8 @@ numd is a Nushell module for creating reproducible Markdown documents. It execut
 # Run numd on a markdown file (updates file with execution results)
 use numd; numd run README.md
 
-# Run without saving changes (preview mode)
-use numd; numd run README.md --no-save --echo
+# Preview mode (output to stdout, don't save)
+use numd; numd run README.md --echo
 
 # Run tests (executes all example files and reports changes)
 nu toolkit.nu test --json
