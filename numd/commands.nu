@@ -6,14 +6,14 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --print-block-results # print blocks one by one as they are executed, useful for long running scripts
-    --echo # output resulting markdown to stdout instead of saving to file
-    --no-stats # do not output stats of changes
-    --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --no-fail-on-error # skip errors (markdown is never saved on error)
-    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
-    --table-width: int # set the `table --width` option value
     --config-path: path = '' # path to a config file
+    --echo # output resulting markdown to stdout instead of saving to file
+    --no-fail-on-error # skip errors (markdown is never saved on error)
+    --no-stats # do not output stats of changes
+    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
+    --print-block-results # print blocks one by one as they are executed, useful for long running scripts
+    --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+    --table-width: int # set the `table --width` option value
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
     | if $nu.os-info.family == windows {
