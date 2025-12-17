@@ -1,5 +1,5 @@
 const numdinternals = ([numd commands.nu] | path join)
-use $numdinternals [ build-modified-path ]
+use $numdinternals [ build-modified-path compute-change-stats ]
 
 export def main [] { }
 
@@ -39,9 +39,9 @@ export def 'main test-integration' [
     let path_simple_table = [z_examples 5_simple_nu_table simple_nu_table.md] | path join
 
     # clear outputs from simple markdown
-    ['z_examples' '1_simple_markdown' 'simple_markdown.md']
-    | path join
-    | numd clear-outputs $in -o ($in | build-modified-path --suffix '_with_no_output')
+    let simple_md = ['z_examples' '1_simple_markdown' 'simple_markdown.md'] | path join
+    numd clear-outputs $simple_md --echo
+    | save -f ($simple_md | build-modified-path --suffix '_with_no_output')
 
     # I use a long chain of `append` here to obtain a table with statistics on updates upon exit.
 
@@ -63,27 +63,33 @@ export def 'main test-integration' [
         numd clear-outputs $file --strip-markdown --echo
         | save -f $strip_markdown_path
 
-        # Run files with yaml config set
+        # Run files with config set
         (
-            numd run $file --no-backup --save-intermed-script $'($file)_intermed.nu'
-            --config-path numd_config_example1.yaml
+            numd run $file --save-intermed-script $'($file)_intermed.nu'
+            --config-path numd_config_example1.nu
         )
     }
     # Run file with customized width of table
-    | append (
-        numd run $path_simple_table --no-backup --table-width 20 --result-md-path (
-            $path_simple_table | build-modified-path --suffix '_customized_width20'
-        )
-    )
+    | append (do {
+        let target = $path_simple_table | build-modified-path --suffix '_customized_width20'
+        let orig = open $path_simple_table
+        numd run $path_simple_table --echo --no-stats --table-width 20
+        | ansi strip
+        | save -f $target
+        compute-change-stats $target $orig (open $target)
+    })
     # Run file with another config
-    | append (
-        numd run $path_simple_table --no-backup --config-path 'numd_config_example2.yaml' --result-md-path (
-            $path_simple_table | build-modified-path --suffix '_customized_example_config'
-        )
-    )
+    | append (do {
+        let target = $path_simple_table | build-modified-path --suffix '_customized_example_config'
+        let orig = open $path_simple_table
+        numd run $path_simple_table --echo --no-stats --config-path 'numd_config_example2.nu'
+        | ansi strip
+        | save -f $target
+        compute-change-stats $target $orig (open $target)
+    })
     # Run readme
     | append (
-        numd run README.md --no-backup --config-path numd_config_example1.yaml
+        numd run README.md --config-path numd_config_example1.nu
     )
     | if $json { to json --raw } else { }
 }

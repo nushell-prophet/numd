@@ -1,10 +1,3 @@
-# this script was generated automatically using numd
-# https://github.com/nushell-prophet/numd
-
-const init_numd_pwd_const = '/Users/user/git/numd'
-
-# numd config loaded from `numd_config_example1.nu`
-
 # numd config example 1
 # This file is prepended to the intermediate script before execution
 

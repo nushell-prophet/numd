@@ -14,8 +14,8 @@ cd numd
 # use definitions from the module
 use numd
 
-# run it on any file to check
-numd run z_examples/1_simple_markdown/simple_markdown.md --no-save
+# run it on any file to check (--echo outputs to stdout without saving)
+numd run z_examples/1_simple_markdown/simple_markdown.md --echo
 ```
 
 ## How it works
@@ -48,18 +48,14 @@ numd run --help
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
-# =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
-# =>   --print-block-results: print blocks one by one as they are executed
-# =>   --echo: output resulting markdown to the terminal
-# =>   --save-ansi: save ANSI formatted version
-# =>   --no-backup: overwrite the existing `.md` file without backup
-# =>   --no-save: do not save changes to the `.md` file
-# =>   --no-stats: do not output stats of changes
+# =>   --config-path <path>: path to a .nu config file (Nushell code prepended to script) (default: '')
+# =>   --echo: output resulting markdown to stdout instead of saving to file
+# =>   --no-fail-on-error: skip errors (markdown is never saved on error)
+# =>   --no-stats: do not output stats of changes (is activated via --echo by default)
+# =>   --prepend-code <string>: additional code to prepend (applied after config file)
+# =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
 # =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-# =>   --no-fail-on-error: skip errors (and don't update markdown in case of errors anyway)
-# =>   --prepend-code <string>: prepend code into the intermediate script, useful for customizing Nushell output settings
-# =>   --table-width <int>: set the `table --width` option value
-# =>   --config-path <path>: path to a config file (default: '')
+# =>   --table-width <int>: set $env.numd.table-width (overrides config file)
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -82,7 +78,7 @@ numd run --help
 `numd` understands the following fence options. Several comma-separated fence options can be combined together. Fence options are placed in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence, for example: ` ```nushell try, new-instance `
 
 ```nushell
-numd list-fence-options --list
+numd list-fence-options
 # => ╭──────long──────┬─short─┬───────────────────────────description────────────────────────────╮
 # => │ no-output      │ O     │ execute code without outputting results                          │
 # => │ no-run         │ N     │ do not execute code in block                                     │
@@ -94,11 +90,12 @@ numd list-fence-options --list
 
 ### Stats of changes
 
-By default, `numd` provides basic stats on changes made.
+By default, `numd` provides basic stats on changes made (when not using `--echo`).
 
 ```nushell
+# Running without --echo saves the file and returns stats
 let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-numd run --no-save $path
+numd run $path
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
@@ -119,8 +116,8 @@ let path = $nu.temp-path | path join simple_nu_table.md
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
-# let's run this file to see it's outputs
-numd run $path --echo --no-save --no-stats --prepend-code "
+# let's run this file to see its outputs (--echo outputs to stdout without saving)
+numd run $path --echo --no-stats --prepend-code "
     $env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
     $env.config.table.index_mode = 'never'
@@ -146,8 +143,7 @@ numd clear-outputs --help
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
-# =>   -o, --result-md-path <path>: path to a resulting `.md` file; if omitted, updates the original file
-# =>   --echo: output resulting markdown to the terminal instead of writing to file
+# =>   --echo: output resulting markdown to stdout instead of writing to file
 # =>   --strip-markdown: keep only Nushell script, strip all markdown tags
 # =>
 # => Parameters:
@@ -234,10 +230,10 @@ git tag | lines | sort -n | last
 ## Real fight examples to try
 
 ```nushell no-output
-# output the result of execution to terminal without updating the file
+# output the result of execution to terminal without updating the file (--echo implies no save)
 [z_examples 1_simple_markdown simple_markdown.md]
 | path join
-| numd run $in --echo --no-save
+| numd run $in --echo
 ```
 
 ## Development and testing
