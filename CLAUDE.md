@@ -131,6 +131,8 @@ A zero `levenshtein_dist` for most files + expected diffs in dynamic content fil
 
 ## Configuration
 
+By default, numd runs intermediate scripts with `nu -n` (no config files) for reproducible output across different systems. Use `--use-host-config` to load host's env, config, and plugin files when needed.
+
 numd supports `.nu` config files (see `numd_config_example1.nu`). The config file is a Nushell script that gets prepended to the intermediate script:
 ```nushell
 # numd_config_example1.nu
