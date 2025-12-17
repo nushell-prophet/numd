@@ -2,7 +2,6 @@ export use commands.nu [
     run
     clear-outputs
     list-fence-options
-    parse-help
 ]
 
 export use capture.nu [
@@ -10,4 +9,5 @@ export use capture.nu [
     'capture stop'
 ]
 
+export use parse-help.nu
 export use parse.nu [ 'parse-frontmatter' 'to md-with-frontmatter' ]
