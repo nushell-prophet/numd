@@ -6,11 +6,11 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --print-block-results # print blocks one by one as they are executed
+    --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --echo # output resulting markdown to stdout instead of saving to file
     --no-stats # do not output stats of changes
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
+    --no-fail-on-error # skip errors (markdown is never saved on error)
     --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
     --table-width: int # set the `table --width` option value
     --config-path: path = '' # path to a config file
@@ -726,7 +726,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run', 'try']
+@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run' 'try']
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
