@@ -370,24 +370,20 @@ export def compute-change-stats [
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
-# List fence options for execution and output customization.
-export def list-fence-options [
-    --list # display options as a table
-]: [nothing -> record nothing -> table] {
-    [
-        ["long" "short" "description"];
+# Fence options data: short form, long form, description
+const fence_options = [
+    [short long description];
 
-        ["no-output" "O" "execute code without outputting results"]
-        ["no-run" "N" "do not execute code in block"]
-        ["try" "t" "execute block inside `try {}` for error handling"]
-        ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
-        ["separate-block" "s" "output results in a separate code block instead of inline `# =>`"]
-        # ["picture-output" "p" "capture output as picture and place after block"]
-    ]
-    | if $list { } else {
-        select short long
-        | transpose --as-record --ignore-titles --header-row
-    }
+    [O no-output "execute code without outputting results"]
+    [N no-run "do not execute code in block"]
+    [t try "execute block inside `try {}` for error handling"]
+    [n new-instance "execute block in new Nushell instance (useful with `try` block)"]
+    [s separate-block "output results in a separate code block instead of inline `# =>`"]
+]
+
+# List fence options for execution and output customization.
+export def list-fence-options []: nothing -> table {
+    $fence_options | select long short description
 }
 
 # Expand short options for code block execution to their long forms.
@@ -397,8 +393,8 @@ export def list-fence-options [
 export def convert-short-options [
     option: string
 ]: nothing -> string {
-    let options_dict = list-fence-options
-    let result = $options_dict | get --optional $option | default $option
+    let options_dict = $fence_options | select short long | transpose -r -d
+    let result = $options_dict | get -o $option | default $option
 
     if $result not-in ($options_dict | values) {
         print $'(ansi red)($result) is unknown option(ansi reset)'

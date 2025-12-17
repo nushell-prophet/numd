@@ -78,7 +78,7 @@ numd run --help
 `numd` understands the following fence options. Several comma-separated fence options can be combined together. Fence options are placed in the [infostring](https://github.github.com/gfm/#info-string) of the opening code fence, for example: ` ```nushell try, new-instance `
 
 ```nushell
-numd list-fence-options --list
+numd list-fence-options
 # => ╭──────long──────┬─short─┬───────────────────────────description────────────────────────────╮
 # => │ no-output      │ O     │ execute code without outputting results                          │
 # => │ no-run         │ N     │ do not execute code in block                                     │
