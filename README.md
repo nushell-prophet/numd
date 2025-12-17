@@ -56,16 +56,19 @@ numd run --help
 # =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
 # =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
 # =>   --table-width <int>: set $env.numd.table-width (overrides config file)
+# =>   --use-host-config: load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing Nushell code to be executed
 # =>
 # => Input/output types:
-# =>   ╭─#─┬──input──┬─output──╮
+# =>   ╭───┬─────────┬─────────╮
+# =>   │ # │  input  │ output  │
+# =>   ├───┼─────────┼─────────┤
 # =>   │ 0 │ nothing │ string  │
 # =>   │ 1 │ nothing │ nothing │
 # =>   │ 2 │ nothing │ record  │
-# =>   ╰─#─┴──input──┴─output──╯
+# =>   ╰───┴─────────┴─────────╯
 # =>
 # => Examples:
 # =>   update readme
@@ -150,10 +153,12 @@ numd clear-outputs --help
 # =>   file <path>: path to a `.md` file containing numd output to be cleared
 # =>
 # => Input/output types:
-# =>   ╭─#─┬──input──┬─output──╮
+# =>   ╭───┬─────────┬─────────╮
+# =>   │ # │  input  │ output  │
+# =>   ├───┼─────────┼─────────┤
 # =>   │ 0 │ nothing │ string  │
 # =>   │ 1 │ nothing │ nothing │
-# =>   ╰─#─┴──input──┴─output──╯
+# =>   ╰───┴─────────┴─────────╯
 # =>
 ```
 
@@ -176,9 +181,11 @@ numd capture start --help
 # =>   file <path>:  (optional, default: 'numd_capture.md')
 # =>
 # => Input/output types:
-# =>   ╭─#─┬──input──┬─output──╮
+# =>   ╭───┬─────────┬─────────╮
+# =>   │ # │  input  │ output  │
+# =>   ├───┼─────────┼─────────┤
 # =>   │ 0 │ nothing │ nothing │
-# =>   ╰─#─┴──input──┴─output──╯
+# =>   ╰───┴─────────┴─────────╯
 # =>
 ```
 
@@ -193,9 +200,11 @@ numd capture stop --help
 # =>   -h, --help: Display the help message for this command
 # =>
 # => Input/output types:
-# =>   ╭─#─┬──input──┬─output──╮
+# =>   ╭───┬─────────┬─────────╮
+# =>   │ # │  input  │ output  │
+# =>   ├───┼─────────┼─────────┤
 # =>   │ 0 │ nothing │ nothing │
-# =>   ╰─#─┴──input──┴─output──╯
+# =>   ╰───┴─────────┴─────────╯
 # =>
 ```
 

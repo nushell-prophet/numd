@@ -32,7 +32,7 @@ open $intermediate_script_path
     # ```nu
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
-let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
+let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false false
 rm $intermediate_script_path
 
 $nu_res_stdout_lines

@@ -14,6 +14,7 @@ export def run [
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --table-width: int # set $env.numd.table-width (overrides config file)
+    --use-host-config # load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
 
@@ -21,7 +22,7 @@ export def run [
     | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
-    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --table-width $table_width
+    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --table-width $table_width --use-host-config=$use_host_config
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -89,6 +90,7 @@ export def execute-blocks [
     --print-block-results # print blocks as they execute
     --save-intermed-script: path # path for intermediate script
     --table-width: int # set table width
+    --use-host-config # load host's env, config, and plugin files
 ]: table -> table {
     let original = $in
 
@@ -98,7 +100,7 @@ export def execute-blocks [
     | generate-intermediate-script
     | save -f $save_intermed_script
 
-    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results
+    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results $use_host_config
 
     if $execution_output == '' {
         return $original
@@ -465,11 +467,19 @@ export def execute-intermediate-script [
     intermed_script_path: path # path to the generated intermediate script
     no_fail_on_error: bool # if true, return empty string on error instead of failing
     print_block_results: bool # print blocks one by one as they execute
+    use_host_config: bool # if true, load host's env, config, and plugin files
 ]: nothing -> string {
-    (
-        ^$nu.current-exe --env-config $nu.env-path --config $nu.config-path
-        --plugin-config $nu.plugin-path $intermed_script_path
-    )
+    let args = if $use_host_config {
+        [
+            ...(if ($nu.env-path | path exists) { [--env-config $nu.env-path] } else { [] })
+            ...(if ($nu.config-path | path exists) { [--config $nu.config-path] } else { [] })
+            ...(if ($nu.plugin-path | path exists) { [--plugin-config $nu.plugin-path] } else { [] })
+        ]
+    } else {
+        [-n]
+    }
+
+    (^$nu.current-exe ...$args $intermed_script_path)
     | if $print_block_results { tee { print } } else { }
     | complete
     | if $in.exit_code == 0 {
