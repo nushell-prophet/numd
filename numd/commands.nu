@@ -16,52 +16,28 @@ export def run [
     --table-width: int # set $env.numd.table-width (overrides config file)
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
-    | if $nu.os-info.family == windows {
-        str replace --all (char crlf) "\n"
-    } else { }
 
-    let original_md_table = $original_md
-    | convert-output-fences # should be unnecessary for new files
-    | parse-markdown-to-blocks
+    let result = parse-file $file
+    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $save_intermed_script --table-width $table_width
 
-    load-config $config_path --prepend_code $prepend_code --table_width $table_width
-
-    let intermediate_script_path = $save_intermed_script
-    | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
-    # We don't use a temp directory here as the code in `md` files might contain relative paths,
-    # which will only work if we execute the intermediate script from the same folder.
-
-    decorate-original-code-blocks $original_md_table
-    | generate-intermediate-script
-    | save -f $intermediate_script_path
-
-    let nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
-    | if $in == '' {
+    # Check for empty output (no code blocks executed)
+    if ($result | where action == 'execute' | is-empty) {
         return {
             filename: $file
             comment: "the script didn't produce any output"
         }
-    } else { }
-    | str replace -ar "\n{2,}```\n" "\n```\n"
-    | lines
-    | extract-block-index
+    }
 
-    let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
-    | clean-markdown
-    | convert-output-fences --restore
+    let updated_md = $result | to-markdown
 
-    # if $save_intermed_script param wasn't set - remove the temporary intermediate script
-    if $save_intermed_script == null { rm $intermediate_script_path }
-
-    # When --echo is used, output markdown to stdout (for piping); otherwise save to file
     if $echo {
-        $updated_md_ansi
+        $updated_md
     } else {
         check-git-clean $file
-        $updated_md_ansi | ansi strip | save -f $file
+        $updated_md | ansi strip | save -f $file
 
         if not $no_stats {
-            compute-change-stats $file $original_md $updated_md_ansi
+            compute-change-stats $file $original_md $updated_md
         }
     }
 }
@@ -72,40 +48,109 @@ export def clear-outputs [
     --echo # output resulting markdown to stdout instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string nothing -> nothing] {
-    let original_md_table = open -r $file
-    | convert-output-fences
-    | parse-markdown-to-blocks
-
-    $original_md_table
-    | where action == 'execute'
-    | group-by block_index
-    | items {|block_index block_lines|
-        $block_lines.line.0
-        | where $it !~ '^# => ?' # strip `# =>` output lines, preserve plain `#` comments
-        | prepend (code-block-marker $block_index)
-    }
-    | flatten
-    | extract-block-index
+    parse-file $file
+    | strip-outputs
     | if $strip_markdown {
-        get line
-        | each {
-            lines
-            | update 0 { $'(char nl)    # ($in)' } # keep infostring
-            | drop
-            | str join (char nl)
-            | str replace -r '\s*$' (char nl)
-        }
-        | str join (char nl)
-        | return $in # we return the stripped script here to not spoil original md
+        to-numd-script
     } else {
-        merge-markdown $original_md_table $in
-        | clean-markdown
+        to-markdown
     }
     | if $echo { } else {
         let result = $in
         check-git-clean $file
         $result | save -f $file
     }
+}
+
+# Extract pure Nushell script from blocks table (strip markdown fences)
+export def to-numd-script []: table -> string {
+    where action == 'execute'
+    | each {|block|
+        $block.line
+        | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
+        | drop # remove closing fence
+        | str join (char nl)
+        | str replace -r '\s*$' (char nl)
+    }
+    | str join (char nl)
+}
+
+# Execute code blocks and return updated blocks table
+export def execute-blocks [
+    --config-path: path = '' # path to a .nu config file
+    --no-fail-on-error # skip errors
+    --prepend-code: string # additional code to prepend
+    --print-block-results # print blocks as they execute
+    --save-intermed-script: path # keep intermediate script for debugging
+    --table-width: int # set table width
+]: table -> table {
+    let original = $in
+
+    load-config $config_path --prepend_code $prepend_code --table_width $table_width
+
+    let intermediate_script_path = $save_intermed_script
+    | default $'numd-temp-(generate-timestamp).nu'
+
+    decorate-original-code-blocks $original
+    | generate-intermediate-script
+    | save -f $intermediate_script_path
+
+    let execution_output = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+
+    if $save_intermed_script == null { rm $intermediate_script_path }
+
+    if $execution_output == '' {
+        return $original
+    }
+
+    let results = $execution_output
+    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | lines
+    | extract-block-index
+
+    # Update original table with execution results
+    let result_indices = $results | get block_index
+    $original
+    | each {|block|
+        if $block.block_index in $result_indices {
+            let result = $results | where block_index == $block.block_index | first
+            $block | update line { $result.line | lines }
+        } else {
+            $block
+        }
+    }
+}
+
+# Parse a markdown file into a blocks table
+export def parse-file [
+    file: path # path to a markdown file
+]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string> {
+    open -r $file
+    | if $nu.os-info.family == windows {
+        str replace --all (char crlf) "\n"
+    } else { }
+    | convert-output-fences
+    | parse-markdown-to-blocks
+}
+
+# Strip numd output lines (# =>) from code blocks
+export def strip-outputs []: table -> table {
+    update line {|block|
+        if $block.action == 'execute' {
+            $block.line | where $it !~ '^# => ?'
+        } else {
+            $block.line
+        }
+    }
+}
+
+# Render blocks table back to markdown string
+export def to-markdown []: table -> string {
+    where action != 'delete'
+    | each { $in.line | str join (char nl) }
+    | str join (char nl)
+    | clean-markdown
+    | convert-output-fences --restore
 }
 
 ####
