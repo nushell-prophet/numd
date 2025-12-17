@@ -139,3 +139,7 @@ $env.numd.table-width = 100  # optional: set custom table width
 ```
 
 Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly. Flags override config file settings.
+
+## Git Workflow
+
+- Do not squash commits when merging PRs - preserve individual commit history
