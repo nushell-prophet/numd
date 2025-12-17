@@ -83,12 +83,12 @@ print ''
 ```nu" | print
 "# the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
-let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
+let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false false
 rm $intermediate_script_path" | nu-highlight | print
 
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
-let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
+let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false false
 rm $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "$nu_res_stdout_lines" | nu-highlight | print

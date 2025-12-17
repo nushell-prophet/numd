@@ -7,9 +7,11 @@ $env.numd?
 
 ```nushell
 [[a b c]; [1 2 3]]
-# => ╭─#─┬─a─┬─b─┬─c─╮
+# => ╭───┬───┬───┬───╮
+# => │ # │ a │ b │ c │
+# => ├───┼───┼───┼───┤
 # => │ 0 │ 1 │ 2 │ 3 │
-# => ╰─#─┴─a─┴─b─┴─c─╯
+# => ╰───┴───┴───┴───╯
 ```
 
 ```nushell
@@ -23,8 +25,12 @@ $env.numd?
                 'ut. Exercitation dolore fugiat nulla ut adipiscing laboris elit. Fugiat nulla ut ' +
                 'adipiscing, laboris elit quis pariatur. Adipiscing laboris elit quis pariatur. ' +
                 'Elit quis pariatur, in ut anim anim ut.')]]
-# => ╭─#─┬─column─┬─...─╮
-# => │ 0 │ value… │ ... │
-# => │ 1 │ value… │ ... │
-# => ╰─#─┴─column─┴─...─╯
+# => ╭───┬────────┬─────╮
+# => │ # │ column │ ... │
+# => ├───┼────────┼─────┤
+# => │ 0 │ value_ │ ... │
+# => │   │ 1      │     │
+# => │ 1 │ value_ │ ... │
+# => │   │ 2      │     │
+# => ╰───┴────────┴─────╯
 ```
