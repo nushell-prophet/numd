@@ -1,5 +1,0 @@
-prepend-code: |-
-  $env.config.footer_mode = 'never';
-  $env.config.table.header_on_separator = true; $env.config.table.mode = 'rounded';
-  $env.config.table.abbreviated_row_count = 10000
-table-width: 120

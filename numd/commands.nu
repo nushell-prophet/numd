@@ -6,14 +6,14 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --config-path: path = '' # path to a config file
+    --config-path: path = '' # path to a .nu config file (Nushell code prepended to script)
     --echo # output resulting markdown to stdout instead of saving to file
     --no-fail-on-error # skip errors (markdown is never saved on error)
     --no-stats # do not output stats of changes (is activated via --echo by default)
-    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
+    --prepend-code: string # additional code to prepend (applied after config file)
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --table-width: int # set the `table --width` option value
+    --table-width: int # set $env.numd.table-width (overrides config file)
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
     | if $nu.os-info.family == windows {
@@ -673,11 +673,10 @@ export def generate-print-statement []: string -> string {
     $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
-# Generate a table statement with optional width specification.
-@example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width 120'
-@example "custom table width" { $env.numd.table-width = 10; 'ls' | generate-table-statement } --result 'ls | table --width 10'
+# Generate a table statement with width evaluated at runtime from $env.numd.table-width.
+@example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
 export def generate-table-statement []: string -> string {
-    $"($in) | table --width ($env.numd?.table-width? | default 120)"
+    $in + ' | table --width ($env.numd?.table-width? | default 120)'
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
@@ -782,32 +781,32 @@ export def check-git-clean [
 
 # TODO: make config an env record
 
-# Load numd configuration from a YAML file or command-line options into the environment.
+# Load numd configuration from a .nu file or command-line options into the environment.
+# The config file is a Nushell script that gets prepended to the intermediate script.
+# Flags override config file settings (applied after config file content).
 export def --env load-config [
-    path: path # path to a .yaml numd config file
-    --prepend_code: string # code to prepend to the intermediate script
-    --table_width: int # width for table output formatting
+    path: path # path to a .nu config file (Nushell code to prepend)
+    --prepend_code: string # additional code to prepend (applied after config file)
+    --table_width: int # width for table output (sets $env.numd.table-width, applied last)
 ]: nothing -> nothing {
-    $env.numd = (
-        [
-            [key value];
+    # Build prepend code: config file → flag code → table-width override
+    let config_code = if $path != '' { open -r $path } else { '' }
+    let flag_code = $prepend_code | default ''
+    let table_width_code = if $table_width != null { $"\n$env.numd.table-width = ($table_width)" } else { '' }
 
-            [prepend-code $prepend_code]
-            [table-width $table_width]
-        ]
-        | if $path != '' {
-            append (
-                open $path
-                | upsert config-path $path
-                | transpose key value
-            )
-        } else { }
-        | where value != null
-        | if ($in | is-empty) { {} } else {
-            # if table_width or prepend code are set via parameters - they will have precedence
-            transpose --ignore-titles --as-record --header-row
+    let combined_code = [$config_code $flag_code $table_width_code]
+    | where $it != ''
+    | str join "\n"
+    | str trim
+
+    $env.numd = if $combined_code == '' {
+        {}
+    } else {
+        {
+            prepend-code: $combined_code
+            config-path: (if $path != '' { $path })
         }
-    )
+    }
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.

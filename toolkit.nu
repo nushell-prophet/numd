@@ -63,10 +63,10 @@ export def 'main test-integration' [
         numd clear-outputs $file --strip-markdown --echo
         | save -f $strip_markdown_path
 
-        # Run files with yaml config set
+        # Run files with config set
         (
             numd run $file --save-intermed-script $'($file)_intermed.nu'
-            --config-path numd_config_example1.yaml
+            --config-path numd_config_example1.nu
         )
     }
     # Run file with customized width of table
@@ -82,14 +82,14 @@ export def 'main test-integration' [
     | append (do {
         let target = $path_simple_table | build-modified-path --suffix '_customized_example_config'
         let orig = open $path_simple_table
-        numd run $path_simple_table --echo --no-stats --config-path 'numd_config_example2.yaml'
+        numd run $path_simple_table --echo --no-stats --config-path 'numd_config_example2.nu'
         | ansi strip
         | save -f $target
         compute-change-stats $target $orig (open $target)
     })
     # Run readme
     | append (
-        numd run README.md --config-path numd_config_example1.yaml
+        numd run README.md --config-path numd_config_example1.nu
     )
     | if $json { to json --raw } else { }
 }
