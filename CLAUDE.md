@@ -29,32 +29,35 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 ### Module Structure (`numd/`)
 
-- **mod.nu**: Entry point exporting public commands
-- **commands.nu**: Core implementation containing main logic and pipeline commands
+- **mod.nu**: Entry point exporting user-friendly commands (`run`, `clear-outputs`, etc.)
+- **plumbing.nu**: Low-level pipeline commands for advanced usage/scripting
+- **commands.nu**: Core implementation containing all command logic
 - **capture.nu**: `capture start/stop` commands for interactive session recording
 - **parse-help.nu**: `parse-help` command for formatting --help output
 - **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
 - **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
 
-### Pipeline Commands
+### Plumbing Commands
 
-Composable commands following Unix philosophy:
+Low-level composable commands (import via `use numd/plumbing.nu`):
 
 ```nushell
+use numd/plumbing.nu
+
 # Parse markdown file into blocks table
-numd parse-file file.md
+plumbing parse-file file.md
 
 # Strip output lines (# =>) from blocks
-numd parse-file file.md | numd strip-outputs
+plumbing parse-file file.md | plumbing strip-outputs
 
 # Execute code blocks and update with results
-numd parse-file file.md | numd execute-blocks
+plumbing parse-file file.md | plumbing execute-blocks --save-intermed-script temp.nu
 
 # Render blocks table back to markdown
-numd parse-file file.md | numd strip-outputs | numd to-markdown
+plumbing parse-file file.md | plumbing strip-outputs | plumbing to-markdown
 
 # Extract pure Nushell script (no markdown)
-numd parse-file file.md | numd strip-outputs | numd to-numd-script
+plumbing parse-file file.md | plumbing strip-outputs | plumbing to-numd-script
 ```
 
 The high-level commands use these internally:

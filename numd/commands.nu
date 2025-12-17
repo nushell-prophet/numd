@@ -17,8 +17,14 @@ export def run [
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
 
+    let intermediate_script_path = $save_intermed_script
+    | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
+
     let result = parse-file $file
-    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $save_intermed_script --table-width $table_width
+    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --table-width $table_width
+
+    # if $save_intermed_script param wasn't set - remove the temporary intermediate script
+    if $save_intermed_script == null { rm $intermediate_script_path }
 
     # Check for empty output (no code blocks executed)
     if ($result | where action == 'execute' | is-empty) {
@@ -81,23 +87,18 @@ export def execute-blocks [
     --no-fail-on-error # skip errors
     --prepend-code: string # additional code to prepend
     --print-block-results # print blocks as they execute
-    --save-intermed-script: path # keep intermediate script for debugging
+    --save-intermed-script: path # path for intermediate script
     --table-width: int # set table width
 ]: table -> table {
     let original = $in
 
     load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
-    let intermediate_script_path = $save_intermed_script
-    | default $'numd-temp-(generate-timestamp).nu'
-
     decorate-original-code-blocks $original
     | generate-intermediate-script
-    | save -f $intermediate_script_path
+    | save -f $save_intermed_script
 
-    let execution_output = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
-
-    if $save_intermed_script == null { rm $intermediate_script_path }
+    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results
 
     if $execution_output == '' {
         return $original
