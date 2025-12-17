@@ -3,13 +3,21 @@
 
 const init_numd_pwd_const = '/Users/user/git/numd'
 
-# numd config loaded from `numd_config_example1.yaml`
+# numd config loaded from `numd_config_example1.nu`
 
-$env.config.footer_mode = 'always';
-$env.config.table = {mode: rounded, index_mode: never,
-show_empty: false, padding: {left: 1, right: 1},
-trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
-header_on_separator: true, abbreviated_row_count: 1000}
+# numd config example 1
+# This file is prepended to the intermediate script before execution
+
+$env.config.footer_mode = 'always'
+$env.config.table = {
+    mode: rounded
+    index_mode: never
+    show_empty: false
+    padding: {left: 1, right: 1}
+    trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: '...'}
+    header_on_separator: true
+    abbreviated_row_count: 1000
+}
 
 "#code-block-marker-open-1
 ```nu" | print
@@ -43,7 +51,7 @@ let $original_md_table = $md_orig | parse-markdown-to-blocks
 print ''
 "$original_md_table | table -e --width 120" | nu-highlight | print
 
-$original_md_table | table -e --width 120 | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+$original_md_table | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -63,11 +71,11 @@ print ''
 
 decorate-original-code-blocks $original_md_table
 | generate-intermediate-script
-| save -f $intermediate_script_path | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+| save -f $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "open $intermediate_script_path" | nu-highlight | print
 
-open $intermediate_script_path | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+open $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -81,11 +89,11 @@ rm $intermediate_script_path" | nu-highlight | print
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false
-rm $intermediate_script_path | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+rm $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "$nu_res_stdout_lines" | nu-highlight | print
 
-$nu_res_stdout_lines | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+$nu_res_stdout_lines | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -101,7 +109,7 @@ let $md_res = $nu_res_stdout_lines
 print ''
 "$md_res" | nu-highlight | print
 
-$md_res | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+$md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -109,6 +117,6 @@ print ''
 ```nu" | print
 "compute-change-stats $file $md_orig $md_res" | nu-highlight | print
 
-compute-change-stats $file $md_orig $md_res | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+compute-change-stats $file $md_orig $md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
