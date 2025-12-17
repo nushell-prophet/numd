@@ -12,8 +12,8 @@ numd is a Nushell module for creating reproducible Markdown documents. It execut
 # Run numd on a markdown file (updates file with execution results)
 use numd; numd run README.md
 
-# Preview mode (output to stdout, don't save)
-use numd; numd run README.md --echo
+# Run without saving changes (preview mode)
+use numd; numd run README.md --no-save --echo
 
 # Run tests (executes all example files and reports changes)
 nu toolkit.nu test --json
@@ -29,40 +29,10 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 ### Module Structure (`numd/`)
 
-- **mod.nu**: Entry point exporting user-friendly commands (`run`, `clear-outputs`, etc.)
-- **plumbing.nu**: Low-level pipeline commands for advanced usage/scripting
-- **commands.nu**: Core implementation containing all command logic
-- **capture.nu**: `capture start/stop` commands for interactive session recording
-- **parse-help.nu**: `parse-help` command for formatting --help output
-- **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
+- **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-fence-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
+- **commands.nu**: Core implementation (~865 lines) containing all main logic
 - **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
-
-### Plumbing Commands
-
-Low-level composable commands (import via `use numd/plumbing.nu`):
-
-```nushell
-use numd/plumbing.nu
-
-# Parse markdown file into blocks table
-plumbing parse-file file.md
-
-# Strip output lines (# =>) from blocks
-plumbing parse-file file.md | plumbing strip-outputs
-
-# Execute code blocks and update with results
-plumbing parse-file file.md | plumbing execute-blocks --save-intermed-script temp.nu
-
-# Render blocks table back to markdown
-plumbing parse-file file.md | plumbing strip-outputs | plumbing to-markdown
-
-# Extract pure Nushell script (no markdown)
-plumbing parse-file file.md | plumbing strip-outputs | plumbing to-numd-script
-```
-
-The high-level commands use these internally:
-- `run` = `parse-file | execute-blocks | to-markdown`
-- `clear-outputs` = `parse-file | strip-outputs | to-markdown`
+- **parse.nu**: Frontmatter parsing utilities for YAML frontmatter in markdown
 
 ### Core Processing Pipeline (in `commands.nu`)
 
@@ -131,11 +101,10 @@ A zero `levenshtein_dist` for most files + expected diffs in dynamic content fil
 
 ## Configuration
 
-numd supports `.nu` config files (see `numd_config_example1.nu`). The config file is a Nushell script that gets prepended to the intermediate script:
-```nushell
-# numd_config_example1.nu
-$env.config.table.mode = 'rounded'
-$env.numd.table-width = 100  # optional: set custom table width
+numd supports YAML config files (see `numd_config_example1.yaml`):
+```yaml
+prepend-code: |-
+  $env.config.table.mode = 'rounded'
 ```
 
-Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly. Flags override config file settings.
+Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly.

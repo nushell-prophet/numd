@@ -3,27 +3,19 @@
 
 const init_numd_pwd_const = '/Users/user/git/numd'
 
-# numd config loaded from `numd_config_example1.nu`
+# numd config loaded from `numd_config_example1.yaml`
 
-# numd config example 1
-# This file is prepended to the intermediate script before execution
-
-$env.config.footer_mode = 'always'
-$env.config.table = {
-    mode: rounded
-    index_mode: never
-    show_empty: false
-    padding: {left: 1, right: 1}
-    trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: '...'}
-    header_on_separator: true
-    abbreviated_row_count: 1000
-}
+$env.config.footer_mode = 'always';
+$env.config.table = {mode: rounded, index_mode: never,
+show_empty: false, padding: {left: 1, right: 1},
+trim: {methodology: truncating, wrapping_try_keep_words: false, truncating_suffix: ...},
+header_on_separator: true, abbreviated_row_count: 1000}
 
 "#code-block-marker-open-0
 ```nushell" | print
 "$env.numd?" | nu-highlight | print
 
-$env.numd? | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+$env.numd? | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -31,7 +23,7 @@ print ''
 ```nushell" | print
 "[[a b c]; [1 2 3]]" | nu-highlight | print
 
-[[a b c]; [1 2 3]] | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+[[a b c]; [1 2 3]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -57,6 +49,6 @@ print ''
                 'cillum exercitation dolore fugiat nulla. Non cillum exercitation dolore fugiat nulla ' +
                 'ut. Exercitation dolore fugiat nulla ut adipiscing laboris elit. Fugiat nulla ut ' +
                 'adipiscing, laboris elit quis pariatur. Adipiscing laboris elit quis pariatur. ' +
-                'Elit quis pariatur, in ut anim anim ut.')]] | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+                'Elit quis pariatur, in ut anim anim ut.')]] | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print

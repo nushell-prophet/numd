@@ -6,152 +6,255 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --config-path: path = '' # path to a .nu config file (Nushell code prepended to script)
-    --echo # output resulting markdown to stdout instead of saving to file
-    --no-fail-on-error # skip errors (markdown is never saved on error)
-    --no-stats # do not output stats of changes (is activated via --echo by default)
-    --prepend-code: string # additional code to prepend (applied after config file)
-    --print-block-results # print blocks one by one as they are executed, useful for long running scripts
+    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --print-block-results # print blocks one by one as they are executed
+    --echo # output resulting markdown to the terminal
+    --save-ansi # save ANSI formatted version
+    --no-backup # overwrite the existing `.md` file without backup
+    --no-save # do not save changes to the `.md` file
+    --no-stats # do not output stats of changes
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --table-width: int # set $env.numd.table-width (overrides config file)
+    --no-fail-on-error # skip errors (and don't update markdown in case of errors anyway)
+    --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
+    --table-width: int # set the `table --width` option value
+    --config-path: path = '' # path to a config file
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
+    | if $nu.os-info.family == windows {
+        str replace --all (char crlf) "\n"
+    } else { }
+
+    let original_md_table = $original_md
+    | convert-output-fences # should be unnecessary for new files
+    | parse-markdown-to-blocks
+
+    load-config $config_path --prepend_code $prepend_code --table_width $table_width
 
     let intermediate_script_path = $save_intermed_script
     | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
+    # We don't use a temp directory here as the code in `md` files might contain relative paths,
+    # which will only work if we execute the intermediate script from the same folder.
 
-    let result = parse-file $file
-    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --table-width $table_width
+    decorate-original-code-blocks $original_md_table
+    | generate-intermediate-script
+    | save -f $intermediate_script_path
 
-    # if $save_intermed_script param wasn't set - remove the temporary intermediate script
-    if $save_intermed_script == null { rm $intermediate_script_path }
-
-    # Check for empty output (no code blocks executed)
-    if ($result | where action == 'execute' | is-empty) {
+    let nu_res_with_block_index = execute-intermediate-script $intermediate_script_path $no_fail_on_error $print_block_results
+    | if $in == '' {
         return {
             filename: $file
             comment: "the script didn't produce any output"
         }
+    } else { }
+    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | lines
+    | extract-block-index
+
+    let updated_md_ansi = merge-markdown $original_md_table $nu_res_with_block_index
+    | clean-markdown
+    | convert-output-fences --restore
+
+    # if $save_intermed_script param wasn't set - remove the temporary intermediate script
+    if $save_intermed_script == null { rm $intermediate_script_path }
+
+    let output_path = $result_md_path | default $file
+
+    if not $no_save {
+        if not $no_backup { create-file-backup $output_path }
+        $updated_md_ansi | ansi strip | save -f $output_path
     }
 
-    let updated_md = $result | to-markdown
+    if $save_ansi { $updated_md_ansi | save -f $'($output_path).ans' }
 
-    if $echo {
-        $updated_md
-    } else {
-        check-git-clean $file
-        $updated_md | ansi strip | save -f $file
-
-        if not $no_stats {
-            compute-change-stats $file $original_md $updated_md
+    if not $no_stats {
+        compute-change-stats $output_path $original_md $updated_md_ansi
+        | if not $echo {
+            return $in # default variant: we return here a record
+        } else {
+            table # we continue here with `string` as it will be appended to the resulting `string` markdown
         }
-    }
+    } else { }
+    | if $echo { prepend $updated_md_ansi } else { } # output the changes stat table below the resulting markdown
+    | if $in == null { } else { str join (char nl) }
 }
 
 # Remove numd execution outputs from the file
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
-    --echo # output resulting markdown to stdout instead of writing to file
+    --result-md-path (-o): path # path to a resulting `.md` file; if omitted, updates the original file
+    --echo # output resulting markdown to the terminal instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
 ]: [nothing -> string nothing -> nothing] {
-    parse-file $file
-    | strip-outputs
-    | if $strip_markdown {
-        to-numd-script
-    } else {
-        to-markdown
-    }
-    | if $echo { } else {
-        let result = $in
-        check-git-clean $file
-        $result | save -f $file
-    }
-}
-
-# Extract pure Nushell script from blocks table (strip markdown fences)
-export def to-numd-script []: table -> string {
-    where action == 'execute'
-    | each {|block|
-        $block.line
-        | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
-        | drop # remove closing fence
-        | str join (char nl)
-        | str replace -r '\s*$' (char nl)
-    }
-    | str join (char nl)
-}
-
-# Execute code blocks and return updated blocks table
-export def execute-blocks [
-    --config-path: path = '' # path to a .nu config file
-    --no-fail-on-error # skip errors
-    --prepend-code: string # additional code to prepend
-    --print-block-results # print blocks as they execute
-    --save-intermed-script: path # path for intermediate script
-    --table-width: int # set table width
-]: table -> table {
-    let original = $in
-
-    load-config $config_path --prepend_code $prepend_code --table_width $table_width
-
-    decorate-original-code-blocks $original
-    | generate-intermediate-script
-    | save -f $save_intermed_script
-
-    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results
-
-    if $execution_output == '' {
-        return $original
-    }
-
-    let results = $execution_output
-    | str replace -ar "\n{2,}```\n" "\n```\n"
-    | lines
-    | extract-block-index
-
-    # Update original table with execution results
-    let result_indices = $results | get block_index
-    $original
-    | each {|block|
-        if $block.block_index in $result_indices {
-            let result = $results | where block_index == $block.block_index | first
-            $block | update line { $result.line | lines }
-        } else {
-            $block
-        }
-    }
-}
-
-# Parse a markdown file into a blocks table
-export def parse-file [
-    file: path # path to a markdown file
-]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string> {
-    open -r $file
-    | if $nu.os-info.family == windows {
-        str replace --all (char crlf) "\n"
-    } else { }
+    let original_md_table = open -r $file
     | convert-output-fences
     | parse-markdown-to-blocks
+
+    let result_md_path = $result_md_path | default $file
+
+    $original_md_table
+    | where action == 'execute'
+    | group-by block_index
+    | items {|block_index block_lines|
+        $block_lines.line.0
+        | where $it !~ '^# => ?' # strip `# =>` output lines, preserve plain `#` comments
+        | prepend (code-block-marker $block_index)
+    }
+    | flatten
+    | extract-block-index
+    | if $strip_markdown {
+        get line
+        | each {
+            lines
+            | update 0 { $'(char nl)    # ($in)' } # keep infostring
+            | drop
+            | str join (char nl)
+            | str replace -r '\s*$' (char nl)
+        }
+        | str join (char nl)
+        | return $in # we return the stripped script here to not spoil original md
+    } else {
+        merge-markdown $original_md_table $in
+        | clean-markdown
+    }
+    | if $echo { } else { save -f $result_md_path }
 }
 
-# Strip numd output lines (# =>) from code blocks
-export def strip-outputs []: table -> table {
-    update line {|block|
-        if $block.action == 'execute' {
-            $block.line | where $it !~ '^# => ?'
-        } else {
-            $block.line
+# start capturing commands and their outputs into a file
+export def --env 'capture start' [
+    file: path = 'numd_capture.md'
+    --separate-blocks # create separate code blocks for each pipeline instead of inline `# =>` output
+]: nothing -> nothing {
+    cprint $'numd commands capture has been started.
+        Commands and their outputs of the current nushell instance
+        will be appended to the *($file)* file.
+
+        Beware that your `display_output` hook has been changed.
+        It will be reverted when you use `numd capture stop`'
+
+    $env.numd.status = 'running'
+    $env.numd.path = ($file | path expand)
+    $env.numd.separate-blocks = $separate_blocks
+
+    if not $separate_blocks { "```nushell\n" | save -a $env.numd.path }
+
+    $env.backup.hooks.display_output = (
+        $env.config.hooks?.display_output?
+        | default {
+            if (term size).columns >= 100 { table -e } else { table }
         }
+    )
+
+    $env.config.hooks.display_output = {
+        let input = $in
+        let command = history | last | get command
+
+        $input
+        | default ''
+        | if (term size).columns >= 100 { table -e } else { table }
+        | into string
+        | ansi strip
+        | default (char nl)
+        | if $env.numd.separate-blocks {
+            $"```nushell\n($command)\n```\n```output-numd\n($in)\n```\n\n"
+            | str replace --regex --all "[\n\r ]+```\n" "\n```\n"
+        } else {
+            # inline output format: command followed by `# =>` prefixed output
+            let output_lines = $in | lines | each { $'# => ($in)' } | str join (char nl)
+            $"($command)\n($output_lines)\n\n"
+        }
+        | str replace --regex "\n{3,}$" "\n\n"
+        | if ($in !~ 'numd capture') {
+            # don't save numd capture managing commands
+            save --append --raw $env.numd.path
+        }
+
+        print -n $input # without the `-n` flag new line is added to an output
     }
 }
 
-# Render blocks table back to markdown string
-export def to-markdown []: table -> string {
-    where action != 'delete'
-    | each { $in.line | str join (char nl) }
-    | str join (char nl)
-    | clean-markdown
-    | convert-output-fences --restore
+# stop capturing commands and their outputs
+export def --env 'capture stop' []: nothing -> nothing {
+    $env.config.hooks.display_output = $env.backup.hooks.display_output
+
+    let file = $env.numd.path
+
+    if not $env.numd.separate-blocks {
+        $"(open $file)```\n"
+        | clean-markdown
+        | save --force $file
+    }
+
+    cprint $'numd commands capture to the *($file)* file has been stopped.'
+
+    $env.numd.status = 'stopped'
+}
+
+# Beautify and adapt the standard `--help` for markdown output
+export def 'parse-help' [
+    --sections: list<string> # filter to only include these sections (e.g., ['Usage', 'Flags'])
+    --record # return result as a record instead of formatted string
+]: string -> any {
+    let help_lines = split row '======================'
+    | first # quick fix for https://github.com/nushell/nushell/issues/13470
+    | ansi strip
+    | str replace --all 'Search terms:' "Search terms:\n"
+    | str replace --all ':  (optional)' ' (optional)'
+    | lines
+    | str trim
+    | if ($in.0 != 'Usage:') { prepend 'Description:' } else { }
+
+    let regex = [
+        Description
+        "Search terms"
+        Usage
+        Subcommands
+        Flags
+        Parameters
+        "Input/output types"
+        Examples
+    ]
+    | str join '|'
+    | '^(' + $in + '):'
+
+    let existing_sections = $help_lines
+    | where $it =~ $regex
+    | str trim --right --char ':'
+    | wrap chapter
+
+    let elements = $help_lines
+    | split list -r $regex
+    | skip
+    | wrap elements
+
+    $existing_sections
+    | merge $elements
+    | transpose --as-record --ignore-titles --header-row
+    | if ($in.Flags? == null) { } else { update 'Flags' { where $it !~ '-h, --help' } }
+    | if ($in.Flags? | length) == 1 { reject 'Flags' } else { } # todo now flags contain fields with empty row
+    | if ($in.Description? | default '' | split list '' | length) > 1 {
+        let input = $in
+
+        $input
+        | update Description ($input.Description | take until { $in == '' } | append '')
+        | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until { $in == '' } | skip) }
+    } else { }
+    | if $sections == null { } else { select -o ...$sections }
+    | if $record {
+        items {|k v|
+            {$k: ($v | str join (char nl))}
+        }
+        | into record
+    } else {
+        items {|k v|
+            $v
+            | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
+            | str join (char nl)
+            | $"($k):\n($in)"
+        }
+        | str join (char nl)
+        | str replace -ar '\s+$' '' # empty trailing new lines
+        | str replace -arm '^' '# => '
+    }
 }
 
 ####
@@ -416,20 +519,24 @@ export def compute-change-stats [
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
-# Fence options data: short form, long form, description
-const fence_options = [
-    [short long description];
-
-    [O no-output "execute code without outputting results"]
-    [N no-run "do not execute code in block"]
-    [t try "execute block inside `try {}` for error handling"]
-    [n new-instance "execute block in new Nushell instance (useful with `try` block)"]
-    [s separate-block "output results in a separate code block instead of inline `# =>`"]
-]
-
 # List fence options for execution and output customization.
-export def list-fence-options []: nothing -> table {
-    $fence_options | select long short description
+export def list-fence-options [
+    --list # display options as a table
+]: [nothing -> record nothing -> table] {
+    [
+        ["long" "short" "description"];
+
+        ["no-output" "O" "execute code without outputting results"]
+        ["no-run" "N" "do not execute code in block"]
+        ["try" "t" "execute block inside `try {}` for error handling"]
+        ["new-instance" "n" "execute block in new Nushell instance (useful with `try` block)"]
+        ["separate-block" "s" "output results in a separate code block instead of inline `# =>`"]
+        # ["picture-output" "p" "capture output as picture and place after block"]
+    ]
+    | if $list { } else {
+        select short long
+        | transpose --as-record --ignore-titles --header-row
+    }
 }
 
 # Expand short options for code block execution to their long forms.
@@ -439,8 +546,8 @@ export def list-fence-options []: nothing -> table {
 export def convert-short-options [
     option: string
 ]: nothing -> string {
-    let options_dict = $fence_options | select short long | transpose -r -d
-    let result = $options_dict | get -o $option | default $option
+    let options_dict = list-fence-options
+    let result = $options_dict | get --optional $option | default $option
 
     if $result not-in ($options_dict | values) {
         print $'(ansi red)($result) is unknown option(ansi reset)'
@@ -577,10 +684,11 @@ export def generate-print-statement []: string -> string {
     $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
-# Generate a table statement with width evaluated at runtime from $env.numd.table-width.
-@example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
+# Generate a table statement with optional width specification.
+@example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width 120'
+@example "custom table width" { $env.numd.table-width = 10; 'ls' | generate-table-statement } --result 'ls | table --width 10'
 export def generate-table-statement []: string -> string {
-    $in + ' | table --width ($env.numd?.table-width? | default 120)'
+    $"($in) | table --width ($env.numd?.table-width? | default 120)"
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
@@ -629,7 +737,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run' 'try']
+@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run', 'try']
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -657,60 +765,45 @@ export def build-modified-path [
     | path join
 }
 
-# Check if file is safely tracked in git before overwriting.
-# Warns if file has uncommitted changes or is not tracked by git.
-export def check-git-clean [
-    file_path: path # path to the file to check
+# Create a backup of a file by moving it to a subdirectory with a timestamp suffix.
+export def create-file-backup [
+    file_path: path # path to the file to back up
 ]: nothing -> nothing {
-    let file = $file_path | path expand
-
-    # Check if we're in a git repo
-    let in_git_repo = (do { git rev-parse --git-dir } | complete).exit_code == 0
-    if not $in_git_repo { return }
-
-    # Check if file is tracked by git
-    let is_tracked = (do { git ls-files --error-unmatch $file } | complete).exit_code == 0
-    if not $is_tracked {
-        print -e $"(ansi yellow)Warning: ($file_path) is not tracked by git(ansi reset)"
-        return
-    }
-
-    # Check if file has uncommitted changes
-    let has_changes = (git diff --name-only $file | str trim) != ''
-    let is_staged = (git diff --staged --name-only $file | str trim) != ''
-    if $has_changes or $is_staged {
-        print -e $"(ansi yellow)Warning: ($file_path) has uncommitted changes(ansi reset)"
+    $file_path
+    | if ($in | path exists) and ($in | path type) == 'file' {
+        build-modified-path --parent_dir 'zzz_md_backups' --suffix $'-(generate-timestamp)'
+        | mv $file_path $in
     }
 }
 
 # TODO: make config an env record
 
-# Load numd configuration from a .nu file or command-line options into the environment.
-# The config file is a Nushell script that gets prepended to the intermediate script.
-# Flags override config file settings (applied after config file content).
+# Load numd configuration from a YAML file or command-line options into the environment.
 export def --env load-config [
-    path: path # path to a .nu config file (Nushell code to prepend)
-    --prepend_code: string # additional code to prepend (applied after config file)
-    --table_width: int # width for table output (sets $env.numd.table-width, applied last)
+    path: path # path to a .yaml numd config file
+    --prepend_code: string # code to prepend to the intermediate script
+    --table_width: int # width for table output formatting
 ]: nothing -> nothing {
-    # Build prepend code: config file → flag code → table-width override
-    let config_code = if $path != '' { open -r $path } else { '' }
-    let flag_code = $prepend_code | default ''
-    let table_width_code = if $table_width != null { $"\n$env.numd.table-width = ($table_width)" } else { '' }
+    $env.numd = (
+        [
+            [key value];
 
-    let combined_code = [$config_code $flag_code $table_width_code]
-    | where $it != ''
-    | str join "\n"
-    | str trim
-
-    $env.numd = if $combined_code == '' {
-        {}
-    } else {
-        {
-            prepend-code: $combined_code
-            config-path: (if $path != '' { $path })
+            [prepend-code $prepend_code]
+            [table-width $table_width]
+        ]
+        | if $path != '' {
+            append (
+                open $path
+                | upsert config-path $path
+                | transpose key value
+            )
+        } else { }
+        | where value != null
+        | if ($in | is-empty) { {} } else {
+            # if table_width or prepend code are set via parameters - they will have precedence
+            transpose --ignore-titles --as-record --header-row
         }
-    }
+    )
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
