@@ -374,3 +374,162 @@ def "generate-timestamp returns correct format" [] {
     assert equal ($result | str length) 15
     assert ($result =~ '^\d{8}_\d{6}$')
 }
+
+# =============================================================================
+# Tests for strip-outputs
+# =============================================================================
+
+@test
+def "strip-outputs removes output lines from blocks" [] {
+    let blocks = "```nu\necho hello\n# => hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | strip-outputs
+
+    # The line list should not contain '# => hello'
+    let code_block = $result | where action == "execute" | first
+    assert (($code_block.line | str join "\n") !~ '# =>')
+}
+
+@test
+def "strip-outputs preserves plain comments" [] {
+    let blocks = "```nu\n# this is a comment\necho hello\n# => hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | strip-outputs
+
+    let code_block = $result | where action == "execute" | first
+    let code = $code_block.line | str join "\n"
+    # Plain comment should be preserved
+    assert ($code =~ '# this is a comment')
+    # Output line should be removed
+    assert ($code !~ '# => hello')
+}
+
+@test
+def "strip-outputs handles multiple output lines" [] {
+    let blocks = "```nu\nls\n# => file1\n# => file2\n# => file3\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | strip-outputs
+
+    let code_block = $result | where action == "execute" | first
+    let code = $code_block.line | str join "\n"
+    assert ($code !~ '# =>')
+    assert ($code =~ 'ls')
+}
+
+@test
+def "strip-outputs preserves text blocks unchanged" [] {
+    let blocks = "# Header\n\nSome text" | parse-markdown-to-blocks
+
+    let result = $blocks | strip-outputs
+
+    assert equal ($result | length) 1
+    assert equal $result.0.action "print-as-it-is"
+}
+
+# =============================================================================
+# Tests for to-markdown
+# =============================================================================
+
+@test
+def "to-markdown renders text blocks" [] {
+    let blocks = "# Header\n\nSome text" | parse-markdown-to-blocks
+
+    let result = $blocks | to-markdown
+
+    assert ($result =~ '# Header')
+    assert ($result =~ 'Some text')
+}
+
+@test
+def "to-markdown renders code blocks with fences" [] {
+    let blocks = "```nu\necho hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-markdown
+
+    assert ($result =~ '```nu')
+    assert ($result =~ 'echo hello')
+    assert ($result =~ '```')
+}
+
+@test
+def "to-markdown skips delete blocks" [] {
+    let blocks = "```nu\necho hello\n```\n```output-numd\nold output\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-markdown
+
+    # output-numd block should be deleted
+    assert ($result !~ 'output-numd')
+    assert ($result !~ 'old output')
+}
+
+@test
+def "to-markdown preserves block order" [] {
+    let md = "# Title\n\n```nu\nls\n```\n\nMiddle text\n\n```nu\necho hi\n```"
+    let blocks = $md | parse-markdown-to-blocks
+
+    let result = $blocks | to-markdown
+
+    # Check order is preserved
+    let title_pos = $result | str index-of '# Title'
+    let ls_pos = $result | str index-of 'ls'
+    let middle_pos = $result | str index-of 'Middle text'
+    let echo_pos = $result | str index-of 'echo hi'
+
+    assert ($title_pos < $ls_pos)
+    assert ($ls_pos < $middle_pos)
+    assert ($middle_pos < $echo_pos)
+}
+
+# =============================================================================
+# Tests for to-numd-script
+# =============================================================================
+
+@test
+def "to-numd-script extracts code from blocks" [] {
+    let blocks = "```nu\necho hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-numd-script
+
+    assert ($result =~ 'echo hello')
+}
+
+@test
+def "to-numd-script removes markdown fences" [] {
+    let blocks = "```nu\necho hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-numd-script
+
+    # Should not contain raw fence markers
+    assert ($result !~ '^```')
+}
+
+@test
+def "to-numd-script includes infostring as comment" [] {
+    let blocks = "```nu separate-block\necho hello\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-numd-script
+
+    # Infostring should be preserved as comment
+    assert ($result =~ '# ```nu separate-block')
+}
+
+@test
+def "to-numd-script only includes executable blocks" [] {
+    let blocks = "# Header\n\n```nu\necho hello\n```\n\n```python\nprint('hi')\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-numd-script
+
+    assert ($result =~ 'echo hello')
+    assert ($result !~ 'Header')
+    assert ($result !~ 'print')
+}
+
+@test
+def "to-numd-script handles multiple code blocks" [] {
+    let blocks = "```nu\nlet a = 1\n```\n\n```nu\necho $a\n```" | parse-markdown-to-blocks
+
+    let result = $blocks | to-numd-script
+
+    assert ($result =~ 'let a = 1')
+    assert ($result =~ 'echo \$a')
+}
