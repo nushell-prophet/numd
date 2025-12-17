@@ -9,7 +9,7 @@ export def run [
     --config-path: path = '' # path to a config file
     --echo # output resulting markdown to stdout instead of saving to file
     --no-fail-on-error # skip errors (markdown is never saved on error)
-    --no-stats # do not output stats of changes
+    --no-stats # do not output stats of changes (is activated via --echo by default)
     --prepend-code: string # prepend code into the intermediate script, useful for customizing Nushell output settings
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
