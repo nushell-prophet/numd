@@ -101,10 +101,11 @@ A zero `levenshtein_dist` for most files + expected diffs in dynamic content fil
 
 ## Configuration
 
-numd supports YAML config files (see `numd_config_example1.yaml`):
-```yaml
-prepend-code: |-
-  $env.config.table.mode = 'rounded'
+numd supports `.nu` config files (see `numd_config_example1.nu`). The config file is a Nushell script that gets prepended to the intermediate script:
+```nushell
+# numd_config_example1.nu
+$env.config.table.mode = 'rounded'
+$env.numd.table-width = 100  # optional: set custom table width
 ```
 
-Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly.
+Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly. Flags override config file settings.
