@@ -29,10 +29,37 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 
 ### Module Structure (`numd/`)
 
-- **mod.nu**: Entry point exporting public commands (`run`, `clear-outputs`, `list-fence-options`, `capture start/stop`, `parse-help`, `parse-frontmatter`, `to md-with-frontmatter`)
-- **commands.nu**: Core implementation (~865 lines) containing all main logic
+- **mod.nu**: Entry point exporting public commands
+- **commands.nu**: Core implementation containing main logic and pipeline commands
+- **capture.nu**: `capture start/stop` commands for interactive session recording
+- **parse-help.nu**: `parse-help` command for formatting --help output
+- **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
 - **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
-- **parse.nu**: Frontmatter parsing utilities for YAML frontmatter in markdown
+
+### Pipeline Commands
+
+Composable commands following Unix philosophy:
+
+```nushell
+# Parse markdown file into blocks table
+numd parse-file file.md
+
+# Strip output lines (# =>) from blocks
+numd parse-file file.md | numd strip-outputs
+
+# Execute code blocks and update with results
+numd parse-file file.md | numd execute-blocks
+
+# Render blocks table back to markdown
+numd parse-file file.md | numd strip-outputs | numd to-markdown
+
+# Extract pure Nushell script (no markdown)
+numd parse-file file.md | numd strip-outputs | numd to-numd-script
+```
+
+The high-level commands use these internally:
+- `run` = `parse-file | execute-blocks | to-markdown`
+- `clear-outputs` = `parse-file | strip-outputs | to-markdown`
 
 ### Core Processing Pipeline (in `commands.nu`)
 
