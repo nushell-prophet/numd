@@ -18,7 +18,7 @@ export def run [
     let original_md = open -r $file
 
     let intermediate_script_path = $save_intermed_script
-    | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
+    | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
     | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
