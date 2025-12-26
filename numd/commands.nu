@@ -71,8 +71,8 @@ export def clear-outputs [
 # Extract pure Nushell script from blocks table (strip markdown fences)
 export def to-numd-script []: table -> string {
     where action == 'execute'
-    | each {|block|
-        $block.line
+    | each {
+        $in.line
         | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
         | drop # remove closing fence
         | str join (char nl)
@@ -110,6 +110,7 @@ export def execute-blocks [
 
     # Update original table with execution results
     let result_indices = $results | get block_index
+
     $original
     | each {|block|
         if $block.block_index in $result_indices {
@@ -525,8 +526,8 @@ export def trim-trailing-comments []: string -> string {
 export def get-last-span [
     command: string
 ]: nothing -> string {
-    let command = $command | str trim
-    let spans = ast $command --json
+    let trimmed = $command | str trim
+    let spans = ast $trimmed --json
     | get block
     | from json
     | to yaml
@@ -544,7 +545,7 @@ export def get-last-span [
 
     let offset = $longest_last_span_start - $last_span_end
 
-    $command
+    $trimmed
     | str substring $offset..
 }
 
@@ -697,7 +698,7 @@ export def --env load-config [
 
     # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
-    $env.numd = $base | merge { prepend-code: $code }
+    $env.numd = $base | merge {prepend-code: $code}
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
