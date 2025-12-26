@@ -693,8 +693,6 @@ export def check-git-clean [
     }
 }
 
-# TODO: make config an env record
-
 # Load numd configuration from a .nu file or command-line options into the environment.
 # The config file is a Nushell script that gets prepended to the intermediate script.
 # Flags override config file settings (applied after config file content).
@@ -713,14 +711,13 @@ export def --env load-config [
     | str join "\n"
     | str trim
 
-    $env.numd = if $combined_code == '' {
-        {}
-    } else {
-        {
-            prepend-code: $combined_code
-            config-path: (if $path != '' { $path })
-        }
-    }
+    # Preserve existing $env.numd fields, only update what's being set
+    let base = $env.numd? | default {}
+    let new_values = {}
+    | if $combined_code != '' { insert prepend-code $combined_code } else { }
+    | if $path != '' { insert config-path $path } else { }
+
+    $env.numd = $base | merge $new_values
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
