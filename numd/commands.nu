@@ -6,14 +6,12 @@ use std/iter scan
 }
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
-    --config-path: path = '' # path to a .nu config file (Nushell code prepended to script)
     --echo # output resulting markdown to stdout instead of saving to file
+    --eval: string # Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
     --no-fail-on-error # skip errors (markdown is never saved on error)
     --no-stats # do not output stats of changes (is activated via --echo by default)
-    --prepend-code: string # additional code to prepend (applied after config file)
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --table-width: int # set $env.numd.table-width (overrides config file)
     --use-host-config # load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
@@ -22,7 +20,7 @@ export def run [
     | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
-    | execute-blocks --config-path $config_path --no-fail-on-error=$no_fail_on_error --prepend-code $prepend_code --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --table-width $table_width --use-host-config=$use_host_config
+    | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -84,17 +82,15 @@ export def to-numd-script []: table -> string {
 
 # Execute code blocks and return updated blocks table
 export def execute-blocks [
-    --config-path: path = '' # path to a .nu config file
+    --eval: string # Nushell code to prepend to the script
     --no-fail-on-error # skip errors
-    --prepend-code: string # additional code to prepend
     --print-block-results # print blocks as they execute
     --save-intermed-script: path # path for intermediate script
-    --table-width: int # set table width
     --use-host-config # load host's env, config, and plugin files
 ]: table -> table {
     let original = $in
 
-    load-config $config_path --prepend_code $prepend_code --table_width $table_width
+    load-config $eval
 
     decorate-original-code-blocks $original
     | generate-intermediate-script
@@ -268,10 +264,7 @@ export def decorate-original-code-blocks [
 export def generate-intermediate-script []: table<block_index: int, row_type: string, line: list<string>, action: string, code: string> -> string {
     get code -o
     | if $env.numd?.prepend-code? != null {
-        prepend $"($env.numd?.prepend-code?)\n"
-        | if $env.numd.config-path? != null {
-            prepend ($"# numd config loaded from `($env.numd.config-path)`\n")
-        } else { }
+        prepend $"($env.numd.prepend-code)\n"
     } else { }
     | prepend $"const init_numd_pwd_const = '(pwd)'\n" # initialize it here so it will be available in intermediate scripts
     | prepend (
@@ -693,31 +686,18 @@ export def check-git-clean [
     }
 }
 
-# Load numd configuration from a .nu file or command-line options into the environment.
-# The config file is a Nushell script that gets prepended to the intermediate script.
-# Flags override config file settings (applied after config file content).
+# Load numd configuration from eval code into the environment.
+# The eval code is Nushell code that gets prepended to the intermediate script.
 export def --env load-config [
-    path: path # path to a .nu config file (Nushell code to prepend)
-    --prepend_code: string # additional code to prepend (applied after config file)
-    --table_width: int # width for table output (sets $env.numd.table-width, applied last)
+    eval_code?: string # Nushell code to prepend to the script
 ]: nothing -> nothing {
-    # Build prepend code: config file → flag code → table-width override
-    let config_code = if $path != '' { open -r $path } else { '' }
-    let flag_code = $prepend_code | default ''
-    let table_width_code = if $table_width != null { $"\n$env.numd.table-width = ($table_width)" } else { '' }
+    let code = $eval_code | default '' | str trim
 
-    let combined_code = [$config_code $flag_code $table_width_code]
-    | where $it != ''
-    | str join "\n"
-    | str trim
+    if $code == '' { return }
 
-    # Preserve existing $env.numd fields, only update what's being set
+    # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
-    let new_values = {}
-    | if $combined_code != '' { insert prepend-code $combined_code } else { }
-    | if $path != '' { insert config-path $path } else { }
-
-    $env.numd = $base | merge $new_values
+    $env.numd = $base | merge { prepend-code: $code }
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.

@@ -48,14 +48,12 @@ numd run --help
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
-# =>   --config-path <path>: path to a .nu config file (Nushell code prepended to script) (default: '')
 # =>   --echo: output resulting markdown to stdout instead of saving to file
+# =>   --eval <string>: Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
 # =>   --no-fail-on-error: skip errors (markdown is never saved on error)
 # =>   --no-stats: do not output stats of changes (is activated via --echo by default)
-# =>   --prepend-code <string>: additional code to prepend (applied after config file)
 # =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
 # =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-# =>   --table-width <int>: set $env.numd.table-width (overrides config file)
 # =>   --use-host-config: load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 # =>
 # => Parameters:
@@ -111,7 +109,7 @@ numd run $path
 
 ### Styling outputs
 
-It is possible to set Nushell visual settings (and all the others) using the `--prepend-code` option. Just pass a code there to be prepended into our save-intermed-script.nu and executed before all parts of the code.
+Use the `--eval` option to prepend Nushell code to the intermediate script. This lets you set visual settings and other configuration before your code runs.
 
 ```nushell
 let path = $nu.temp-path | path join simple_nu_table.md
@@ -120,7 +118,7 @@ let path = $nu.temp-path | path join simple_nu_table.md
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
 
 # let's run this file to see its outputs (--echo outputs to stdout without saving)
-numd run $path --echo --no-stats --prepend-code "
+numd run $path --echo --no-stats --eval "
     $env.config.footer_mode = 'never'
     $env.config.table.header_on_separator = false
     $env.config.table.index_mode = 'never'

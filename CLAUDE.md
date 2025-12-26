@@ -133,14 +133,20 @@ A zero `levenshtein_dist` for most files + expected diffs in dynamic content fil
 
 By default, numd runs intermediate scripts with `nu -n` (no config files) for reproducible output across different systems. Use `--use-host-config` to load host's env, config, and plugin files when needed.
 
-numd supports `.nu` config files (see `numd_config_example1.nu`). The config file is a Nushell script that gets prepended to the intermediate script:
+Use `--eval` to prepend Nushell code to the intermediate script:
 ```nushell
-# numd_config_example1.nu
+# Inline code
+numd run README.md --eval '$env.numd.table-width = 80'
+
+# From config file
+numd run README.md --eval (open -r numd_config_example1.nu)
+```
+
+Example config file (`numd_config_example1.nu`):
+```nushell
 $env.config.table.mode = 'rounded'
 $env.numd.table-width = 100  # optional: set custom table width
 ```
-
-Pass via `--config-path` or use `--prepend-code` / `--table-width` flags directly. Flags override config file settings.
 
 ## Git Workflow
 
