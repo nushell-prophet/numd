@@ -66,7 +66,7 @@ export def 'main test-integration' [
         # Run files with config set
         (
             numd run $file --save-intermed-script $'($file)_intermed.nu'
-            --eval (open -r numd_config_example1.nu)
+            --eval (open -r numd_config_example1.nu) --ignore-git-check
         )
     }
     # Run file with customized width of table
@@ -89,7 +89,7 @@ export def 'main test-integration' [
     })
     # Run readme
     | append (
-        numd run README.md --eval (open -r numd_config_example1.nu)
+        numd run README.md --eval (open -r numd_config_example1.nu) --ignore-git-check
     )
     | if $json { to json --raw } else { }
 }
