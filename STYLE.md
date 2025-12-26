@@ -129,7 +129,8 @@ export def classify-block-action [
 ### `items` for Record Iteration
 
 ```nushell
-$record | items {|k v|
+$record
+| items {|k v|
     $v
     | str replace -r '^\s*(\S)' '  $1'
     | str join (char nl)
@@ -329,23 +330,15 @@ Understanding these differences helps maintain consistency.
 
 ### Closure Parameters
 
-| Maxim | Claude |
-|-------|--------|
-| Named when helpful: `{\|block\| $block.line}` | Prefers `$in`: `{ $in.line }` |
+Prefer `$in`: `{ $in.line }`
+
+Name when helpful: `{|block| $block.line}`
 
 ```nushell
-# Maxim's style - named parameter for clarity
 | each {|block|
     if $block.block_index in $result_indices {
         let result = $results | where block_index == $block.block_index
         $block | update line { $result.line | lines }
-    }
-}
-
-# Claude's style - $in idiom
-| each {
-    if $in.block_index in $result_indices {
-        $in | update line { ($results | where block_index == $in.block_index).line | lines }
     }
 }
 ```
@@ -400,54 +393,17 @@ def apply-output-formatting [fence_options: list<string>]: string -> string {
 
 ### Negation Syntax
 
-| Maxim | Claude |
-|-------|--------|
-| Sometimes `not ($x =~ ...)` | Prefers `$x !~ ...` |
+Prefer `$x !~ ...` over `not ($x =~ ...)` 
 
 ```nushell
-# Both are acceptable, but prefer operator form
 | where $it !~ '^# =>'    # Preferred
-| where not ($it =~ '^# =>')  # Also acceptable
 ```
-
-### Documentation
-
-| Maxim | Claude |
-|-------|--------|
-| Minimal, code speaks | Comprehensive docstrings |
-
-```nushell
-# Maxim's style - brief or no docstring
-export def clean-markdown []: string -> string {
-    str replace --all --regex "\n{3,}" "\n\n"
-    ...
-}
-
-# Claude's style - detailed description
-# Prettify markdown by removing unnecessary empty lines and trailing spaces.
-# Handles empty output blocks, excess newlines, trailing whitespace, and
-# ensures consistent file endings.
-export def clean-markdown []: string -> string {
-    str replace --all --regex "\n```output-numd\\s+```\n" "\n"
-    ...
-}
-```
-
-**Guideline**: Add docstrings for public API functions; internal helpers can be brief.
 
 ### Commit Messages
 
-| Maxim | Claude |
-|-------|--------|
-| Descriptive phrases | Conventional commit format |
+Use Conventional commit format 
 
 ```
-# Maxim's style
-use `# =>` notation
-indent output unconditionally
-beautify
-
-# Claude's style
 refactor: simplify closures using $in instead of named parameters
 feat: add --ignore-git-check flag and error on uncommitted changes
 fix: preserve existing $env.numd fields in load-config
