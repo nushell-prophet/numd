@@ -33,15 +33,20 @@ let row_type = $file_lines | each {
 } | scan --noinit 'text' {|curr prev| ... }
 ```
 
-### Conditional Pass-Through with Empty `else { }`
+### Conditional Pass-Through with Empty `{ }`
 
-Use `| if ... { } else { }` idiom for conditional transformations that pass through unchanged otherwise:
+Use empty `{ }` for the branch that passes through unchanged:
 
 ```nushell
 # Pass through on false condition
 | if $nu.os-info.family == windows {
     str replace --all (char crlf) "\n"
 } else { }
+
+# Pass through on true condition
+| if $echo { } else {
+    save -f $file
+}
 
 # Multiple chained conditions
 | if 'no-output' in $fence_options { return $in } else { }
