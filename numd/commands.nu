@@ -568,12 +568,12 @@ export def can-append-print [
 # Generate a pipeline that captures command output with `# =>` prefix for inline display.
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
-} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' \"\\n\""
+} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' (char nl)"
 export def generate-inline-output-pipeline [
     --indent: string = '# => ' # prefix string for each output line
 ]: string -> string {
     generate-table-statement
-    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \"\\n\""
+    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \(char nl\)"
 }
 
 # Generate a print statement for capturing command output.
