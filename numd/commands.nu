@@ -487,7 +487,7 @@ export def execute-intermediate-script [
         [-n]
     }
 
-    (^$nu.current-exe ...$args $intermed_script_path)
+    ^$nu.current-exe ...$args $intermed_script_path
     | if $print_block_results { tee { print } } else { }
     | complete
     | if $in.exit_code == 0 {
