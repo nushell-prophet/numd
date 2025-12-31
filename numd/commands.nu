@@ -582,6 +582,16 @@ export def generate-print-statement []: string -> string {
     $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
 }
 
+export def pipe-to [closure: closure]: string -> string {
+    let $input = $in
+
+    view source $closure
+    | str substring 1..(-2)
+    | str replace -r '^\s+' ''
+    | str replace -r '\s+$' ''
+    | $input + " | " + $in
+}
+
 # Generate a table statement with width evaluated at runtime from $env.numd.table-width.
 @example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
 export def generate-table-statement []: string -> string {
