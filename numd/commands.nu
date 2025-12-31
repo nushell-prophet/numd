@@ -476,11 +476,10 @@ export def execute-intermediate-script [
     use_host_config: bool # if true, load host's env, config, and plugin files
 ]: nothing -> string {
     let args = if $use_host_config {
-        [
-            ...(if ($nu.env-path | path exists) { [--env-config $nu.env-path] } else { [] })
-            ...(if ($nu.config-path | path exists) { [--config $nu.config-path] } else { [] })
-            ...(if ($nu.plugin-path | path exists) { [--plugin-config $nu.plugin-path] } else { [] })
-        ]
+        []
+        | if ($nu.env-path | path exists) { append [--env-config $nu.env-path] } else { }
+        | if ($nu.config-path | path exists) { append [--config $nu.config-path] } else { }
+        | if ($nu.plugin-path | path exists) { append [--plugin-config $nu.plugin-path] } else { }
     } else {
         [-n]
     }
