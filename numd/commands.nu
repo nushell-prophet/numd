@@ -481,8 +481,7 @@ export def execute-intermediate-script [
             [--config $nu.config-path]
             [--plugin-config $nu.plugin-path]
         ]
-        | each {|i| if ($i.1 | path exists) { $i } }
-        | compact
+        | where {|i| $i.1 | path exists }
     } else {
         [-n]
     }
