@@ -657,7 +657,7 @@ export def build-modified-path [
     | update stem { $'($prefix)($in)($suffix)' }
     | if $extension != null { update extension { $in + $extension } } else { }
     | if $parent_dir != null {
-        update parent { path join $parent_dir | $'(mkdir $in)($in)' }
+        update parent { path join $parent_dir | tee { mkdir $in } }
     } else { }
     | path join
 }
