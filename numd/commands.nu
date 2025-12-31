@@ -614,7 +614,7 @@ export def generate-separate-block-fence []: string -> string {
 export def join-and-print []: list<string> -> string {
     str join (char nl)
     | quote-for-print
-    | $'($in) | print'
+    | $in + ' | print'
 }
 
 # Generate marker tags and code block delimiters for tracking output in the intermediate script.
