@@ -21,6 +21,6 @@ $env.config.table = {
 ```nushell try, new-instance" | print
 "lssomething" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "lssomething" | complete | if ($in.exit_code != 0) {get stderr} else {get stdout} | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+/Users/user/.cargo/bin/nu -c "lssomething" | complete | if ($in.exit_code != 0) { get stderr } else { get stdout } | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
