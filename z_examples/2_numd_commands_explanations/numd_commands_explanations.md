@@ -117,7 +117,7 @@ open $intermediate_script_path
 # => "```\n```output-numd" | print
 # =>
 # => # This block will produce some output in a separate block
-# => $var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+# => $var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
 # => print ''
 # => "```" | print
 # =>
@@ -127,11 +127,11 @@ open $intermediate_script_path
 # => whoami" | nu-highlight | print
 # =>
 # => # This block will output results inline
-# => whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+# => whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
 # => print ''
 # => "2 + 2" | nu-highlight | print
 # =>
-# => 2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
+# => 2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
 # => print ''
 # => "```" | print
 ```
@@ -221,8 +221,8 @@ compute-change-stats $file $md_orig $md_res
 # => │ filename         │ simple_markdown.md │
 # => │ nushell_blocks   │ 3                  │
 # => │ levenshtein_dist │ 248                │
-# => │ diff_lines       │ -12 (-33.3%)       │
-# => │ diff_words       │ -24 (-30.8%)       │
-# => │ diff_chars       │ -163 (-32.5%)      │
+# => │ diff_lines       │ --12 (-33.3%)      │
+# => │ diff_words       │ --24 (-30.8%)      │
+# => │ diff_chars       │ --163 (-32.5%)     │
 # => ╰──────────────────┴────────────────────╯
 ```
