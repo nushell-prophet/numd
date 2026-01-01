@@ -83,6 +83,47 @@ Use `window --remainder` to look at pairs/adjacent items:
 }
 ```
 
+### Data-First Filtering
+
+Define all data upfront, then filter. Prefer `where` over `each {if} | compact`:
+
+```nushell
+# Preferred: data-first, filter with where
+[
+    [--env-config $nu.env-path]
+    [--config $nu.config-path]
+    [--plugin-config $nu.plugin-path]
+]
+| where {|i| $i.1 | path exists }
+| flatten
+
+# Avoid: spread operator with conditionals
+[
+    ...(if ($nu.env-path | path exists) { [--env-config $nu.env-path] } else { [] })
+    ...(if ($nu.config-path | path exists) { [--config $nu.config-path] } else { [] })
+]
+
+# Avoid: each + if + compact (use where instead)
+| each {|i| if ($i.1 | path exists) { $i } }
+| compact
+```
+
+### Pipeline Append vs Spread
+
+For conditional list building, prefer pipeline with `append` or data-first approach:
+
+```nushell
+# Preferred: start empty, append conditionally
+[]
+| if $cond1 { append [a b] } else { }
+| if $cond2 { append [c d] } else { }
+
+# Or: data-first with filtering (often cleaner)
+[[a b] [c d]]
+| where { some-condition $in }
+| flatten
+```
+
 ### Building Tables with `wrap` and `merge`
 
 Construct tables column-by-column:
@@ -300,7 +341,21 @@ return { filename: $file,
     comment: "the script didn't produce any output" }
 ```
 
-### Long Command Parentheses
+### External Command Parentheses
+
+Avoid unnecessary parentheses around external commands:
+
+```nushell
+# Preferred
+^$nu.current-exe ...$args $script
+| complete
+
+# Avoid
+(^$nu.current-exe ...$args $script)
+| complete
+```
+
+For multi-line external commands, use parentheses with proper formatting:
 
 ```nushell
 # Preferred
@@ -424,6 +479,8 @@ fix: preserve existing $env.numd fields in load-config
 - Use empty `else { }` for pass-through
 - Use `match` for type dispatch
 - Use `scan` for stateful transforms
+- Use `where` for filtering (not `each {if} | compact`)
+- Define data first, then filter
 - Include type signatures
 - Use `@example` annotations
 - Use `const` for static data
@@ -431,6 +488,8 @@ fix: preserve existing $env.numd fields in load-config
 
 ### Don't
 
+- Use spread operator `...` with conditionals (use data-first + `where`)
+- Wrap external commands in unnecessary parentheses
 - Over-extract helpers for one-time use
 - Add excessive documentation for internal functions
 - Use verbose names for local variables
