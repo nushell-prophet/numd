@@ -50,6 +50,7 @@ numd run --help
 # =>   -h, --help: Display the help message for this command
 # =>   --echo: output resulting markdown to stdout instead of saving to file
 # =>   --eval <string>: Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
+# =>   --ignore-git-check: skip the check for uncommitted changes before overwriting
 # =>   --no-fail-on-error: skip errors (markdown is never saved on error)
 # =>   --no-stats: do not output stats of changes (is activated via --echo by default)
 # =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
@@ -96,7 +97,7 @@ By default, `numd` provides basic stats on changes made (when not using `--echo`
 ```nushell
 # Running without --echo saves the file and returns stats
 let path = [z_examples 1_simple_markdown simple_markdown_with_no_output.md] | path join
-numd run $path
+numd run $path --ignore-git-check
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
@@ -138,6 +139,8 @@ numd run $path --echo --no-stats --eval "
 ```nu
 numd clear-outputs --help
 # => Remove numd execution outputs from the file
+# => Note: No git check here - clearing outputs is a reversible operation (just re-run numd)
+# => and users typically clear outputs intentionally before committing clean source
 # =>
 # => Usage:
 # =>   > clear-outputs {flags} <file>

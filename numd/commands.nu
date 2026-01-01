@@ -8,6 +8,7 @@ export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
     --echo # output resulting markdown to stdout instead of saving to file
     --eval: string # Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
+    --ignore-git-check # skip the check for uncommitted changes before overwriting
     --no-fail-on-error # skip errors (markdown is never saved on error)
     --no-stats # do not output stats of changes (is activated via --echo by default)
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
@@ -38,7 +39,7 @@ export def run [
     if $echo {
         $updated_md
     } else {
-        check-git-clean $file
+        if not $ignore_git_check { check-git-clean $file }
         $updated_md | ansi strip | save -f $file
 
         if not $no_stats {
@@ -48,6 +49,8 @@ export def run [
 }
 
 # Remove numd execution outputs from the file
+# Note: No git check here - clearing outputs is a reversible operation (just re-run numd)
+# and users typically clear outputs intentionally before committing clean source
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --echo # output resulting markdown to stdout instead of writing to file
@@ -61,9 +64,7 @@ export def clear-outputs [
         to-markdown
     }
     | if $echo { } else {
-        let result = $in
-        check-git-clean $file
-        $result | save -f $file
+        $in | save -f $file
     }
 }
 
@@ -661,7 +662,7 @@ export def build-modified-path [
 }
 
 # Check if file is safely tracked in git before overwriting.
-# Warns if file has uncommitted changes or is not tracked by git.
+# Errors if file has uncommitted changes. Use --ignore-git-check to skip.
 export def check-git-clean [
     file_path: path # path to the file to check
 ]: nothing -> nothing {
@@ -671,18 +672,17 @@ export def check-git-clean [
     let in_git_repo = (do { git rev-parse --git-dir } | complete).exit_code == 0
     if not $in_git_repo { return }
 
-    # Check if file is tracked by git
+    # Check if file is tracked by git (untracked files are ok to overwrite)
     let is_tracked = (do { git ls-files --error-unmatch $file } | complete).exit_code == 0
-    if not $is_tracked {
-        print -e $"(ansi yellow)Warning: ($file_path) is not tracked by git(ansi reset)"
-        return
-    }
+    if not $is_tracked { return }
 
     # Check if file has uncommitted changes
     let has_changes = (git diff --name-only $file | str trim) != ''
     let is_staged = (git diff --staged --name-only $file | str trim) != ''
     if $has_changes or $is_staged {
-        print -e $"(ansi yellow)Warning: ($file_path) has uncommitted changes(ansi reset)"
+        error make --unspanned {
+            msg: $"($file_path) has uncommitted changes. Commit or stash changes first, or use --ignore-git-check to override."
+        }
     }
 }
 
