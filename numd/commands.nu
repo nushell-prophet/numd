@@ -477,15 +477,17 @@ export def execute-intermediate-script [
 ]: nothing -> string {
     let args = if $use_host_config {
         [
-            ...(if ($nu.env-path | path exists) { [--env-config $nu.env-path] } else { [] })
-            ...(if ($nu.config-path | path exists) { [--config $nu.config-path] } else { [] })
-            ...(if ($nu.plugin-path | path exists) { [--plugin-config $nu.plugin-path] } else { [] })
+            [--env-config $nu.env-path]
+            [--config $nu.config-path]
+            [--plugin-config $nu.plugin-path]
         ]
+        | where {|i| $i.1 | path exists }
+        | flatten
     } else {
         [-n]
     }
 
-    (^$nu.current-exe ...$args $intermed_script_path)
+    ^$nu.current-exe ...$args $intermed_script_path
     | if $print_block_results { tee { print } } else { }
     | complete
     | if $in.exit_code == 0 {

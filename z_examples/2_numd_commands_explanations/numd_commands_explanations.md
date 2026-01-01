@@ -221,8 +221,8 @@ compute-change-stats $file $md_orig $md_res
 # => │ filename         │ simple_markdown.md │
 # => │ nushell_blocks   │ 3                  │
 # => │ levenshtein_dist │ 248                │
-# => │ diff_lines       │ --12 (-33.3%)      │
-# => │ diff_words       │ --24 (-30.8%)      │
-# => │ diff_chars       │ --163 (-32.5%)     │
+# => │ diff_lines       │ -12 (-33.3%)       │
+# => │ diff_words       │ -24 (-30.8%)       │
+# => │ diff_chars       │ -163 (-32.5%)      │
 # => ╰──────────────────┴────────────────────╯
 ```
