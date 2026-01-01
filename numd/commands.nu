@@ -18,7 +18,7 @@ export def run [
     let original_md = open -r $file
 
     let intermediate_script_path = $save_intermed_script
-    | default ($file | build-modified-path --prefix $'numd-temp-(generate-timestamp)' --extension '.nu')
+    | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
     | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
@@ -71,8 +71,8 @@ export def clear-outputs [
 # Extract pure Nushell script from blocks table (strip markdown fences)
 export def to-numd-script []: table -> string {
     where action == 'execute'
-    | each {|block|
-        $block.line
+    | each {
+        $in.line
         | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
         | drop # remove closing fence
         | str join (char nl)
@@ -110,6 +110,7 @@ export def execute-blocks [
 
     # Update original table with execution results
     let result_indices = $results | get block_index
+
     $original
     | each {|block|
         if $block.block_index in $result_indices {
@@ -398,9 +399,9 @@ export def compute-change-stats [
         ($change_value / $metric_stats.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"(ansi red)($change_value) \(($in)%\)(ansi reset)"
+            $"($change_value) \(($in)%\)"
         } else if ($in > 0) {
-            $"(ansi blue)+($change_value) \(($in)%\)(ansi reset)"
+            $"+($change_value) \(($in)%\)"
         } else { '0%' }
     }
     | update metric { $'diff_($in)' }
@@ -456,6 +457,17 @@ export def quote-for-print []: string -> string {
     | $'"($in)"'
 }
 
+# Append a pipeline to a command string by extracting the closure body.
+export def pipe-to [closure: closure]: string -> string {
+    let $input = $in
+
+    view source $closure
+    | str substring 1..(-2)
+    | str replace -r '^\s+' ''
+    | str replace -r '\s+$' ''
+    | $input + " | " + $in
+}
+
 # Run the intermediate script and return its output as a string.
 export def execute-intermediate-script [
     intermed_script_path: path # path to the generated intermediate script
@@ -506,7 +518,8 @@ export def code-block-marker [
 } --result "\"ls\" | nu-highlight | print\n\n"
 export def generate-highlight-print []: string -> string {
     quote-for-print
-    | $"($in) | nu-highlight | print(char nl)(char nl)"
+    | pipe-to { nu-highlight | print }
+    | $in + "\n\n"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
@@ -525,8 +538,8 @@ export def trim-trailing-comments []: string -> string {
 export def get-last-span [
     command: string
 ]: nothing -> string {
-    let command = $command | str trim
-    let spans = ast $command --json
+    let trimmed = $command | str trim
+    let spans = ast $trimmed --json
     | get block
     | from json
     | to yaml
@@ -544,7 +557,7 @@ export def get-last-span [
 
     let offset = $longest_last_span_start - $last_span_end
 
-    $command
+    $trimmed
     | str substring $offset..
 }
 
@@ -567,24 +580,24 @@ export def can-append-print [
 # Generate a pipeline that captures command output with `# =>` prefix for inline display.
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
-} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' \"\\n\""
-export def generate-inline-output-pipeline [
-    --indent: string = '# => ' # prefix string for each output line
-]: string -> string {
+} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' (char nl)"
+export def generate-inline-output-pipeline []: string -> string {
     generate-table-statement
-    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \"\\n\""
+    | pipe-to {
+        default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl)
+    }
 }
 
 # Generate a print statement for capturing command output.
 @example "wrap command with print" { 'ls' | generate-print-statement } --result "ls | print; print ''"
 export def generate-print-statement []: string -> string {
-    $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
+    pipe-to { print; print '' } # The last `print ''` is for newlines after executed commands
 }
 
 # Generate a table statement with width evaluated at runtime from $env.numd.table-width.
 @example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
 export def generate-table-statement []: string -> string {
-    $in + ' | table --width ($env.numd?.table-width? | default 120)'
+    pipe-to { table --width ($env.numd?.table-width? | default 120) }
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
@@ -594,10 +607,8 @@ export def wrap-in-try-catch [
 ]: string -> string {
     if $new_instance {
         quote-for-print
-        | (
-            $'($nu.current-exe) -c ($in)' +
-            " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}"
-        )
+        | $'($nu.current-exe) -c ($in)'
+        | pipe-to { complete | if ($in.exit_code != 0) { get stderr } else { get stdout } }
     } else {
         $"try {($in)} catch {|error| $error}"
     }
@@ -613,7 +624,7 @@ export def generate-separate-block-fence []: string -> string {
 export def join-and-print []: list<string> -> string {
     str join (char nl)
     | quote-for-print
-    | $'($in) | print'
+    | pipe-to { print }
 }
 
 # Generate marker tags and code block delimiters for tracking output in the intermediate script.
@@ -656,7 +667,7 @@ export def build-modified-path [
     | update stem { $'($prefix)($in)($suffix)' }
     | if $extension != null { update extension { $in + $extension } } else { }
     | if $parent_dir != null {
-        update parent { path join $parent_dir | $'(mkdir $in)($in)' }
+        update parent { path join $parent_dir | tee { mkdir $in } }
     } else { }
     | path join
 }
@@ -697,7 +708,7 @@ export def --env load-config [
 
     # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
-    $env.numd = $base | merge { prepend-code: $code }
+    $env.numd = $base | merge {prepend-code: $code}
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
