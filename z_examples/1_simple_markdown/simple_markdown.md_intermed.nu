@@ -33,7 +33,7 @@ $var1 | path join 'baz' 'bar'" | nu-highlight | print
 "```\n```output-numd" | print
 
 # This block will produce some output in a separate block
-$var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
 
@@ -43,10 +43,10 @@ print ''
 whoami" | nu-highlight | print
 
 # This block will output results inline
-whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "2 + 2" | nu-highlight | print
 
-2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
