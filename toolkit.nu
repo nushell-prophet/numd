@@ -66,14 +66,14 @@ export def 'main test-integration' [
         # Run files with config set
         (
             numd run $file --save-intermed-script $'($file)_intermed.nu'
-            --config-path numd_config_example1.nu
+            --eval (open -r numd_config_example1.nu)
         )
     }
     # Run file with customized width of table
     | append (do {
         let target = $path_simple_table | build-modified-path --suffix '_customized_width20'
         let orig = open $path_simple_table
-        numd run $path_simple_table --echo --no-stats --table-width 20
+        numd run $path_simple_table --echo --no-stats --eval '$env.numd.table-width = 20'
         | ansi strip
         | save -f $target
         compute-change-stats $target $orig (open $target)
@@ -82,14 +82,14 @@ export def 'main test-integration' [
     | append (do {
         let target = $path_simple_table | build-modified-path --suffix '_customized_example_config'
         let orig = open $path_simple_table
-        numd run $path_simple_table --echo --no-stats --config-path 'numd_config_example2.nu'
+        numd run $path_simple_table --echo --no-stats --eval (open -r numd_config_example2.nu)
         | ansi strip
         | save -f $target
         compute-change-stats $target $orig (open $target)
     })
     # Run readme
     | append (
-        numd run README.md --config-path numd_config_example1.nu
+        numd run README.md --eval (open -r numd_config_example1.nu)
     )
     | if $json { to json --raw } else { }
 }
