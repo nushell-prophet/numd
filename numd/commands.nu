@@ -399,7 +399,7 @@ export def compute-change-stats [
         ($change_value / $metric_stats.old) * 100
         | math round --precision 1
         | if $in < 0 {
-            $"-($change_value) \(($in)%\)"
+            $"($change_value) \(($in)%\)"
         } else if ($in > 0) {
             $"+($change_value) \(($in)%\)"
         } else { '0%' }
