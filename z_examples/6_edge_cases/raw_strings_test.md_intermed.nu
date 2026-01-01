@@ -31,6 +31,6 @@ print ''
 ```nu" | print
 "$two_single_lines_text" | nu-highlight | print
 
-$two_single_lines_text | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$two_single_lines_text | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\s*$' "\n" | print; print ''
 print ''
 "```" | print
