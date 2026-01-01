@@ -507,7 +507,8 @@ export def code-block-marker [
 } --result "\"ls\" | nu-highlight | print\n\n"
 export def generate-highlight-print []: string -> string {
     quote-for-print
-    | $"($in) | nu-highlight | print(char nl)(char nl)"
+    | pipe-to { nu-highlight | print }
+    | $in + "\n\n"
 }
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
@@ -569,17 +570,17 @@ export def can-append-print [
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
 } --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' (char nl)"
-export def generate-inline-output-pipeline [
-    --indent: string = '# => ' # prefix string for each output line
-]: string -> string {
+export def generate-inline-output-pipeline []: string -> string {
     generate-table-statement
-    | $"($in) | default '' | into string | lines | each {$'($indent)\($in\)' | str trim --right} | str join \(char nl\) | str replace -r '\\s*$' \(char nl\)"
+    | pipe-to {
+        default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl)
+    }
 }
 
 # Generate a print statement for capturing command output.
 @example "wrap command with print" { 'ls' | generate-print-statement } --result "ls | print; print ''"
 export def generate-print-statement []: string -> string {
-    $"($in) | print; print ''" # The last `print ''` is for newlines after executed commands
+    pipe-to { print; print '' } # The last `print ''` is for newlines after executed commands
 }
 
 export def pipe-to [closure: closure]: string -> string {
@@ -595,7 +596,7 @@ export def pipe-to [closure: closure]: string -> string {
 # Generate a table statement with width evaluated at runtime from $env.numd.table-width.
 @example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
 export def generate-table-statement []: string -> string {
-    $in + ' | table --width ($env.numd?.table-width? | default 120)'
+    pipe-to { table --width ($env.numd?.table-width? | default 120) }
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
@@ -605,10 +606,8 @@ export def wrap-in-try-catch [
 ]: string -> string {
     if $new_instance {
         quote-for-print
-        | (
-            $'($nu.current-exe) -c ($in)' +
-            " | complete | if ($in.exit_code != 0) {get stderr} else {get stdout}"
-        )
+        | $'($nu.current-exe) -c ($in)'
+        | pipe-to { complete | if ($in.exit_code != 0) { get stderr } else { get stdout } }
     } else {
         $"try {($in)} catch {|error| $error}"
     }
@@ -624,7 +623,7 @@ export def generate-separate-block-fence []: string -> string {
 export def join-and-print []: list<string> -> string {
     str join (char nl)
     | quote-for-print
-    | $in + ' | print'
+    | pipe-to { print }
 }
 
 # Generate marker tags and code block delimiters for tracking output in the intermediate script.
