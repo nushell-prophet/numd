@@ -457,6 +457,17 @@ export def quote-for-print []: string -> string {
     | $'"($in)"'
 }
 
+# Append a pipeline to a command string by extracting the closure body.
+export def pipe-to [closure: closure]: string -> string {
+    let $input = $in
+
+    view source $closure
+    | str substring 1..(-2)
+    | str replace -r '^\s+' ''
+    | str replace -r '\s+$' ''
+    | $input + " | " + $in
+}
+
 # Run the intermediate script and return its output as a string.
 export def execute-intermediate-script [
     intermed_script_path: path # path to the generated intermediate script
@@ -581,16 +592,6 @@ export def generate-inline-output-pipeline []: string -> string {
 @example "wrap command with print" { 'ls' | generate-print-statement } --result "ls | print; print ''"
 export def generate-print-statement []: string -> string {
     pipe-to { print; print '' } # The last `print ''` is for newlines after executed commands
-}
-
-export def pipe-to [closure: closure]: string -> string {
-    let $input = $in
-
-    view source $closure
-    | str substring 1..(-2)
-    | str replace -r '^\s+' ''
-    | str replace -r '\s+$' ''
-    | $input + " | " + $in
 }
 
 # Generate a table statement with width evaluated at runtime from $env.numd.table-width.
