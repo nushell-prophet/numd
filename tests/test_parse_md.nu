@@ -234,3 +234,38 @@ fn main() {
     assert equal $result.0.meta.lang "rust"
     assert ($result.0.content =~ "fn main")
 }
+
+# =============================================================================
+# Tests for frontmatter
+# =============================================================================
+
+@test
+def "classify-line detects frontmatter delimiter" [] {
+    let result = "---" | classify-line
+    assert equal $result.type "fm-delimiter"
+}
+
+@test
+def "parse-md parses frontmatter" [] {
+    let result = "---\nstatus: draft\n---\n# Title" | parse-md
+    assert equal ($result | length) 2
+    assert equal $result.0.element "frontmatter"
+    assert equal $result.0.meta.status "draft"
+    assert equal $result.1.element "h1"
+}
+
+@test
+def "parse-md frontmatter only at document start" [] {
+    # --- in the middle should not be frontmatter
+    let result = "# Title\n\n---\n\nSome text" | parse-md
+    # The --- becomes a paragraph (horizontal rule semantics not implemented)
+    assert ($result | where element == "frontmatter" | is-empty)
+}
+
+@test
+def "parse-md frontmatter with multiple fields" [] {
+    let result = "---\ntitle: Test\ndate: 2024-01-01\ntags: [a, b]\n---" | parse-md
+    assert equal $result.0.element "frontmatter"
+    assert equal $result.0.meta.title "Test"
+    assert equal ($result.0.meta.tags | length) 2
+}
