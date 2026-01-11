@@ -23,6 +23,8 @@ Analysis of architectural inconsistencies, duplicated logic, and interface misma
 
 **Recommendation:** Consider whether `parse-md.nu` should use `parse.nu::parse-frontmatter` internally, or if both are needed for different use cases.
 
+remove parse.nu
+
 ## 2. Two Markdown Block Parsers
 
 **Different purposes, similar implementations:**
@@ -42,6 +44,8 @@ Analysis of architectural inconsistencies, duplicated logic, and interface misma
 - Regex `^```\w*` for fence detection
 
 **Recommendation:** Extract shared patterns into `numd/nu-utils/` helpers.
+
+extract
 
 ## 3. Code Fence Option Parsing
 
@@ -63,6 +67,8 @@ Analysis of architectural inconsistencies, duplicated logic, and interface misma
 
 **Recommendation:** `parse-md.nu` should use `commands.nu::extract-fence-options` or `convert-short-options` for consistency.
 
+use version from commands.nu
+
 ## 4. Naming Inconsistencies
 
 | Concept | `commands.nu` | `parse-md.nu` |
@@ -73,6 +79,8 @@ Analysis of architectural inconsistencies, duplicated logic, and interface misma
 | Block content | `line: list<string>` | `content: string` |
 
 **Recommendation:** Standardize naming if modules will be used together.
+
+Create a new todo to refactor this. We need to reuse the functionality and standartize logic. commands.nu version has priority
 
 ## 5. `live.nu` vs `parse-md.nu` Alignment
 
@@ -92,6 +100,8 @@ Analysis of architectural inconsistencies, duplicated logic, and interface misma
 - `live.nu` missing: `ul`, `ol`, `blockquote`, `frontmatter` generators
 - `parse-md.nu` missing: `pseudo-xml` parsing
 
+add missing to live.nu, ignore pseudo-xml
+
 ## 6. Interface Pattern Differences
 
 **File input handling:**
@@ -109,6 +119,8 @@ export def parse-file [file: path]: nothing -> table
 
 **Recommendation:** Standardize the pattern - the `parse-md.nu` pattern (optional path, can pipe) is most flexible.
 
+Standartize
+
 ## 7. Meta Structure Inconsistencies
 
 `parse-md.nu` uses `meta` differently for each element:
@@ -124,6 +136,8 @@ export def parse-file [file: path]: nothing -> table
 
 **Potential issue:** For `ul`/`ol`, content is empty and items are in `meta`. For other elements, content holds the text. This asymmetry may be confusing.
 
+fix
+
 ## 8. State Machine Duplication
 
 Both files implement similar state machines:
@@ -138,33 +152,4 @@ Both files implement similar state machines:
 
 **Recommendation:** Consider a shared `track-block-context` helper.
 
-## Recommended Actions
-
-### High Priority
-
-1. **Decide on frontmatter canonical form** - should `parse.nu::parse-frontmatter` and `parse-md.nu` return compatible structures?
-
-2. **Reuse fence option parsing** - `parse-md.nu` should call `extract-fence-options` from `commands.nu`
-
-### Medium Priority
-
-3. **Extract shared utilities** to `numd/nu-utils/`:
-   - `detect-fence` - regex-based fence detection
-   - `track-block-state` - scan-based state machine
-   - `group-lines-to-blocks` - window + group-by pattern
-
-4. **Standardize naming** - pick either `element`/`row_type`, `content`/`line`
-
-### Low Priority
-
-5. **Add missing elements to `live.nu`** - ul, ol, blockquote, frontmatter generators
-
-6. **Add pseudo-xml parsing to `parse-md.nu`** if needed for round-trip
-
-7. **Standardize meta structure** - consider always having content, use meta only for extra data
-
-## Questions for User
-
-1. Should `parse-md.nu` produce output compatible with `commands.nu::parse-markdown-to-blocks`?
-2. Is round-trip (`live.nu` → markdown → `parse-md.nu`) a requirement?
-3. Should short fence options (O, N, t, n, s) be supported in `parse-md.nu`?
+create a todo to refactor this
