@@ -1,6 +1,7 @@
 ---
-status: analysis
+status: done
 created: 20260111
+updated: 20260111
 ---
 # Consistency Analysis: `parse-md.nu` vs numd/ codebase
 
