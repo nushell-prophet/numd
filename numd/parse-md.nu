@@ -3,7 +3,7 @@ use std/iter scan
 # Parse markdown into semantic blocks
 export def main [
     file?: path  # optional path to markdown file (can also pipe content)
-]: [string -> table, nothing -> table] {
+]: [string -> table nothing -> table] {
     let input = if $file == null { $in } else { open -r $file }
     $input | parse-md-to-blocks
 }
@@ -61,15 +61,15 @@ def extract-content [element: string, lines: list<string>]: nothing -> string {
             $lines | first | str replace -r '^#+\s+' ''
         }
         'blockquote' => {
-            $lines | each { str replace -r '^>\s?' '' } | str join "\n"
+            $lines | each { str replace -r '^>\s?' '' } | str join (char nl)
         }
         'code' => {
-            $lines | str join "\n"
+            $lines | str join (char nl)
         }
         'p' => {
-            $lines | str join "\n"
+            $lines | str join (char nl)
         }
-        _ => { $lines | str join "\n" }
+        _ => { $lines | str join (char nl) }
     }
 }
 
@@ -113,112 +113,112 @@ def parse-md-to-blocks []: string -> table {
 
     # Step 1: Classify each line
     let classified = $file_lines
-        | each {|line| {line: $line, class: ($line | classify-line)}}
+    | each {|line| {line: $line, class: ($line | classify-line)}}
 
     # Step 2: Track code block state
     let with_state = $classified
-        | each { $in.class }
-        | scan {in_code: false, code_info: null} {|class state|
-            if $class.type == 'fence' {
-                if $state.in_code {
-                    {in_code: false, code_info: null}
-                } else {
-                    {in_code: true, code_info: $class}
-                }
+    | each { $in.class }
+    | scan {in_code: false, code_info: null} {|class state|
+        if $class.type == 'fence' {
+            if $state.in_code {
+                {in_code: false, code_info: null}
             } else {
-                $state
+                {in_code: true, code_info: $class}
             }
+        } else {
+            $state
         }
+    }
 
     # Step 3: Override classification for lines inside code blocks
     let classified_with_code = $classified
-        | zip $with_state
-        | each {|pair|
-            let item = $pair.0
-            let state = $pair.1
-            if $state.in_code and $item.class.type != 'fence' {
-                $item | update class {type: 'code-content', code_info: $state.code_info}
-            } else if $item.class.type == 'fence' and $state.in_code == false {
-                # This is an opening fence
-                $item | update class {type: 'fence-open', lang: $item.class.lang, options: $item.class.options}
-            } else if $item.class.type == 'fence' and $state.in_code == true {
-                # This is a closing fence (state was just toggled to false)
-                $item | update class {type: 'fence-close'}
-            } else {
-                $item
-            }
+    | zip $with_state
+    | each {|pair|
+        let item = $pair.0
+        let state = $pair.1
+        if $state.in_code and $item.class.type != 'fence' {
+            $item | update class {type: 'code-content', code_info: $state.code_info}
+        } else if $item.class.type == 'fence' and not $state.in_code {
+            # This is an opening fence
+            $item | update class {type: 'fence-open', lang: $item.class.lang, options: $item.class.options}
+        } else if $item.class.type == 'fence' and $state.in_code {
+            # This is a closing fence (state was just toggled to false)
+            $item | update class {type: 'fence-close'}
+        } else {
+            $item
         }
+    }
 
     # Step 4: Compute block indices
     let types = $classified_with_code | each { $in.class.type }
     let block_indices = $types
-        | window --remainder 2
-        | scan 0 {|window index|
-            let curr = $window.0
-            let prev = $window.1?
+    | window --remainder 2
+    | scan 0 {|window index|
+        let curr = $window.0
+        let prev = $window.1?
 
-            # Increment block index on element transitions
-            if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
-                # Headers always start new block
-                if $prev == null or $prev !~ '^h[1-6]$' or $prev != $curr { $index + 1 } else { $index }
-            } else if $curr == 'fence-open' {
-                # Code block starts
-                $index + 1
-            } else if $curr == 'empty' {
-                # Empty lines separate blocks but aren't blocks themselves
-                $index
-            } else if $curr != $prev and $prev != null and $prev != 'empty' {
-                # Transition between different element types
-                $index + 1
-            } else if $prev == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content'] {
-                # After empty line, new block starts (except for code content)
-                $index + 1
-            } else {
-                $index
-            }
+        # Increment block index on element transitions
+        if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
+            # Headers always start new block
+            if $prev == null or $prev !~ '^h[1-6]$' or $prev != $curr { $index + 1 } else { $index }
+        } else if $curr == 'fence-open' {
+            # Code block starts
+            $index + 1
+        } else if $curr == 'empty' {
+            # Empty lines separate blocks but aren't blocks themselves
+            $index
+        } else if $curr != $prev and $prev != null and $prev != 'empty' {
+            # Transition between different element types
+            $index + 1
+        } else if $prev == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content'] {
+            # After empty line, new block starts (except for code content)
+            $index + 1
+        } else {
+            $index
         }
+    }
 
     # Step 5: Merge block indices with classified lines
     let indexed = $classified_with_code
-        | zip $block_indices
-        | each {|pair| $pair.0 | insert block_index $pair.1}
+    | zip $block_indices
+    | each {|pair| $pair.0 | insert block_index $pair.1}
 
     # Step 6: Group by block index and build output
     $indexed
-        | where { $in.class.type not-in ['empty' 'fence-open' 'fence-close'] }
-        | group-by block_index --to-table
-        | each {|group|
-            let block_idx = $group.block_index | into int
-            let items = $group.items
-            let first_class = $items | first | get class
-            let lines = $items | get line
+    | where { $in.class.type not-in ['empty' 'fence-open' 'fence-close'] }
+    | group-by block_index --to-table
+    | each {|group|
+        let block_idx = $group.block_index | into int
+        let items = $group.items
+        let first_class = $items | first | get class
+        let lines = $items | get line
 
-            # Determine element type
-            let element = match $first_class.type {
-                'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => { $first_class.type }
-                'code-content' => { 'code' }
-                'ul-item' => { 'ul' }
-                'ol-item' => { 'ol' }
-                'blockquote' => { 'blockquote' }
-                'text' => { 'p' }
-                _ => { 'p' }
-            }
-
-            # Get code info for code blocks
-            let code_info = if $element == 'code' {
-                $first_class.code_info? | default {lang: '', options: []}
-            } else {
-                {}
-            }
-
-            {
-                block_index: $block_idx
-                element: $element
-                content: (extract-content $element $lines)
-                meta: (extract-meta $element $lines $code_info)
-            }
+        # Determine element type
+        let element = match $first_class.type {
+            'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => { $first_class.type }
+            'code-content' => { 'code' }
+            'ul-item' => { 'ul' }
+            'ol-item' => { 'ol' }
+            'blockquote' => { 'blockquote' }
+            'text' => { 'p' }
+            _ => { 'p' }
         }
-        | sort-by block_index
-        | enumerate
-        | each {|row| $row.item | update block_index $row.index}
+
+        # Get code info for code blocks
+        let code_info = if $element == 'code' {
+            $first_class.code_info? | default {lang: '', options: []}
+        } else {
+            {}
+        }
+
+        {
+            block_index: $block_idx
+            element: $element
+            content: (extract-content $element $lines)
+            meta: (extract-meta $element $lines $code_info)
+        }
+    }
+    | sort-by block_index
+    | enumerate
+    | each {|row| $row.item | update block_index $row.index}
 }
