@@ -12,6 +12,11 @@ export def main [
 export def classify-line []: string -> record {
     let line = $in
 
+    # Frontmatter delimiter (---)
+    if $line == '---' {
+        return {type: 'fm-delimiter'}
+    }
+
     # Code fence (opening or closing)
     if ($line =~ '^```') {
         let parsed = $line | parse -r '^```(?<lang>\w+)?(?<options>.*)?$'
@@ -58,6 +63,9 @@ export def classify-line []: string -> record {
 # Extract clean content from a block
 def extract-content [element: string lines: list<string>]: nothing -> string {
     match $element {
+        'frontmatter' => {
+            $lines | str join (char nl)
+        }
         'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => {
             $lines | first | str replace -r '^#+\s+' ''
         }
@@ -81,6 +89,10 @@ def extract-meta [
     class_info: record
 ]: nothing -> record {
     match $element {
+        'frontmatter' => {
+            # Parse YAML content into record
+            $lines | str join (char nl) | from yaml
+        }
         'code' => {
             {
                 lang: ($class_info.lang? | default '')
@@ -118,28 +130,46 @@ def parse-md-to-blocks []: string -> table {
     let classified = $file_lines
     | each {|line| {line: $line class: ($line | classify-line)} }
 
-    # Step 2: Track code block state
+    # Step 2: Track frontmatter and code block state
+    # Frontmatter is only valid at document start: first line must be ---
     let with_state = $classified
     | each { $in.class }
-    | scan {in_code: false code_info: null} {|class state|
-        if $class.type == 'fence' {
-            if $state.in_code {
-                {in_code: false code_info: null}
+    | scan {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
+        if $class.type == 'fm-delimiter' and $state.fm_possible and not $state.in_code {
+            if $state.in_fm {
+                # Closing frontmatter delimiter
+                {in_fm: false fm_possible: false in_code: false code_info: null}
             } else {
-                {in_code: true code_info: $class}
+                # Opening frontmatter delimiter (only if first line)
+                {in_fm: true fm_possible: true in_code: false code_info: null}
             }
-        } else {
+        } else if $class.type == 'fence' and not $state.in_fm {
+            if $state.in_code {
+                {in_fm: false fm_possible: false in_code: false code_info: null}
+            } else {
+                {in_fm: false fm_possible: false in_code: true code_info: $class}
+            }
+        } else if $state.in_fm or $state.in_code {
             $state
+        } else {
+            # Any non-frontmatter content disables frontmatter possibility
+            $state | update fm_possible false
         }
     }
 
-    # Step 3: Override classification for lines inside code blocks
-    let classified_with_code = $classified
+    # Step 3: Override classification for lines inside frontmatter/code blocks
+    let classified_with_context = $classified
     | zip $with_state
     | each {|pair|
         let item = $pair.0
         let state = $pair.1
-        if $state.in_code and $item.class.type != 'fence' {
+        if $state.in_fm and $item.class.type != 'fm-delimiter' {
+            $item | update class {type: 'fm-content'}
+        } else if $item.class.type == 'fm-delimiter' and $state.in_fm {
+            $item | update class {type: 'fm-close'}
+        } else if $item.class.type == 'fm-delimiter' and not $state.in_fm and $state.fm_possible {
+            $item | update class {type: 'fm-open'}
+        } else if $state.in_code and $item.class.type != 'fence' {
             $item | update class {type: 'code-content' code_info: $state.code_info}
         } else if $item.class.type == 'fence' and not $state.in_code {
             # This is an opening fence
@@ -153,7 +183,7 @@ def parse-md-to-blocks []: string -> table {
     }
 
     # Step 4: Compute block indices
-    let types = $classified_with_code | each { $in.class.type }
+    let types = $classified_with_context | each { $in.class.type }
     let block_indices = $types
     | window --remainder 2
     | scan 0 {|window index|
@@ -164,8 +194,8 @@ def parse-md-to-blocks []: string -> table {
         if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
             # Headers always start new block
             if $prev == null or $prev !~ '^h[1-6]$' or $prev != $curr { $index + 1 } else { $index }
-        } else if $curr == 'fence-open' {
-            # Code block starts
+        } else if $curr in ['fence-open' 'fm-open'] {
+            # Code block or frontmatter starts
             $index + 1
         } else if $curr == 'empty' {
             # Empty lines separate blocks but aren't blocks themselves
@@ -173,7 +203,7 @@ def parse-md-to-blocks []: string -> table {
         } else if $curr != $prev and $prev != null and $prev != 'empty' {
             # Transition between different element types
             $index + 1
-        } else if $prev == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content'] {
+        } else if $prev == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content' 'fm-content' 'fm-close'] {
             # After empty line, new block starts (except for code content)
             $index + 1
         } else {
@@ -182,13 +212,13 @@ def parse-md-to-blocks []: string -> table {
     }
 
     # Step 5: Merge block indices with classified lines
-    let indexed = $classified_with_code
+    let indexed = $classified_with_context
     | zip $block_indices
     | each {|pair| $pair.0 | insert block_index $pair.1 }
 
     # Step 6: Group by block index and build output
     $indexed
-    | where { $in.class.type not-in ['empty' 'fence-open' 'fence-close'] }
+    | where { $in.class.type not-in ['empty' 'fence-open' 'fence-close' 'fm-open' 'fm-close'] }
     | group-by block_index --to-table
     | each {|group|
         let block_idx = $group.block_index | into int
@@ -198,6 +228,7 @@ def parse-md-to-blocks []: string -> table {
 
         # Determine element type
         let element = match $first_class.type {
+            'fm-content' => { 'frontmatter' }
             'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => { $first_class.type }
             'code-content' => { 'code' }
             'ul-item' => { 'ul' }
