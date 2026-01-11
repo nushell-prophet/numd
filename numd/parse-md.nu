@@ -2,7 +2,7 @@ use std/iter scan
 
 # Parse markdown into semantic blocks
 export def main [
-    file?: path  # optional path to markdown file (can also pipe content)
+    file?: path # optional path to markdown file (can also pipe content)
 ]: [string -> table nothing -> table] {
     let input = if $file == null { $in } else { open -r $file }
     $input | parse-md-to-blocks
@@ -17,11 +17,12 @@ export def classify-line []: string -> record {
         let parsed = $line | parse -r '^```(?<lang>\w+)?(?<options>.*)?$'
         let lang = $parsed | get -o lang.0 | default ''
         let options = $parsed
-            | get -o options.0
-            | default ''
-            | str trim
-            | if $in == '' { [] } else { split row ',' | each { str trim } }
-        return {type: 'fence', lang: $lang, options: $options}
+        | get -o options.0
+        | default ''
+        | str trim
+        | if $in == '' { [] } else { split row ',' | each { str trim } }
+
+        return {type: 'fence' lang: $lang options: $options}
     }
 
     # Headers h1-h6
@@ -55,7 +56,7 @@ export def classify-line []: string -> record {
 }
 
 # Extract clean content from a block
-def extract-content [element: string, lines: list<string>]: nothing -> string {
+def extract-content [element: string lines: list<string>]: nothing -> string {
     match $element {
         'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => {
             $lines | first | str replace -r '^#+\s+' ''
@@ -92,15 +93,17 @@ def extract-meta [
         'ol' => {
             let items = $lines | each { str replace -r '^\s*\d+\.\s+' '' }
             let start = $lines | first | parse -r '^\s*(?<n>\d+)\.' | get -o n.0 | default '1' | into int
-            {items: $items, start: $start}
+
+            {items: $items start: $start}
         }
         'blockquote' => {
             # Detect GitHub-style admonitions like [!NOTE], [!TIP], [!WARNING]
             let first_content = $lines | first | str replace -r '^>\s?' ''
             let admonition = $first_content
-                | parse -r '^\[!(?<type>\w+)\]'
-                | get -o type.0
-                | if $in != null { str downcase } else { null }
+            | parse -r '^\[!(?<type>\w+)\]'
+            | get -o type.0
+            | if $in != null { str downcase } else { null }
+
             {type: $admonition}
         }
         _ => { {} }
@@ -113,17 +116,17 @@ def parse-md-to-blocks []: string -> table {
 
     # Step 1: Classify each line
     let classified = $file_lines
-    | each {|line| {line: $line, class: ($line | classify-line)}}
+    | each {|line| {line: $line class: ($line | classify-line)} }
 
     # Step 2: Track code block state
     let with_state = $classified
     | each { $in.class }
-    | scan {in_code: false, code_info: null} {|class state|
+    | scan {in_code: false code_info: null} {|class state|
         if $class.type == 'fence' {
             if $state.in_code {
-                {in_code: false, code_info: null}
+                {in_code: false code_info: null}
             } else {
-                {in_code: true, code_info: $class}
+                {in_code: true code_info: $class}
             }
         } else {
             $state
@@ -137,10 +140,10 @@ def parse-md-to-blocks []: string -> table {
         let item = $pair.0
         let state = $pair.1
         if $state.in_code and $item.class.type != 'fence' {
-            $item | update class {type: 'code-content', code_info: $state.code_info}
+            $item | update class {type: 'code-content' code_info: $state.code_info}
         } else if $item.class.type == 'fence' and not $state.in_code {
             # This is an opening fence
-            $item | update class {type: 'fence-open', lang: $item.class.lang, options: $item.class.options}
+            $item | update class {type: 'fence-open' lang: $item.class.lang options: $item.class.options}
         } else if $item.class.type == 'fence' and $state.in_code {
             # This is a closing fence (state was just toggled to false)
             $item | update class {type: 'fence-close'}
@@ -181,7 +184,7 @@ def parse-md-to-blocks []: string -> table {
     # Step 5: Merge block indices with classified lines
     let indexed = $classified_with_code
     | zip $block_indices
-    | each {|pair| $pair.0 | insert block_index $pair.1}
+    | each {|pair| $pair.0 | insert block_index $pair.1 }
 
     # Step 6: Group by block index and build output
     $indexed
@@ -206,7 +209,7 @@ def parse-md-to-blocks []: string -> table {
 
         # Get code info for code blocks
         let code_info = if $element == 'code' {
-            $first_class.code_info? | default {lang: '', options: []}
+            $first_class.code_info? | default {lang: '' options: []}
         } else {
             {}
         }
@@ -220,5 +223,5 @@ def parse-md-to-blocks []: string -> table {
     }
     | sort-by block_index
     | enumerate
-    | each {|row| $row.item | update block_index $row.index}
+    | each {|row| $row.item | update block_index $row.index }
 }
