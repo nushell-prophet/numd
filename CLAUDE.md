@@ -82,6 +82,7 @@ Blocks support fence options (e.g., ` ```nushell try, no-output `):
 - `try` / `t`: Wrap in try-catch
 - `new-instance` / `n`: Execute in separate Nushell instance
 - `separate-block` / `s`: Output results in separate code block instead of inline `# =>`
+- `run-once` / `1`: Execute code block once, then set to `no-run`
 
 ### Output Format Conventions
 
