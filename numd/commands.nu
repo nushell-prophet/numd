@@ -256,7 +256,7 @@ export def decorate-original-code-blocks [
     | insert code {|i|
         $i.line
         | process-code-block-content ($i.row_type | extract-fence-options)
-        | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run')
+        | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run' | str replace -r '\b1\b' 'no-run')
     }
 }
 
