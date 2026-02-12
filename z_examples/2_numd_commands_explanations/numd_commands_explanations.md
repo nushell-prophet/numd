@@ -11,9 +11,7 @@ $env.config.table.abbreviated_row_count = 100
 use ($init_numd_pwd_const | path join numd commands.nu) *
 ```
 
-## numd/commands.nu
-
-### parse-markdown-to-blocks
+## parse-markdown-to-blocks
 
 This command is used for parsing initial markdown to detect executable code blocks.
 
