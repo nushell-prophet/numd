@@ -9,8 +9,8 @@ export def 'parse-frontmatter' [
 
     let list = $input | split row "---\n" --number 3
 
-    # it means there is no frontmatter
-    if $list.0 != '' { return {content: $input} }
+    # no frontmatter: doesn't start with --- or missing closing ---
+    if $list.0 != '' or ($list | length) < 3 { return {content: $input} }
 
     let yaml = $list.1 | from yaml
 

@@ -113,7 +113,7 @@ numd run $path --ignore-git-check
 Use the `--eval` option to prepend Nushell code to the intermediate script. This lets you set visual settings and other configuration before your code runs.
 
 ```nushell
-let path = $nu.temp-path | path join simple_nu_table.md
+let path = $nu.temp-dir | path join simple_nu_table.md
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
@@ -209,6 +209,33 @@ numd capture stop --help
 # =>
 ```
 
+### `numd parse-md`
+
+Parse markdown into a table of semantic blocks (headers, paragraphs, code blocks, lists, blockquotes, frontmatter) with extracted content and metadata.
+
+```nushell
+numd parse-md --help
+# => Parse markdown into semantic blocks
+# =>
+# => Usage:
+# =>   > parse-md (file)
+# =>
+# => Flags:
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Parameters:
+# =>   file <path>: optional path to markdown file (can also pipe content) (optional)
+# =>
+# => Input/output types:
+# =>   ╭───┬─────────┬────────╮
+# =>   │ # │  input  │ output │
+# =>   ├───┼─────────┼────────┤
+# =>   │ 0 │ string  │ table  │
+# =>   │ 1 │ nothing │ table  │
+# =>   ╰───┴─────────┴────────╯
+# =>
+```
+
 ### Some random familiar examples
 
 ```nushell
@@ -234,7 +261,7 @@ ls z_examples | sort-by name | reject modified size
 # => 4
 
 git tag | lines | sort -n | last
-# => 0.2.2
+# => 0.3.0
 ```
 
 ## Real fight examples to try

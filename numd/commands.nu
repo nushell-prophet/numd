@@ -432,7 +432,7 @@ export def list-fence-options []: nothing -> table {
 # Expand short options for code block execution to their long forms.
 @example "expand short option to long form" {
     convert-short-options 'O'
-} --result 'no-output'
+} --result "no-output"
 export def convert-short-options [
     option: string
 ]: nothing -> string {
@@ -449,7 +449,7 @@ export def convert-short-options [
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
 @example "escape quotes for print statement" {
     'abcd"dfdaf" "' | quote-for-print
-} --result '"abcd\"dfdaf\" \""'
+} --result "\"abcd\\\"dfdaf\\\" \\\"\""
 export def quote-for-print []: string -> string {
     # `to json` might give similar results, yet it replaces new lines
     # which spoils readability of intermediate scripts
@@ -517,7 +517,9 @@ export def code-block-marker [
 # Generate a command to highlight code using Nushell syntax highlighting.
 @example "generate syntax highlighting command" {
     'ls' | generate-highlight-print
-} --result "\"ls\" | nu-highlight | print\n\n"
+} --result "\"ls\" | nu-highlight | print
+
+"
 export def generate-highlight-print []: string -> string {
     quote-for-print
     | pipe-to { nu-highlight | print }
@@ -531,12 +533,12 @@ export def trim-trailing-comments []: string -> string {
 }
 
 # Extract the last span from a command to determine if `| print` can be appended.
-@example "pipeline ending with command" { get-last-span 'let a = 1..10; $a | length' } --result 'length'
-@example "pipeline ending with assignment" { get-last-span 'let a = 1..10; let b = $a | length' } --result 'let b = $a | length'
-@example "statement ending with semicolon" { get-last-span 'let a = 1..10; ($a | length);' } --result 'let a = 1..10; ($a | length);'
-@example "expression in parentheses" { get-last-span 'let a = 1..10; ($a | length)' } --result '($a | length)'
-@example "single assignment" { get-last-span 'let a = 1..10' } --result 'let a = 1..10'
-@example "string literal" { get-last-span '"abc"' } --result '"abc"'
+@example "pipeline ending with command" { get-last-span 'let a = 1..10; $a | length' } --result "length"
+@example "pipeline ending with assignment" { get-last-span 'let a = 1..10; let b = $a | length' } --result "let b = $a | length"
+@example "statement ending with semicolon" { get-last-span 'let a = 1..10; ($a | length);' } --result "let a = 1..10; ($a | length);"
+@example "expression in parentheses" { get-last-span 'let a = 1..10; ($a | length)' } --result "($a | length)"
+@example "single assignment" { get-last-span 'let a = 1..10' } --result "let a = 1..10"
+@example "string literal" { get-last-span '"abc"' } --result "\"abc\""
 export def get-last-span [
     command: string
 ]: nothing -> string {
@@ -582,7 +584,7 @@ export def can-append-print [
 # Generate a pipeline that captures command output with `# =>` prefix for inline display.
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
-} --result "ls | table --width 120 | default '' | into string | lines | each {$'# => ($in)' | str trim --right} | str join (char nl) | str replace -r '\\s*$' (char nl)"
+} --result "ls | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\\s*$' (char nl)"
 export def generate-inline-output-pipeline []: string -> string {
     generate-table-statement
     | pipe-to {
@@ -597,13 +599,13 @@ export def generate-print-statement []: string -> string {
 }
 
 # Generate a table statement with width evaluated at runtime from $env.numd.table-width.
-@example "default table width" { 'ls' | generate-table-statement } --result 'ls | table --width ($env.numd?.table-width? | default 120)'
+@example "default table width" { 'ls' | generate-table-statement } --result "ls | table --width ($env.numd?.table-width? | default 120)"
 export def generate-table-statement []: string -> string {
     pipe-to { table --width ($env.numd?.table-width? | default 120) }
 }
 
 # Wrap code in a try-catch block to handle errors gracefully.
-@example "wrap command in try-catch" { 'ls' | wrap-in-try-catch } --result 'try {ls} catch {|error| $error}'
+@example "wrap command in try-catch" { 'ls' | wrap-in-try-catch } --result "try {ls} catch {|error| $error}"
 export def wrap-in-try-catch [
     --new-instance # execute in a separate Nushell instance to get formatted error messages
 ]: string -> string {
@@ -646,7 +648,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result ['no-run' 'try']
+@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result [no-run, try]
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
@@ -658,7 +660,7 @@ export def extract-fence-options []: string -> list<string> {
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
 @example "build path with all modifiers" {
     'numd/capture.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
-} --result 'numd/abc/pref_capture_suf.nu.md'
+} --result "numd/abc/pref_capture_suf.nu.md"
 export def build-modified-path [
     --prefix: string
     --suffix: string
