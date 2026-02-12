@@ -188,22 +188,22 @@ def parse-md-to-blocks []: string -> table {
     | window --remainder 2
     | scan 0 {|window index|
         let curr = $window.0
-        let prev = $window.1?
+        let next = $window.1?
 
         # Increment block index on element transitions
         if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
             # Headers always start new block
-            if $prev == null or $prev !~ '^h[1-6]$' or $prev != $curr { $index + 1 } else { $index }
+            if $next == null or $next !~ '^h[1-6]$' or $next != $curr { $index + 1 } else { $index }
         } else if $curr in ['fence-open' 'fm-open'] {
             # Code block or frontmatter starts
             $index + 1
         } else if $curr == 'empty' {
             # Empty lines separate blocks but aren't blocks themselves
             $index
-        } else if $curr != $prev and $prev != null and $prev != 'empty' {
+        } else if $curr != $next and $next != null and $next != 'empty' {
             # Transition between different element types
             $index + 1
-        } else if $prev == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content' 'fm-content' 'fm-close'] {
+        } else if $next == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content' 'fm-content' 'fm-close'] {
             # After empty line, new block starts (except for code content)
             $index + 1
         } else {
