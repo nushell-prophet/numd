@@ -104,7 +104,7 @@ export def 'main test-integration' [
                 | save -f $strip_markdown_path
 
                 # Run files with config set
-                numd run $file --save-intermed-script $'($file)_intermed.nu' --eval (open -r numd_config_example1.nu) --ignore-git-check
+                numd run $file --save-intermed-script $'($file)_intermed.nu' --eval (open -r ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
             }
         }
         # Run file with customized width of table
@@ -120,7 +120,7 @@ export def 'main test-integration' [
         | append (
             run-integration-test ($path_simple_table | build-modified-path --suffix '_customized_example_config') {
                 let target = $path_simple_table | build-modified-path --suffix '_customized_example_config'
-                numd run $path_simple_table --echo --no-stats --eval (open -r numd_config_example2.nu)
+                numd run $path_simple_table --echo --no-stats --eval (open -r ([z_examples numd_config_example2.nu] | path join))
                 | ansi strip
                 | save -f $target
             }
@@ -128,7 +128,7 @@ export def 'main test-integration' [
         # Run readme
         | append (
             run-integration-test 'README.md' {
-                numd run README.md --eval (open -r numd_config_example1.nu) --ignore-git-check
+                numd run README.md --eval (open -r ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
             }
         )
     )
