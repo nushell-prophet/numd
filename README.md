@@ -209,6 +209,14 @@ numd capture stop --help
 # =>
 ```
 
+### `numd parse-md`
+
+Parse markdown into a table of semantic blocks (headers, paragraphs, code blocks, lists, blockquotes, frontmatter) with extracted content and metadata.
+
+```nushell
+numd parse-md --help
+```
+
 ### Some random familiar examples
 
 ```nushell
