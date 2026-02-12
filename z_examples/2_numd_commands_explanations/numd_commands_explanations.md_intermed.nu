@@ -97,12 +97,28 @@ print ''
 
 "#code-block-marker-open-9
 ```nu" | print
-"let $md_res = $nu_res_stdout_lines
-    | str join (char nl)
+"let $nu_res_with_block_index = $nu_res_stdout_lines
+    | str replace -ar \"\\n{2,}```\\n\" \"\\n```\\n\"
+    | lines
+    | extract-block-index" | nu-highlight | print
+
+let $nu_res_with_block_index = $nu_res_stdout_lines
+    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | lines
+    | extract-block-index
+print ''
+"$nu_res_with_block_index | table -e --width 120" | nu-highlight | print
+
+$nu_res_with_block_index | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+print ''
+"```" | print
+
+"#code-block-marker-open-11
+```nu" | print
+"let $md_res = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown" | nu-highlight | print
 
-let $md_res = $nu_res_stdout_lines
-    | str join (char nl)
+let $md_res = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
 print ''
 "$md_res" | nu-highlight | print
@@ -111,7 +127,7 @@ $md_res | table --width ($env.numd?.table-width? | default 120) | default '' | i
 print ''
 "```" | print
 
-"#code-block-marker-open-11
+"#code-block-marker-open-13
 ```nu" | print
 "compute-change-stats $file $md_orig $md_res" | nu-highlight | print
 
