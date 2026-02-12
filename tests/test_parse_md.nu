@@ -1,8 +1,8 @@
 use std assert
 use std/testing *
 
-# Import all functions from parse-md.nu (including internals)
-use ../numd/parse-md.nu *
+# Import all functions from md-parser.nu (including internals)
+use ../numd/md-parser.nu *
 
 # =============================================================================
 # Tests for classify-line

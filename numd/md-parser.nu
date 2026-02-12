@@ -1,7 +1,7 @@
 use std/iter scan
 
 # Parse markdown into semantic blocks
-export def main [
+export def parse-md [
     file?: path # optional path to markdown file (can also pipe content)
 ]: [string -> table nothing -> table] {
     let input = if $file == null { $in } else { open -r $file }
