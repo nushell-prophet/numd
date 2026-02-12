@@ -139,10 +139,10 @@ Use `--eval` to prepend Nushell code to the intermediate script:
 numd run README.md --eval '$env.numd.table-width = 80'
 
 # From config file
-numd run README.md --eval (open -r numd_config_example1.nu)
+numd run README.md --eval (open -r z_examples/numd_config_example1.nu)
 ```
 
-Example config file (`numd_config_example1.nu`):
+Example config file (`z_examples/numd_config_example1.nu`):
 ```nushell
 $env.config.table.mode = 'rounded'
 $env.numd.table-width = 100  # optional: set custom table width
