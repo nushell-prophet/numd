@@ -83,6 +83,11 @@ def "classify-block-action returns print-as-it-is for no-run" [] {
 }
 
 @test
+def "classify-block-action returns execute for run-once" [] {
+    assert equal (classify-block-action "```nushell run-once") "execute"
+}
+
+@test
 def "classify-block-action returns delete for output-numd" [] {
     assert equal (classify-block-action "```output-numd") "delete"
 }
@@ -127,6 +132,13 @@ def "extract-fence-options expands short options" [] {
 }
 
 @test
+def "extract-fence-options parses run-once" [] {
+    let result = "```nu run-once" | extract-fence-options
+
+    assert equal $result ["run-once"]
+}
+
+@test
 def "extract-fence-options handles empty options" [] {
     let result = "```nushell" | extract-fence-options
 
@@ -155,6 +167,11 @@ def "convert-short-options expands t" [] {
 @test
 def "convert-short-options expands n" [] {
     assert equal (convert-short-options "n") "new-instance"
+}
+
+@test
+def "convert-short-options expands 1" [] {
+    assert equal (convert-short-options "1") "run-once"
 }
 
 @test
