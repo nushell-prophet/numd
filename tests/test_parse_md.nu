@@ -215,6 +215,16 @@ ls
 }
 
 @test
+def "parse-md separates consecutive same-level headers" [] {
+    let result = "## Heading A\n## Heading B" | parse-md
+    assert equal ($result | length) 2
+    assert equal $result.0.element "h2"
+    assert equal $result.0.content "Heading A"
+    assert equal $result.1.element "h2"
+    assert equal $result.1.content "Heading B"
+}
+
+@test
 def "parse-md block indices are sequential" [] {
     let result = "# H1\n\n## H2\n\nText" | parse-md
     assert equal $result.0.block_index 0

@@ -192,8 +192,7 @@ def parse-md-to-blocks []: string -> table {
 
         # Increment block index on element transitions
         if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
-            # Headers always start new block
-            if $next == null or $next !~ '^h[1-6]$' or $next != $curr { $index + 1 } else { $index }
+            $index + 1
         } else if $curr in ['fence-open' 'fm-open'] {
             # Code block or frontmatter starts
             $index + 1
