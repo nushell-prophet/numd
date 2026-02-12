@@ -11,9 +11,7 @@ $env.config.table.abbreviated_row_count = 100
 use ($init_numd_pwd_const | path join numd commands.nu) *
 ```
 
-## numd-internals.nu
-
-### parse-markdown-to-blocks
+## parse-markdown-to-blocks
 
 This command is used for parsing initial markdown to detect executable code blocks.
 
@@ -179,27 +177,72 @@ $nu_res_stdout_lines
 # => ```
 ```
 
+## extract-block-index
+
+The `extract-block-index` command parses execution output, using `#code-block-marker-open-N` markers to associate each output block with its original block index.
+
 ```nu
-let $md_res = $nu_res_stdout_lines
-    | str join (char nl)
+let $nu_res_with_block_index = $nu_res_stdout_lines
+    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | lines
+    | extract-block-index
+
+$nu_res_with_block_index | table -e --width 120
+# => ╭─block_index─┬───────────────────────────line────────────────────────────╮
+# => │           1 │ ```nu                                                     │
+# => │             │ let $var1 = 'foo'                                         │
+# => │             │ ```                                                       │
+# => │           3 │ ```nu separate-block                                      │
+# => │             │ # This block will produce some output in a separate block │
+# => │             │ $var1 | path join 'baz' 'bar'                             │
+# => │             │ ```                                                       │
+# => │             │ ```output-numd                                            │
+# => │             │ # => foo/baz/bar                                          │
+# => │             │ ```                                                       │
+# => │           6 │ ```nu                                                     │
+# => │             │ # This block will output results inline                   │
+# => │             │ whoami                                                    │
+# => │             │ # => user                                                 │
+# => │             │                                                           │
+# => │             │                                                           │
+# => │             │                                                           │
+# => │             │ 2 + 2                                                     │
+# => │             │ # => 4                                                    │
+# => │             │ ```                                                       │
+# => ╰─block_index─┴───────────────────────────line────────────────────────────╯
+```
+
+## merge-markdown
+
+The `merge-markdown` command merges execution results back into the original markdown structure, combining unchanged text blocks with updated code blocks. The `clean-markdown` command then removes unnecessary empty lines and trailing spaces.
+
+```nu
+let $md_res = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
 
 $md_res
-# => #code-block-marker-open-1
+# => # This is a simple markdown example
+# =>
+# => ## Example 1
+# =>
+# => the block below will be executed as it is, but won't yield any output
+# =>
 # => ```nu
 # => let $var1 = 'foo'
-# =>
 # => ```
-# => #code-block-marker-open-3
+# =>
+# => ## Example 2
+# =>
 # => ```nu separate-block
 # => # This block will produce some output in a separate block
 # => $var1 | path join 'baz' 'bar'
 # => ```
 # => ```output-numd
 # => # => foo/baz/bar
-# =>
 # => ```
-# => #code-block-marker-open-6
+# =>
+# => ## Example 3
+# =>
 # => ```nu
 # => # This block will output results inline
 # => whoami
@@ -207,7 +250,12 @@ $md_res
 # =>
 # => 2 + 2
 # => # => 4
+# => ```
 # =>
+# => ## Example 4
+# =>
+# => ```
+# => # This block doesn't have a language identifier in the opening fence
 # => ```
 ```
 
@@ -220,9 +268,9 @@ compute-change-stats $file $md_orig $md_res
 # => ╭──────────────────┬────────────────────╮
 # => │ filename         │ simple_markdown.md │
 # => │ nushell_blocks   │ 3                  │
-# => │ levenshtein_dist │ 248                │
-# => │ diff_lines       │ -12 (-33.3%)       │
-# => │ diff_words       │ -24 (-30.8%)       │
-# => │ diff_chars       │ -163 (-32.5%)      │
+# => │ levenshtein_dist │ 0                  │
+# => │ diff_lines       │ 0%                 │
+# => │ diff_words       │ 0%                 │
+# => │ diff_chars       │ 0%                 │
 # => ╰──────────────────┴────────────────────╯
 ```
