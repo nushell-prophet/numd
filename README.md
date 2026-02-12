@@ -215,6 +215,25 @@ Parse markdown into a table of semantic blocks (headers, paragraphs, code blocks
 
 ```nushell
 numd parse-md --help
+# => Parse markdown into semantic blocks
+# =>
+# => Usage:
+# =>   > parse-md (file)
+# =>
+# => Flags:
+# =>   -h, --help: Display the help message for this command
+# =>
+# => Parameters:
+# =>   file <path>: optional path to markdown file (can also pipe content) (optional)
+# =>
+# => Input/output types:
+# =>   ╭───┬─────────┬────────╮
+# =>   │ # │  input  │ output │
+# =>   ├───┼─────────┼────────┤
+# =>   │ 0 │ string  │ table  │
+# =>   │ 1 │ nothing │ table  │
+# =>   ╰───┴─────────┴────────╯
+# =>
 ```
 
 ### Some random familiar examples
