@@ -649,7 +649,7 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result [no-run, try]
+@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result [no-run try]
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
