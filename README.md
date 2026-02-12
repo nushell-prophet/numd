@@ -113,7 +113,7 @@ numd run $path --ignore-git-check
 Use the `--eval` option to prepend Nushell code to the intermediate script. This lets you set visual settings and other configuration before your code runs.
 
 ```nushell
-let path = $nu.temp-path | path join simple_nu_table.md
+let path = $nu.temp-dir | path join simple_nu_table.md
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
 "```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
@@ -234,7 +234,7 @@ ls z_examples | sort-by name | reject modified size
 # => 4
 
 git tag | lines | sort -n | last
-# => 0.2.2
+# => 0.3.0
 ```
 
 ## Real fight examples to try
