@@ -83,6 +83,16 @@ def "classify-block-action returns print-as-it-is for no-run" [] {
 }
 
 @test
+def "classify-block-action returns execute for run-once" [] {
+    assert equal (classify-block-action "```nushell run-once") "execute"
+}
+
+@test
+def "classify-block-action returns execute for run-once combined with try" [] {
+    assert equal (classify-block-action "```nushell run-once, try") "execute"
+}
+
+@test
 def "classify-block-action returns delete for output-numd" [] {
     assert equal (classify-block-action "```output-numd") "delete"
 }
@@ -124,6 +134,22 @@ def "extract-fence-options expands short options" [] {
 
     assert ("try" in $result)
     assert ("no-output" in $result)
+}
+
+@test
+def "extract-fence-options parses run-once" [] {
+    let result = "```nu run-once" | extract-fence-options
+
+    assert equal $result ["run-once"]
+}
+
+@test
+def "extract-fence-options parses run-once combined with try" [] {
+    let result = "```nu run-once, try" | extract-fence-options
+
+    assert equal ($result | length) 2
+    assert ("run-once" in $result)
+    assert ("try" in $result)
 }
 
 @test
@@ -373,6 +399,37 @@ def "generate-timestamp returns correct format" [] {
     # Format should be YYYYMMDD_HHMMSS (15 chars)
     assert equal ($result | str length) 15
     assert ($result =~ '^\d{8}_\d{6}$')
+}
+
+# =============================================================================
+# Tests for decorate-original-code-blocks (run-once rewriting)
+# =============================================================================
+
+@test
+def "decorate-original-code-blocks rewrites run-once to no-run" [] {
+    let blocks = "```nu run-once\necho hello\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks
+
+    assert ($result.0.code =~ '```nu no-run')
+    assert ($result.0.code !~ 'run-once')
+}
+
+@test
+def "decorate-original-code-blocks rewrites run-once preserving other options" [] {
+    let blocks = "```nu run-once, try\necho hello\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks
+
+    assert ($result.0.code =~ '```nu no-run, try')
+    assert ($result.0.code !~ 'run-once')
+}
+
+@test
+def "decorate-original-code-blocks leaves plain blocks unchanged" [] {
+    let blocks = "```nu\necho hello\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks
+
+    assert ($result.0.code =~ '```nu')
+    assert ($result.0.code !~ 'no-run')
 }
 
 # =============================================================================
