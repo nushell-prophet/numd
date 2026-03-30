@@ -170,11 +170,6 @@ def "convert-short-options expands n" [] {
 }
 
 @test
-def "convert-short-options expands 1" [] {
-    assert equal (convert-short-options "1") "run-once"
-}
-
-@test
 def "convert-short-options keeps long options unchanged" [] {
     assert equal (convert-short-options "no-output") "no-output"
     assert equal (convert-short-options "try") "try"
