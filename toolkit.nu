@@ -89,6 +89,7 @@ export def 'main test-integration' [
             */*_with_no_output*
             */*_customized*
             */8_parse_frontmatter
+            */run_once*
         ]
         | par-each --keep-order {|file|
             run-integration-test $file {
@@ -123,6 +124,15 @@ export def 'main test-integration' [
                 numd run $path_simple_table --echo --no-stats --eval (open -r ([z_examples numd_config_example2.nu] | path join))
                 | ansi strip
                 | save -f $target
+            }
+        )
+        # Run run-once test via --echo (file mutates by design, so we assert on output instead)
+        | append (
+            run-integration-test 'z_examples/6_edge_cases/run_once.md' {
+                let output = numd run z_examples/6_edge_cases/run_once.md --echo --no-stats
+                if ($output !~ '```nu no-run') or ($output =~ '```nu run-once') {
+                    error make {msg: 'run-once was not rewritten to no-run'}
+                }
             }
         )
         # Run readme
