@@ -422,6 +422,7 @@ const fence_options = [
     [t try "execute block inside `try {}` for error handling"]
     [n new-instance "execute block in new Nushell instance (useful with `try` block)"]
     [s separate-block "output results in a separate code block instead of inline `# =>`"]
+    ['' run-once "execute code block once, then set to no-run"]
 ]
 
 # List fence options for execution and output customization.
