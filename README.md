@@ -44,7 +44,7 @@ numd run --help
 # => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 # =>
 # => Usage:
-# =>   > run {flags} <file>
+# =>   > numd run {flags} <file>
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -87,6 +87,7 @@ numd list-fence-options
 # => │ try            │ t     │ execute block inside `try {}` for error handling                 │
 # => │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
 # => │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
+# => │ run-once       │       │ execute code block once, then set to no-run                      │
 # => ╰──────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
 
@@ -143,7 +144,7 @@ numd clear-outputs --help
 # => and users typically clear outputs intentionally before committing clean source
 # =>
 # => Usage:
-# =>   > clear-outputs {flags} <file>
+# =>   > numd clear-outputs {flags} <file>
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -172,7 +173,7 @@ numd capture start --help
 # => start capturing commands and their outputs into a file
 # =>
 # => Usage:
-# =>   > capture start {flags} (file)
+# =>   > numd capture start {flags} (file)
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -195,7 +196,7 @@ numd capture stop --help
 # => stop capturing commands and their outputs
 # =>
 # => Usage:
-# =>   > capture stop
+# =>   > numd capture stop
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -218,7 +219,7 @@ numd parse-md --help
 # => Parse markdown into semantic blocks
 # =>
 # => Usage:
-# =>   > parse-md (file)
+# =>   > numd parse-md (file)
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -252,6 +253,8 @@ ls z_examples | sort-by name | reject modified size
 # => │ z_examples/999_numd_internals           │ dir  │
 # => │ z_examples/99_strip_markdown            │ dir  │
 # => │ z_examples/9_other                      │ dir  │
+# => │ z_examples/numd_config_example1.nu      │ file │
+# => │ z_examples/numd_config_example2.nu      │ file │
 # => ╰──────────────────name───────────────────┴─type─╯
 
 'hello world' | str length
@@ -261,7 +264,7 @@ ls z_examples | sort-by name | reject modified size
 # => 4
 
 git tag | lines | sort -n | last
-# => 0.3.0
+# => 0.4.0
 ```
 
 ## Real fight examples to try
