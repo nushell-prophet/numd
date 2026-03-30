@@ -244,7 +244,6 @@ ls z_examples | sort-by name | reject modified size
 # => ╭──────────────────name───────────────────┬─type─╮
 # => │ z_examples/1_simple_markdown            │ dir  │
 # => │ z_examples/2_numd_commands_explanations │ dir  │
-# => │ z_examples/3_book_types_of_data         │ dir  │
 # => │ z_examples/4_book_working_with_lists    │ dir  │
 # => │ z_examples/5_simple_nu_table            │ dir  │
 # => │ z_examples/6_edge_cases                 │ dir  │
