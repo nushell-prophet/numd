@@ -39,8 +39,16 @@ $nu_res_stdout_lines
 
 
     # ```nu
-let $md_res = $nu_res_stdout_lines
-    | str join (char nl)
+let $nu_res_with_block_index = $nu_res_stdout_lines
+    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | lines
+    | extract-block-index
+
+$nu_res_with_block_index | table -e --width 120
+
+
+    # ```nu
+let $md_res = merge-markdown $original_md_table $nu_res_with_block_index
     | clean-markdown
 
 $md_res
