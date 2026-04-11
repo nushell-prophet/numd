@@ -21,7 +21,7 @@ export def run [
     | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
-    | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
+    | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config --file $file
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -81,19 +81,22 @@ export def to-numd-script []: table -> string {
     | str join (char nl)
 }
 
-# Execute code blocks and return updated blocks table
+# Execute code blocks and return updated blocks table.
+# --file is required for `image`-tagged blocks so paths can be computed relative
+# to the markdown file's parent directory (keeps generated docs portable).
 export def execute-blocks [
     --eval: string # Nushell code to prepend to the script
     --no-fail-on-error # skip errors
     --print-block-results # print blocks as they execute
     --save-intermed-script: path # path for intermediate script
     --use-host-config # load host's env, config, and plugin files
+    --file: path # source markdown file path (required for image-tagged blocks)
 ]: table -> table {
     let original = $in
 
     load-config $eval
 
-    decorate-original-code-blocks $original
+    decorate-original-code-blocks $original --file $file
     | generate-intermediate-script
     | save -f $save_intermed_script
 
@@ -256,6 +259,7 @@ export def generate-image-output-pipeline [
 # Generate code for execution in the intermediate script within a given code fence.
 export def generate-block-execution [
     fence_options: list<string>
+    --image-abs-path: string # absolute path for `to png` output (only used when `image` is active)
 ]: string -> string {
     let code_content = $in
 
@@ -266,7 +270,7 @@ export def generate-block-execution [
     | if 'try' in $fence_options {
         wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
     } else { }
-    | format-command-output $fence_options
+    | format-command-output $fence_options --image-abs-path $image_abs_path
     | $in + (char nl)
     # Always print a blank line after each command group to preserve visual separation
     | $in + "print ''"
@@ -275,15 +279,71 @@ export def generate-block-execution [
 }
 
 # Generate additional service code necessary for execution and capturing results, while preserving the original code.
+# When --file is provided, image-tagged blocks have their `to png` absolute paths and
+# `![](rel)` markdown references computed relative to the markdown file's parent directory,
+# so the generated document stays portable regardless of the caller's cwd.
 export def decorate-original-code-blocks [
     md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from parse-markdown-to-blocks
+    --file: path # source markdown file path (required for image-tagged blocks to compute paths)
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string, code: string> {
+    # Resolve image directory info once per invocation. $env.numd.image-dir overrides
+    # the default 'media'. The absolute dir is resolved against the markdown file's
+    # parent so that `numd run docs/guide.md` writes to `docs/media/...`, not to cwd.
+    let image_info = if $file != null {
+        let parent = $file | path dirname | path expand
+        let doc_stem = $file | path parse | get stem
+        let rel_dir = $env.numd?.image-dir? | default 'media'
+        # Absolute override is respected as-is; relative paths resolve against the
+        # markdown file's parent directory (not cwd) so the reference in the rendered
+        # markdown stays portable.
+        let abs_dir = if ($rel_dir | str starts-with '/') {
+            $rel_dir
+        } else {
+            $parent | path join $rel_dir
+        }
+        {abs_dir: $abs_dir, rel_dir: $rel_dir, doc_stem: $doc_stem}
+    } else {
+        null
+    }
+
     $md_classified
     | where action == 'execute'
     | insert code {|i|
+        let fence_options = $i.row_type | extract-fence-options
+        let image_active = ('image' in $fence_options) and ($image_info != null)
+
+        let image_abs_prefix = if $image_active {
+            $image_info.abs_dir | path join $'($image_info.doc_stem).block-($i.block_index)'
+        } else {
+            null
+        }
+        let image_rel_prefix = if $image_active {
+            $image_info.rel_dir | path join $'($image_info.doc_stem).block-($i.block_index)'
+        } else {
+            null
+        }
+
+        # Compute the list of rel paths for each executable group in this block.
+        # group_index is 0-based over ALL groups (including empty / comment-only) per spec.
+        let image_refs = if $image_active {
+            $i.line
+            | skip | drop
+            | where $it !~ '^# =>'
+            | str join (char nl)
+            | split-by-blank-lines
+            | enumerate
+            | where {|row|
+                let trimmed = $row.item | str trim
+                (not ($trimmed | is-empty)) and (not ($trimmed | lines | all { $in =~ '^#' }))
+            }
+            | each {|row| $"($image_rel_prefix)-($row.index).png" }
+        } else {
+            []
+        }
+
         $i.line
-        | process-code-block-content ($i.row_type | extract-fence-options)
-        | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run')
+        | process-code-block-content $fence_options --image-abs-prefix $image_abs_prefix
+        | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run') --image-refs $image_refs
     }
 }
 
@@ -306,21 +366,35 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
 }
 
 # Split code block content by blank lines into command groups and generate execution code for each.
+# When the `image` fence option is active and --image-abs-prefix is set, each executable group
+# gets its own `to png` target path of the form `<image-abs-prefix>-<group_index>.png`.
+# Why: `group_index` is 0-based over ALL groups (not just executable ones) so numbering stays
+# stable when a user later inserts a comment-only group in the middle.
 export def process-code-block-content [
     fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
+    --image-abs-prefix: string # absolute path prefix for image output (block-level, e.g. '/abs/media/README.block-3')
 ]: list<string> -> list<string> {
     skip | drop # skip code fences
     | where $it !~ '^# =>' # strip existing `# =>` output lines (keep plain `#` comments)
     | str join (char nl)
     | split-by-blank-lines
-    | each {|group|
+    | enumerate
+    | each {|row|
+        let group = $row.item
+        let group_index = $row.index
         let trimmed = $group | str trim
+
         if ($trimmed | is-empty) {
             ''
         } else if ($trimmed | lines | all { $in =~ '^#' }) {
             $group | generate-highlight-print
         } else {
-            $group | generate-block-execution $fence_options
+            let abs_path = if ('image' in $fence_options) and ($image_abs_prefix != null) {
+                $"($image_abs_prefix)-($group_index).png"
+            } else {
+                null
+            }
+            $group | generate-block-execution $fence_options --image-abs-path $abs_path
         }
     }
 }
@@ -661,17 +735,31 @@ export def join-and-print []: list<string> -> string {
 }
 
 # Generate marker tags and code block delimiters for tracking output in the intermediate script.
+# When --image-refs is non-empty, markdown image reference lines are appended AFTER the
+# closing ``` fence so the rendered output is valid markdown — a `![](...)` line inside a
+# code fence would be part of the code, not a real image link.
 export def generate-block-markers [
     block_number: int # index of the code block in the markdown
     fence: string # the original fence line (e.g., '```nushell')
+    --image-refs: list<string> = [] # relative paths for `![](...)` refs appended after the closing fence
 ]: list<string> -> string {
     let input = $in
+
+    let image_ref_prints = if ($image_refs | is-empty) {
+        []
+    } else {
+        # Blank line between the closing ``` and the first image ref keeps the rendered
+        # markdown readable and prevents the ref from being absorbed into the fenced block.
+        ["print ''"]
+        | append ($image_refs | each {|r| $"print \"![]\(($r)\)\"" })
+    }
 
     code-block-marker $block_number
     | append $fence
     | join-and-print
     | append $input
     | append '"```" | print'
+    | append $image_ref_prints
     | append ''
     | str join (char nl)
 }
