@@ -359,20 +359,14 @@ export def decorate-original-code-blocks [
             null
         }
 
-        # Compute the list of rel paths for each executable group in this block.
-        # group_index is 0-based over ALL groups (including empty / comment-only) per spec.
+        # Derive image refs from the same `enumerate-code-groups` table that
+        # `process-code-block-content` uses below, so the ref list and the
+        # generated `to png` target paths can never drift.
         let image_refs = if $image_active {
             $i.line
-            | skip | drop
-            | where $it !~ '^# =>'
-            | str join (char nl)
-            | split-by-blank-lines
-            | enumerate
-            | where {|row|
-                let trimmed = $row.item | str trim
-                (not ($trimmed | is-empty)) and (not ($trimmed | lines | all { $in =~ '^#' }))
-            }
-            | each {|row| $"($image_rel_prefix)-($row.index).png" }
+            | enumerate-code-groups
+            | where kind == 'exec'
+            | each {|g| $"($image_rel_prefix)-($g.index).png" }
         } else {
             []
         }
@@ -401,36 +395,51 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     | str replace -r "\\s*$" "\n"
 }
 
-# Split code block content by blank lines into command groups and generate execution code for each.
-# When the `image` fence option is active and --image-abs-prefix is set, each executable group
-# gets its own `to png` target path of the form `<image-abs-prefix>-<group_index>.png`.
-# Why: `group_index` is 0-based over ALL groups (not just executable ones) so numbering stays
-# stable when a user later inserts a comment-only group in the middle.
-export def process-code-block-content [
-    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
-    --image-abs-prefix: string # absolute path prefix for image output (block-level, e.g. '/abs/media/README.block-3')
-]: list<string> -> list<string> {
+# Split a code block's lines into command groups classified as empty / comment / exec.
+# Single source of truth for group filtering: `process-code-block-content` drives code
+# generation from this table, and `decorate-original-code-blocks` derives image refs
+# from the same table, so the two stages cannot drift out of sync. `index` is 0-based
+# over ALL groups so numbering stays stable when a comment-only group is later
+# inserted in the middle.
+export def enumerate-code-groups []: list<string> -> table<index: int, content: string, kind: string> {
     skip | drop # skip code fences
     | where $it !~ '^# =>' # strip existing `# =>` output lines (keep plain `#` comments)
     | str join (char nl)
     | split-by-blank-lines
     | enumerate
     | each {|row|
-        let group = $row.item
-        let group_index = $row.index
-        let trimmed = $group | str trim
-
-        if ($trimmed | is-empty) {
-            ''
+        let trimmed = $row.item | str trim
+        let kind = if ($trimmed | is-empty) {
+            'empty'
         } else if ($trimmed | lines | all { $in =~ '^#' }) {
-            $group | generate-highlight-print
+            'comment'
+        } else {
+            'exec'
+        }
+        {index: $row.index, content: $row.item, kind: $kind}
+    }
+}
+
+# Generate execution code for each group in a code block.
+# When --image-abs-prefix is set, every `exec` group gets its own `to png` target path
+# of the form `<image-abs-prefix>-<group_index>.png`.
+export def process-code-block-content [
+    fence_options: list<string> # options from the code fence (e.g., 'no-output', 'try')
+    --image-abs-prefix: string # absolute path prefix for image output (block-level, e.g. '/abs/media/README.block-3')
+]: list<string> -> list<string> {
+    enumerate-code-groups
+    | each {|group|
+        if $group.kind == 'empty' {
+            ''
+        } else if $group.kind == 'comment' {
+            $group.content | generate-highlight-print
         } else {
             let abs_path = if ('image' in $fence_options) and ($image_abs_prefix != null) {
-                $"($image_abs_prefix)-($group_index).png"
+                $"($image_abs_prefix)-($group.index).png"
             } else {
                 null
             }
-            $group | generate-block-execution $fence_options --image-abs-path $abs_path
+            $group.content | generate-block-execution $fence_options --image-abs-path $abs_path
         }
     }
 }
