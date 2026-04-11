@@ -923,7 +923,7 @@ export def resolve-image-dir [
 # Uses `plugin list` rather than `scope commands` because we need the executable
 # PATH to inject into the child `-n` nu process via `--plugins`, not just a
 # boolean "is the command registered". Returns null if the plugin isn't found.
-export def find-image-plugin-path []: nothing -> any {
+export def find-image-plugin-path []: nothing -> path {
     plugin list
     | where {|p| 'to png' in ($p.commands.name | default []) }
     | get filename.0?
@@ -938,8 +938,8 @@ export def find-image-plugin-path []: nothing -> any {
 # whole intermediate script only to crash on the first `to png` call is a
 # slow feedback loop.
 export def check-image-plugin [
-    blocks_table: table # output of parse-markdown-to-blocks
-]: nothing -> any {
+    blocks_table: table<block_index: int, row_type: string, line: list<string>, action: string> # output of parse-markdown-to-blocks
+]: nothing -> path {
     let has_image_blocks = $blocks_table
     | where action == 'execute'
     | any {|b|
