@@ -87,9 +87,66 @@ numd list-fence-options
 # => │ try            │ t     │ execute block inside `try {}` for error handling                 │
 # => │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
 # => │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
+# => │ image          │ i     │ render block output as a PNG image via the `to png` plugin       │
 # => │ run-once       │       │ execute code block once, then set to no-run                      │
 # => ╰──────long──────┴─short─┴───────────────────────────description────────────────────────────╯
 ```
+
+### Image output via the `image` fence option
+
+The `image` (short: `i`) fence option rasterizes a code block's output to a PNG
+file via the [`to png`](https://github.com/nushell/nushell/tree/main/crates/nu_plugin_image)
+plugin instead of writing `# =>` inline lines. The generated `![](...)` reference
+is emitted after the closing fence so the rendered markdown stays valid.
+
+A code block tagged `image`:
+
+    ```nu image
+    [[a b c]; [1 2 3] [4 5 6]]
+    ```
+
+After `numd run` becomes the same code block followed by an image reference
+line:
+
+    ![](media/<doc-stem>.block-<block_index>-<group_index>.png)
+
+See [`z_examples/7_image_output/image_output.md`](z_examples/7_image_output/image_output.md)
+for a fuller demonstration (single-group, multi-group, `image + try`,
+`image + no-run`, `image + no-output`).
+
+**Requirements:** the [`nu_plugin_image`](https://github.com/nushell/nushell/tree/main/crates/nu_plugin_image)
+plugin must be registered in the parent nushell process (the one you invoke `numd` from).
+`numd` discovers the plugin executable via `plugin list` and injects it into the
+child `-n` process via `--plugins=<path>`, so reproducibility is preserved: only
+the `to png` plugin is loaded, not the user's full plugin set.
+
+**Output file layout:** PNGs land in a single `media/` folder sibling to the
+markdown file. All numd docs in the same folder share it; per-doc collisions
+are prevented by the `<doc-stem>` prefix. Filenames are deterministic
+(`<doc-stem>.block-<block_index>-<group_index>.png`), so re-running `numd run`
+overwrites the same PNG and keeps git diffs small.
+
+**Relevant environment variables:**
+
+| env var                  | effect                                                          |
+|--------------------------|-----------------------------------------------------------------|
+| `$env.numd.image-dir`    | override the output directory (default: `media`)                |
+| `$env.numd.table-width`  | width passed to `table -e` before rasterization (default: 120)  |
+
+**Interaction with other fence options:**
+
+| combined with     | behavior                                                        |
+|-------------------|-----------------------------------------------------------------|
+| `no-run` / `N`    | No execution, no image. Existing image files left untouched.    |
+| `no-output` / `O` | No image. `no-output` wins.                                     |
+| `separate-block`  | `image` wins; the output-numd fence is not emitted.             |
+| `try` / `t`       | Error value is rendered by `table -e` then rasterized normally. |
+| `new-instance`    | Unchanged; the image pipeline runs in the spawned instance.     |
+| `run-once`        | First run produces the image; block is then flipped to no-run.  |
+
+`numd clear-outputs` strips the trailing `![](media/...)` reference line but
+does NOT delete PNG files from disk — image files are user-visible artifacts
+and deletion from a "clear outputs" command would be surprising.
 
 ### Stats of changes
 
