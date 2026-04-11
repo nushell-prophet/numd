@@ -134,6 +134,14 @@ overwrites the same PNG and keeps git diffs small.
 | `$env.numd.image-dir`    | override the output directory (default: `media`)                |
 | `$env.numd.table-width`  | width passed to `table -e` before rasterization (default: 120)  |
 
+`$env.numd.image-dir` accepts either an absolute or a relative path.
+Absolute paths (starting with `/`) are used as-is. Relative paths resolve
+against the **markdown file's parent directory**, not the shell's current
+working directory — so `numd run docs/guide.md` with
+`$env.numd.image-dir = 'assets'` writes PNGs to `docs/assets/`, and the
+`![](assets/...)` references in the rendered markdown stay portable
+regardless of where `numd` was invoked from.
+
 **Interaction with other fence options:**
 
 | combined with     | behavior                                                        |
