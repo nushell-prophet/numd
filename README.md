@@ -96,9 +96,9 @@ numd list-fence-options
 ### Image output via the `image` fence option
 
 The `image` (short: `i`) fence option rasterizes a code block's output to a PNG
-file via the [`to png`](https://github.com/nushell/nushell/tree/main/crates/nu_plugin_image)
-plugin instead of writing `# =>` inline lines. The generated `![](...)` reference
-is emitted after the closing fence so the rendered markdown stays valid.
+file via the [`to png`](https://github.com/FMotalleb/nu_plugin_image) plugin
+instead of writing `# =>` inline lines. The generated `![](...)` reference is
+emitted after the closing fence so the rendered markdown stays valid.
 
 A code block tagged `image`:
 
@@ -115,11 +115,23 @@ See [`z_examples/7_image_output/image_output.md`](z_examples/7_image_output/imag
 for a fuller demonstration (single-group, multi-group, `image + try`,
 `image + no-run`, `image + no-output`).
 
-**Requirements:** the [`nu_plugin_image`](https://github.com/nushell/nushell/tree/main/crates/nu_plugin_image)
-plugin must be registered in the parent nushell process (the one you invoke `numd` from).
-`numd` discovers the plugin executable via `plugin list` and injects it into the
-child `-n` process via `--plugins=<path>`, so reproducibility is preserved: only
-the `to png` plugin is loaded, not the user's full plugin set.
+**Requirements:** the [`nu_plugin_image`](https://github.com/FMotalleb/nu_plugin_image)
+plugin (by FMotalleb — not a builtin, not part of the upstream nushell repo)
+must be registered in the parent nushell process (the one you invoke `numd`
+from). `numd` discovers the plugin executable via `plugin list` and injects it
+into the child `-n` process via `--plugins=<path>`, so reproducibility is
+preserved: only the `to png` plugin is loaded, not the user's full plugin set.
+
+Install it via cargo and register it with `plugin add`:
+
+```nushell
+cargo install --git https://github.com/FMotalleb/nu_plugin_image.git
+plugin add ~/.cargo/bin/nu_plugin_image
+```
+
+After restarting nushell (or running `plugin use image`), `to png` is available
+in the parent shell and `numd` will pick it up automatically. See the plugin's
+README for alternative install methods (`nupm`, manual `cargo build`).
 
 **Output file layout:** PNGs land in a single `media/` folder sibling to the
 markdown file. All numd docs in the same folder share it; per-doc collisions
