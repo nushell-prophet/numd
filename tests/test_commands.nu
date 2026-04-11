@@ -590,3 +590,191 @@ def "to-numd-script handles multiple code blocks" [] {
     assert ($result =~ 'let a = 1')
     assert ($result =~ 'echo \$a')
 }
+
+# =============================================================================
+# Tests for image fence option
+# =============================================================================
+
+@test
+def "convert-short-options expands i to image" [] {
+    assert equal (convert-short-options "i") "image"
+}
+
+@test
+def "extract-fence-options recognizes image long form" [] {
+    let result = "```nu image" | extract-fence-options
+
+    assert equal $result ["image"]
+}
+
+@test
+def "extract-fence-options recognizes i short form" [] {
+    let result = "```nu i" | extract-fence-options
+
+    assert equal $result ["image"]
+}
+
+@test
+def "extract-fence-options parses image combined with try" [] {
+    let result = "```nu image, try" | extract-fence-options
+
+    assert equal ($result | length) 2
+    assert ("image" in $result)
+    assert ("try" in $result)
+}
+
+@test
+def "list-fence-options includes image row" [] {
+    let rows = list-fence-options | where long == 'image'
+
+    assert equal ($rows | length) 1
+    assert equal $rows.0.short 'i'
+}
+
+# =============================================================================
+# Tests for generate-image-output-pipeline
+# =============================================================================
+
+@test
+def "generate-image-output-pipeline produces expected pipeline" [] {
+    let result = 'ls' | generate-image-output-pipeline '/tmp/out.png'
+
+    # `table -e` for expanded rendering, path embedded in single quotes,
+    # `| ignore` to drop the returned path string from captured stdout.
+    assert equal $result "ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore"
+}
+
+@test
+def "generate-image-output-pipeline uses table -e not plain table" [] {
+    let result = 'something' | generate-image-output-pipeline '/a/b.png'
+
+    # Why: `table -e` expands nested structures before rasterization so
+    # the rendered PNG matches what a user would see in an interactive
+    # terminal, not the truncated default representation.
+    assert ($result =~ 'table -e')
+}
+
+@test
+def "generate-image-output-pipeline ends with ignore" [] {
+    let result = 'ls' | generate-image-output-pipeline '/tmp/x.png'
+
+    # Why: `to png` returns the path string, which would otherwise
+    # contaminate captured stdout and appear as a stray line in the
+    # rendered markdown.
+    assert ($result | str ends-with '| ignore')
+}
+
+# =============================================================================
+# Tests for image path construction in decorate-original-code-blocks
+# =============================================================================
+
+@test
+def "decorate-original-code-blocks emits image ref for image block" [] {
+    let blocks = "```nu image\n'hello'\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks --file /tmp/mydoc.md
+    let block_index = $result.0.block_index
+
+    # The generated code should contain a print statement with the
+    # deterministic filename pattern: <stem>.block-<block>-<group>.png
+    assert ($result.0.code =~ $'mydoc\.block-($block_index)-0\.png')
+    assert ($result.0.code =~ 'to png')
+    assert ($result.0.code =~ 'table -e')
+}
+
+@test
+def "decorate-original-code-blocks respects no-output over image" [] {
+    let blocks = "```nu image, no-output\n'hello'\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks --file /tmp/mydoc.md
+
+    # Per spec interaction matrix: no-output wins, so no PNG is written
+    # and no image ref is emitted.
+    assert ($result.0.code !~ 'to png')
+    assert ($result.0.code !~ 'mydoc\.block')
+}
+
+@test
+def "decorate-original-code-blocks uses doc-stem in path" [] {
+    let blocks = "```nu image\n'hi'\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks --file /some/path/guide.v2.md
+    let block_index = $result.0.block_index
+
+    # File name without extension becomes the stem; multi-dot names keep
+    # everything before the final extension.
+    assert ($result.0.code =~ $'guide\.v2\.block-($block_index)-0\.png')
+}
+
+@test
+def "decorate-original-code-blocks handles multi-group block" [] {
+    let blocks = "```nu image\n'first'\n\n'second'\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks --file /tmp/multi.md
+    let block_index = $result.0.block_index
+
+    # Each executable group gets its own PNG with 0-based group_index.
+    assert ($result.0.code =~ $'multi\.block-($block_index)-0\.png')
+    assert ($result.0.code =~ $'multi\.block-($block_index)-1\.png')
+}
+
+@test
+def "decorate-original-code-blocks without --file leaves image blocks inert" [] {
+    let blocks = "```nu image\n'hello'\n```" | parse-markdown-to-blocks
+    let result = decorate-original-code-blocks $blocks
+
+    # Without --file we don't know where to place PNGs, so no image
+    # pipeline is injected. The block is otherwise processed normally.
+    assert ($result.0.code !~ 'to png')
+}
+
+# =============================================================================
+# Tests for strip-numd-image-refs
+# =============================================================================
+
+@test
+def "strip-numd-image-refs removes deterministic ref lines" [] {
+    let input = "# Title\n\n```nu image\n'x'\n```\n\n![](media/doc.block-1-0.png)\n\nmore text"
+    let result = $input | strip-numd-image-refs
+
+    assert ($result !~ 'block-1-0\.png')
+    assert ($result =~ '# Title')
+    assert ($result =~ 'more text')
+}
+
+@test
+def "strip-numd-image-refs preserves hand-written image links" [] {
+    let input = "# Docs\n\n![logo](assets/logo.png)\n\n![](photo.jpg)"
+    let result = $input | strip-numd-image-refs
+
+    # Hand-written image links don't match `.block-N-N.png` pattern so
+    # they are left alone.
+    assert ($result =~ 'logo\.png')
+    assert ($result =~ 'photo\.jpg')
+}
+
+@test
+def "strip-numd-image-refs removes multiple refs" [] {
+    let input = "```nu image\n'x'\n```\n\n![](media/a.block-3-0.png)\n![](media/a.block-3-1.png)\n![](media/a.block-3-2.png)\n"
+    let result = $input | strip-numd-image-refs
+
+    assert ($result !~ 'block-3-')
+}
+
+# =============================================================================
+# Tests for clear-outputs with image refs
+# =============================================================================
+
+@test
+def "clear-outputs strips image reference from image-tagged block" [] {
+    let tmp_dir = $nu.temp-dir | path join $'numd-image-test-(random chars --length 8)'
+    mkdir $tmp_dir
+    let md_path = $tmp_dir | path join 'test.md'
+    "# Test\n\n```nu image\n'hello'\n```\n\n![](media/test.block-1-0.png)\n" | save -f $md_path
+
+    # Use --echo to avoid git check and to get the string directly.
+    let result = clear-outputs $md_path --echo
+
+    assert ($result !~ 'block-1-0\.png')
+    assert ($result =~ 'image')
+    # The code block itself is preserved, only the ref line is stripped.
+    assert ($result =~ "'hello'")
+
+    rm -rf $tmp_dir
+}
