@@ -96,11 +96,24 @@ export def execute-blocks [
 
     load-config $eval
 
+    # Precheck `to png` plugin availability and ensure the media dir exists,
+    # but ONLY if the doc actually uses the `image` fence option. Non-image
+    # docs must not grow a `media/` folder per spec "Rendering pipeline
+    # changes" step 5.
+    let image_plugin_path = check-image-plugin $original
+    if $image_plugin_path != null and $file != null {
+        # Resolve the same directory that decorate-original-code-blocks will use.
+        let parent = $file | path dirname | path expand
+        let rel_dir = $env.numd?.image-dir? | default 'media'
+        let abs_dir = if ($rel_dir | str starts-with '/') { $rel_dir } else { $parent | path join $rel_dir }
+        mkdir $abs_dir
+    }
+
     decorate-original-code-blocks $original --file $file
     | generate-intermediate-script
     | save -f $save_intermed_script
 
-    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results $use_host_config
+    let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results $use_host_config --image-plugin-path $image_plugin_path
 
     if $execution_output == '' {
         return $original
@@ -134,7 +147,19 @@ export def parse-file [
         str replace --all (char crlf) "\n"
     } else { }
     | convert-output-fences
+    | strip-numd-image-refs
     | parse-markdown-to-blocks
+}
+
+# Remove numd-generated `![](...)` image reference lines from raw markdown.
+# Why at the string level: image refs from a previous run live in text blocks
+# that follow image-tagged code blocks. On re-run, `execute-blocks` keeps
+# text blocks as-is and the new image refs are appended to code-block output,
+# which would duplicate them. Stripping at parse time prevents compounding.
+# The pattern `\.block-\d+-\d+\.png` is distinctive enough that hand-written
+# image links are extremely unlikely to match it.
+export def strip-numd-image-refs []: string -> string {
+    str replace --all --regex '(?m)^!\[\]\([^)]*\.block-\d+-\d+\.png\)\r?\n?' ''
 }
 
 # Strip numd output lines (# =>) from code blocks
@@ -310,7 +335,9 @@ export def decorate-original-code-blocks [
     | where action == 'execute'
     | insert code {|i|
         let fence_options = $i.row_type | extract-fence-options
-        let image_active = ('image' in $fence_options) and ($image_info != null)
+        # Per spec interaction matrix: `no-output` wins over `image`. No PNG is
+        # written and no `![](...)` reference is emitted.
+        let image_active = ('image' in $fence_options) and ($image_info != null) and ('no-output' not-in $fence_options)
 
         let image_abs_prefix = if $image_active {
             $image_info.abs_dir | path join $'($image_info.doc_stem).block-($i.block_index)'
@@ -572,13 +599,19 @@ export def pipe-to [closure: closure]: string -> string {
 }
 
 # Run the intermediate script and return its output as a string.
+# --image-plugin-path, when set, is passed as `--plugins <path>` to the child nu so
+# the `to png` plugin is loaded even under the default `-n` (no-config) mode. Why
+# `--plugins` and not `--plugin-config`: `-n` suppresses the registry file regardless
+# of `--plugin-config`, so explicit executable injection is the only way to keep the
+# reproducibility guarantees of `-n` while still making `to png` available.
 export def execute-intermediate-script [
     intermed_script_path: path # path to the generated intermediate script
     no_fail_on_error: bool # if true, return empty string on error instead of failing
     print_block_results: bool # print blocks one by one as they execute
     use_host_config: bool # if true, load host's env, config, and plugin files
+    --image-plugin-path: path # absolute path to the `to png` plugin executable
 ]: nothing -> string {
-    let args = if $use_host_config {
+    let base_args = if $use_host_config {
         [
             [--env-config $nu.env-path]
             [--config $nu.config-path]
@@ -588,6 +621,17 @@ export def execute-intermediate-script [
         | flatten
     } else {
         [-n]
+    }
+
+    # Why `--plugins=<path>` rather than two separate args: `--plugins` is a `path...`
+    # multi-positional, so `nu ... --plugins /p /script.nu` treats the script as another
+    # plugin path and errors with "valid Nushell plugin filenames must start with
+    # `nu_plugin_`". The `=` form binds exactly one value and lets the script path
+    # remain a normal positional.
+    let args = if $image_plugin_path != null {
+        $base_args | append $"--plugins=($image_plugin_path)"
+    } else {
+        $base_args
     }
 
     ^$nu.current-exe ...$args $intermed_script_path
@@ -830,6 +874,48 @@ export def --env load-config [
     # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
     $env.numd = $base | merge {prepend-code: $code}
+}
+
+# Discover the `to png` plugin executable path via `plugin list`.
+# Uses `plugin list` rather than `scope commands` because we need the executable
+# PATH to inject into the child `-n` nu process via `--plugins`, not just a
+# boolean "is the command registered". Returns null if the plugin isn't found.
+export def find-image-plugin-path []: nothing -> any {
+    plugin list
+    | where {|p| 'to png' in ($p.commands.name | default []) }
+    | get filename.0?
+}
+
+# Check that `to png` is available when any block in the parsed table uses
+# the `image` fence option AND is actually going to produce output (not
+# `no-output`). Returns the plugin path on success, null if no image-producing
+# blocks are present, and errors fast with an install hint if image blocks
+# exist but the plugin isn't registered. Why fail-fast at `numd run` entry:
+# the child `-n` process can't introspect plugins cheaply, and running the
+# whole intermediate script only to crash on the first `to png` call is a
+# slow feedback loop.
+export def check-image-plugin [
+    blocks_table: table # output of parse-markdown-to-blocks
+]: nothing -> any {
+    let has_image_blocks = $blocks_table
+    | where action == 'execute'
+    | any {|b|
+        let opts = $b.row_type | extract-fence-options
+        ('image' in $opts) and ('no-output' not-in $opts)
+    }
+
+    if not $has_image_blocks { return null }
+
+    let plugin_path = find-image-plugin-path
+    if $plugin_path == null {
+        error make --unspanned {
+            msg: $"numd: the `image` fence option requires the `to png` plugin.
+Install it (e.g. `cargo install nu_plugin_image`) and register it with:
+    plugin add <path-to-nu_plugin_image>
+    plugin use image"
+        }
+    }
+    $plugin_path
 }
 
 # Generate a timestamp string in the format YYYYMMDD_HHMMSS.
