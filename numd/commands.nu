@@ -216,14 +216,41 @@ export def classify-block-action [
     }
 }
 
-# Apply output formatting based on fence options (separate-block vs inline `# =>`).
-def format-command-output [fence_options: list<string>]: string -> string {
+# Apply output formatting based on fence options (image, separate-block, or inline `# =>`).
+# When `image` is in $fence_options and --image-abs-path is provided, the group is rasterized
+# via the `to png` plugin. `image` wins over `separate-block` per the spec interaction matrix.
+def format-command-output [
+    fence_options: list<string>
+    --image-abs-path: string # absolute path for `to png` output (only used when `image` is active)
+]: string -> string {
     if 'no-output' in $fence_options { return $in } else { }
-    | if 'separate-block' in $fence_options { generate-separate-block-fence } else { }
-    | if (can-append-print $in) {
-        generate-inline-output-pipeline
-        | generate-print-statement
-    } else { }
+    | if 'image' in $fence_options and $image_abs_path != null {
+        # Why: `image` wins over `separate-block` per spec interaction matrix; rasterize
+        # and do NOT append a terminal `print` — the side-effect pipeline already captures
+        # the output. The markdown `![]()` reference is emitted by `generate-block-markers`
+        # after the closing fence, not inline.
+        generate-image-output-pipeline $image_abs_path
+    } else {
+        if 'separate-block' in $fence_options { generate-separate-block-fence } else { }
+        | if (can-append-print $in) {
+            generate-inline-output-pipeline
+            | generate-print-statement
+        } else { }
+    }
+}
+
+# Generate a pipeline that rasterizes a command's output to a PNG file via the `to png` plugin.
+# The captured output is fully expanded with `table -e` before rasterization so nested structures
+# render exactly as the user would see them in a terminal. `| ignore` drops the path string
+# that `to png` returns so nothing contaminates the captured stdout for this group — the
+# markdown `![](...)` reference is emitted separately by `generate-block-markers`.
+@example "generate image pipeline for a path" {
+    'ls' | generate-image-output-pipeline '/tmp/out.png'
+} --result "ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore"
+export def generate-image-output-pipeline [
+    abs_path: string # absolute path where the PNG will be written
+]: string -> string {
+    $"($in) | table -e --width \(\$env.numd?.table-width? | default 120\) | to png '($abs_path)' | ignore"
 }
 
 # Generate code for execution in the intermediate script within a given code fence.
