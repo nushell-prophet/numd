@@ -272,13 +272,21 @@ def format-command-output [
 # render exactly as the user would see them in a terminal. `| ignore` drops the path string
 # that `to png` returns so nothing contaminates the captured stdout for this group — the
 # markdown `![](...)` reference is emitted separately by `generate-block-markers`.
+#
+# Why `do { $env.config.use_ansi_coloring = true; ... }`: numd launches the child nushell
+# without a TTY, so `table -e` emits plain text by default and `to png` produces a monochrome
+# image. Enabling ansi coloring inside a `do { ... }` closure scopes the toggle to the image
+# pipeline only — verified empirically that the `# =>` inline and `separate-block` paths stay
+# ANSI-free, so no defensive `ansi strip` is needed elsewhere. Mutation (`... = true`) rather
+# than replacement preserves the rest of `$env.config`. `with-env {FORCE_COLOR: '1'}` does not
+# work here because nu reads that env var at process startup, not per-pipeline.
 @example "generate image pipeline for a path" {
     'ls' | generate-image-output-pipeline '/tmp/out.png'
-} --result "ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore"
+} --result "do { $env.config.use_ansi_coloring = true; ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore }"
 export def generate-image-output-pipeline [
     abs_path: string # absolute path where the PNG will be written
 ]: string -> string {
-    $"($in) | table -e --width \(\$env.numd?.table-width? | default 120\) | to png '($abs_path)' | ignore"
+    $"do { $env.config.use_ansi_coloring = true; ($in) | table -e --width \(\$env.numd?.table-width? | default 120\) | to png '($abs_path)' | ignore }"
 }
 
 # Generate code for execution in the intermediate script within a given code fence.

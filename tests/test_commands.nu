@@ -641,7 +641,10 @@ def "generate-image-output-pipeline produces expected pipeline" [] {
 
     # `table -e` for expanded rendering, path embedded in single quotes,
     # `| ignore` to drop the returned path string from captured stdout.
-    assert equal $result "ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore"
+    # Wrapped in `do { $env.config.use_ansi_coloring = true; ... }` so
+    # the image pipeline gets ANSI colors even though the child nu runs
+    # without a TTY (scoped to this closure only).
+    assert equal $result "do { $env.config.use_ansi_coloring = true; ls | table -e --width ($env.numd?.table-width? | default 120) | to png '/tmp/out.png' | ignore }"
 }
 
 @test
@@ -655,13 +658,27 @@ def "generate-image-output-pipeline uses table -e not plain table" [] {
 }
 
 @test
-def "generate-image-output-pipeline ends with ignore" [] {
+def "generate-image-output-pipeline ignores to png return value" [] {
     let result = 'ls' | generate-image-output-pipeline '/tmp/x.png'
 
     # Why: `to png` returns the path string, which would otherwise
     # contaminate captured stdout and appear as a stray line in the
     # rendered markdown.
-    assert ($result | str ends-with '| ignore')
+    assert ($result =~ '\| ignore')
+}
+
+@test
+def "generate-image-output-pipeline enables ansi coloring in do scope" [] {
+    let result = 'ls' | generate-image-output-pipeline '/tmp/out.png'
+
+    # Why: in a non-TTY child process `table -e` emits plain text by
+    # default; without this toggle `to png` rasterizes a monochrome
+    # image. The `do { ... }` wrapper scopes the env mutation to the
+    # image pipeline only so the inline `# =>` and `separate-block`
+    # paths stay ANSI-free.
+    assert ($result =~ 'use_ansi_coloring = true')
+    assert ($result | str starts-with 'do { ')
+    assert ($result | str ends-with ' }')
 }
 
 # =============================================================================

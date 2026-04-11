@@ -21,7 +21,7 @@ $env.config.table = {
 ```nu image" | print
 "[[a b c]; [1 2 3] [4 5 6]]" | nu-highlight | print
 
-[[a b c]; [1 2 3] [4 5 6]] | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-1-0.png' | ignore
+do { $env.config.use_ansi_coloring = true; [[a b c]; [1 2 3] [4 5 6]] | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-1-0.png' | ignore }
 print ''
 "```" | print
 print ''
@@ -31,11 +31,11 @@ print "![](media/image_output.block-1-0.png)"
 ```nu image" | print
 "'first group output'" | nu-highlight | print
 
-'first group output' | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-3-0.png' | ignore
+do { $env.config.use_ansi_coloring = true; 'first group output' | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-3-0.png' | ignore }
 print ''
 "[[x y]; ['hello' 'world']]" | nu-highlight | print
 
-[[x y]; ['hello' 'world']] | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-3-1.png' | ignore
+do { $env.config.use_ansi_coloring = true; [[x y]; ['hello' 'world']] | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-3-1.png' | ignore }
 print ''
 "```" | print
 print ''
@@ -46,7 +46,7 @@ print "![](media/image_output.block-3-1.png)"
 ```nu image, try" | print
 "ls /nonexistent-path-for-test" | nu-highlight | print
 
-try {ls /nonexistent-path-for-test} catch {|error| $error} | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-5-0.png' | ignore
+do { $env.config.use_ansi_coloring = true; try {ls /nonexistent-path-for-test} catch {|error| $error} | table -e --width ($env.numd?.table-width? | default 120) | to png '/Users/user/git/ai-sandbox-dev-container/numd/z_examples/7_image_output/media/image_output.block-5-0.png' | ignore }
 print ''
 "```" | print
 print ''
