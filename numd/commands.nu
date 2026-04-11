@@ -422,6 +422,7 @@ const fence_options = [
     [t try "execute block inside `try {}` for error handling"]
     [n new-instance "execute block in new Nushell instance (useful with `try` block)"]
     [s separate-block "output results in a separate code block instead of inline `# =>`"]
+    [i image "render block output as a PNG image via the `to png` plugin"]
     ['' run-once "execute code block once, then set to no-run"]
 ]
 
