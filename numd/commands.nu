@@ -271,11 +271,13 @@ def format-command-output [
     --image-abs-path: string # absolute path for `to png` output (only used when `image` is active)
 ]: string -> string {
     if 'no-output' in $fence_options { return $in } else { }
-    | if 'image' in $fence_options and $image_abs_path != null {
+    | if $image_abs_path != null {
         # Why: `image` wins over `separate-block` per spec interaction matrix; rasterize
         # and do NOT append a terminal `print` — the side-effect pipeline already captures
         # the output. The markdown `![]()` reference is emitted by `generate-block-markers`
-        # after the closing fence, not inline.
+        # after the closing fence, not inline. `decorate-original-code-blocks` is the
+        # single decision maker for image activation — a non-null abs_path reaching here
+        # already means image is active.
         generate-image-output-pipeline $image_abs_path
     } else {
         if 'separate-block' in $fence_options { generate-separate-block-fence } else { }
@@ -434,7 +436,9 @@ export def process-code-block-content [
         } else if $group.kind == 'comment' {
             $group.content | generate-highlight-print
         } else {
-            let abs_path = if ('image' in $fence_options) and ($image_abs_prefix != null) {
+            # $image_abs_prefix is only non-null when `decorate-original-code-blocks`
+            # already decided image is active; no need to re-check the fence options.
+            let abs_path = if $image_abs_prefix != null {
                 $"($image_abs_prefix)-($group.index).png"
             } else {
                 null
