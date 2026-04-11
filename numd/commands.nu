@@ -13,6 +13,7 @@ export def run [
     --no-stats # do not output stats of changes (is activated via --echo by default)
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+    --skip-image-blocks # treat `image`-tagged blocks like `no-run`, preserving their existing `![](...)` references. Use when running numd on a machine without the `to png` plugin so the `# =>` outputs of non-image blocks can still be refreshed.
     --use-host-config # load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 ]: [nothing -> string nothing -> nothing nothing -> record] {
     let original_md = open -r $file
@@ -20,7 +21,7 @@ export def run [
     let intermediate_script_path = $save_intermed_script
     | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
 
-    let result = parse-file $file
+    let result = parse-file $file --skip-image-blocks=$skip_image_blocks
     | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config --file $file
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
@@ -141,14 +142,20 @@ export def execute-blocks [
 # Parse a markdown file into a blocks table
 export def parse-file [
     file: path # path to a markdown file
+    --skip-image-blocks # preserve existing `![](...)` image references and treat `image`-tagged code blocks as `no-run`
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string> {
     open -r $file
     | if $nu.os-info.family == windows {
         str replace --all (char crlf) "\n"
     } else { }
     | convert-output-fences
-    | strip-numd-image-refs
-    | parse-markdown-to-blocks
+    # Why conditional: when --skip-image-blocks is set we must NOT drop the
+    # existing image-reference lines — they are exactly what the caller
+    # wants to keep. The stripper is a re-run duplication guard, and with
+    # image blocks classified as `print-as-it-is` below there are no fresh
+    # refs to duplicate, so the guard is unnecessary and would be harmful.
+    | if $skip_image_blocks { } else { strip-numd-image-refs }
+    | parse-markdown-to-blocks --skip-image-blocks=$skip_image_blocks
 }
 
 # Remove numd-generated `![](...)` image reference lines from raw markdown.
@@ -187,7 +194,9 @@ export def to-markdown []: table -> string {
 ###
 
 # Detect code blocks in a markdown string and return a table with their line numbers and info strings.
-export def parse-markdown-to-blocks []: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
+export def parse-markdown-to-blocks [
+    --skip-image-blocks # override `image`-tagged blocks' action from `execute` to `print-as-it-is`
+]: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
     let file_lines = $in | lines
     let row_type = $file_lines
     | each {
@@ -226,7 +235,21 @@ export def parse-markdown-to-blocks []: string -> table<block_index: int, row_ty
     | rename block_index line row_type
     | select block_index row_type line
     | into int block_index
-    | insert action { classify-block-action $in.row_type }
+    | insert action {|row|
+        let base_action = classify-block-action $row.row_type
+        # When --skip-image-blocks is set, demote `image`-tagged blocks to
+        # `print-as-it-is` so downstream stages (`check-image-plugin`,
+        # `decorate-original-code-blocks`, `execute-intermediate-script`)
+        # naturally filter them out via `where action == 'execute'`. No
+        # precheck, no `--plugins` injection, no PNG regeneration — the
+        # markdown around the image block, including its `![](...)`
+        # reference line, flows through unchanged.
+        if $skip_image_blocks and $base_action == 'execute' and ('image' in ($row.row_type | extract-fence-options)) {
+            'print-as-it-is'
+        } else {
+            $base_action
+        }
+    }
 }
 
 export def classify-block-action [

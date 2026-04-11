@@ -55,6 +55,7 @@ numd run --help
 # =>   --no-stats: do not output stats of changes (is activated via --echo by default)
 # =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
 # =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
+# =>   --skip-image-blocks: treat `image`-tagged blocks like `no-run`, preserving their existing `![](...)` references. Use when running numd on a machine without the `to png` plugin so the `# =>` outputs of non-image blocks can still be refreshed.
 # =>   --use-host-config: load host's env, config, and plugin files (default: run with nu -n for reproducibility)
 # =>
 # => Parameters:
@@ -147,6 +148,15 @@ overwrites the same PNG and keeps git diffs small.
 `numd clear-outputs` strips the trailing `![](media/...)` reference line but
 does NOT delete PNG files from disk — image files are user-visible artifacts
 and deletion from a "clear outputs" command would be surprising.
+
+**Running on machines without `to png`.** Pass `numd run --skip-image-blocks`
+to treat `image`-tagged blocks like `no-run`: they are not executed, no PNG
+is regenerated, and their existing `![](media/...)` reference line is
+preserved. The plugin precheck is bypassed so the `to png` plugin is not
+required. `# =>` outputs for every other block are refreshed normally. Use
+this when collaborating from an environment (CI, a stripped-down sandbox,
+a machine without the plugin installed) where you still want to update the
+markdown but cannot regenerate the images.
 
 ### Stats of changes
 

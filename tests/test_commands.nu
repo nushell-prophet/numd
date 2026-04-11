@@ -795,3 +795,91 @@ def "clear-outputs strips image reference from image-tagged block" [] {
 
     rm -rf $tmp_dir
 }
+
+# =============================================================================
+# Tests for --skip-image-blocks
+# =============================================================================
+
+@test
+def "parse-markdown-to-blocks --skip-image-blocks demotes image blocks" [] {
+    let blocks = "```nu image\n'hello'\n```" | parse-markdown-to-blocks --skip-image-blocks
+
+    # Image block's action is `print-as-it-is` instead of `execute` so
+    # downstream filters treat it like `no-run`.
+    let code_block = $blocks | where row_type =~ '^```nu' | first
+    assert equal $code_block.action 'print-as-it-is'
+}
+
+@test
+def "parse-markdown-to-blocks --skip-image-blocks recognises i short form" [] {
+    let blocks = "```nu i\n'hi'\n```" | parse-markdown-to-blocks --skip-image-blocks
+
+    let code_block = $blocks | where row_type =~ '^```nu' | first
+    assert equal $code_block.action 'print-as-it-is'
+}
+
+@test
+def "parse-markdown-to-blocks --skip-image-blocks leaves non-image blocks executable" [] {
+    let blocks = "```nu\n'plain'\n```" | parse-markdown-to-blocks --skip-image-blocks
+
+    # Why: the flag only affects image-tagged blocks. Ordinary nushell
+    # blocks must still execute and have their `# =>` outputs refreshed.
+    let code_block = $blocks | where row_type =~ '^```nu' | first
+    assert equal $code_block.action 'execute'
+}
+
+@test
+def "parse-markdown-to-blocks default still classifies image blocks as execute" [] {
+    let blocks = "```nu image\n'hi'\n```" | parse-markdown-to-blocks
+
+    # Backwards compatibility: without --skip-image-blocks the action is
+    # still `execute`, so the precheck and image pipeline run normally.
+    let code_block = $blocks | where row_type =~ '^```nu' | first
+    assert equal $code_block.action 'execute'
+}
+
+@test
+def "parse-file --skip-image-blocks preserves image reference lines" [] {
+    let tmp_dir = $nu.temp-dir | path join $'numd-skip-test-(random chars --length 8)'
+    mkdir $tmp_dir
+    let md_path = $tmp_dir | path join 'test.md'
+    "# Test\n\n```nu image\n'hello'\n```\n\n![](media/test.block-1-0.png)\n" | save -f $md_path
+
+    let blocks = parse-file $md_path --skip-image-blocks
+
+    # Why: the image-ref stripper must be skipped so the `![](...)` line
+    # survives parsing and flows through to the rendered output.
+    let joined = $blocks | get line | flatten | str join (char nl)
+    assert ($joined =~ 'block-1-0\.png')
+
+    rm -rf $tmp_dir
+}
+
+@test
+def "parse-file default still strips image references" [] {
+    let tmp_dir = $nu.temp-dir | path join $'numd-strip-test-(random chars --length 8)'
+    mkdir $tmp_dir
+    let md_path = $tmp_dir | path join 'test.md'
+    "# Test\n\n```nu image\n'hello'\n```\n\n![](media/test.block-1-0.png)\n" | save -f $md_path
+
+    # Without the flag, the stripper runs at parse time (re-run
+    # duplication guard) so the ref line is absent from the parsed
+    # blocks.
+    let blocks = parse-file $md_path
+    let joined = $blocks | get line | flatten | str join (char nl)
+    assert ($joined !~ 'block-1-0\.png')
+
+    rm -rf $tmp_dir
+}
+
+@test
+def "check-image-plugin returns null when image blocks are demoted" [] {
+    # When --skip-image-blocks has marked image blocks as
+    # `print-as-it-is`, check-image-plugin's `where action == 'execute'`
+    # filter naturally excludes them, so the precheck does not error
+    # even on a machine without the `to png` plugin.
+    let blocks = "```nu image\n'hi'\n```" | parse-markdown-to-blocks --skip-image-blocks
+    let plugin_path = check-image-plugin $blocks
+
+    assert equal $plugin_path null
+}
