@@ -103,11 +103,7 @@ export def execute-blocks [
     # changes" step 5.
     let image_plugin_path = check-image-plugin $original
     if $image_plugin_path != null and $file != null {
-        # Resolve the same directory that decorate-original-code-blocks will use.
-        let parent = $file | path dirname | path expand
-        let rel_dir = $env.numd?.image-dir? | default 'media'
-        let abs_dir = if ($rel_dir | str starts-with '/') { $rel_dir } else { $parent | path join $rel_dir }
-        mkdir $abs_dir
+        mkdir (resolve-image-dir $file | get abs_dir)
     }
 
     decorate-original-code-blocks $original --file $file
@@ -342,25 +338,7 @@ export def decorate-original-code-blocks [
     md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from parse-markdown-to-blocks
     --file: path # source markdown file path (required for image-tagged blocks to compute paths)
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string, code: string> {
-    # Resolve image directory info once per invocation. $env.numd.image-dir overrides
-    # the default 'media'. The absolute dir is resolved against the markdown file's
-    # parent so that `numd run docs/guide.md` writes to `docs/media/...`, not to cwd.
-    let image_info = if $file != null {
-        let parent = $file | path dirname | path expand
-        let doc_stem = $file | path parse | get stem
-        let rel_dir = $env.numd?.image-dir? | default 'media'
-        # Absolute override is respected as-is; relative paths resolve against the
-        # markdown file's parent directory (not cwd) so the reference in the rendered
-        # markdown stays portable.
-        let abs_dir = if ($rel_dir | str starts-with '/') {
-            $rel_dir
-        } else {
-            $parent | path join $rel_dir
-        }
-        {abs_dir: $abs_dir, rel_dir: $rel_dir, doc_stem: $doc_stem}
-    } else {
-        null
-    }
+    let image_info = if $file != null { resolve-image-dir $file } else { null }
 
     $md_classified
     | where action == 'execute'
@@ -905,6 +883,27 @@ export def --env load-config [
     # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
     $env.numd = $base | merge {prepend-code: $code}
+}
+
+# Resolve image output directory info for a markdown file.
+# Why: `execute-blocks` (mkdir) and `decorate-original-code-blocks` (path
+# construction) must agree on abs/rel dir and doc stem, or generated PNGs
+# and their `![](...)` refs will desync. `$env.numd.image-dir` overrides
+# the default `media`; absolute overrides are used as-is, relative paths
+# resolve against the markdown file's parent dir (not cwd) so refs stay
+# portable.
+export def resolve-image-dir [
+    file: path # source markdown file path
+]: nothing -> record<abs_dir: string, rel_dir: string, doc_stem: string> {
+    let parent = $file | path dirname | path expand
+    let doc_stem = $file | path parse | get stem
+    let rel_dir = $env.numd?.image-dir? | default 'media'
+    let abs_dir = if ($rel_dir | str starts-with '/') {
+        $rel_dir
+    } else {
+        $parent | path join $rel_dir
+    }
+    {abs_dir: $abs_dir, rel_dir: $rel_dir, doc_stem: $doc_stem}
 }
 
 # Discover the `to png` plugin executable path via `plugin list`.
