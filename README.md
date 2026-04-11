@@ -95,10 +95,7 @@ numd list-fence-options
 
 ### Image output via the `image` fence option
 
-The `image` (short: `i`) fence option rasterizes a code block's output to a PNG
-file via the [`to png`](https://github.com/FMotalleb/nu_plugin_image) plugin
-instead of writing `# =>` inline lines. The generated `![](...)` reference is
-emitted after the closing fence so the rendered markdown stays valid.
+The `image` (short: `i`) fence option rasterizes a code block's output to a PNG file via the [`to png`](https://github.com/FMotalleb/nu_plugin_image) plugin instead of writing `# =>` inline lines. The generated `![](...)` reference is emitted after the closing fence so the rendered markdown stays valid.
 
 A code block tagged `image`:
 
@@ -106,38 +103,15 @@ A code block tagged `image`:
     [[a b c]; [1 2 3] [4 5 6]]
     ```
 
-After `numd run` becomes the same code block followed by an image reference
-line:
+After `numd run` becomes the same code block followed by an image reference line:
 
     ![](media/<doc-stem>.block-<block_index>-<group_index>.png)
 
-See [`z_examples/7_image_output/image_output.md`](z_examples/7_image_output/image_output.md)
-for a fuller demonstration (single-group, multi-group, `image + try`,
-`image + no-run`, `image + no-output`).
+See [`z_examples/7_image_output/image_output.md`](z_examples/7_image_output/image_output.md) for a fuller demonstration (single-group, multi-group, `image + try`, `image + no-run`, `image + no-output`).
 
-**Requirements:** the [`nu_plugin_image`](https://github.com/FMotalleb/nu_plugin_image)
-plugin (by FMotalleb — not a builtin, not part of the upstream nushell repo)
-must be registered in the parent nushell process (the one you invoke `numd`
-from). `numd` discovers the plugin executable via `plugin list` and injects it
-into the child `-n` process via `--plugins=<path>`, so reproducibility is
-preserved: only the `to png` plugin is loaded, not the user's full plugin set.
+**Requirements:** the [`nu_plugin_image`](https://github.com/FMotalleb/nu_plugin_image) plugin
 
-Install it via cargo and register it with `plugin add`:
-
-```nushell
-cargo install --git https://github.com/FMotalleb/nu_plugin_image.git
-plugin add ~/.cargo/bin/nu_plugin_image
-```
-
-After restarting nushell (or running `plugin use image`), `to png` is available
-in the parent shell and `numd` will pick it up automatically. See the plugin's
-README for alternative install methods (`nupm`, manual `cargo build`).
-
-**Output file layout:** PNGs land in a single `media/` folder sibling to the
-markdown file. All numd docs in the same folder share it; per-doc collisions
-are prevented by the `<doc-stem>` prefix. Filenames are deterministic
-(`<doc-stem>.block-<block_index>-<group_index>.png`), so re-running `numd run`
-overwrites the same PNG and keeps git diffs small.
+**Output file layout:** PNGs land in a single `media/` folder sibling to the markdown file. All numd docs in the same folder share it; per-doc collisions are prevented by the `<doc-stem>` prefix. Filenames are deterministic (`<doc-stem>.block-<block_index>-<group_index>.png`), so re-running `numd run` overwrites the same PNG and keeps git diffs small.
 
 **Relevant environment variables:**
 
@@ -146,13 +120,7 @@ overwrites the same PNG and keeps git diffs small.
 | `$env.numd.image-dir`    | override the output directory (default: `media`)                |
 | `$env.numd.table-width`  | width passed to `table -e` before rasterization (default: 120)  |
 
-`$env.numd.image-dir` accepts either an absolute or a relative path.
-Absolute paths (starting with `/`) are used as-is. Relative paths resolve
-against the **markdown file's parent directory**, not the shell's current
-working directory — so `numd run docs/guide.md` with
-`$env.numd.image-dir = 'assets'` writes PNGs to `docs/assets/`, and the
-`![](assets/...)` references in the rendered markdown stay portable
-regardless of where `numd` was invoked from.
+`$env.numd.image-dir` accepts either an absolute or a relative path. Absolute paths (starting with `/`) are used as-is. Relative paths resolve against the **markdown file's parent directory**, not the shell's current working directory — so `numd run docs/guide.md` with `$env.numd.image-dir = 'assets'` writes PNGs to `docs/assets/`, and the `![](assets/...)` references in the rendered markdown stay portable regardless of where `numd` was invoked from.
 
 **Interaction with other fence options:**
 
@@ -165,18 +133,9 @@ regardless of where `numd` was invoked from.
 | `new-instance`    | Unchanged; the image pipeline runs in the spawned instance.     |
 | `run-once`        | First run produces the image; block is then flipped to no-run.  |
 
-`numd clear-outputs` strips the trailing `![](media/...)` reference line but
-does NOT delete PNG files from disk — image files are user-visible artifacts
-and deletion from a "clear outputs" command would be surprising.
+`numd clear-outputs` strips the trailing `![](media/...)` reference line but does NOT delete PNG files from disk — image files are user-visible artifacts and deletion from a "clear outputs" command would be surprising.
 
-**Running on machines without `to png`.** Pass `numd run --skip-image-blocks`
-to treat `image`-tagged blocks like `no-run`: they are not executed, no PNG
-is regenerated, and their existing `![](media/...)` reference line is
-preserved. The plugin precheck is bypassed so the `to png` plugin is not
-required. `# =>` outputs for every other block are refreshed normally. Use
-this when collaborating from an environment (CI, a stripped-down sandbox,
-a machine without the plugin installed) where you still want to update the
-markdown but cannot regenerate the images.
+**Running on machines without `to png`.** Pass `numd run --skip-image-blocks` to treat `image`-tagged blocks like `no-run`: they are not executed, no PNG is regenerated, and their existing `![](media/...)` reference line is preserved. The plugin precheck is bypassed so the `to png` plugin is not required. `# =>` outputs for every other block are refreshed normally. Use this when collaborating from an environment (CI, a stripped-down sandbox, a machine without the plugin installed) where you still want to update the markdown but cannot regenerate the images.
 
 ### Stats of changes
 
