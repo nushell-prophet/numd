@@ -44,7 +44,7 @@ numd run --help
 # => Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 # =>
 # => Usage:
-# =>   > numd run {flags} <file>
+# =>   > run {flags} <file>
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
@@ -56,6 +56,9 @@ numd run --help
 # =>   --print-block-results: print blocks one by one as they are executed, useful for long running scripts
 # =>   --save-intermed-script <path>: optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
 # =>   --use-host-config: load host's env, config, and plugin files (default: run with nu -n for reproducibility)
+# =>
+# => Command Type:
+# =>   > custom
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing Nushell code to be executed
@@ -81,14 +84,16 @@ numd run --help
 
 ```nushell
 numd list-fence-options
-# => ╭──────long──────┬─short─┬───────────────────────────description────────────────────────────╮
-# => │ no-output      │ O     │ execute code without outputting results                          │
-# => │ no-run         │ N     │ do not execute code in block                                     │
-# => │ try            │ t     │ execute block inside `try {}` for error handling                 │
-# => │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
-# => │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
-# => │ run-once       │       │ execute code block once, then set to no-run                      │
-# => ╰──────long──────┴─short─┴───────────────────────────description────────────────────────────╯
+# => ╭───┬────────────────┬───────┬──────────────────────────────────────────────────────────────────╮
+# => │ # │      long      │ short │                           description                            │
+# => ├───┼────────────────┼───────┼──────────────────────────────────────────────────────────────────┤
+# => │ 0 │ no-output      │ O     │ execute code without outputting results                          │
+# => │ 1 │ no-run         │ N     │ do not execute code in block                                     │
+# => │ 2 │ try            │ t     │ execute block inside `try {}` for error handling                 │
+# => │ 3 │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
+# => │ 4 │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
+# => │ 5 │ run-once       │       │ execute code block once, then set to no-run                      │
+# => ╰───┴────────────────┴───────┴──────────────────────────────────────────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -102,10 +107,10 @@ numd run $path --ignore-git-check
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 52                                │
-# => │ diff_lines       │ +8 (25.8%)                        │
-# => │ diff_words       │ +6 (8.5%)                         │
-# => │ diff_chars       │ +52 (11.6%)                       │
+# => │ levenshtein_dist │ 4                                 │
+# => │ diff_lines       │ 0%                                │
+# => │ diff_words       │ 0%                                │
+# => │ diff_chars       │ +1 (0.2%)                         │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -144,12 +149,15 @@ numd clear-outputs --help
 # => and users typically clear outputs intentionally before committing clean source
 # =>
 # => Usage:
-# =>   > numd clear-outputs {flags} <file>
+# =>   > clear-outputs {flags} <file>
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
 # =>   --echo: output resulting markdown to stdout instead of writing to file
 # =>   --strip-markdown: keep only Nushell script, strip all markdown tags
+# =>
+# => Command Type:
+# =>   > custom
 # =>
 # => Parameters:
 # =>   file <path>: path to a `.md` file containing numd output to be cleared
@@ -173,11 +181,14 @@ numd capture start --help
 # => start capturing commands and their outputs into a file
 # =>
 # => Usage:
-# =>   > numd capture start {flags} (file)
+# =>   > capture start {flags} (file)
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
 # =>   --separate-blocks: create separate code blocks for each pipeline instead of inline `# =>` output
+# =>
+# => Command Type:
+# =>   > custom
 # =>
 # => Parameters:
 # =>   file <path>:  (optional, default: 'numd_capture.md')
@@ -196,10 +207,13 @@ numd capture stop --help
 # => stop capturing commands and their outputs
 # =>
 # => Usage:
-# =>   > numd capture stop
+# =>   > capture stop
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
+# =>
+# => Command Type:
+# =>   > custom
 # =>
 # => Input/output types:
 # =>   ╭───┬─────────┬─────────╮
@@ -219,10 +233,13 @@ numd parse-md --help
 # => Parse markdown into semantic blocks
 # =>
 # => Usage:
-# =>   > numd parse-md (file)
+# =>   > parse-md (file)
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
+# =>
+# => Command Type:
+# =>   > custom
 # =>
 # => Parameters:
 # =>   file <path>: optional path to markdown file (can also pipe content) (optional)
@@ -241,20 +258,22 @@ numd parse-md --help
 
 ```nushell
 ls z_examples | sort-by name | reject modified size
-# => ╭──────────────────name───────────────────┬─type─╮
-# => │ z_examples/1_simple_markdown            │ dir  │
-# => │ z_examples/2_numd_commands_explanations │ dir  │
-# => │ z_examples/4_book_working_with_lists    │ dir  │
-# => │ z_examples/5_simple_nu_table            │ dir  │
-# => │ z_examples/6_edge_cases                 │ dir  │
-# => │ z_examples/7_image_output               │ dir  │
-# => │ z_examples/8_parse_frontmatter          │ dir  │
-# => │ z_examples/999_numd_internals           │ dir  │
-# => │ z_examples/99_strip_markdown            │ dir  │
-# => │ z_examples/9_other                      │ dir  │
-# => │ z_examples/numd_config_example1.nu      │ file │
-# => │ z_examples/numd_config_example2.nu      │ file │
-# => ╰──────────────────name───────────────────┴─type─╯
+# => ╭────┬─────────────────────────────────────────┬──────╮
+# => │  # │                  name                   │ type │
+# => ├────┼─────────────────────────────────────────┼──────┤
+# => │  0 │ z_examples/1_simple_markdown            │ dir  │
+# => │  1 │ z_examples/2_numd_commands_explanations │ dir  │
+# => │  2 │ z_examples/4_book_working_with_lists    │ dir  │
+# => │  3 │ z_examples/5_simple_nu_table            │ dir  │
+# => │  4 │ z_examples/6_edge_cases                 │ dir  │
+# => │  5 │ z_examples/7_image_output               │ dir  │
+# => │  6 │ z_examples/8_parse_frontmatter          │ dir  │
+# => │  7 │ z_examples/999_numd_internals           │ dir  │
+# => │  8 │ z_examples/99_strip_markdown            │ dir  │
+# => │  9 │ z_examples/9_other                      │ dir  │
+# => │ 10 │ z_examples/numd_config_example1.nu      │ file │
+# => │ 11 │ z_examples/numd_config_example2.nu      │ file │
+# => ╰────┴─────────────────────────────────────────┴──────╯
 
 'hello world' | str length
 # => 11
