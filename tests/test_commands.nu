@@ -151,6 +151,12 @@ def "extract-fence-options handles empty options" [] {
     assert equal ($result | length) 0
 }
 
+@test
+def "extract-fence-options errors on unknown option" [] {
+    assert error { "```nu N" | extract-fence-options }
+    assert error { "```nu no-run, bogus" | extract-fence-options }
+}
+
 # =============================================================================
 # Tests for code-block-marker
 # =============================================================================

@@ -651,16 +651,24 @@ export def generate-block-markers [
 # Parse options from a code fence and return them as a list.
 @example "parse fence options" { '```nu no-run, try' | extract-fence-options } --result [no-run try]
 export def extract-fence-options []: string -> list<string> {
-    str replace -r '```nu(shell)?\s*' ''
+    let fence = $in
+
+    let options = $fence
+    | str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
     | compact --empty
-    | each {|option|
-        if $option not-in $fence_options.long {
-            print $'(ansi red)($option) is unknown fence option(ansi reset)'
+
+    # Why: a typo in a fence option is a source-document error. Fail fast naming the
+    # fence, rather than warn-and-run — a mistyped safety tag like `N` must stop, not execute.
+    let unknown = $options | where $it not-in $fence_options.long
+    if ($unknown | is-not-empty) {
+        error make {
+            msg: $"unknown fence option ($unknown | str join ', ') in fence `($fence)`; valid options: ($fence_options.long | str join ', ')"
         }
-        $option
     }
+
+    $options
 }
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
