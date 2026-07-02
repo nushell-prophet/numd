@@ -4,8 +4,12 @@ use std/iter scan
 @example "update readme" {
     numd run README.md
 }
+@example "preview which blocks would execute, without running them" {
+    numd run --dry-run README.md
+}
 export def run [
     file: path # path to a `.md` file containing Nushell code to be executed
+    --dry-run # return blocks that would execute (block_index, infostring, code) without executing anything
     --echo # output resulting markdown to stdout instead of saving to file
     --eval: string # Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
     --ignore-git-check # skip the check for uncommitted changes before overwriting
@@ -14,7 +18,20 @@ export def run [
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
     --use-host-config # load host's env, config, and plugin files (default: run with nu -n for reproducibility)
-]: [nothing -> string nothing -> nothing nothing -> record] {
+]: [nothing -> string nothing -> nothing nothing -> record nothing -> table<block_index: int, infostring: string, code: string>] {
+    # Why: the safety valve lives on `run` itself — an agent about to `numd run` an
+    # arbitrary file discovers the gate in `run --help`, not in a distant command
+    if $dry_run {
+        return (
+            parse-file $file
+            | where action == 'execute'
+            | strip-outputs
+            | insert code { $in.line | skip | drop | str join (char nl) } # skip/drop the fence lines
+            | select block_index row_type code
+            | rename --column { row_type: infostring }
+        )
+    }
+
     let original_md = open -r $file
 
     let intermediate_script_path = $save_intermed_script

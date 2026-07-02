@@ -48,6 +48,7 @@ numd run --help
 # =>
 # => Flags:
 # =>   -h, --help: Display the help message for this command
+# =>   --dry-run: return blocks that would execute (block_index, infostring, code) without executing anything
 # =>   --echo: output resulting markdown to stdout instead of saving to file
 # =>   --eval <string>: Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
 # =>   --ignore-git-check: skip the check for uncommitted changes before overwriting
@@ -64,17 +65,21 @@ numd run --help
 # =>   file <path>: path to a `.md` file containing Nushell code to be executed
 # =>
 # => Input/output types:
-# =>   ╭───┬─────────┬─────────╮
-# =>   │ # │  input  │ output  │
-# =>   ├───┼─────────┼─────────┤
-# =>   │ 0 │ nothing │ string  │
-# =>   │ 1 │ nothing │ nothing │
-# =>   │ 2 │ nothing │ record  │
-# =>   ╰───┴─────────┴─────────╯
+# =>   ╭───┬─────────┬───────────────────────────────────────────────────────────╮
+# =>   │ # │  input  │                          output                           │
+# =>   ├───┼─────────┼───────────────────────────────────────────────────────────┤
+# =>   │ 0 │ nothing │ string                                                    │
+# =>   │ 1 │ nothing │ nothing                                                   │
+# =>   │ 2 │ nothing │ record                                                    │
+# =>   │ 3 │ nothing │ table<block_index: int, infostring: string, code: string> │
+# =>   ╰───┴─────────┴───────────────────────────────────────────────────────────╯
 # =>
 # => Examples:
 # =>   update readme
 # =>   > numd run README.md
+# =>
+# =>   preview which blocks would execute, without running them
+# =>   > numd run --dry-run README.md
 # =>
 ```
 

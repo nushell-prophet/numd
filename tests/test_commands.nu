@@ -590,3 +590,23 @@ def "to-numd-script handles multiple code blocks" [] {
     assert ($result =~ 'let a = 1')
     assert ($result =~ 'echo \$a')
 }
+
+# =============================================================================
+# Tests for run --dry-run
+# =============================================================================
+
+@test
+def "run --dry-run returns would-execute blocks without executing" [] {
+    let md = "# Title\n\n```nushell\n2 + 2\n# => 4\n```\n\n```nu no-run\nrm dangerous.txt\n```"
+
+    let file = mktemp --tmpdir --suffix .md
+    $md | save --force $file
+
+    let result = run --dry-run $file
+
+    rm $file
+
+    assert equal ($result | length) 1
+    assert equal $result.0.infostring '```nushell'
+    assert equal $result.0.code '2 + 2' # fences and `# =>` output lines are stripped
+}

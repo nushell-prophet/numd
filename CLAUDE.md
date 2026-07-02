@@ -15,6 +15,9 @@ use numd; numd run README.md
 # Preview mode (output to stdout, don't save)
 use numd; numd run README.md --echo
 
+# Dry run: return blocks that would execute (block_index, infostring, code), execute nothing
+use numd; numd run README.md --dry-run
+
 # Run tests (executes all example files and reports changes)
 nu toolkit.nu test --json
 
