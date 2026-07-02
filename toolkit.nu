@@ -52,10 +52,10 @@ export def 'main test-unit' [
 
     # Convert to flat table format
     let flat = $results
-    | each {|row|
-        let status = if $row.result == 'PASS' { 'passed' } else { 'failed' }
-        {type: 'unit' name: $row.test status: $status file: null}
-    }
+        | each {|row|
+            let status = if $row.result == 'PASS' { 'passed' } else { 'failed' }
+            {type: 'unit' name: $row.test status: $status file: null}
+        }
 
     if not $json {
         $flat | each {|r| print-test-result $r }
@@ -95,11 +95,11 @@ export def 'main test-integration' [
             run-integration-test $file {
                 # Strip markdown
                 let strip_markdown_path = $file
-                | path parse
-                | get stem
-                | $in + '.nu'
-                | [z_examples 99_strip_markdown $in]
-                | path join
+                    | path parse
+                    | get stem
+                    | $in + '.nu'
+                    | [z_examples 99_strip_markdown $in]
+                    | path join
 
                 numd clear-outputs $file --strip-markdown --echo
                 | save -f $strip_markdown_path
@@ -173,7 +173,7 @@ def print-test-result [result: record] {
 }
 
 # Run an integration test and return unified result format
-def run-integration-test [name: string, command_src: closure] {
+def run-integration-test [name: string command_src: closure] {
     try {
         do $command_src
 
@@ -197,8 +197,8 @@ def update-dotnu-embeds [] {
 }
 
 export def 'main release' [
-    --major (-M)  # Bump major version (X.0.0)
-    --minor (-m)  # Bump minor version (x.Y.0)
+    --major (-M) # Bump major version (X.0.0)
+    --minor (-m) # Bump minor version (x.Y.0)
 ] {
     git checkout main
 
