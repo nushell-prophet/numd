@@ -11,4 +11,4 @@ export use capture.nu [
 
 export use parse-help.nu
 export use parse.nu [ 'parse-frontmatter' 'to md-with-frontmatter' ]
-export use md-parser.nu [parse-md]
+export use md-parser.nu [ parse-md ]

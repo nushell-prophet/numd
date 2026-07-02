@@ -22,10 +22,10 @@ export def classify-line []: string -> record {
         let parsed = $line | parse -r '^```(?<lang>\w+)?(?<options>.*)?$'
         let lang = $parsed | get -o lang.0 | default ''
         let options = $parsed
-        | get -o options.0
-        | default ''
-        | str trim
-        | if $in == '' { [] } else { split row ',' | each { str trim } }
+            | get -o options.0
+            | default ''
+            | str trim
+            | if $in == '' { [] } else { split row ',' | each { str trim } }
 
         return {type: 'fence' lang: $lang options: $options}
     }
@@ -112,9 +112,9 @@ def extract-meta [
             # Detect GitHub-style admonitions like [!NOTE], [!TIP], [!WARNING]
             let first_content = $lines | first | str replace -r '^>\s?' ''
             let admonition = $first_content
-            | parse -r '^\[!(?<type>\w+)\]'
-            | get -o type.0
-            | if $in != null { str downcase } else { null }
+                | parse -r '^\[!(?<type>\w+)\]'
+                | get -o type.0
+                | if $in != null { str downcase } else { null }
 
             {type: $admonition}
         }
@@ -128,92 +128,92 @@ def parse-md-to-blocks []: string -> table {
 
     # Step 1: Classify each line
     let classified = $file_lines
-    | each {|line| {line: $line class: ($line | classify-line)} }
+        | each {|line| {line: $line class: ($line | classify-line)} }
 
     # Step 2: Track frontmatter and code block state
     # Frontmatter is only valid at document start: first line must be ---
     let with_state = $classified
-    | each { $in.class }
-    | scan {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
-        if $class.type == 'fm-delimiter' and $state.fm_possible and not $state.in_code {
-            if $state.in_fm {
-                # Closing frontmatter delimiter
-                {in_fm: false fm_possible: false in_code: false code_info: null}
+        | each { $in.class }
+        | scan {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
+            if $class.type == 'fm-delimiter' and $state.fm_possible and not $state.in_code {
+                if $state.in_fm {
+                    # Closing frontmatter delimiter
+                    {in_fm: false fm_possible: false in_code: false code_info: null}
+                } else {
+                    # Opening frontmatter delimiter (only if first line)
+                    {in_fm: true fm_possible: true in_code: false code_info: null}
+                }
+            } else if $class.type == 'fence' and not $state.in_fm {
+                if $state.in_code {
+                    {in_fm: false fm_possible: false in_code: false code_info: null}
+                } else {
+                    {in_fm: false fm_possible: false in_code: true code_info: $class}
+                }
+            } else if $state.in_fm or $state.in_code {
+                $state
             } else {
-                # Opening frontmatter delimiter (only if first line)
-                {in_fm: true fm_possible: true in_code: false code_info: null}
+                # Any non-frontmatter content disables frontmatter possibility
+                $state | update fm_possible false
             }
-        } else if $class.type == 'fence' and not $state.in_fm {
-            if $state.in_code {
-                {in_fm: false fm_possible: false in_code: false code_info: null}
-            } else {
-                {in_fm: false fm_possible: false in_code: true code_info: $class}
-            }
-        } else if $state.in_fm or $state.in_code {
-            $state
-        } else {
-            # Any non-frontmatter content disables frontmatter possibility
-            $state | update fm_possible false
         }
-    }
 
     # Step 3: Override classification for lines inside frontmatter/code blocks
     let classified_with_context = $classified
-    | zip $with_state
-    | each {|pair|
-        let item = $pair.0
-        let state = $pair.1
-        if $state.in_fm and $item.class.type != 'fm-delimiter' {
-            $item | update class {type: 'fm-content'}
-        } else if $item.class.type == 'fm-delimiter' and $state.in_fm {
-            $item | update class {type: 'fm-close'}
-        } else if $item.class.type == 'fm-delimiter' and not $state.in_fm and $state.fm_possible {
-            $item | update class {type: 'fm-open'}
-        } else if $state.in_code and $item.class.type != 'fence' {
-            $item | update class {type: 'code-content' code_info: $state.code_info}
-        } else if $item.class.type == 'fence' and not $state.in_code {
-            # This is an opening fence
-            $item | update class {type: 'fence-open' lang: $item.class.lang options: $item.class.options}
-        } else if $item.class.type == 'fence' and $state.in_code {
-            # This is a closing fence (state was just toggled to false)
-            $item | update class {type: 'fence-close'}
-        } else {
-            $item
+        | zip $with_state
+        | each {|pair|
+            let item = $pair.0
+            let state = $pair.1
+            if $state.in_fm and $item.class.type != 'fm-delimiter' {
+                $item | update class {type: 'fm-content'}
+            } else if $item.class.type == 'fm-delimiter' and $state.in_fm {
+                $item | update class {type: 'fm-close'}
+            } else if $item.class.type == 'fm-delimiter' and not $state.in_fm and $state.fm_possible {
+                $item | update class {type: 'fm-open'}
+            } else if $state.in_code and $item.class.type != 'fence' {
+                $item | update class {type: 'code-content' code_info: $state.code_info}
+            } else if $item.class.type == 'fence' and not $state.in_code {
+                # This is an opening fence
+                $item | update class {type: 'fence-open' lang: $item.class.lang options: $item.class.options}
+            } else if $item.class.type == 'fence' and $state.in_code {
+                # This is a closing fence (state was just toggled to false)
+                $item | update class {type: 'fence-close'}
+            } else {
+                $item
+            }
         }
-    }
 
     # Step 4: Compute block indices
     let types = $classified_with_context | each { $in.class.type }
     let block_indices = $types
-    | window --remainder 2
-    | scan 0 {|window index|
-        let curr = $window.0
-        let next = $window.1?
+        | window --remainder 2
+        | scan 0 {|window index|
+            let curr = $window.0
+            let next = $window.1?
 
-        # Increment block index on element transitions
-        if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
-            $index + 1
-        } else if $curr in ['fence-open' 'fm-open'] {
-            # Code block or frontmatter starts
-            $index + 1
-        } else if $curr == 'empty' {
-            # Empty lines separate blocks but aren't blocks themselves
-            $index
-        } else if $curr != $next and $next != null and $next != 'empty' {
-            # Transition between different element types
-            $index + 1
-        } else if $next == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content' 'fm-content' 'fm-close'] {
-            # After empty line, new block starts (except for code content)
-            $index + 1
-        } else {
-            $index
+            # Increment block index on element transitions
+            if $curr in ['h1' 'h2' 'h3' 'h4' 'h5' 'h6'] {
+                $index + 1
+            } else if $curr in ['fence-open' 'fm-open'] {
+                # Code block or frontmatter starts
+                $index + 1
+            } else if $curr == 'empty' {
+                # Empty lines separate blocks but aren't blocks themselves
+                $index
+            } else if $curr != $next and $next != null and $next != 'empty' {
+                # Transition between different element types
+                $index + 1
+            } else if $next == 'empty' and $curr not-in ['empty' 'fence-close' 'code-content' 'fm-content' 'fm-close'] {
+                # After empty line, new block starts (except for code content)
+                $index + 1
+            } else {
+                $index
+            }
         }
-    }
 
     # Step 5: Merge block indices with classified lines
     let indexed = $classified_with_context
-    | zip $block_indices
-    | each {|pair| $pair.0 | insert block_index $pair.1 }
+        | zip $block_indices
+        | each {|pair| $pair.0 | insert block_index $pair.1 }
 
     # Step 6: Group by block index and build output
     $indexed

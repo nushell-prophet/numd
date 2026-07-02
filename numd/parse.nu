@@ -3,9 +3,9 @@ export def 'parse-frontmatter' [
     file?: path # path to a markdow file. Might be ommited if markdown content is piped in
 ]: [string -> record nothing -> record] {
     let input = if $file == null { } else { open $file }
-    | if $in != null { } else {
-        error make {msg: 'no path or content of file were provided'}
-    }
+        | if $in != null { } else {
+            error make {msg: 'no path or content of file were provided'}
+        }
 
     let list = $input | split row "---\n" --number 3
 

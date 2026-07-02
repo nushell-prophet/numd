@@ -28,17 +28,17 @@ export def run [
             | strip-outputs
             | insert code { $in.line | skip | drop | str join (char nl) } # skip/drop the fence lines
             | select block_index row_type code
-            | rename --column { row_type: infostring }
+            | rename --column {row_type: infostring}
         )
     }
 
     let original_md = open -r $file
 
     let intermediate_script_path = $save_intermed_script
-    | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
+        | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
 
     let result = parse-file $file
-    | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
+        | execute-blocks --eval $eval --no-fail-on-error=$no_fail_on_error --print-block-results=$print_block_results --save-intermed-script $intermediate_script_path --use-host-config=$use_host_config
 
     # if $save_intermed_script param wasn't set - remove the temporary intermediate script
     if $save_intermed_script == null { rm $intermediate_script_path }
@@ -121,9 +121,9 @@ export def execute-blocks [
     }
 
     let results = $execution_output
-    | str replace -ar "\n{2,}```\n" "\n```\n"
-    | lines
-    | extract-block-index
+        | str replace -ar "\n{2,}```\n" "\n```\n"
+        | lines
+        | extract-block-index
 
     # Update original table with execution results
     let result_indices = $results | get block_index
@@ -179,26 +179,26 @@ export def to-markdown []: table -> string {
 export def parse-markdown-to-blocks []: string -> table<block_index: int, row_type: string, line: list<string>, action: string> {
     let file_lines = $in | lines
     let row_type = $file_lines
-    | each {
-        str trim --right
-        | if $in =~ '^```' { } else { 'text' }
-    }
-    | scan --noinit 'text' {|curr_fence prev_fence|
-        match $curr_fence {
-            'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
-            '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
-            _ => { $curr_fence }
+        | each {
+            str trim --right
+            | if $in =~ '^```' { } else { 'text' }
         }
-    }
-    | scan --noinit 'text' {|curr_fence prev_fence|
-        if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
-    }
+        | scan --noinit 'text' {|curr_fence prev_fence|
+            match $curr_fence {
+                'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
+                '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
+                _ => { $curr_fence }
+            }
+        }
+        | scan --noinit 'text' {|curr_fence prev_fence|
+            if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
+        }
 
     let block_index = $row_type
-    | window --remainder 2
-    | scan 0 {|window index|
-        if $window.0 == $window.1? { $index } else { $index + 1 }
-    }
+        | window --remainder 2
+        | scan 0 {|window index|
+            if $window.0 == $window.1? { $index } else { $index + 1 }
+        }
 
     # Wrap lists into columns because the `window` command was used previously
     $file_lines | wrap line
@@ -252,14 +252,14 @@ export def generate-block-execution [
     let highlighted_command = $code_content | generate-highlight-print
 
     let code_execution = $code_content
-    | trim-trailing-comments
-    | if 'try' in $fence_options {
-        wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
-    } else { }
-    | format-command-output $fence_options
-    | $in + (char nl)
-    # Always print a blank line after each command group to preserve visual separation
-    | $in + "print ''"
+        | trim-trailing-comments
+        | if 'try' in $fence_options {
+            wrap-in-try-catch --new-instance=('new-instance' in $fence_options)
+        } else { }
+        | format-command-output $fence_options
+        | $in + (char nl)
+        # Always print a blank line after each command group to preserve visual separation
+        | $in + "print ''"
 
     $highlighted_command + $code_execution
 }
@@ -327,17 +327,17 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
     let clean_lines = skip until { $in =~ (code-block-marker) }
 
     let block_index = $clean_lines
-    | each {
-        if $in =~ $"^(code-block-marker)\\d+$" {
-            split row '-' | last | into int
-        } else {
-            -1
+        | each {
+            if $in =~ $"^(code-block-marker)\\d+$" {
+                split row '-' | last | into int
+            } else {
+                -1
+            }
         }
-    }
-    | scan --noinit 0 {|curr_index prev_index|
-        if $curr_index == -1 { $prev_index } else { $curr_index }
-    }
-    | wrap block_index
+        | scan --noinit 0 {|curr_index prev_index|
+            if $curr_index == -1 { $prev_index } else { $curr_index }
+        }
+        | wrap block_index
 
     $clean_lines
     | wrap 'nu_out'
@@ -402,11 +402,11 @@ export def compute-change-stats [
     let new_file_content = $new_file | ansi strip
 
     let nushell_blocks = $new_file_content
-    | parse-markdown-to-blocks
-    | where action == 'execute'
-    | get block_index
-    | uniq
-    | length
+        | parse-markdown-to-blocks
+        | where action == 'execute'
+        | get block_index
+        | uniq
+        | length
 
     $new_file_content | str stats | transpose metric new
     | merge ($original_file_content | str stats | transpose metric old)
@@ -545,20 +545,20 @@ export def get-last-span [
 ]: nothing -> string {
     let trimmed = $command | str trim
     let spans = ast $trimmed --json
-    | get block
-    | from json
-    | to yaml
-    | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
-    | rename start end
-    | into int start end
+        | get block
+        | from json
+        | to yaml
+        | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
+        | rename start end
+        | into int start end
 
     #  I just brute-forced AST filter parameters in nu 0.97, as `ast` awaits a better replacement or improvement.
     let last_span_end = $spans.end | math max
     let longest_last_span_start = $spans
-    | where end == $last_span_end
-    | get start
-    | if ($in | length) == 1 { } else { sort | skip }
-    | first
+        | where end == $last_span_end
+        | get start
+        | if ($in | length) == 1 { } else { sort | skip }
+        | first
 
     let offset = $longest_last_span_start - $last_span_end
 
@@ -654,10 +654,10 @@ export def extract-fence-options []: string -> list<string> {
     let fence = $in
 
     let options = $fence
-    | str replace -r '```nu(shell)?\s*' ''
-    | split row ','
-    | str trim
-    | compact --empty
+        | str replace -r '```nu(shell)?\s*' ''
+        | split row ','
+        | str trim
+        | compact --empty
 
     # Why: a typo in a fence option is a source-document error. Fail fast naming the
     # fence, rather than warn-and-run — a mistyped safety tag like `N` must stop, not execute.

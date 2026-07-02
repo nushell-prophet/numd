@@ -4,13 +4,13 @@ export def main [
     --record # return result as a record instead of formatted string
 ]: string -> any {
     let help_lines = split row '======================'
-    | first # quick fix for https://github.com/nushell/nushell/issues/13470
-    | ansi strip
-    | str replace --all 'Search terms:' "Search terms:\n"
-    | str replace --all ':  (optional)' ' (optional)'
-    | lines
-    | str trim
-    | if ($in.0 != 'Usage:') { prepend 'Description:' } else { }
+        | first # quick fix for https://github.com/nushell/nushell/issues/13470
+        | ansi strip
+        | str replace --all 'Search terms:' "Search terms:\n"
+        | str replace --all ':  (optional)' ' (optional)'
+        | lines
+        | str trim
+        | if ($in.0 != 'Usage:') { prepend 'Description:' } else { }
 
     let regex = [
         Description
@@ -22,18 +22,18 @@ export def main [
         "Input/output types"
         Examples
     ]
-    | str join '|'
-    | '^(' + $in + '):'
+        | str join '|'
+        | '^(' + $in + '):'
 
     let existing_sections = $help_lines
-    | where $it =~ $regex
-    | str trim --right --char ':'
-    | wrap chapter
+        | where $it =~ $regex
+        | str trim --right --char ':'
+        | wrap chapter
 
     let elements = $help_lines
-    | split list -r $regex
-    | skip
-    | wrap elements
+        | split list -r $regex
+        | skip
+        | wrap elements
 
     $existing_sections
     | merge $elements

@@ -79,18 +79,18 @@ export def 'code' [
     --comment: string = '' # add comment to the code
 ] {
     let $comment = $comment
-    | if $in != '' {
-        lines
-        | compact --empty
-        | str replace -r '^#? ?' '# '
-        | $"($in)\n"
-    } else { '' }
+        | if $in != '' {
+            lines
+            | compact --empty
+            | str replace -r '^#? ?' '# '
+            | $"($in)\n"
+        } else { '' }
 
     let $code = $code_block
-    | if $inline {
-        str replace -r '^(> )?' '> '
-    } else { }
-    | $'($comment)($in)'
+        | if $inline {
+            str replace -r '^(> )?' '> '
+        } else { }
+        | $'($comment)($in)'
 
     let $code_fence_with_options = [
         (if $indent_output { 'indent-output' })
@@ -99,9 +99,9 @@ export def 'code' [
         (if $try { 'try' })
         (if $new_instance { 'new-instance' })
     ]
-    | compact
-    | if $in == [] { } else { sort | str join ',' | $' ($in)' }
-    | $'```nushell($in)'
+        | compact
+        | if $in == [] { } else { sort | str join ',' | $' ($in)' }
+        | $'```nushell($in)'
 
     [
         $code_fence_with_options
