@@ -129,14 +129,6 @@ def "extract-fence-options parses multiple options" [] {
 }
 
 @test
-def "extract-fence-options expands short options" [] {
-    let result = "```nu t, O" | extract-fence-options
-
-    assert ("try" in $result)
-    assert ("no-output" in $result)
-}
-
-@test
 def "extract-fence-options parses run-once" [] {
     let result = "```nu run-once" | extract-fence-options
 
@@ -157,36 +149,6 @@ def "extract-fence-options handles empty options" [] {
     let result = "```nushell" | extract-fence-options
 
     assert equal ($result | length) 0
-}
-
-# =============================================================================
-# Tests for convert-short-options
-# =============================================================================
-
-@test
-def "convert-short-options expands O" [] {
-    assert equal (convert-short-options "O") "no-output"
-}
-
-@test
-def "convert-short-options expands N" [] {
-    assert equal (convert-short-options "N") "no-run"
-}
-
-@test
-def "convert-short-options expands t" [] {
-    assert equal (convert-short-options "t") "try"
-}
-
-@test
-def "convert-short-options expands n" [] {
-    assert equal (convert-short-options "n") "new-instance"
-}
-
-@test
-def "convert-short-options keeps long options unchanged" [] {
-    assert equal (convert-short-options "no-output") "no-output"
-    assert equal (convert-short-options "try") "try"
 }
 
 # =============================================================================

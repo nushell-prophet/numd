@@ -89,16 +89,16 @@ numd run --help
 
 ```nushell
 numd list-fence-options
-# => ╭───┬────────────────┬───────┬──────────────────────────────────────────────────────────────────╮
-# => │ # │      long      │ short │                           description                            │
-# => ├───┼────────────────┼───────┼──────────────────────────────────────────────────────────────────┤
-# => │ 0 │ no-output      │ O     │ execute code without outputting results                          │
-# => │ 1 │ no-run         │ N     │ do not execute code in block                                     │
-# => │ 2 │ try            │ t     │ execute block inside `try {}` for error handling                 │
-# => │ 3 │ new-instance   │ n     │ execute block in new Nushell instance (useful with `try` block)  │
-# => │ 4 │ separate-block │ s     │ output results in a separate code block instead of inline `# =>` │
-# => │ 5 │ run-once       │       │ execute code block once, then set to no-run                      │
-# => ╰───┴────────────────┴───────┴──────────────────────────────────────────────────────────────────╯
+# => ╭───┬────────────────┬──────────────────────────────────────────────────────────────────╮
+# => │ # │      long      │                           description                            │
+# => ├───┼────────────────┼──────────────────────────────────────────────────────────────────┤
+# => │ 0 │ no-output      │ execute code without outputting results                          │
+# => │ 1 │ no-run         │ do not execute code in block                                     │
+# => │ 2 │ try            │ execute block inside `try {}` for error handling                 │
+# => │ 3 │ new-instance   │ execute block in new Nushell instance (useful with `try` block)  │
+# => │ 4 │ separate-block │ output results in a separate code block instead of inline `# =>` │
+# => │ 5 │ run-once       │ execute code block once, then set to no-run                      │
+# => ╰───┴────────────────┴──────────────────────────────────────────────────────────────────╯
 ```
 
 ### Stats of changes

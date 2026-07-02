@@ -430,38 +430,21 @@ export def compute-change-stats [
     | select filename nushell_blocks levenshtein_dist diff_lines diff_words diff_chars
 }
 
-# Fence options data: short form, long form, description
+# Fence options data: long form, description
 const fence_options = [
-    [short long description];
+    [long description];
 
-    [O no-output "execute code without outputting results"]
-    [N no-run "do not execute code in block"]
-    [t try "execute block inside `try {}` for error handling"]
-    [n new-instance "execute block in new Nushell instance (useful with `try` block)"]
-    [s separate-block "output results in a separate code block instead of inline `# =>`"]
-    ['' run-once "execute code block once, then set to no-run"]
+    [no-output "execute code without outputting results"]
+    [no-run "do not execute code in block"]
+    [try "execute block inside `try {}` for error handling"]
+    [new-instance "execute block in new Nushell instance (useful with `try` block)"]
+    [separate-block "output results in a separate code block instead of inline `# =>`"]
+    [run-once "execute code block once, then set to no-run"]
 ]
 
 # List fence options for execution and output customization.
 export def list-fence-options []: nothing -> table {
-    $fence_options | select long short description
-}
-
-# Expand short options for code block execution to their long forms.
-@example "expand short option to long form" {
-    convert-short-options 'O'
-} --result "no-output"
-export def convert-short-options [
-    option: string
-]: nothing -> string {
-    let options_dict = $fence_options | select short long | transpose -r -d
-    let result = $options_dict | get -o $option | default $option
-
-    if $result not-in ($options_dict | values) {
-        print $'(ansi red)($result) is unknown option(ansi reset)'
-    }
-
-    $result
+    $fence_options
 }
 
 # Escape symbols to be printed unchanged inside a `print "something"` statement.
@@ -666,13 +649,18 @@ export def generate-block-markers [
 }
 
 # Parse options from a code fence and return them as a list.
-@example "parse fence options with short forms" { '```nu no-run, t' | extract-fence-options } --result [no-run try]
+@example "parse fence options" { '```nu no-run, try' | extract-fence-options } --result [no-run try]
 export def extract-fence-options []: string -> list<string> {
     str replace -r '```nu(shell)?\s*' ''
     | split row ','
     | str trim
     | compact --empty
-    | each { convert-short-options $in }
+    | each {|option|
+        if $option not-in $fence_options.long {
+            print $'(ansi red)($option) is unknown fence option(ansi reset)'
+        }
+        $option
+    }
 }
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.

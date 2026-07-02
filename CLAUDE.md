@@ -80,11 +80,11 @@ The high-level commands use these internally:
 ### Fence Options
 
 Blocks support fence options (e.g., ` ```nushell try, no-output `):
-- `no-run` / `N`: Skip execution
-- `no-output` / `O`: Execute but hide output
-- `try` / `t`: Wrap in try-catch
-- `new-instance` / `n`: Execute in separate Nushell instance
-- `separate-block` / `s`: Output results in separate code block instead of inline `# =>`
+- `no-run`: Skip execution
+- `no-output`: Execute but hide output
+- `try`: Wrap in try-catch
+- `new-instance`: Execute in separate Nushell instance
+- `separate-block`: Output results in separate code block instead of inline `# =>`
 - `run-once`: Execute code block once, then set to `no-run`
 
 ### Output Format Conventions
