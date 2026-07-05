@@ -89,16 +89,14 @@ numd run --help
 
 ```nushell
 numd list-fence-options
-# => ╭───┬────────────────┬──────────────────────────────────────────────────────────────────╮
-# => │ # │      long      │                           description                            │
-# => ├───┼────────────────┼──────────────────────────────────────────────────────────────────┤
-# => │ 0 │ no-output      │ execute code without outputting results                          │
-# => │ 1 │ no-run         │ do not execute code in block                                     │
-# => │ 2 │ try            │ execute block inside `try {}` for error handling                 │
-# => │ 3 │ new-instance   │ execute block in new Nushell instance (useful with `try` block)  │
-# => │ 4 │ separate-block │ output results in a separate code block instead of inline `# =>` │
-# => │ 5 │ run-once       │ execute code block once, then set to no-run                      │
-# => ╰───┴────────────────┴──────────────────────────────────────────────────────────────────╯
+# => ╭──────long──────┬───────────────────────────description────────────────────────────╮
+# => │ no-output      │ execute code without outputting results                          │
+# => │ no-run         │ do not execute code in block                                     │
+# => │ try            │ execute block inside `try {}` for error handling                 │
+# => │ new-instance   │ execute block in new Nushell instance (useful with `try` block)  │
+# => │ separate-block │ output results in a separate code block instead of inline `# =>` │
+# => │ run-once       │ execute code block once, then set to no-run                      │
+# => ╰──────long──────┴───────────────────────────description────────────────────────────╯
 ```
 
 ### Stats of changes
@@ -112,10 +110,10 @@ numd run $path --ignore-git-check
 # => ╭──────────────────┬───────────────────────────────────╮
 # => │ filename         │ simple_markdown_with_no_output.md │
 # => │ nushell_blocks   │ 3                                 │
-# => │ levenshtein_dist │ 4                                 │
-# => │ diff_lines       │ 0%                                │
-# => │ diff_words       │ 0%                                │
-# => │ diff_chars       │ +1 (0.2%)                         │
+# => │ levenshtein_dist │ 53                                │
+# => │ diff_lines       │ +8 (25.8%)                        │
+# => │ diff_words       │ +6 (8.5%)                         │
+# => │ diff_chars       │ +53 (11.8%)                       │
 # => ╰──────────────────┴───────────────────────────────────╯
 ```
 
@@ -263,22 +261,20 @@ numd parse-md --help
 
 ```nushell
 ls z_examples | sort-by name | reject modified size
-# => ╭────┬─────────────────────────────────────────┬──────╮
-# => │  # │                  name                   │ type │
-# => ├────┼─────────────────────────────────────────┼──────┤
-# => │  0 │ z_examples/1_simple_markdown            │ dir  │
-# => │  1 │ z_examples/2_numd_commands_explanations │ dir  │
-# => │  2 │ z_examples/4_book_working_with_lists    │ dir  │
-# => │  3 │ z_examples/5_simple_nu_table            │ dir  │
-# => │  4 │ z_examples/6_edge_cases                 │ dir  │
-# => │  5 │ z_examples/7_image_output               │ dir  │
-# => │  6 │ z_examples/8_parse_frontmatter          │ dir  │
-# => │  7 │ z_examples/999_numd_internals           │ dir  │
-# => │  8 │ z_examples/99_strip_markdown            │ dir  │
-# => │  9 │ z_examples/9_other                      │ dir  │
-# => │ 10 │ z_examples/numd_config_example1.nu      │ file │
-# => │ 11 │ z_examples/numd_config_example2.nu      │ file │
-# => ╰────┴─────────────────────────────────────────┴──────╯
+# => ╭──────────────────name───────────────────┬─type─╮
+# => │ z_examples/1_simple_markdown            │ dir  │
+# => │ z_examples/2_numd_commands_explanations │ dir  │
+# => │ z_examples/4_book_working_with_lists    │ dir  │
+# => │ z_examples/5_simple_nu_table            │ dir  │
+# => │ z_examples/6_edge_cases                 │ dir  │
+# => │ z_examples/7_image_output               │ dir  │
+# => │ z_examples/8_parse_frontmatter          │ dir  │
+# => │ z_examples/999_numd_internals           │ dir  │
+# => │ z_examples/99_strip_markdown            │ dir  │
+# => │ z_examples/9_other                      │ dir  │
+# => │ z_examples/numd_config_example1.nu      │ file │
+# => │ z_examples/numd_config_example2.nu      │ file │
+# => ╰──────────────────name───────────────────┴─type─╯
 
 'hello world' | str length
 # => 11
