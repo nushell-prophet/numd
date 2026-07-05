@@ -183,20 +183,23 @@ export def parse-markdown-to-blocks []: string -> table<block_index: int, row_ty
             str trim --right
             | if $in =~ '^```' { } else { 'text' }
         }
-        | scan --noinit 'text' {|curr_fence prev_fence|
+        | scan --fold 'text' {|curr_fence prev_fence|
             match $curr_fence {
                 'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
                 '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
                 _ => { $curr_fence }
             }
         }
-        | scan --noinit 'text' {|curr_fence prev_fence|
+        # Why: 0.114 scan dropped --noinit; --fold now emits the seed as row 0, so skip it
+        | skip 1
+        | scan --fold 'text' {|curr_fence prev_fence|
             if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
         }
+        | skip 1
 
     let block_index = $row_type
         | window --remainder 2
-        | scan 0 {|window index|
+        | scan --fold 0 {|window index|
             if $window.0 == $window.1? { $index } else { $index + 1 }
         }
 
@@ -334,9 +337,10 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
                 -1
             }
         }
-        | scan --noinit 0 {|curr_index prev_index|
+        | scan --fold 0 {|curr_index prev_index|
             if $curr_index == -1 { $prev_index } else { $curr_index }
         }
+        | skip 1  # drop the --fold seed row (0.114 scan change)
         | wrap block_index
 
     $clean_lines

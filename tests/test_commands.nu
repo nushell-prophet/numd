@@ -1,8 +1,10 @@
-use std assert
+use std/assert
 use std/testing *
 
 # Import all functions from commands.nu (including internals not re-exported via mod.nu)
 use ../numd/commands.nu *
+# Why: 0.114 added a builtin `run` (parser keyword) that shadows a bare `run`; call numd's namespaced
+use ../numd/commands.nu
 
 # =============================================================================
 # Tests for parse-markdown-to-blocks
@@ -564,13 +566,13 @@ def "to-numd-script handles multiple code blocks" [] {
 # =============================================================================
 
 @test
-def "run --dry-run returns would-execute blocks without executing" [] {
+def "dry-run returns would-execute blocks without executing" [] {
     let md = "# Title\n\n```nushell\n2 + 2\n# => 4\n```\n\n```nu no-run\nrm dangerous.txt\n```"
 
     let file = mktemp --tmpdir --suffix .md
     $md | save --force $file
 
-    let result = run --dry-run $file
+    let result = commands run --dry-run $file
 
     rm $file
 

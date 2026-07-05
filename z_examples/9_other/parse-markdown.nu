@@ -17,7 +17,7 @@ open nushell_readme.md
     | get 0?
 }
 | flatten
-| scan {in_code: false} {|line state|
+| scan --fold {in_code: false} {|line state|
     let new_state = if ($line.code? != null) {
         {in_code: (not $state.in_code)}
     } else {

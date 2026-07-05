@@ -114,7 +114,7 @@ def extract-meta [
             let admonition = $first_content
                 | parse -r '^\[!(?<type>\w+)\]'
                 | get -o type.0
-                | if $in != null { str downcase } else { null }
+                | if $in != null { str lowercase } else { null }
 
             {type: $admonition}
         }
@@ -134,7 +134,7 @@ def parse-md-to-blocks []: string -> table {
     # Frontmatter is only valid at document start: first line must be ---
     let with_state = $classified
         | each { $in.class }
-        | scan {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
+        | scan --fold {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
             if $class.type == 'fm-delimiter' and $state.fm_possible and not $state.in_code {
                 if $state.in_fm {
                     # Closing frontmatter delimiter
@@ -186,7 +186,7 @@ def parse-md-to-blocks []: string -> table {
     let types = $classified_with_context | each { $in.class.type }
     let block_indices = $types
         | window --remainder 2
-        | scan 0 {|window index|
+        | scan --fold 0 {|window index|
             let curr = $window.0
             let next = $window.1?
 

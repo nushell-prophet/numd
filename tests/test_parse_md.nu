@@ -1,4 +1,4 @@
-use std assert
+use std/assert
 use std/testing *
 
 # Import all functions from md-parser.nu (including internals)

@@ -15,7 +15,7 @@
 let mybool = 2 > 1
 $mybool
 
-let mybool = ($nu.home-path | path exists)
+let mybool = ($nu.home-dir | path exists)
 $mybool
 
 
