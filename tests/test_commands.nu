@@ -580,3 +580,111 @@ def "dry-run returns would-execute blocks without executing" [] {
     assert equal $result.0.infostring '```nushell'
     assert equal $result.0.code '2 + 2' # fences and `# =>` output lines are stripped
 }
+
+# =============================================================================
+# Tests for generate-regions
+# =============================================================================
+
+@test
+def "parse-markdown-to-blocks detects short region marker" [] {
+    let result = "text\n\n<!-- numd-gen: ls -->\n\nmore text" | parse-markdown-to-blocks
+
+    let regions = $result | where action == 'execute'
+    assert equal ($regions | length) 1
+    assert equal $regions.0.row_type '<!-- numd-gen: ls -->'
+    assert equal $regions.0.line ['<!-- numd-gen: ls -->']
+}
+
+@test
+def "parse-markdown-to-blocks treats region as opaque" [] {
+    let md = "<!-- numd-gen-start: ls -->\n```nu\n'this fence is content, not code'\n```\n<!-- numd-gen-end -->"
+    let result = $md | parse-markdown-to-blocks
+
+    assert equal ($result | length) 1
+    assert equal $result.0.action 'execute'
+    assert equal $result.0.row_type '<!-- numd-gen-start: ls -->'
+}
+
+@test
+def "parse-markdown-to-blocks ignores region markers inside fences" [] {
+    let result = "```markdown\n<!-- numd-gen: ls -->\n```" | parse-markdown-to-blocks
+
+    assert equal ($result | where action == 'execute' | length) 0
+}
+
+@test
+def "parse-markdown-to-blocks errors on orphan region end marker" [] {
+    let outcome = try { "<!-- numd-gen-end -->" | parse-markdown-to-blocks; 'no-error' } catch { 'error' }
+
+    assert equal $outcome 'error'
+}
+
+@test
+def "parse-markdown-to-blocks errors on unclosed region" [] {
+    let outcome = try { "<!-- numd-gen-start: ls -->\nstale content" | parse-markdown-to-blocks; 'no-error' } catch { 'error' }
+
+    assert equal $outcome 'error'
+}
+
+@test
+def "extract-region-code handles both marker forms" [] {
+    assert equal ('<!-- numd-gen: scope commands | to md -->' | extract-region-code) 'scope commands | to md'
+    assert equal ('<!-- numd-gen-start: ls -->' | extract-region-code) 'ls'
+}
+
+@test
+def "strip-outputs collapses region to its marker pair" [] {
+    let result = "<!-- numd-gen-start: ls -->\ncontent line\nanother line\n<!-- numd-gen-end -->"
+        | parse-markdown-to-blocks
+        | strip-outputs
+
+    assert equal $result.0.line ['<!-- numd-gen-start: ls -->' '<!-- numd-gen-end -->']
+}
+
+@test
+def "strip-outputs keep-generated keeps region content" [] {
+    let result = "<!-- numd-gen-start: ls -->\ncontent line\n<!-- numd-gen-end -->"
+        | parse-markdown-to-blocks
+        | strip-outputs --keep-generated
+
+    assert equal ($result.0.line | length) 3
+}
+
+@test
+def "strip-outputs keep-outputs keeps inline output lines" [] {
+    let result = "```nu\nls\n# => output\n```"
+        | parse-markdown-to-blocks
+        | strip-outputs --keep-outputs
+
+    assert equal ($result.0.line | length) 4
+}
+
+@test
+def "dry-run returns region payload as code" [] {
+    let md = "<!-- numd-gen: [[a]; [1]] | to md -->"
+
+    let file = mktemp --tmpdir --suffix .md
+    $md | save --force $file
+
+    let result = commands run --dry-run $file
+
+    rm $file
+
+    assert equal ($result | length) 1
+    assert equal $result.0.code '[[a]; [1]] | to md'
+}
+
+@test
+def "region content from a string stream keeps the end marker on its own line" [] {
+    # `str join` returns a string stream, which `print` outputs without a trailing newline
+    let md = "<!-- numd-gen: [a b] | str join (char nl) -->"
+
+    let file = mktemp --tmpdir --suffix .md
+    $md | save --force $file
+
+    let result = commands run $file --echo --no-stats
+
+    rm $file
+
+    assert ($result =~ "b\n<!-- numd-gen-end -->")
+}

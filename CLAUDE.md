@@ -36,6 +36,7 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 - **plumbing.nu**: Low-level pipeline commands for advanced usage/scripting
 - **commands.nu**: Core implementation containing all command logic
 - **capture.nu**: `capture start/stop` commands for interactive session recording
+- **doc.nu**: `doc` command rendering markdown docs for a module or command from `scope` data
 - **parse-help.nu**: `parse-help` command for formatting --help output
 - **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
 - **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
@@ -132,6 +133,20 @@ Some files legitimately differ on each run due to:
 - **Nushell version changes**: Error message formatting, table rendering differences
 
 A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests.
+
+## Worktrees
+
+Unit tests load nutest from the sibling repo via `use ../nutest/nutest` (see `toolkit.nu`). Claude's `--worktree` puts worktrees under `.claude/worktrees/<name>/`, three levels below the repo root, so from inside a worktree `../nutest` resolves to `.claude/worktrees/nutest` — which is empty. `nu toolkit.nu test-unit` then fails at parse time with "module not found".
+
+Fix it once with a single symlink at that spot, pointing back to the real sibling. Every worktree resolves `../nutest` to the same path, so one symlink serves all current and future worktrees:
+
+```nushell
+ln -sfn ../../../nutest .claude/worktrees/nutest
+```
+
+`.claude/` is gitignored, so the symlink is never committed and never follows a worktree branch. Integration tests (`test-integration`) don't need it — they run numd on the example files and have no nutest dependency.
+
+This one symlink covers worktrees placed directly under `.claude/worktrees/`, which is the normal single-segment name (`--worktree bugfix`). A name with a slash nests the worktree deeper and escapes the symlink, so keep worktree names flat.
 
 ## Configuration
 

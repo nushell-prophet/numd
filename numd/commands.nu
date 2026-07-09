@@ -1,5 +1,14 @@
 use std/iter scan
 
+# Generate-region markers. Short form `<!-- numd-gen: <cmd> -->` is hand-written; on run it
+# expands to the tool-owned pair `<!-- numd-gen-start: <cmd> -->` … `<!-- numd-gen-end -->`,
+# and the content between the pair is replaced with the command's stdout on every run.
+const region_short_regex = '^<!--\s*numd-gen:.*-->$'
+const region_start_regex = '^<!--\s*numd-gen-start:.*-->$'
+const region_end_regex = '^<!--\s*numd-gen-end\s*-->$'
+const region_any_regex = '^<!--\s*numd-gen'
+const region_end_marker = '<!-- numd-gen-end -->'
+
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
 @example "update readme" {
     numd run README.md
@@ -26,7 +35,13 @@ export def run [
             parse-file $file
             | where action == 'execute'
             | strip-outputs
-            | insert code { $in.line | skip | drop | str join (char nl) } # skip/drop the fence lines
+            | insert code {|i|
+                if $i.row_type =~ $region_any_regex {
+                    $i.row_type | extract-region-code
+                } else {
+                    $i.line | skip | drop | str join (char nl) # skip/drop the fence lines
+                }
+            }
             | select block_index row_type code
             | rename --column {row_type: infostring}
         )
@@ -72,9 +87,11 @@ export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --echo # output resulting markdown to stdout instead of writing to file
     --strip-markdown # keep only Nushell script, strip all markdown tags
+    --keep-outputs # keep inline `# =>` output lines
+    --keep-generated # keep generate-region content
 ]: [nothing -> string nothing -> nothing] {
     parse-file $file
-    | strip-outputs
+    | strip-outputs --keep-outputs=$keep_outputs --keep-generated=$keep_generated
     | if $strip_markdown {
         to-numd-script
     } else {
@@ -89,11 +106,15 @@ export def clear-outputs [
 export def to-numd-script []: table -> string {
     where action == 'execute'
     | each {
-        $in.line
-        | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
-        | drop # remove closing fence
-        | str join (char nl)
-        | str replace -r '\s*$' (char nl)
+        if $in.row_type =~ $region_any_regex {
+            $'(char nl)    # ($in.row_type)(char nl)($in.row_type | extract-region-code)(char nl)'
+        } else {
+            $in.line
+            | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
+            | drop # remove closing fence
+            | str join (char nl)
+            | str replace -r '\s*$' (char nl)
+        }
     }
     | str join (char nl)
 }
@@ -151,13 +172,25 @@ export def parse-file [
     | parse-markdown-to-blocks
 }
 
-# Strip numd output lines (# =>) from code blocks
-export def strip-outputs []: table -> table {
+# Strip numd output lines (# =>) and generate-region content from code blocks
+export def strip-outputs [
+    --keep-outputs # keep inline `# =>` output lines
+    --keep-generated # keep generate-region content
+]: table -> table {
     update line {|block|
-        if $block.action == 'execute' {
-            $block.line | where $it !~ '^# => ?'
-        } else {
+        if $block.action != 'execute' {
             $block.line
+        } else if $block.row_type =~ $region_any_regex {
+            # collapse the region to its marker pair (a short marker is a single line already)
+            if $keep_generated or ($block.line | length) == 1 {
+                $block.line
+            } else {
+                [($block.line | first) ($block.line | last)]
+            }
+        } else if $keep_outputs {
+            $block.line
+        } else {
+            $block.line | where $it !~ '^# => ?'
         }
     }
 }
@@ -180,22 +213,65 @@ export def parse-markdown-to-blocks []: string -> table<block_index: int, row_ty
     let file_lines = $in | lines
     let row_type = $file_lines
         | each {
-            str trim --right
-            | if $in =~ '^```' { } else { 'text' }
+            let line = $in | str trim --right
+            let token = if $line =~ '^```' {
+                'fence'
+            } else if $line =~ $region_start_regex {
+                'region-start'
+            } else if $line =~ $region_end_regex {
+                'region-end'
+            } else if $line =~ $region_short_regex {
+                'region-short'
+            } else {
+                'text'
+            }
+
+            {token: $token line: $line}
         }
-        | scan --fold 'text' {|curr_fence prev_fence|
-            match $curr_fence {
-                'text' => { if $prev_fence == 'closing-fence' { 'text' } else { $prev_fence } }
-                '```' => { if $prev_fence == 'text' { '```' } else { 'closing-fence' } }
-                _ => { $curr_fence }
+        # `label` is the row_type emitted for the current line; `mode` is the state the NEXT line sees.
+        # Regions are opaque: fences inside them are content; region markers inside fences are content.
+        | scan --fold {mode: 'text' label: 'text'} {|curr state|
+            match $state.mode {
+                'fence' => {
+                    if $curr.token == 'fence' {
+                        if $curr.line == '```' {
+                            {mode: 'text' label: $state.label} # closing fence keeps the fence label
+                        } else {
+                            {mode: 'fence' label: $curr.line}
+                        }
+                    } else {
+                        {mode: 'fence' label: $state.label}
+                    }
+                }
+                'region' => {
+                    match $curr.token {
+                        'region-end' => { {mode: 'text' label: $state.label} } # end marker keeps the region label
+                        'region-start' => {
+                            error make {
+                                msg: $"A region marker `($curr.line)` opens inside another region; a closing `($region_end_marker)` is missing."
+                            }
+                        }
+                        _ => { {mode: 'region' label: $state.label} }
+                    }
+                }
+                _ => {
+                    match $curr.token {
+                        'fence' => { {mode: 'fence' label: $curr.line} }
+                        'region-start' => { {mode: 'region' label: $curr.line} }
+                        'region-end' => {
+                            error make {
+                                msg: $"An orphan `($region_end_marker)` marker has no matching `<!-- numd-gen-start: … -->` above it."
+                            }
+                        }
+                        'region-short' => { {mode: 'text' label: $curr.line} } # single-line block
+                        _ => { {mode: 'text' label: 'text'} }
+                    }
+                }
             }
         }
         # Why: 0.114 scan dropped --noinit; --fold now emits the seed as row 0, so skip it
         | skip 1
-        | scan --fold 'text' {|curr_fence prev_fence|
-            if $curr_fence == 'closing-fence' { $prev_fence } else { $curr_fence }
-        }
-        | skip 1
+        | get label
 
     let block_index = $row_type
         | window --remainder 2
@@ -210,6 +286,11 @@ export def parse-markdown-to-blocks []: string -> table<block_index: int, row_ty
     | if ($in | last | $in.row_type =~ '^```nu' and $in.line != '```') {
         error make {
             msg: 'A closing code block fence (```) is missing; the markdown might be invalid.'
+        }
+    } else { }
+    | if ($in | last | $in.row_type =~ $region_start_regex and ($in.line | str trim --right) !~ $region_end_regex) {
+        error make {
+            msg: $"A closing region marker `($region_end_marker)` is missing; the markdown might be invalid."
         }
     } else { }
     | group-by block_index --to-table
@@ -231,6 +312,7 @@ export def classify-block-action [
         $i if ($i =~ '^```nu(shell)?(\s|$)') => {
             if $i =~ 'no-run' { 'print-as-it-is' } else { 'execute' }
         }
+        $i if ($i =~ $region_any_regex) => { 'execute' }
 
         _ => { 'print-as-it-is' }
     }
@@ -267,6 +349,42 @@ export def generate-block-execution [
     $highlighted_command + $code_execution
 }
 
+# Extract the command payload from a region marker line (short or long form).
+@example "short form" { '<!-- numd-gen: scope commands | to md -->' | extract-region-code } --result "scope commands | to md"
+@example "long form" { '<!-- numd-gen-start: ls -->' | extract-region-code } --result "ls"
+export def extract-region-code []: string -> string {
+    str replace --regex '^<!--\s*numd-gen(-start)?:\s*' ''
+    | str replace --regex '\s*-->\s*$' ''
+}
+
+# Generate execution code for a generate-region: print the long-form marker pair
+# around the payload's raw stdout (no fences, no `# =>` prefixes).
+export def generate-region-execution [
+    block_number: int # index of the region block in the markdown
+]: string -> string {
+    let marker = $in
+    let payload = $marker | extract-region-code
+
+    if ($payload | is-empty) {
+        error make {msg: $"empty command in region marker `($marker)`"}
+    }
+
+    # Why: `print` appends no newline after a string stream (e.g. what `str join` returns),
+    # which would glue the payload's last line to the end marker — normalize the tail instead
+    let payload_print = $payload
+        | generate-table-statement
+        | pipe-to { default '' | into string | str replace --regex '\s*$' '' | print }
+
+    code-block-marker $block_number
+    | append $'<!-- numd-gen-start: ($payload) -->'
+    | join-and-print
+    | append $payload_print
+    | append ($region_end_marker | quote-for-print | pipe-to { print })
+    | append "print ''"
+    | append ''
+    | str join (char nl)
+}
+
 # Generate additional service code necessary for execution and capturing results, while preserving the original code.
 export def decorate-original-code-blocks [
     md_classified: table<block_index: int, row_type: string, line: list<string>, action: string> # classified markdown table from parse-markdown-to-blocks
@@ -274,9 +392,13 @@ export def decorate-original-code-blocks [
     $md_classified
     | where action == 'execute'
     | insert code {|i|
-        $i.line
-        | process-code-block-content ($i.row_type | extract-fence-options)
-        | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run')
+        if $i.row_type =~ $region_any_regex {
+            $i.row_type | generate-region-execution $i.block_index
+        } else {
+            $i.line
+            | process-code-block-content ($i.row_type | extract-fence-options)
+            | generate-block-markers $i.block_index ($i.row_type | str replace 'run-once' 'no-run')
+        }
     }
 }
 
@@ -340,7 +462,7 @@ export def extract-block-index []: list<string> -> table<block_index: int, line:
         | scan --fold 0 {|curr_index prev_index|
             if $curr_index == -1 { $prev_index } else { $curr_index }
         }
-        | skip 1  # drop the --fold seed row (0.114 scan change)
+        | skip 1 # drop the --fold seed row (0.114 scan change)
         | wrap block_index
 
     $clean_lines
@@ -473,6 +595,10 @@ export def pipe-to [closure: closure]: string -> string {
     | $input + " | " + $in
 }
 
+# Parent dir of the numd module, so `use numd` resolves via --include-path (see execute-intermediate-script).
+# Why: `path self` only runs at parse-time, so it must be a const, not a runtime expression.
+const numd_include_path = path self | path dirname | path dirname
+
 # Run the intermediate script and return its output as a string.
 export def execute-intermediate-script [
     intermed_script_path: path # path to the generated intermediate script
@@ -491,6 +617,9 @@ export def execute-intermediate-script [
     } else {
         [-n]
     }
+        # Why: `nu -n` clears NU_LIB_DIRS, so add numd's parent dir to let `use numd`
+        # (e.g. from a `numd doc` region marker) resolve in any document on any machine.
+        | append [--include-path $numd_include_path]
 
     ^$nu.current-exe ...$args $intermed_script_path
     | if $print_block_results { tee { print } } else { }
