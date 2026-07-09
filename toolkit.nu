@@ -4,71 +4,95 @@ use $numdinternals [ build-modified-path compute-change-stats ]
 export def main [] { }
 
 # Run all tests (unit + integration)
+#
+# Output mode is auto-detected: when stdout is a terminal you get the human view
+# (failures + a summary line); when it is piped or redirected you get machine-readable
+# JSON. Force either with --json / --pretty.
 export def 'main test' [
-    --json # output results as JSON for external consumption
+    --json # force machine-readable JSON output even on a terminal
+    --pretty # force the human view even when output is piped
+    --all # human view: also list passing tests (default shows only non-passing)
     --update # accept changes: stage modified integration test files
     --fail # exit with non-zero code if any tests fail (for CI)
 ] {
-    if not $json { print $"(ansi attr_dimmed)Unit tests(ansi reset)" }
-    let unit = main test-unit --json=$json
-    if not $json { print $"(ansi attr_dimmed)Integration tests(ansi reset)" }
-    let integration = main test-integration --json=$json --update=$update
+    let results = (collect-unit-results) | append (collect-integration-results --update=$update)
 
-    # Parse JSON if needed
-    let unit_data = if $json { $unit | from json } else { $unit }
-    let integration_data = if $json { $integration | from json } else { $integration }
-    let results = $unit_data | append $integration_data
-
-    # Print summary
-    let passed = $results | where status == 'passed' | length
-    let failed = $results | where status == 'failed' | length
-    let changed = $results | where status == 'changed' | length
-    let total = $results | length
-
-    if not $json {
-        print ""
-        print $"(ansi green_bold)($passed) passed(ansi reset), (ansi red_bold)($failed) failed(ansi reset), (ansi yellow_bold)($changed) changed(ansi reset) \(($total) total\)"
-        if $changed > 0 and not $update {
-            print $"(ansi attr_dimmed)Run with --update to accept changes(ansi reset)"
-        }
+    if (machine-mode --json=$json --pretty=$pretty) {
+        print ($results | to json --raw)
+    } else {
+        print-human $results --all=$all --update=$update
     }
 
-    if $fail and $failed > 0 {
-        if $json { print ($results | to json --raw) }
+    if $fail and ($results | where status == 'failed' | is-not-empty) {
         exit 1
     }
-
-    if $json { $results | to json --raw }
 }
 
 # Run unit tests using nutest
+#
+# Machine (JSON / piped) rows use the flat schema:
+#   {type: 'unit', name, status: 'passed'|'failed', file: null, message}
+# Note: status is 'passed'|'failed', NOT nutest's 'PASS'|'FAIL' 'result' column.
+# message holds the assertion text on failure, null otherwise.
 export def 'main test-unit' [
-    --json # output results as JSON for external consumption
+    --json # force machine-readable JSON output even on a terminal
+    --pretty # force the human view even when output is piped
+    --all # human view: also list passing tests (default shows only failures)
 ] {
-    use ../nutest/nutest
-
-    # Get detailed table from nutest
-    let results = nutest run-tests --path tests/ --returns table --display nothing
-
-    # Convert to flat table format
-    let flat = $results
-        | each {|row|
-            let status = if $row.result == 'PASS' { 'passed' } else { 'failed' }
-            {type: 'unit' name: $row.test status: $status file: null}
-        }
-
-    if not $json {
-        $flat | each {|r| print-test-result $r }
+    let flat = collect-unit-results
+    if (machine-mode --json=$json --pretty=$pretty) {
+        $flat | to json --raw
+    } else {
+        print-human $flat --all=$all
     }
-
-    if $json { $flat | to json --raw } else { $flat }
 }
 
 # Run integration tests (execute example markdown files)
+#
+# Machine rows use the flat schema:
+#   {type: 'integration', name, status: 'passed'|'changed'|'failed', file, message}
 export def 'main test-integration' [
-    --json # output results as JSON for external consumption
+    --json # force machine-readable JSON output even on a terminal
+    --pretty # force the human view even when output is piped
+    --all # human view: also list passing tests (default shows only non-passing)
     --update # accept changes: stage modified files in git
 ] {
+    let flat = collect-integration-results --update=$update
+    if (machine-mode --json=$json --pretty=$pretty) {
+        $flat | to json --raw
+    } else {
+        print-human $flat --all=$all --update=$update
+    }
+}
+
+# Decide whether to emit machine-readable data instead of the human view.
+# Why: agents capture stdout through a pipe, humans read it in a terminal.
+# Not $nu.is-interactive because: it reports REPL-ness, not human-ness — it is false for
+# any `nu toolkit.nu ...` script run (human or agent) and true for an agent driving the
+# nushell MCP, so it detects the opposite of what we need. is-terminal --stdout is the tty test.
+def machine-mode [--json --pretty]: nothing -> bool {
+    if $pretty { return false } # Not-piped override wins over everything
+    if $json { return true }
+    not (is-terminal --stdout)
+}
+
+# Collect unit test results as flat rows (no output side effects)
+def collect-unit-results []: nothing -> table {
+    use ../nutest/nutest
+
+    nutest run-tests --path tests/ --returns table --display nothing
+    | each {|row|
+        let status = if $row.result == 'PASS' { 'passed' } else { 'failed' }
+        let message = if $status == 'failed' {
+            let msgs = $row.output | each {|o| $o.msg? } | compact
+            if ($msgs | is-empty) { null } else { $msgs | str join '; ' }
+        } else { null }
+        {type: 'unit' name: $row.test status: $status file: null message: $message}
+    }
+}
+
+# Collect integration test results as flat rows (executes example markdown files)
+def collect-integration-results [--update]: nothing -> table {
     use numd
 
     # will be executed if dotnu-embeds-are-available
@@ -143,24 +167,47 @@ export def 'main test-integration' [
         )
     )
 
-    if not $json {
-        $results | each {|r| print-test-result $r }
-    }
-
     if $update {
         let changed = $results | where status == 'changed'
         if ($changed | is-not-empty) {
             $changed | each {|r|
                 ^git add $r.file
-                print $"(ansi green)Staged:(ansi reset) ($r.file)"
+                # Why: -e (stderr) so staging notes never corrupt the JSON on stdout in machine mode
+                print -e $"(ansi green)Staged:(ansi reset) ($r.file)"
             }
         }
     }
 
-    if $json { $results | to json --raw } else { $results }
+    $results
 }
 
-# Print a single test result with status indicator
+# Print the human view: non-passing tests (or all with --all), then a summary line.
+# Returns nothing so no wide table auto-renders and truncates the verdict column.
+def print-human [flat: table --all --update] {
+    let to_show = if $all { $flat } else { $flat | where status != 'passed' }
+    $to_show | each {|r| print-test-result $r }
+    print-summary $flat --update=$update
+}
+
+# Print the N passed, M failed [, K changed] headline
+def print-summary [flat: table --update] {
+    let passed = $flat | where status == 'passed' | length
+    let failed = $flat | where status == 'failed' | length
+    let changed = $flat | where status == 'changed' | length
+    let total = $flat | length
+
+    let parts = [
+        $"(ansi green_bold)($passed) passed(ansi reset)"
+        $"(ansi red_bold)($failed) failed(ansi reset)"
+    ] | append (if $changed > 0 { [$"(ansi yellow_bold)($changed) changed(ansi reset)"] } else { [] })
+
+    print $"($parts | str join ', ') \(($total) total\)"
+    if $changed > 0 and not $update {
+        print $"(ansi attr_dimmed)Run with --update to accept changes(ansi reset)"
+    }
+}
+
+# Print a single test result with status indicator (and the assertion on failure)
 def print-test-result [result: record] {
     let icon = match $result.status {
         'passed' => $"(ansi green)✓(ansi reset)"
@@ -170,6 +217,9 @@ def print-test-result [result: record] {
     }
     let suffix = if $result.file != null { $" (ansi attr_dimmed)\(($result.file)\)(ansi reset)" } else { "" }
     print $"  ($icon) ($result.name)($suffix)"
+    if $result.status == 'failed' and ($result.message? | is-not-empty) {
+        print $"      (ansi red)($result.message)(ansi reset)"
+    }
 }
 
 # Run an integration test and return unified result format
@@ -181,9 +231,9 @@ def run-integration-test [name: string command_src: closure] {
         let diff_result = do { ^git diff --quiet $name } | complete
         let status = if $diff_result.exit_code == 0 { 'passed' } else { 'changed' }
 
-        {type: 'integration' name: ($name | path basename) status: $status file: $name}
+        {type: 'integration' name: ($name | path basename) status: $status file: $name message: null}
     } catch {|err|
-        {type: 'integration' name: ($name | path basename) status: 'failed' file: $name}
+        {type: 'integration' name: ($name | path basename) status: 'failed' file: $name message: $err.msg}
     }
 }
 

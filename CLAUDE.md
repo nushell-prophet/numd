@@ -107,10 +107,17 @@ nu toolkit.nu test-unit
 
 # Run only integration tests (executes example markdown files)
 nu toolkit.nu test-integration
-
-# All commands support --json for CI
-nu toolkit.nu test --json
 ```
+
+**Output mode is auto-detected.** When stdout is a terminal you get the human view — only the non-passing tests (with the assertion message on failure), then a `N passed, M failed` summary. When stdout is piped or redirected (agents, CI) you get machine-readable JSON instead. This uses `is-terminal --stdout`, not `$nu.is-interactive` (which is false for any `nu toolkit.nu ...` script run and so cannot tell agent from human).
+
+```nushell
+nu toolkit.nu test --json    # force JSON even on a terminal
+nu toolkit.nu test --pretty  # force the human view even when piped
+nu toolkit.nu test --all     # human view: also list passing tests
+```
+
+JSON rows use a flat schema — `{type, name, status: 'passed'|'failed'|'changed', file, message}`. Note `status` (not nutest's `PASS`/`FAIL` `result` column); `message` holds the assertion text on failure, `null` otherwise. The JSON channel always carries every row — the failures-only trimming applies to the human view only.
 
 ### Unit Tests (`tests/`)
 
