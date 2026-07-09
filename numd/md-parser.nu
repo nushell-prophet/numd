@@ -67,10 +67,10 @@ def extract-content [element: string lines: list<string>]: nothing -> string {
             $lines | str join (char nl)
         }
         'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => {
-            $lines | first | str replace -r '^#+\s+' ''
+            $lines | first | str replace --regex '^#+\s+' ''
         }
         'blockquote' => {
-            $lines | each { str replace -r '^>\s?' '' } | str join (char nl)
+            $lines | each { str replace --regex '^>\s?' '' } | str join (char nl)
         }
         'code' => {
             $lines | str join (char nl)
@@ -100,17 +100,17 @@ def extract-meta [
             }
         }
         'ul' => {
-            {items: ($lines | each { str replace -r '^\s*[-*+]\s+' '' })}
+            {items: ($lines | each { str replace --regex '^\s*[-*+]\s+' '' })}
         }
         'ol' => {
-            let items = $lines | each { str replace -r '^\s*\d+\.\s+' '' }
+            let items = $lines | each { str replace --regex '^\s*\d+\.\s+' '' }
             let start = $lines | first | parse -r '^\s*(?<n>\d+)\.' | get -o n.0 | default '1' | into int
 
             {items: $items start: $start}
         }
         'blockquote' => {
             # Detect GitHub-style admonitions like [!NOTE], [!TIP], [!WARNING]
-            let first_content = $lines | first | str replace -r '^>\s?' ''
+            let first_content = $lines | first | str replace --regex '^>\s?' ''
             let admonition = $first_content
                 | parse -r '^\[!(?<type>\w+)\]'
                 | get -o type.0

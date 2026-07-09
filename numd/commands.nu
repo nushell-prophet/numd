@@ -113,7 +113,7 @@ export def to-numd-script []: table -> string {
             | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
             | drop # remove closing fence
             | str join (char nl)
-            | str replace -r '\s*$' (char nl)
+            | str replace --regex '\s*$' (char nl)
         }
     }
     | str join (char nl)
@@ -142,7 +142,7 @@ export def execute-blocks [
     }
 
     let results = $execution_output
-        | str replace -ar "\n{2,}```\n" "\n```\n"
+        | str replace --all --regex "\n{2,}```\n" "\n```\n"
         | lines
         | extract-block-index
 
@@ -417,7 +417,7 @@ export def generate-intermediate-script []: table<block_index: int, row_type: st
     )
     | flatten
     | str join (char nl)
-    | str replace -r "\\s*$" "\n"
+    | str replace --regex "\\s*$" "\n"
 }
 
 # Split code block content by blank lines into command groups and generate execution code for each.
@@ -590,8 +590,8 @@ export def pipe-to [closure: closure]: string -> string {
 
     view source $closure
     | str substring 1..(-2)
-    | str replace -r '^\s+' ''
-    | str replace -r '\s+$' ''
+    | str replace --regex '^\s+' ''
+    | str replace --regex '\s+$' ''
     | $input + " | " + $in
 }
 
@@ -662,8 +662,8 @@ export def generate-highlight-print []: string -> string {
 
 # Trim comments and extra whitespace from code blocks for use in the generated script.
 export def trim-trailing-comments []: string -> string {
-    str replace -r '[\s\n]+$' '' # trim newlines and spaces from the end of a line
-    | str replace -r '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
+    str replace --regex '[\s\n]+$' '' # trim newlines and spaces from the end of a line
+    | str replace --regex '\s+#.*$' '' # remove comments from the last line. Might spoil code blocks with the # symbol, used not for commenting
 }
 
 # Extract the last span from a command to determine if `| print` can be appended.
@@ -718,11 +718,11 @@ export def can-append-print [
 # Generate a pipeline that captures command output with `# =>` prefix for inline display.
 @example "generate inline output capture pipeline" {
     'ls' | generate-inline-output-pipeline
-} --result "ls | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\\s*$' (char nl)"
+} --result "ls | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\\s*$' (char nl)"
 export def generate-inline-output-pipeline []: string -> string {
     generate-table-statement
     | pipe-to {
-        default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl)
+        default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl)
     }
 }
 
@@ -787,7 +787,7 @@ export def extract-fence-options []: string -> list<string> {
     let fence = $in
 
     let options = $fence
-        | str replace -r '```nu(shell)?\s*' ''
+        | str replace --regex '```nu(shell)?\s*' ''
         | split row ','
         | str trim
         | compact --empty

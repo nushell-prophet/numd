@@ -49,7 +49,7 @@ let $original_md_table = $md_orig | parse-markdown-to-blocks
 print ''
 "$original_md_table | table -e --width 120" | nu-highlight | print
 
-$original_md_table | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$original_md_table | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
@@ -69,11 +69,11 @@ print ''
 
 decorate-original-code-blocks $original_md_table
 | generate-intermediate-script
-| save -f $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+| save -f $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "open $intermediate_script_path" | nu-highlight | print
 
-open $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+open $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
@@ -87,29 +87,29 @@ rm $intermediate_script_path" | nu-highlight | print
 # the flag `$no_fail_on_error` is set to false
 let $no_fail_on_error = false
 let $nu_res_stdout_lines = execute-intermediate-script $intermediate_script_path $no_fail_on_error false false
-rm $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+rm $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "$nu_res_stdout_lines" | nu-highlight | print
 
-$nu_res_stdout_lines | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$nu_res_stdout_lines | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
 "#code-block-marker-open-9
 ```nu" | print
 "let $nu_res_with_block_index = $nu_res_stdout_lines
-    | str replace -ar \"\\n{2,}```\\n\" \"\\n```\\n\"
+    | str replace --all --regex \"\\n{2,}```\\n\" \"\\n```\\n\"
     | lines
     | extract-block-index" | nu-highlight | print
 
 let $nu_res_with_block_index = $nu_res_stdout_lines
-    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | str replace --all --regex "\n{2,}```\n" "\n```\n"
     | lines
     | extract-block-index
 print ''
 "$nu_res_with_block_index | table -e --width 120" | nu-highlight | print
 
-$nu_res_with_block_index | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$nu_res_with_block_index | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
@@ -123,7 +123,7 @@ let $md_res = merge-markdown $original_md_table $nu_res_with_block_index
 print ''
 "$md_res" | nu-highlight | print
 
-$md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+$md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
@@ -131,6 +131,6 @@ print ''
 ```nu" | print
 "compute-change-stats $file $md_orig $md_res" | nu-highlight | print
 
-compute-change-stats $file $md_orig $md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+compute-change-stats $file $md_orig $md_res | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print

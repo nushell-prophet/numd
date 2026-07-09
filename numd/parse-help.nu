@@ -56,12 +56,12 @@ export def main [
     } else {
         items {|k v|
             $v
-            | str replace -r '^\s*(\S)' '  $1' # add two spaces before description lines
+            | str replace --regex '^\s*(\S)' '  $1' # add two spaces before description lines
             | str join (char nl)
             | $"($k):\n($in)"
         }
         | str join (char nl)
-        | str replace -ar '\s+$' '' # empty trailing new lines
-        | str replace -arm '^' '# => '
+        | str replace --all --regex '\s+$' '' # empty trailing new lines
+        | str replace --all --regex --multiline '^' '# => '
     }
 }

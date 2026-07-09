@@ -26,7 +26,7 @@ export def 'h' [
     | append ' '
     | append $header
     | str join
-    | str replace -ar "\n*$" "\n\n"
+    | str replace --all --regex "\n*$" "\n\n"
     | append-block
 }
 
@@ -82,13 +82,13 @@ export def 'code' [
         | if $in != '' {
             lines
             | compact --empty
-            | str replace -r '^#? ?' '# '
+            | str replace --regex '^#? ?' '# '
             | $"($in)\n"
         } else { '' }
 
     let $code = $code_block
         | if $inline {
-            str replace -r '^(> )?' '> '
+            str replace --regex '^(> )?' '> '
         } else { }
         | $'($comment)($in)'
 
@@ -118,7 +118,7 @@ export def 'p' [
     $text
 ] {
     $text
-    | str replace -r "\\s*$" "\n\n"
+    | str replace --regex "\\s*$" "\n\n"
     | append-block
 }
 

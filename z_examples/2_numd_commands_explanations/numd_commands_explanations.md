@@ -115,7 +115,7 @@ open $intermediate_script_path
 # => "```\n```output-numd" | print
 # =>
 # => # This block will produce some output in a separate block
-# => $var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+# => $var1 | path join 'baz' 'bar' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 # => print ''
 # => "```" | print
 # =>
@@ -125,11 +125,11 @@ open $intermediate_script_path
 # => whoami" | nu-highlight | print
 # =>
 # => # This block will output results inline
-# => whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+# => whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 # => print ''
 # => "2 + 2" | nu-highlight | print
 # =>
-# => 2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace -r '\s*$' (char nl) | print; print ''
+# => 2 + 2 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 # => print ''
 # => "```" | print
 ```
@@ -183,7 +183,7 @@ The `extract-block-index` command parses execution output, using `#code-block-ma
 
 ```nu
 let $nu_res_with_block_index = $nu_res_stdout_lines
-    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | str replace --all --regex "\n{2,}```\n" "\n```\n"
     | lines
     | extract-block-index
 

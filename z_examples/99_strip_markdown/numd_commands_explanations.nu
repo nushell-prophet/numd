@@ -40,7 +40,7 @@ $nu_res_stdout_lines
 
     # ```nu
 let $nu_res_with_block_index = $nu_res_stdout_lines
-    | str replace -ar "\n{2,}```\n" "\n```\n"
+    | str replace --all --regex "\n{2,}```\n" "\n```\n"
     | lines
     | extract-block-index
 
