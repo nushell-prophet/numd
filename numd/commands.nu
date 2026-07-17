@@ -806,8 +806,8 @@ export def extract-fence-options []: string -> list<string> {
 
 # Modify a path by adding a prefix, suffix, extension, or parent directory.
 @example "build path with all modifiers" {
-    'numd/capture.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
-} --result "numd/abc/pref_capture_suf.nu.md"
+    'numd/parse.nu' | build-modified-path --extension '.md' --prefix 'pref_' --suffix '_suf' --parent_dir abc
+} --result "numd/abc/pref_parse_suf.nu.md"
 export def build-modified-path [
     --prefix: string
     --suffix: string

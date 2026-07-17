@@ -183,38 +183,6 @@ numd clear-outputs <file>    # `nothing -> string`, `nothing -> nothing`
 - `--keep-generated` — keep generate-region content
 <!-- numd-gen-end -->
 
-### `numd capture`
-
-`numd` can use the `display_output` hook to write the current session prompts together with their output into a specified markdown file. There are corresponding commands `numd capture start` and `numd capture stop`.
-
-<!-- numd-gen-start: numd doc 'numd capture start' -->
-### `numd capture start`
-
-start capturing commands and their outputs into a file
-
-```nushell no-run
-numd capture start (file)    # `nothing -> nothing`
-```
-
-**Parameters:**
-
-- `file?: path`
-
-**Flags:**
-
-- `--separate-blocks` — create separate code blocks for each pipeline instead of inline `# =>` output
-<!-- numd-gen-end -->
-
-<!-- numd-gen-start: numd doc 'numd capture stop' -->
-### `numd capture stop`
-
-stop capturing commands and their outputs
-
-```nushell no-run
-numd capture stop    # `nothing -> nothing`
-```
-<!-- numd-gen-end -->
-
 <!-- numd-gen-start: numd doc 'numd parse-md' -->
 ### `numd parse-md`
 

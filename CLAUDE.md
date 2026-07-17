@@ -35,11 +35,9 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 - **mod.nu**: Entry point exporting user-friendly commands (`run`, `clear-outputs`, etc.)
 - **plumbing.nu**: Low-level pipeline commands for advanced usage/scripting
 - **commands.nu**: Core implementation containing all command logic
-- **capture.nu**: `capture start/stop` commands for interactive session recording
 - **doc.nu**: `doc` command rendering markdown docs for a module or command from `scope` data
 - **parse-help.nu**: `parse-help` command for formatting --help output
 - **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
-- **nu-utils/**: Helper utilities (`cprint.nu`, `str repeat.nu`)
 
 ### Plumbing Commands
 

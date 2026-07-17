@@ -21,10 +21,10 @@ def "doc renders a single command" [] {
 
 @test
 def "doc marks optional positionals in the usage line" [] {
-    let result = numd doc 'numd capture start'
+    let result = numd doc 'numd parse-md'
 
     # optional positionals render as `(name)`, matching nushell's own --help
-    assert ($result =~ 'numd capture start \(file\)    # `nothing -> nothing`')
+    assert ($result =~ 'numd parse-md \(file\)')
 }
 
 # a command with no declared io types; its sole signature is the untyped default. Module scope so `scope commands` (inside numd doc) can see it

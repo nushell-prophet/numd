@@ -4,11 +4,6 @@ export use commands.nu [
     list-fence-options
 ]
 
-export use capture.nu [
-    'capture start'
-    'capture stop'
-]
-
 export use doc.nu [ main ]
 export use parse-help.nu
 export use parse.nu [ 'parse-frontmatter' 'to md-with-frontmatter' ]
