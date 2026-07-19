@@ -93,6 +93,13 @@ def collect-unit-results []: nothing -> table {
 
 # Collect integration test results as flat rows (executes example markdown files)
 def collect-integration-results [--update]: nothing -> table {
+    # Why: datetime rendering follows the TZ of the spawned `nu -n` process, so committed
+    # outputs drift between machines unless every intermediate script runs under one zone.
+    # Setting $env.TZ inside the eval config would be too late — chrono reads TZ at spawn.
+    with-env {TZ: 'UTC'} { collect-integration-results-inner --update=$update }
+}
+
+def collect-integration-results-inner [--update]: nothing -> table {
     use numd
 
     # will be executed if dotnu-embeds-are-available
