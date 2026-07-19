@@ -14,8 +14,8 @@ $var1 | path join 'baz' 'bar'
 
 ```nu
 # This block will output results inline
-whoami
-# => user
+'nushell' | str upcase
+# => NUSHELL
 
 2 + 2
 # => 4
