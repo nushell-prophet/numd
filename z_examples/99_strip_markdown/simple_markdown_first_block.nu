@@ -10,6 +10,6 @@ $var1 | path join 'baz' 'bar'
 
     # ```nu
 # This block will output results inline
-whoami
+'nushell' | str reverse
 
 2 + 2

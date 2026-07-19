@@ -60,8 +60,8 @@ $original_md_table | table -e --width 120
 # => │           6 │ ```nu                │ ╭─────────────────────────────────────────╮                               │ exe │
 # => │             │                      │ │ ```nu                                   │                               │ cut │
 # => │             │                      │ │ # This block will output results inline │                               │ e   │
-# => │             │                      │ │ whoami                                  │                               │     │
-# => │             │                      │ │ # => user                               │                               │     │
+# => │             │                      │ │ 'nushell' | str reverse                 │                               │     │
+# => │             │                      │ │ # => llehsun                            │                               │     │
 # => │             │                      │ │                                         │                               │     │
 # => │             │                      │ │ 2 + 2                                   │                               │     │
 # => │             │                      │ │ # => 4                                  │                               │     │
@@ -99,7 +99,7 @@ open -r $intermediate_script_path | str replace $init_numd_pwd_const '<numd-repo
 # => # this script was generated automatically using numd
 # => # https://github.com/nushell-prophet/numd
 # =>
-# => const init_numd_pwd_const = '/Users/user/git/numd'
+# => const init_numd_pwd_const = '<numd-repo>'
 # =>
 # => "#code-block-marker-open-1
 # => ```nu" | print
@@ -124,10 +124,10 @@ open -r $intermediate_script_path | str replace $init_numd_pwd_const '<numd-repo
 # => "#code-block-marker-open-6
 # => ```nu" | print
 # => "# This block will output results inline
-# => whoami" | nu-highlight | print
+# => 'nushell' | str reverse" | nu-highlight | print
 # =>
 # => # This block will output results inline
-# => whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
+# => 'nushell' | str reverse | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 # => print ''
 # => "2 + 2" | nu-highlight | print
 # =>
@@ -166,8 +166,8 @@ $nu_res_stdout_lines
 # => #code-block-marker-open-6
 # => ```nu
 # => # This block will output results inline
-# => whoami
-# => # => user
+# => 'nushell' | str reverse
+# => # => llehsun
 # =>
 # =>
 # =>
@@ -203,8 +203,8 @@ $nu_res_with_block_index | table -e --width 120
 # => │             │ ```                                                       │
 # => │           6 │ ```nu                                                     │
 # => │             │ # This block will output results inline                   │
-# => │             │ whoami                                                    │
-# => │             │ # => user                                                 │
+# => │             │ 'nushell' | str reverse                                   │
+# => │             │ # => llehsun                                              │
 # => │             │                                                           │
 # => │             │                                                           │
 # => │             │                                                           │
@@ -247,8 +247,8 @@ $md_res
 # =>
 # => ```nu
 # => # This block will output results inline
-# => whoami
-# => # => user
+# => 'nushell' | str reverse
+# => # => llehsun
 # =>
 # => 2 + 2
 # => # => 4

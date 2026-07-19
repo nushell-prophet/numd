@@ -1,7 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
 
-const init_numd_pwd_const = '/Users/user/git/numd'
+const init_numd_pwd_const = '/Users/user/git/ai-sandbox-dev-container/numd'
 
 # numd config example 1
 # This file is prepended to the intermediate script before execution

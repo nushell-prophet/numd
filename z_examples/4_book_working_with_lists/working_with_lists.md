@@ -332,9 +332,9 @@ let zones = [UTC CET Europe/Moscow Asia/Yekaterinburg]
 let base_time = '2024-01-15 12:00:00' | into datetime --timezone UTC
 $zones | wrap 'Zone' | upsert Time {|row| ($base_time | date to-timezone $row.Zone | format date '%Y.%m.%d %H:%M')}
 # => ╭────────Zone────────┬───────Time───────╮
-# => │ UTC                │ 2024.01.15 15:00 │
-# => │ CET                │ 2024.01.15 16:00 │
-# => │ Europe/Moscow      │ 2024.01.15 18:00 │
-# => │ Asia/Yekaterinburg │ 2024.01.15 20:00 │
+# => │ UTC                │ 2024.01.15 12:00 │
+# => │ CET                │ 2024.01.15 13:00 │
+# => │ Europe/Moscow      │ 2024.01.15 15:00 │
+# => │ Asia/Yekaterinburg │ 2024.01.15 17:00 │
 # => ╰────────Zone────────┴───────Time───────╯
 ```

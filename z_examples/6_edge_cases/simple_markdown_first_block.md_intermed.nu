@@ -1,7 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
 
-const init_numd_pwd_const = '/Users/user/git/numd'
+const init_numd_pwd_const = '/Users/user/git/ai-sandbox-dev-container/numd'
 
 # numd config example 1
 # This file is prepended to the intermediate script before execution
@@ -38,10 +38,10 @@ print ''
 "#code-block-marker-open-4
 ```nu" | print
 "# This block will output results inline
-whoami" | nu-highlight | print
+'nushell' | str reverse" | nu-highlight | print
 
 # This block will output results inline
-whoami | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
+'nushell' | str reverse | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "2 + 2" | nu-highlight | print
 

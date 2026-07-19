@@ -26,7 +26,9 @@ decorate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path
 
-open $intermediate_script_path
+# `-r` shows the script as text (the file name ends in `.md`, so plain `open` would parse it);
+# masking the launch directory keeps this output machine-independent
+open -r $intermediate_script_path | str replace $init_numd_pwd_const '<numd-repo>'
 
 
     # ```nu

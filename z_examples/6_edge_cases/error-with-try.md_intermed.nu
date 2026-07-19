@@ -1,7 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
 
-const init_numd_pwd_const = '/Users/user/git/numd'
+const init_numd_pwd_const = '/Users/user/git/ai-sandbox-dev-container/numd'
 
 # numd config example 1
 # This file is prepended to the intermediate script before execution
@@ -21,6 +21,6 @@ $env.config.table = {
 ```nushell try, new-instance" | print
 "lssomething" | nu-highlight | print
 
-/Users/user/.cargo/bin/nu -c "lssomething" | complete | if ($in.exit_code != 0) { get stderr } else { get stdout } | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
+/home/linuxbrew/.linuxbrew/Cellar/nushell/0.114.1/bin/nu -c "lssomething" | complete | if ($in.exit_code != 0) { get stderr } else { get stdout } | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print

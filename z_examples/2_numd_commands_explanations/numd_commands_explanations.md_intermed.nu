@@ -1,7 +1,7 @@
 # this script was generated automatically using numd
 # https://github.com/nushell-prophet/numd
 
-const init_numd_pwd_const = '/Users/user/git/numd'
+const init_numd_pwd_const = '/Users/user/git/ai-sandbox-dev-container/numd'
 
 # numd config example 1
 # This file is prepended to the intermediate script before execution
@@ -71,9 +71,13 @@ decorate-original-code-blocks $original_md_table
 | generate-intermediate-script
 | save -f $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
-"open $intermediate_script_path" | nu-highlight | print
+"# `-r` shows the script as text (the file name ends in `.md`, so plain `open` would parse it);
+# masking the launch directory keeps this output machine-independent
+open -r $intermediate_script_path | str replace $init_numd_pwd_const '<numd-repo>'" | nu-highlight | print
 
-open $intermediate_script_path | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
+# `-r` shows the script as text (the file name ends in `.md`, so plain `open` would parse it);
+# masking the launch directory keeps this output machine-independent
+open -r $intermediate_script_path | str replace $init_numd_pwd_const '<numd-repo>' | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
