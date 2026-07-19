@@ -133,11 +133,11 @@ Example files serve as integration tests - use both the Levenshtein stats and `g
 
 ### Expected Non-Zero Diffs
 
-Some files legitimately differ on each run due to:
+Example outputs are machine-independent by construction: no host-dependent commands (`whoami` was removed for this reason), absolute paths are masked in the docs that display them, and `test-integration` pins `TZ=UTC` for every spawned intermediate script. Two sources of legitimate diffs remain:
 - **Dynamic content**: `git tag` output in README.md (version changes over time)
-- **Nushell version changes**: Error message formatting, table rendering differences
+- **Nushell version changes**: Error message formatting, table rendering differences. The README embeds the Nushell version the outputs were produced with (a `numd-gen` region in the testing section), so a version bump labels its own churn.
 
-A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests.
+A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests. Any other diff on an unchanged module is a bug, not noise.
 
 ## Worktrees
 

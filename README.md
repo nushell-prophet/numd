@@ -262,6 +262,11 @@ Unit tests in `tests/` use the [nutest](https://github.com/vyadh/nutest) framewo
 
 Integration tests run all example files in `z_examples/` through numd and report changes via Levenshtein distance. Whatever changes are made in the module - it can be easily seen if they break anything (both by the Levenshtein distance metric or by `git diff` of the updated example files versus their initial versions).
 
+The committed outputs were produced with the Nushell version below. When a Nushell upgrade changes rendering, the examples change together with this line, so such a diff explains itself:
+
+<!-- numd-gen-start: version | get version -->
+<!-- numd-gen-end -->
+
 ```nushell no-run
 nu toolkit.nu test-integration
 # => ╭───────────────────────────────────────────────┬─────────────────┬───────────────────┬────────────┬──────────────┬─────╮
