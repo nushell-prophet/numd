@@ -14,8 +14,8 @@ $var1 | path join 'baz' 'bar'
 
 ```nu
 # This block will output results inline
-'nushell' | str upcase
-# => NUSHELL
+'nushell' | str reverse
+# => llehsun
 
 2 + 2
 # => 4
