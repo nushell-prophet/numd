@@ -703,6 +703,7 @@ export def get-last-span [
 @example "assignment cannot have print appended" { can-append-print 'let a = ls' } --result false
 @example "command can have print appended" { can-append-print 'ls' } --result true
 @example "mutation cannot have print appended" { can-append-print 'mut a = 1; $a = 2' } --result false
+@example "keyword as argument or column name is not a declaration" { can-append-print 'view source ls | metadata | get source' } --result true
 export def can-append-print [
     command: string
 ]: nothing -> bool {
@@ -710,7 +711,8 @@ export def can-append-print [
 
     (
         $last_span !~ '(;|print|null)$'
-        and $last_span !~ '\b(let|mut|def|use|source|overlay|alias)\b'
+        # Why: keywords count only in command position — `view source x | get source` must keep its output
+        and $last_span !~ '^(export\s+)?(let|mut|def|use|source|overlay|alias)\b'
         and $last_span !~ '(^|;|\n) ?(?<!(let|mut) )\$\S+ = '
     )
 }

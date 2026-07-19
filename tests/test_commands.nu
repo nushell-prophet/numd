@@ -294,6 +294,15 @@ def "can-append-print returns false for source statements" [] {
 }
 
 @test
+def "can-append-print allows keywords as arguments or column names" [] {
+    # regression: `source` matched anywhere used to suppress the output embed
+    assert equal (can-append-print "view source copy-out | metadata | get source") true
+    assert equal (can-append-print "open deps.json | get use") true
+    # export-prefixed declarations must still be rejected
+    assert equal (can-append-print "export def foo [] {}") false
+}
+
+@test
 def "can-append-print handles multi-statement commands" [] {
     # Last span is echo - should be true
     assert equal (can-append-print "source a.nu; echo abc") true
