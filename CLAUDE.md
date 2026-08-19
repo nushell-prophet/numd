@@ -28,6 +28,8 @@ use numd; numd clear-outputs path/to/file.md
 use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 ```
 
+`render` refuses to overwrite a git-tracked file that has uncommitted or staged changes ("... has uncommitted changes") — commit, stash, or pass `--ignore-git-check`. The gate is on the save path only: `--echo` and `clear-outputs` are never blocked.
+
 ## Architecture
 
 ### Module Structure (`numd/`)
@@ -35,9 +37,11 @@ use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 - **mod.nu**: Entry point exporting user-friendly commands (`render`, `clear-outputs`, etc.)
 - **plumbing.nu**: Low-level pipeline commands for advanced usage/scripting
 - **commands.nu**: Core implementation containing all command logic
+- **md-parser.nu**: `parse-md` command parsing markdown into a table of semantic blocks (headers, paragraphs, code blocks, lists, blockquotes, frontmatter)
 - **doc.nu**: `doc` command rendering markdown docs for a module or command from `scope` data
 - **parse-help.nu**: `parse-help` command for formatting --help output
 - **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
+- **live.nu**: helpers for writing a markdown file from a live Nushell session (`h1`..`h6`, `p`, `code`); not re-exported by `mod.nu`
 
 ### Plumbing Commands
 
@@ -68,7 +72,7 @@ The high-level commands use these internally:
 
 ### Core Processing Pipeline (in `commands.nu`)
 
-1. **`parse-markdown-to-blocks`**: Parses markdown into a table classifying each block by type (`text`, ` ```nushell `, ` ```output-numd `) and action (`execute`, `print-as-it-is`, `delete`)
+1. **`parse-markdown-to-blocks`**: Parses markdown into a table classifying each block by type (`text`, ` ```nushell `, ` ```output-numd `, and `<!-- numd-gen: ... -->` generate-regions) and action (`execute`, `print-as-it-is`, `delete`)
 
 2. **`decorate-original-code-blocks`** + **`generate-intermediate-script`**: Transforms executable code blocks into a temporary `.nu` script with markers for output capture
 
@@ -127,9 +131,9 @@ The `test-integration` command:
 1. Runs all example files in `z_examples/` through numd
 2. Generates stripped `.nu` versions in `z_examples/99_strip_markdown/`
 3. Runs `numd render README.md` to update README with latest outputs
-4. Reports Levenshtein distance and diff stats to detect changes
+4. Runs `git diff --quiet` on each touched file and reports `passed` (no diff), `changed` (diff) or `failed` (the run raised an error)
 
-Example files serve as integration tests - use both the Levenshtein stats and `git diff` to verify changes.
+Example files serve as integration tests - read `git diff` to verify changes, and re-run with `--update` to stage the ones you meant to make.
 
 ### Expected Non-Zero Diffs
 
@@ -137,7 +141,7 @@ Example outputs are machine-independent by construction: no host-dependent comma
 - **Dynamic content**: `git tag` output in README.md (version changes over time)
 - **Nushell version changes**: Error message formatting, table rendering differences. The README embeds the Nushell version the outputs were produced with (a `numd-gen` region in the testing section), so a version bump labels its own churn.
 
-A zero `levenshtein_dist` for most files + expected diffs in dynamic content files = passing tests. Any other diff on an unchanged module is a bug, not noise.
+So a run where every file is `passed` except the dynamic content files, which come back `changed`, is a passing run. Any other `changed` file on an unchanged module is a bug, not noise.
 
 ## Worktrees
 
@@ -166,11 +170,7 @@ numd render README.md --eval '$env.numd.table-width = 80'
 numd render README.md --eval (open -r z_examples/numd_config_example1.nu)
 ```
 
-Example config file (`z_examples/numd_config_example1.nu`):
-```nushell
-$env.config.table.mode = 'rounded'
-$env.numd.table-width = 100  # optional: set custom table width
-```
+Example config files: `z_examples/numd_config_example1.nu` sets `$env.config.footer_mode` and a `$env.config.table` record; `z_examples/numd_config_example2.nu` also sets `$env.numd.table-width`, the width passed to `table` when rendering output (default 120).
 
 ## Git Workflow
 
