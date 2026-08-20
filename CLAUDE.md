@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-numd is a Nushell module for creating reproducible Markdown documents. It executes Nushell code blocks within markdown files and writes results back to the document.
+numd is a Nushell module for creating reproducible Markdown documents.
+It executes Nushell code blocks within markdown files and writes results back to the document.
 
 ## Common Commands
 
@@ -28,7 +29,8 @@ use numd; numd clear-outputs path/to/file.md
 use numd; numd clear-outputs path/to/file.md --strip-markdown --echo
 ```
 
-`render` refuses to overwrite a git-tracked file that has uncommitted or staged changes ("... has uncommitted changes") — commit, stash, or pass `--ignore-git-check`. The gate is on the save path only: `--echo` and `clear-outputs` are never blocked.
+`render` refuses to overwrite a git-tracked file that has uncommitted or staged changes ("... has uncommitted changes") — commit, stash, or pass `--ignore-git-check`.
+The gate is on the save path only: `--echo` and `clear-outputs` are never blocked.
 
 ## Architecture
 
@@ -111,7 +113,9 @@ nu toolkit.nu test-unit
 nu toolkit.nu test-integration
 ```
 
-**Output mode is auto-detected.** When stdout is a terminal you get the human view — only the non-passing tests (with the assertion message on failure), then a `N passed, M failed` summary. When stdout is piped or redirected (agents, CI) you get machine-readable JSON instead. This uses `is-terminal --stdout`, not `$nu.is-interactive` (which is false for any `nu toolkit.nu ...` script run and so cannot tell agent from human).
+**Output mode is auto-detected.** When stdout is a terminal you get the human view — only the non-passing tests (with the assertion message on failure), then a `N passed, M failed` summary.
+When stdout is piped or redirected (agents, CI) you get machine-readable JSON instead.
+This uses `is-terminal --stdout`, not `$nu.is-interactive` (which is false for any `nu toolkit.nu ...` script run and so cannot tell agent from human).
 
 ```nushell
 nu toolkit.nu test --json    # force JSON even on a terminal
@@ -119,11 +123,14 @@ nu toolkit.nu test --pretty  # force the human view even when piped
 nu toolkit.nu test --all     # human view: also list passing tests
 ```
 
-JSON rows use a flat schema — `{type, name, status: 'passed'|'failed'|'changed', file, message}`. Note `status` (not nutest's `PASS`/`FAIL` `result` column); `message` holds the assertion text on failure, `null` otherwise. The JSON channel always carries every row — the failures-only trimming applies to the human view only.
+JSON rows use a flat schema — `{type, name, status: 'passed'|'failed'|'changed', file, message}`.
+Note `status` (not nutest's `PASS`/`FAIL` `result` column); `message` holds the assertion text on failure, `null` otherwise.
+The JSON channel always carries every row — the failures-only trimming applies to the human view only.
 
 ### Unit Tests (`tests/`)
 
-Unit tests use [nutest](https://github.com/vyadh/nutest) framework. Tests import internal functions via `use ../numd/commands.nu *` to test parsing and transformation logic directly.
+Unit tests use [nutest](https://github.com/vyadh/nutest) framework.
+Tests import internal functions via `use ../numd/commands.nu *` to test parsing and transformation logic directly.
 
 ### Integration Tests (`z_examples/`)
 
@@ -137,29 +144,38 @@ Example files serve as integration tests - read `git diff` to verify changes, an
 
 ### Expected Non-Zero Diffs
 
-Example outputs are machine-independent by construction: no host-dependent commands (`whoami` was removed for this reason), absolute paths are masked in the docs that display them, and `test-integration` pins `TZ=UTC` for every spawned intermediate script. Two sources of legitimate diffs remain:
+Example outputs are machine-independent by construction: no host-dependent commands (`whoami` was removed for this reason), absolute paths are masked in the docs that display them, and `test-integration` pins `TZ=UTC` for every spawned intermediate script.
+Two sources of legitimate diffs remain:
 - **Dynamic content**: `git tag` output in README.md (version changes over time)
-- **Nushell version changes**: Error message formatting, table rendering differences. The README embeds the Nushell version the outputs were produced with (a `numd-gen` region in the testing section), so a version bump labels its own churn.
+- **Nushell version changes**: Error message formatting, table rendering differences.
+  The README embeds the Nushell version the outputs were produced with (a `numd-gen` region in the testing section), so a version bump labels its own churn.
 
-So a run where every file is `passed` except the dynamic content files, which come back `changed`, is a passing run. Any other `changed` file on an unchanged module is a bug, not noise.
+So a run where every file is `passed` except the dynamic content files, which come back `changed`, is a passing run.
+Any other `changed` file on an unchanged module is a bug, not noise.
 
 ## Worktrees
 
-Unit tests load nutest from the sibling repo via `use ../nutest/nutest` (see `toolkit.nu`). Claude's `--worktree` puts worktrees under `.claude/worktrees/<name>/`, three levels below the repo root, so from inside a worktree `../nutest` resolves to `.claude/worktrees/nutest` — which is empty. `nu toolkit.nu test-unit` then fails at parse time with "module not found".
+Unit tests load nutest from the sibling repo via `use ../nutest/nutest` (see `toolkit.nu`).
+Claude's `--worktree` puts worktrees under `.claude/worktrees/<name>/`, three levels below the repo root, so from inside a worktree `../nutest` resolves to `.claude/worktrees/nutest` — which is empty.
+`nu toolkit.nu test-unit` then fails at parse time with "module not found".
 
-Fix it once with a single symlink at that spot, pointing back to the real sibling. Every worktree resolves `../nutest` to the same path, so one symlink serves all current and future worktrees:
+Fix it once with a single symlink at that spot, pointing back to the real sibling.
+Every worktree resolves `../nutest` to the same path, so one symlink serves all current and future worktrees:
 
 ```nushell
 ln -sfn ../../../nutest .claude/worktrees/nutest
 ```
 
-`.claude/` is gitignored, so the symlink is never committed and never follows a worktree branch. Integration tests (`test-integration`) don't need it — they run numd on the example files and have no nutest dependency.
+`.claude/` is gitignored, so the symlink is never committed and never follows a worktree branch.
+Integration tests (`test-integration`) don't need it — they run numd on the example files and have no nutest dependency.
 
-This one symlink covers worktrees placed directly under `.claude/worktrees/`, which is the normal single-segment name (`--worktree bugfix`). A name with a slash nests the worktree deeper and escapes the symlink, so keep worktree names flat.
+This one symlink covers worktrees placed directly under `.claude/worktrees/`, which is the normal single-segment name (`--worktree bugfix`).
+A name with a slash nests the worktree deeper and escapes the symlink, so keep worktree names flat.
 
 ## Configuration
 
-By default, numd runs intermediate scripts with `nu -n` (no config files) for reproducible output across different systems. Use `--use-host-config` to load host's env, config, and plugin files when needed.
+By default, numd runs intermediate scripts with `nu -n` (no config files) for reproducible output across different systems.
+Use `--use-host-config` to load host's env, config, and plugin files when needed.
 
 Use `--eval` to prepend Nushell code to the intermediate script:
 ```nushell
