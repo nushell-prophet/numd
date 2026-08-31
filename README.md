@@ -261,7 +261,7 @@ Integration tests run all example files in `z_examples/` through numd and report
 The committed outputs were produced with the Nushell version below. When a Nushell upgrade changes rendering, the examples change together with this line, so such a diff explains itself:
 
 <!-- numd-gen-start: version | get version -->
-0.115.0
+0.115.1
 <!-- numd-gen-end -->
 
 ```nushell no-run

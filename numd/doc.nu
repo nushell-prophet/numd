@@ -128,7 +128,6 @@ export def render-command [
 
 # Render markdown documentation for a module or a single command from `scope` data
 @category markdown
-@search-terms "doc" "documentation" "reference" "scope"
 @example "document one command" {
     numd doc 'numd render'
 }
