@@ -1,4 +1,6 @@
 # Beautify and adapt the standard `--help` for markdown output
+@category markdown
+@search-terms "help" "usage" "manual"
 export def main [
     --sections: list<string> # filter to only include these sections (e.g., ['Usage', 'Flags'])
     --record # return result as a record instead of formatted string

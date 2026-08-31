@@ -13,6 +13,8 @@ const region_end_marker = '<!-- numd-gen-end -->'
 # shadowed — `export def run` is rejected at parse time, aliases included, so no shim is possible
 
 # Run Nushell code blocks in a markdown file, output results back to the `.md`, and optionally to terminal
+@category markdown
+@search-terms "run" "execute" "eval" "literate"
 @example "update readme" {
     numd render README.md
 }
@@ -86,6 +88,8 @@ export def render [
 # Remove numd execution outputs from the file
 # Note: No git check here - clearing outputs is a reversible operation (just re-run numd)
 # and users typically clear outputs intentionally before committing clean source
+@category markdown
+@search-terms "strip" "clean" "reset"
 export def clear-outputs [
     file: path # path to a `.md` file containing numd output to be cleared
     --echo # output resulting markdown to stdout instead of writing to file
@@ -572,6 +576,8 @@ const fence_options = [
 ]
 
 # List fence options for execution and output customization.
+@category markdown
+@search-terms "fence" "options" "infostring"
 export def list-fence-options []: nothing -> table {
     $fence_options
 }

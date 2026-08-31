@@ -1,4 +1,6 @@
 # Parse frontmatter from markdown, output record
+@category markdown
+@search-terms "frontmatter" "yaml" "metadata" "header"
 export def 'parse-frontmatter' [
     file?: path # path to a markdow file. Might be ommited if markdown content is piped in
 ]: [string -> record nothing -> record] {
@@ -23,6 +25,8 @@ alias core_to_md = to md
 
 # produce markdown from record. All fields except of `content` go to frontmatter.
 # And content becomes the body
+@category markdown
+@search-terms "frontmatter" "yaml" "metadata"
 export def 'to md-with-frontmatter' []: record -> string {
     let input = $in
 

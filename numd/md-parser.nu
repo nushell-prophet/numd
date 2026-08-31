@@ -1,6 +1,8 @@
 use std/iter scan
 
 # Parse markdown into a table of semantic blocks (headers, paragraphs, code blocks, lists, blockquotes, frontmatter) with extracted content and metadata
+@category markdown
+@search-terms "markdown" "blocks" "ast" "elements"
 export def parse-md [
     file?: path # optional path to markdown file (can also pipe content)
 ]: [string -> table nothing -> table] {
