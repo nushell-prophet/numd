@@ -8,7 +8,13 @@ export def 'parse-frontmatter' [
     # which `split row` below can't take. `--raw` keeps it a string.
     let input = if $file == null { } else { open --raw $file }
         | if $in != null { } else {
-            error make {msg: 'no path or content of file were provided'}
+            error make {
+                msg: 'no path or content of file were provided'
+                # Why: `$file` is always null on this branch, so its span is the call site
+                # itself — the error underlines the caller's own line, not this one
+                label: {text: 'no file argument here' span: (metadata $file).span}
+                help: 'pass a path as the first argument, or pipe the markdown content in'
+            }
         }
 
     let list = $input | split row "---\n" --number 3

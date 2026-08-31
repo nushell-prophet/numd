@@ -46,7 +46,10 @@ export def render-command [
 ]: nothing -> string {
     let found = scope commands | where name == $name
     if ($found | is-empty) {
-        error make {msg: $"`($name)` is neither a module nor a command in the current scope"}
+        error make {
+            msg: $"`($name)` is neither a module nor a command in the current scope"
+            help: 'load the module first, e.g. `use numd`; `scope commands | get name` lists what is in scope'
+        }
     }
     let cmd = $found | first
 

@@ -373,7 +373,10 @@ export def generate-region-execution [
     let payload = $marker | extract-region-code
 
     if ($payload | is-empty) {
-        error make {msg: $"empty command in region marker `($marker)`"}
+        error make {
+            msg: $"empty command in region marker `($marker)`"
+            help: 'write the command after the colon, for example: <!-- numd-gen: ls -->'
+        }
     }
 
     # Why: `print` appends no newline after a string stream (e.g. what `str join` returns),
@@ -808,7 +811,8 @@ export def extract-fence-options []: string -> list<string> {
     let unknown = $options | where $it not-in $fence_options.long
     if ($unknown | is-not-empty) {
         error make {
-            msg: $"unknown fence option ($unknown | str join ', ') in fence `($fence)`; valid options: ($fence_options.long | str join ', ')"
+            msg: $"unknown fence option ($unknown | str join ', ') in fence `($fence)`"
+            help: $"valid options: ($fence_options.long | str join ', ')"
         }
     }
 
@@ -854,7 +858,9 @@ export def check-git-clean [
     let is_staged = (git diff --staged --name-only $file | str trim) != ''
     if $has_changes or $is_staged {
         error make --unspanned {
-            msg: $"($file_path) has uncommitted changes. Commit or stash changes first, or use --ignore-git-check to override."
+            msg: $"($file_path) has uncommitted changes"
+            help: 'commit or stash the changes first, or pass --ignore-git-check to overwrite anyway'
+            code: 'numd::render::uncommitted_changes'
         }
     }
 }
