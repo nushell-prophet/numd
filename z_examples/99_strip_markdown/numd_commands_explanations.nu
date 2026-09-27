@@ -14,7 +14,7 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 let $md_orig = open -r $file | convert-output-fences
 let $original_md_table = $md_orig | parse-markdown-to-blocks
 
-$original_md_table | table -e --width 120
+$original_md_table | select block_index row_type action line | table -e --width 120
 
 
     # ```nu

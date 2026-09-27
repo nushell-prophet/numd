@@ -47,9 +47,9 @@ let $file = $init_numd_pwd_const | path join z_examples 1_simple_markdown simple
 let $md_orig = open -r $file | convert-output-fences
 let $original_md_table = $md_orig | parse-markdown-to-blocks
 print ''
-"$original_md_table | table -e --width 120" | nu-highlight | print
+"$original_md_table | select block_index row_type action line | table -e --width 120" | nu-highlight | print
 
-$original_md_table | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
+$original_md_table | select block_index row_type action line | table -e --width 120 | table --width ($env.numd?.table-width? | default 120) | default '' | into string | lines | each { $'# => ($in)' | str trim --right } | str join (char nl) | str replace --regex '\s*$' (char nl) | print; print ''
 print ''
 "```" | print
 
