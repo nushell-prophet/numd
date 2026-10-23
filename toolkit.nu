@@ -14,7 +14,7 @@ export def 'main test' [
     --all # human view: also list passing tests (default shows only non-passing)
     --update # accept changes: stage modified integration test files
     --fail # exit with non-zero code if any tests fail (for CI)
-] {
+]: nothing -> nothing {
     let results = (collect-unit-results) | append (collect-integration-results --update=$update)
 
     if (machine-mode --json=$json --pretty=$pretty) {
@@ -40,6 +40,7 @@ export def 'main test-unit' [
     --all # human view: also list passing tests (default shows only failures)
 ] {
     let flat = collect-unit-results
+
     if (machine-mode --json=$json --pretty=$pretty) {
         $flat | to json --raw
     } else {
@@ -58,6 +59,7 @@ export def 'main test-integration' [
     --update # accept changes: stage modified files in git
 ] {
     let flat = collect-integration-results --update=$update
+
     if (machine-mode --json=$json --pretty=$pretty) {
         $flat | to json --raw
     } else {
@@ -85,15 +87,17 @@ def collect-unit-results []: nothing -> table {
         let status = if $row.result == 'PASS' { 'passed' } else { 'failed' }
         let message = if $status == 'failed' {
             let msgs = $row.output | each {|o| $o.msg? } | compact
+
             if ($msgs | is-empty) { null } else { $msgs | str join '; ' }
         } else { null }
+
         {type: 'unit' name: $row.test status: $status file: null message: $message}
     }
 }
 
 # Collect integration test results as flat rows (executes example markdown files)
 def collect-integration-results [--update]: nothing -> table {
-    # Why: datetime rendering follows the TZ of the spawned `nu -n` process, so committed
+    # Why: datetime rendering follows the TZ of the spawned `nu --no-config-file` process, so committed
     # outputs drift between machines unless every intermediate script runs under one zone.
     # Setting $env.TZ inside the eval config would be too late — chrono reads TZ at spawn.
     with-env {TZ: 'UTC'} { collect-integration-results-inner --update=$update }
@@ -110,8 +114,9 @@ def collect-integration-results-inner [--update]: nothing -> table {
 
     # clear outputs from simple markdown
     let simple_md = ['z_examples' '1_simple_markdown' 'simple_markdown.md'] | path join
+
     numd clear-outputs $simple_md --echo
-    | save -f ($simple_md | build-modified-path --suffix '_with_no_output')
+    | save --force ($simple_md | build-modified-path --suffix '_with_no_output')
 
     # Why: `glob` returns a stream, so the directory walk would keep running while `par-each`
     # already executes examples — and the examples write temp files into each other's folders
@@ -140,34 +145,37 @@ def collect-integration-results-inner [--update]: nothing -> table {
                     | path join
 
                 numd clear-outputs $file --strip-markdown --echo
-                | save -f $strip_markdown_path
+                | save --force $strip_markdown_path
 
                 # Run files with config set
-                numd render $file --save-intermed-script $'($file)_intermed.nu' --eval (open -r ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
+                numd render $file --save-intermed-script $'($file)_intermed.nu' --eval (open --raw ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
             }
         }
         # Run file with customized width of table
         | append (
             run-integration-test ($path_simple_table | build-modified-path --suffix '_customized_width20') {
                 let target = $path_simple_table | build-modified-path --suffix '_customized_width20'
+
                 numd render $path_simple_table --echo --no-stats --eval '$env.numd.table-width = 20'
                 | ansi strip
-                | save -f $target
+                | save --force $target
             }
         )
         # Run file with another config
         | append (
             run-integration-test ($path_simple_table | build-modified-path --suffix '_customized_example_config') {
                 let target = $path_simple_table | build-modified-path --suffix '_customized_example_config'
-                numd render $path_simple_table --echo --no-stats --eval (open -r ([z_examples numd_config_example2.nu] | path join))
+
+                numd render $path_simple_table --echo --no-stats --eval (open --raw ([z_examples numd_config_example2.nu] | path join))
                 | ansi strip
-                | save -f $target
+                | save --force $target
             }
         )
         # Run run-once test via --echo (file mutates by design, so we assert on output instead)
         | append (
             run-integration-test 'z_examples/6_edge_cases/run_once.md' {
                 let output = numd render z_examples/6_edge_cases/run_once.md --echo --no-stats
+
                 if ($output !~ '```nu no-run') or ($output =~ '```nu run-once') {
                     error make {msg: 'run-once was not rewritten to no-run'}
                 }
@@ -176,18 +184,19 @@ def collect-integration-results-inner [--update]: nothing -> table {
         # Run readme
         | append (
             run-integration-test 'README.md' {
-                numd render README.md --eval (open -r ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
+                numd render README.md --eval (open --raw ([z_examples numd_config_example1.nu] | path join)) --ignore-git-check
             }
         )
     )
 
     if $update {
         let changed = $results | where status == 'changed'
+
         if ($changed | is-not-empty) {
             $changed | each {|r|
                 ^git add $r.file
-                # Why: -e (stderr) so staging notes never corrupt the JSON on stdout in machine mode
-                print -e $"(ansi green)Staged:(ansi reset) ($r.file)"
+                # Why: --stderr so staging notes never corrupt the JSON on stdout in machine mode
+                print --stderr $"(ansi green)Staged:(ansi reset) ($r.file)"
             }
         }
     }
@@ -197,14 +206,15 @@ def collect-integration-results-inner [--update]: nothing -> table {
 
 # Print the human view: non-passing tests (or all with --all), then a summary line.
 # Returns nothing so no wide table auto-renders and truncates the verdict column.
-def print-human [flat: table --all --update] {
+def print-human [flat: table --all --update]: nothing -> nothing {
     let to_show = if $all { $flat } else { $flat | where status != 'passed' }
+
     $to_show | each {|r| print-test-result $r }
     print-summary $flat --update=$update
 }
 
 # Print the N passed, M failed [, K changed] headline
-def print-summary [flat: table --update] {
+def print-summary [flat: table --update]: nothing -> nothing {
     let passed = $flat | where status == 'passed' | length
     let failed = $flat | where status == 'failed' | length
     let changed = $flat | where status == 'changed' | length
@@ -222,7 +232,7 @@ def print-summary [flat: table --update] {
 }
 
 # Print a single test result with status indicator (and the assertion on failure)
-def print-test-result [result: record] {
+def print-test-result [result: record]: nothing -> nothing {
     let icon = match $result.status {
         'passed' => $"(ansi green)✓(ansi reset)"
         'failed' => $"(ansi red)✗(ansi reset)"
@@ -230,6 +240,7 @@ def print-test-result [result: record] {
         _ => "?"
     }
     let suffix = if $result.file != null { $" (ansi attr_dimmed)\(($result.file)\)(ansi reset)" } else { "" }
+
     print $"  ($icon) ($result.name)($suffix)"
     if $result.status == 'failed' and ($result.message? | is-not-empty) {
         print $"      (ansi red)($result.message)(ansi reset)"
@@ -237,7 +248,7 @@ def print-test-result [result: record] {
 }
 
 # Run an integration test and return unified result format
-def run-integration-test [name: string command_src: closure] {
+def run-integration-test [name: string command_src: closure]: nothing -> record {
     try {
         do $command_src
 
@@ -251,7 +262,7 @@ def run-integration-test [name: string command_src: closure] {
     }
 }
 
-def update-dotnu-embeds [] {
+def update-dotnu-embeds []: nothing -> nothing {
     scope modules
     | where name == 'dotnu'
     | is-empty
@@ -283,7 +294,7 @@ export def 'main release' [
     | save --force --raw nupm.nuon
 
     git add nupm.nuon
-    git commit -m $'($tag) nupm version'
+    git commit --message $'($tag) nupm version'
     git tag $tag
     git push origin main --tags
 }

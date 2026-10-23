@@ -421,6 +421,7 @@ def "strip-outputs removes output lines from blocks" [] {
 
     # The line list should not contain '# => hello'
     let code_block = $result | where action == "execute" | first
+
     assert (($code_block.line | str join "\n") !~ '# =>')
 }
 
@@ -432,6 +433,7 @@ def "strip-outputs preserves plain comments" [] {
 
     let code_block = $result | where action == "execute" | first
     let code = $code_block.line | str join "\n"
+
     # Plain comment should be preserved
     assert ($code =~ '# this is a comment')
     # Output line should be removed
@@ -446,6 +448,7 @@ def "strip-outputs handles multiple output lines" [] {
 
     let code_block = $result | where action == "execute" | first
     let code = $code_block.line | str join "\n"
+
     assert ($code !~ '# =>')
     assert ($code =~ 'ls')
 }
@@ -577,6 +580,7 @@ def "dry-run returns would-execute blocks without executing" [] {
     let md = "# Title\n\n```nushell\n2 + 2\n# => 4\n```\n\n```nu no-run\nrm dangerous.txt\n```"
 
     let file = mktemp --tmpdir --suffix .md
+
     $md | save --force $file
 
     let result = render --dry-run $file
@@ -597,6 +601,7 @@ def "parse-markdown-to-blocks detects short region marker" [] {
     let result = "text\n\n<!-- numd-gen: ls -->\n\nmore text" | parse-markdown-to-blocks
 
     let regions = $result | where action == 'execute'
+
     assert equal ($regions | length) 1
     assert equal $regions.0.row_type '<!-- numd-gen: ls -->'
     assert equal $regions.0.line ['<!-- numd-gen: ls -->']
@@ -621,16 +626,12 @@ def "parse-markdown-to-blocks ignores region markers inside fences" [] {
 
 @test
 def "parse-markdown-to-blocks errors on orphan region end marker" [] {
-    let outcome = try { "<!-- numd-gen-end -->" | parse-markdown-to-blocks; 'no-error' } catch { 'error' }
-
-    assert equal $outcome 'error'
+    assert error { "<!-- numd-gen-end -->" | parse-markdown-to-blocks }
 }
 
 @test
 def "parse-markdown-to-blocks errors on unclosed region" [] {
-    let outcome = try { "<!-- numd-gen-start: ls -->\nstale content" | parse-markdown-to-blocks; 'no-error' } catch { 'error' }
-
-    assert equal $outcome 'error'
+    assert error { "<!-- numd-gen-start: ls -->\nstale content" | parse-markdown-to-blocks }
 }
 
 @test
@@ -671,6 +672,7 @@ def "dry-run returns region payload as code" [] {
     let md = "<!-- numd-gen: [[a]; [1]] | to md -->"
 
     let file = mktemp --tmpdir --suffix .md
+
     $md | save --force $file
 
     let result = render --dry-run $file
@@ -687,6 +689,7 @@ def "region content from a string stream keeps the end marker on its own line" [
     let md = "<!-- numd-gen: [a b] | str join (char nl) -->"
 
     let file = mktemp --tmpdir --suffix .md
+
     $md | save --force $file
 
     let result = render $file --echo --no-stats

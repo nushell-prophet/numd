@@ -31,12 +31,12 @@ def "doc marks optional positionals in the usage line" [] {
 def "untyped demo" [pos: string] { }
 
 @test
-def "doc omits the io comment when the only signature is any -> any" [] {
+def "doc omits the io comment when the only signature is the untyped default" [] {
     let result = numd doc 'untyped demo'
 
     # the untyped default carries no information, so no `# ...` io comment is emitted on the usage line
     assert ($result =~ 'untyped demo <pos>\n```')
-    assert (not ($result =~ 'untyped demo <pos>    #'))
+    assert ($result !~ 'untyped demo <pos>    #')
 }
 
 @test
@@ -83,16 +83,14 @@ def "doc keeps every declared io overload in order" [] {
 def "doc omits the header with --no-header" [] {
     let result = numd doc 'numd render' --no-header
 
-    assert (not ($result =~ '`numd render`'))
+    assert ($result !~ '`numd render`')
     # the reference itself (usage fence) is still emitted
     assert ($result =~ '```nushell no-run\nnumd render <file>')
 }
 
 @test
 def "doc errors on unknown target" [] {
-    let outcome = try { numd doc 'no-such-thing'; 'no-error' } catch { 'error' }
-
-    assert equal $outcome 'error'
+    assert error { numd doc 'no-such-thing' }
 }
 
 # =============================================================================
@@ -121,7 +119,7 @@ def "render-parameter prefixes a rest parameter with dots" [] {
 }
 
 @test
-def "render-parameter omits the type when syntax_shape is null" [] {
+def "render-parameter omits the type when the syntax shape is null" [] {
     let param = {parameter_type: 'positional' parameter_name: 'thing' is_optional: false syntax_shape: null description: ''}
 
     assert equal ($param | render-parameter) '- `thing`'
@@ -135,7 +133,7 @@ def "render-flag renders a switch with no type" [] {
 }
 
 @test
-def "render-flag renders a named flag with short alias, type and default" [] {
+def "render-flag renders a named flag with short alias and type and default" [] {
     let flag = {parameter_type: 'named' parameter_name: 'header-level' short_flag: 'l' syntax_shape: 'int' description: 'header level' parameter_default: 3}
 
     assert equal ($flag | render-flag) '- `--header-level (-l): int` — header level (default: `3`)'

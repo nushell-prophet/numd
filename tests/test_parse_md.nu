@@ -11,24 +11,28 @@ use ../numd/md-parser.nu *
 @test
 def "classify-line detects h1" [] {
     let result = "# Hello" | classify-line
+
     assert equal $result.type "h1"
 }
 
 @test
 def "classify-line detects h2" [] {
     let result = "## Section" | classify-line
+
     assert equal $result.type "h2"
 }
 
 @test
 def "classify-line detects h6" [] {
     let result = "###### Deep header" | classify-line
+
     assert equal $result.type "h6"
 }
 
 @test
 def "classify-line detects code fence with language" [] {
     let result = "```nushell" | classify-line
+
     assert equal $result.type "fence"
     assert equal $result.lang "nushell"
 }
@@ -36,6 +40,7 @@ def "classify-line detects code fence with language" [] {
 @test
 def "classify-line detects code fence with options" [] {
     let result = "```nushell no-run, try" | classify-line
+
     assert equal $result.type "fence"
     assert equal $result.lang "nushell"
     assert ("no-run" in $result.options)
@@ -45,6 +50,7 @@ def "classify-line detects code fence with options" [] {
 @test
 def "classify-line detects closing fence" [] {
     let result = "```" | classify-line
+
     assert equal $result.type "fence"
     assert equal $result.lang ""
 }
@@ -52,42 +58,49 @@ def "classify-line detects closing fence" [] {
 @test
 def "classify-line detects unordered list with dash" [] {
     let result = "- item" | classify-line
+
     assert equal $result.type "ul-item"
 }
 
 @test
 def "classify-line detects unordered list with asterisk" [] {
     let result = "* item" | classify-line
+
     assert equal $result.type "ul-item"
 }
 
 @test
 def "classify-line detects ordered list" [] {
     let result = "1. first" | classify-line
+
     assert equal $result.type "ol-item"
 }
 
 @test
 def "classify-line detects blockquote" [] {
     let result = "> quote" | classify-line
+
     assert equal $result.type "blockquote"
 }
 
 @test
 def "classify-line detects empty line" [] {
     let result = "" | classify-line
+
     assert equal $result.type "empty"
 }
 
 @test
 def "classify-line detects whitespace-only as empty" [] {
     let result = "   " | classify-line
+
     assert equal $result.type "empty"
 }
 
 @test
 def "classify-line detects text" [] {
     let result = "Some paragraph text" | classify-line
+
     assert equal $result.type "text"
 }
 
@@ -98,6 +111,7 @@ def "classify-line detects text" [] {
 @test
 def "parse-md parses h1 header" [] {
     let result = "# Title" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "h1"
     assert equal $result.0.content "Title"
@@ -106,6 +120,7 @@ def "parse-md parses h1 header" [] {
 @test
 def "parse-md parses h3 header" [] {
     let result = "### Section" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "h3"
     assert equal $result.0.content "Section"
@@ -114,6 +129,7 @@ def "parse-md parses h3 header" [] {
 @test
 def "parse-md parses code block" [] {
     let result = "```nushell\necho hello\n```" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "code"
     assert equal $result.0.meta.lang "nushell"
@@ -123,6 +139,7 @@ def "parse-md parses code block" [] {
 @test
 def "parse-md preserves code block options" [] {
     let result = "```nushell no-run, try\necho hello\n```" | parse-md
+
     assert equal $result.0.element "code"
     assert ("no-run" in $result.0.meta.options)
     assert ("try" in $result.0.meta.options)
@@ -131,6 +148,7 @@ def "parse-md preserves code block options" [] {
 @test
 def "parse-md parses paragraph" [] {
     let result = "First line\nSecond line" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "p"
     assert ($result.0.content =~ "First line")
@@ -140,6 +158,7 @@ def "parse-md parses paragraph" [] {
 @test
 def "parse-md separates paragraphs by empty line" [] {
     let result = "Para 1\n\nPara 2" | parse-md
+
     assert equal ($result | length) 2
     assert equal $result.0.element "p"
     assert equal $result.1.element "p"
@@ -150,6 +169,7 @@ def "parse-md separates paragraphs by empty line" [] {
 @test
 def "parse-md parses unordered list" [] {
     let result = "- item 1\n- item 2\n- item 3" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "ul"
     assert equal ($result.0.meta.items | length) 3
@@ -159,6 +179,7 @@ def "parse-md parses unordered list" [] {
 @test
 def "parse-md parses ordered list" [] {
     let result = "1. first\n2. second" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "ol"
     assert equal ($result.0.meta.items | length) 2
@@ -168,12 +189,14 @@ def "parse-md parses ordered list" [] {
 @test
 def "parse-md detects ordered list start number" [] {
     let result = "5. fifth\n6. sixth" | parse-md
+
     assert equal $result.0.meta.start 5
 }
 
 @test
 def "parse-md parses blockquote" [] {
     let result = "> This is a quote\n> continued" | parse-md
+
     assert equal ($result | length) 1
     assert equal $result.0.element "blockquote"
     assert ($result.0.content =~ "This is a quote")
@@ -182,6 +205,7 @@ def "parse-md parses blockquote" [] {
 @test
 def "parse-md detects github admonition note" [] {
     let result = "> [!NOTE]\n> This is a note" | parse-md
+
     assert equal $result.0.element "blockquote"
     assert equal $result.0.meta.type "note"
 }
@@ -189,6 +213,7 @@ def "parse-md detects github admonition note" [] {
 @test
 def "parse-md detects github admonition warning" [] {
     let result = "> [!WARNING]\n> Be careful" | parse-md
+
     assert equal $result.0.meta.type "warning"
 }
 
@@ -217,6 +242,7 @@ ls
 @test
 def "parse-md separates consecutive same-level headers" [] {
     let result = "## Heading A\n## Heading B" | parse-md
+
     assert equal ($result | length) 2
     assert equal $result.0.element "h2"
     assert equal $result.0.content "Heading A"
@@ -227,6 +253,7 @@ def "parse-md separates consecutive same-level headers" [] {
 @test
 def "parse-md block indices are sequential" [] {
     let result = "# H1\n\n## H2\n\nText" | parse-md
+
     assert equal $result.0.block_index 0
     assert equal $result.1.block_index 1
     assert equal $result.2.block_index 2
@@ -252,12 +279,14 @@ fn main() {
 @test
 def "classify-line detects frontmatter delimiter" [] {
     let result = "---" | classify-line
+
     assert equal $result.type "fm-delimiter"
 }
 
 @test
 def "parse-md parses frontmatter" [] {
     let result = "---\nstatus: draft\n---\n# Title" | parse-md
+
     assert equal ($result | length) 2
     assert equal $result.0.element "frontmatter"
     assert equal $result.0.meta.status "draft"
@@ -268,6 +297,7 @@ def "parse-md parses frontmatter" [] {
 def "parse-md frontmatter only at document start" [] {
     # --- in the middle should not be frontmatter
     let result = "# Title\n\n---\n\nSome text" | parse-md
+
     # The --- becomes a paragraph (horizontal rule semantics not implemented)
     assert ($result | where element == "frontmatter" | is-empty)
 }
@@ -275,6 +305,7 @@ def "parse-md frontmatter only at document start" [] {
 @test
 def "parse-md frontmatter with multiple fields" [] {
     let result = "---\ntitle: Test\ndate: 2024-01-01\ntags: [a, b]\n---" | parse-md
+
     assert equal $result.0.element "frontmatter"
     assert equal $result.0.meta.title "Test"
     assert equal ($result.0.meta.tags | length) 2

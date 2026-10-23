@@ -32,7 +32,7 @@ export def main [
         | wrap chapter
 
     let elements = $help_lines
-        | split list -r $regex
+        | split list --regex $regex
         | skip
         | wrap elements
 
@@ -48,7 +48,7 @@ export def main [
         | update Description ($input.Description | take until { $in == '' } | append '')
         | upsert Examples {|i| $i.Examples? | append ($input.Description | skip until { $in == '' } | skip) }
     } else { }
-    | if $sections == null { } else { select -o ...$sections }
+    | if $sections == null { } else { select --optional ...$sections }
     | if $record {
         items {|k v|
             {$k: ($v | str join (char nl))}

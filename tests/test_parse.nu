@@ -44,6 +44,7 @@ def "parse-frontmatter reads a file given as an argument" [] {
     # Why: every other test here pipes a string, so the `file` parameter went
     # unchecked and its bare `open` silently started returning a table in 0.112.
     let file = mktemp --tmpdir --suffix .md
+
     "---\ntitle: Hello\n---\nBody text" | save --force $file
 
     let result = parse-frontmatter $file

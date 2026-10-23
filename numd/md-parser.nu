@@ -5,7 +5,8 @@ use std/iter scan
 export def parse-md [
     file?: path # optional path to markdown file (can also pipe content)
 ]: [string -> table nothing -> table] {
-    let input = if $file == null { $in } else { open -r $file }
+    let input = if $file == null { $in } else { open --raw $file }
+
     $input | parse-md-to-blocks
 }
 
@@ -13,78 +14,62 @@ export def parse-md [
 export def classify-line []: string -> record {
     let line = $in
 
-    # Frontmatter delimiter (---)
-    if $line == '---' {
-        return {type: 'fm-delimiter'}
+    match $line {
+        # Frontmatter delimiter (---)
+        '---' => { {type: 'fm-delimiter'} }
+
+        # Code fence (opening or closing)
+        $l if ($l =~ '^```') => {
+            let parsed = $l | parse --regex '^```(?<lang>\w+)?(?<options>.*)?$'
+            let lang = $parsed | get --optional lang.0 | default ''
+            let options = $parsed
+                | get --optional options.0
+                | default ''
+                | str trim
+                | if $in == '' { [] } else { split row ',' | each { str trim } }
+
+            {type: 'fence' lang: $lang options: $options}
+        }
+
+        # Headers h1-h6
+        $l if ($l =~ '^#{1,6}\s') => {
+            let level = $l | parse --regex '^(?<hashes>#+)\s' | get hashes.0 | str length
+
+            {type: $'h($level)'}
+        }
+
+        # Unordered list item
+        $l if ($l =~ '^\s*[-*+]\s') => { {type: 'ul-item'} }
+
+        # Ordered list item
+        $l if ($l =~ '^\s*\d+\.\s') => { {type: 'ol-item'} }
+
+        # Blockquote
+        $l if ($l =~ '^>\s?') => { {type: 'blockquote'} }
+
+        # Empty line
+        $l if ($l | str trim | is-empty) => { {type: 'empty'} }
+
+        # Default: paragraph text
+        _ => { {type: 'text'} }
     }
-
-    # Code fence (opening or closing)
-    if ($line =~ '^```') {
-        let parsed = $line | parse -r '^```(?<lang>\w+)?(?<options>.*)?$'
-        let lang = $parsed | get -o lang.0 | default ''
-        let options = $parsed
-            | get -o options.0
-            | default ''
-            | str trim
-            | if $in == '' { [] } else { split row ',' | each { str trim } }
-
-        return {type: 'fence' lang: $lang options: $options}
-    }
-
-    # Headers h1-h6
-    if ($line =~ '^#{1,6}\s') {
-        let level = $line | parse -r '^(?<hashes>#+)\s' | get hashes.0 | str length
-        return {type: $'h($level)'}
-    }
-
-    # Unordered list item
-    if ($line =~ '^\s*[-*+]\s') {
-        return {type: 'ul-item'}
-    }
-
-    # Ordered list item
-    if ($line =~ '^\s*\d+\.\s') {
-        return {type: 'ol-item'}
-    }
-
-    # Blockquote
-    if ($line =~ '^>\s?') {
-        return {type: 'blockquote'}
-    }
-
-    # Empty line
-    if ($line | str trim | is-empty) {
-        return {type: 'empty'}
-    }
-
-    # Default: paragraph text
-    {type: 'text'}
 }
 
 # Extract clean content from a block
-def extract-content [element: string lines: list<string>]: nothing -> string {
+export def extract-content [element: string lines: list<string>]: nothing -> string {
     match $element {
-        'frontmatter' => {
-            $lines | str join (char nl)
-        }
         'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' => {
             $lines | first | str replace --regex '^#+\s+' ''
         }
         'blockquote' => {
             $lines | each { str replace --regex '^>\s?' '' } | str join (char nl)
         }
-        'code' => {
-            $lines | str join (char nl)
-        }
-        'p' => {
-            $lines | str join (char nl)
-        }
         _ => { $lines | str join (char nl) }
     }
 }
 
 # Extract metadata for a block
-def extract-meta [
+export def extract-meta [
     element: string
     lines: list<string>
     class_info: record
@@ -105,7 +90,7 @@ def extract-meta [
         }
         'ol' => {
             let items = $lines | each { str replace --regex '^\s*\d+\.\s+' '' }
-            let start = $lines | first | parse -r '^\s*(?<n>\d+)\.' | get -o n.0 | default '1' | into int
+            let start = $lines | first | parse --regex '^\s*(?<n>\d+)\.' | get --optional n.0 | default '1' | into int
 
             {items: $items start: $start}
         }
@@ -113,8 +98,8 @@ def extract-meta [
             # Detect GitHub-style admonitions like [!NOTE], [!TIP], [!WARNING]
             let first_content = $lines | first | str replace --regex '^>\s?' ''
             let admonition = $first_content
-                | parse -r '^\[!(?<type>\w+)\]'
-                | get -o type.0
+                | parse --regex '^\[!(?<type>\w+)\]'
+                | get --optional type.0
                 | if $in != null { str lowercase } else { null }
 
             {type: $admonition}
@@ -124,7 +109,7 @@ def extract-meta [
 }
 
 # Main parsing function: convert markdown string to semantic block table
-def parse-md-to-blocks []: string -> table {
+export def parse-md-to-blocks []: string -> table {
     let file_lines = $in | lines
 
     # Step 1: Classify each line
@@ -134,7 +119,7 @@ def parse-md-to-blocks []: string -> table {
     # Step 2: Track frontmatter and code block state
     # Frontmatter is only valid at document start: first line must be ---
     let with_state = $classified
-        | each { $in.class }
+        | get class
         | scan --fold {in_fm: false fm_possible: true in_code: false code_info: null} {|class state|
             if $class.type == 'fm-delimiter' and $state.fm_possible and not $state.in_code {
                 if $state.in_fm {
@@ -164,6 +149,7 @@ def parse-md-to-blocks []: string -> table {
         | each {|pair|
             let item = $pair.0
             let state = $pair.1
+
             if $state.in_fm and $item.class.type != 'fm-delimiter' {
                 $item | update class {type: 'fm-content'}
             } else if $item.class.type == 'fm-delimiter' and $state.in_fm {
@@ -184,7 +170,7 @@ def parse-md-to-blocks []: string -> table {
         }
 
     # Step 4: Compute block indices
-    let types = $classified_with_context | each { $in.class.type }
+    let types = $classified_with_context | get class.type
     let block_indices = $types
         | window --remainder 2
         | scan --fold 0 {|window index|
@@ -218,7 +204,7 @@ def parse-md-to-blocks []: string -> table {
 
     # Step 6: Group by block index and build output
     $indexed
-    | where { $in.class.type not-in ['empty' 'fence-open' 'fence-close' 'fm-open' 'fm-close'] }
+    | where class.type not-in ['empty' 'fence-open' 'fence-close' 'fm-open' 'fm-close']
     | group-by block_index --to-table
     | each {|group|
         let block_idx = $group.block_index | into int
@@ -234,7 +220,6 @@ def parse-md-to-blocks []: string -> table {
             'ul-item' => { 'ul' }
             'ol-item' => { 'ol' }
             'blockquote' => { 'blockquote' }
-            'text' => { 'p' }
             _ => { 'p' }
         }
 

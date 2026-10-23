@@ -1,7 +1,7 @@
 # Parse frontmatter from markdown, output record
 @category markdown
 export def 'parse-frontmatter' [
-    file?: path # path to a markdow file. Might be ommited if markdown content is piped in
+    file?: path # path to a markdown file. Might be omitted if markdown content is piped in
 ]: [string -> record nothing -> record] {
     # Why: since 0.112 a bare `open` on a `.md` path runs `from md` and yields a table,
     # which `split row` below can't take. `--raw` keeps it a string.
@@ -25,8 +25,6 @@ export def 'parse-frontmatter' [
 
     $yaml | insert content $list.2
 }
-
-alias core_to_md = to md
 
 # produce markdown from record. All fields except of `content` go to frontmatter.
 # And content becomes the body

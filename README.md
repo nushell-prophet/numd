@@ -75,13 +75,13 @@ numd render <file>    # `nothing -> string`, `nothing -> nothing`, `nothing -> r
 
 - `--dry-run` — return blocks that would execute (block_index, infostring, code) without executing anything
 - `--echo` — output resulting markdown to stdout instead of saving to file
-- `--eval: string` — Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
+- `--eval: string` — Nushell code to prepend to the script (use `open --raw config.nu` for file-based config)
 - `--ignore-git-check` — skip the check for uncommitted changes before overwriting
 - `--no-fail-on-error` — skip errors (markdown is never saved on error)
 - `--no-stats` — do not output stats of changes (is activated via --echo by default)
 - `--print-block-results` — print blocks one by one as they are executed, useful for long running scripts
 - `--save-intermed-script: path` — optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-- `--use-host-config` — load host's env, config, and plugin files (default: run with nu -n for reproducibility)
+- `--use-host-config` — load host's env, config, and plugin files (default: run with nu --no-config-file for reproducibility)
 
 **Examples:**
 
@@ -140,7 +140,7 @@ Use the `--eval` option to prepend Nushell code to the intermediate script. This
 let path = $nu.temp-dir | path join simple_nu_table.md
 
 # let's generate some markdown and save it to the `simple_nu_table.md` file in the temp directory
-"```nushell\n[[a b c]; [1 2 3]]\n```\n" | save -f $path
+"```nushell\n[[a b c]; [1 2 3]]\n```\n" | save --force $path
 
 # let's run this file to see its outputs (--echo outputs to stdout without saving)
 numd render $path --echo --no-stats --eval "

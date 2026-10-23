@@ -45,6 +45,7 @@ export def render-command [
     no_header: bool
 ]: nothing -> string {
     let found = scope commands | where name == $name
+
     if ($found | is-empty) {
         error make {
             msg: $"`($name)` is neither a module nor a command in the current scope"
@@ -71,7 +72,7 @@ export def render-command [
         | str replace --all --regex '\s*->\s*' "\u{1}"
         | str replace --all --regex ',(?![^<]*>)' "\u{2}"
         | split row "\u{2}"
-        | each { split row "\u{1}" | each { str trim } }
+        | each { split row "\u{1}" | str trim }
         | where { ($in | length) == 2 and ($in | all { is-not-empty }) }
         | each { $'`($in.0) -> ($in.1)`' }
 
@@ -81,6 +82,7 @@ export def render-command [
         | each {|sig|
             let input = $sig | where parameter_type == 'input' | first | get syntax_shape
             let output = $sig | where parameter_type == 'output' | first | get syntax_shape
+
             $'`($input) -> ($output)`'
         }
     }

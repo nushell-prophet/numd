@@ -24,13 +24,13 @@ export def render [
     file: path # path to a `.md` file containing Nushell code to be executed
     --dry-run # return blocks that would execute (block_index, infostring, code) without executing anything
     --echo # output resulting markdown to stdout instead of saving to file
-    --eval: string # Nushell code to prepend to the script (use `open -r config.nu` for file-based config)
+    --eval: string # Nushell code to prepend to the script (use `open --raw config.nu` for file-based config)
     --ignore-git-check # skip the check for uncommitted changes before overwriting
     --no-fail-on-error # skip errors (markdown is never saved on error)
     --no-stats # do not output stats of changes (is activated via --echo by default)
     --print-block-results # print blocks one by one as they are executed, useful for long running scripts
     --save-intermed-script: path # optional path for keeping intermediate script (useful for debugging purposes). If not set, the temporary intermediate script will be deleted.
-    --use-host-config # load host's env, config, and plugin files (default: run with nu -n for reproducibility)
+    --use-host-config # load host's env, config, and plugin files (default: run with nu --no-config-file for reproducibility)
 ]: [nothing -> string nothing -> nothing nothing -> record nothing -> table<block_index: int, infostring: string, code: string>] {
     # Why: the safety valve lives on `render` itself — an agent about to `numd render` an
     # arbitrary file discovers the gate in `render --help`, not in a distant command
@@ -51,7 +51,7 @@ export def render [
         )
     }
 
-    let original_md = open -r $file
+    let original_md = open --raw $file
 
     let intermediate_script_path = $save_intermed_script
         | default ($file | build-modified-path --suffix $'-numd-temp-(generate-timestamp)' --extension '.nu')
@@ -76,7 +76,7 @@ export def render [
         $updated_md
     } else {
         if not $ignore_git_check { check-git-clean $file }
-        $updated_md | ansi strip | save -f $file
+        $updated_md | ansi strip | save --force $file
 
         if not $no_stats {
             compute-change-stats $file $original_md $updated_md
@@ -103,18 +103,18 @@ export def clear-outputs [
         to-markdown
     }
     | if $echo { } else {
-        $in | save -f $file
+        save --force $file
     }
 }
 
 # Extract pure Nushell script from blocks table (strip markdown fences)
 export def to-numd-script []: table -> string {
     where action == 'execute'
-    | each {
-        if $in.row_type =~ $region_any_regex {
-            $'(char nl)    # ($in.row_type)(char nl)($in.row_type | extract-region-code)(char nl)'
+    | each {|block|
+        if $block.row_type =~ $region_any_regex {
+            $'(char nl)    # ($block.row_type)(char nl)($block.row_type | extract-region-code)(char nl)'
         } else {
-            $in.line
+            $block.line
             | update 0 { $'(char nl)    # ($in)' } # keep infostring as comment
             | drop # remove closing fence
             | str join (char nl)
@@ -138,7 +138,7 @@ export def execute-blocks [
 
     decorate-original-code-blocks $original
     | generate-intermediate-script
-    | save -f $save_intermed_script
+    | save --force $save_intermed_script
 
     let execution_output = execute-intermediate-script $save_intermed_script $no_fail_on_error $print_block_results $use_host_config
 
@@ -158,6 +158,7 @@ export def execute-blocks [
     | each {|block|
         if $block.block_index in $result_indices {
             let result = $results | where block_index == $block.block_index | first
+
             $block | update line { $result.line | lines }
         } else {
             $block
@@ -169,7 +170,7 @@ export def execute-blocks [
 export def parse-file [
     file: path # path to a markdown file
 ]: nothing -> table<block_index: int, row_type: string, line: list<string>, action: string> {
-    open -r $file
+    open --raw $file
     | if $nu.os-info.family == windows {
         str replace --all (char crlf) "\n"
     } else { }
@@ -308,7 +309,7 @@ export def parse-markdown-to-blocks []: string -> table<block_index: int, row_ty
 }
 
 export def classify-block-action [
-    $row_type: string
+    row_type: string
 ]: nothing -> string {
     match $row_type {
         'text' => { 'print-as-it-is' }
@@ -324,7 +325,7 @@ export def classify-block-action [
 }
 
 # Apply output formatting based on fence options (separate-block vs inline `# =>`).
-def format-command-output [fence_options: list<string>]: string -> string {
+export def format-command-output [fence_options: list<string>]: string -> string {
     if 'no-output' in $fence_options { return $in } else { }
     | if 'separate-block' in $fence_options { generate-separate-block-fence } else { }
     | if (can-append-print $in) {
@@ -414,7 +415,7 @@ export def decorate-original-code-blocks [
 #
 # Takes decorated code blocks and produces a complete Nushell script ready for execution.
 export def generate-intermediate-script []: table<block_index: int, row_type: string, line: list<string>, action: string, code: string> -> string {
-    get code -o
+    get code --optional
     | if $env.numd?.prepend-code? != null {
         prepend $"($env.numd.prepend-code)\n"
     } else { }
@@ -438,6 +439,7 @@ export def process-code-block-content [
     | split-by-blank-lines
     | each {|group|
         let trimmed = $group | str trim
+
         if ($trimmed | is-empty) {
             ''
         } else if ($trimmed | lines | all { $in =~ '^#' }) {
@@ -452,7 +454,7 @@ export def process-code-block-content [
 # Preserves multiline commands that don't have blank lines between them.
 export def split-by-blank-lines []: string -> list<string> {
     split row "\n\n"
-    | each { str trim -c "\n" }
+    | str trim --char "\n"
 }
 
 # Parse block indices from Nushell output lines and return a table with the original markdown line numbers.
@@ -595,7 +597,7 @@ export def quote-for-print []: string -> string {
 
 # Append a pipeline to a command string by extracting the closure body.
 export def pipe-to [closure: closure]: string -> string {
-    let $input = $in
+    let input = $in
 
     view source $closure
     | str substring 1..(-2)
@@ -624,9 +626,9 @@ export def execute-intermediate-script [
         | where {|i| $i.1 | path exists }
         | flatten
     } else {
-        [-n]
+        [--no-config-file]
     }
-        # Why: `nu -n` clears NU_LIB_DIRS, so add numd's parent dir to let `use numd`
+        # Why: `nu --no-config-file` clears NU_LIB_DIRS, so add numd's parent dir to let `use numd`
         # (e.g. from a `numd doc` region marker) resolve in any document on any machine.
         | append [--include-path $numd_include_path]
 
@@ -690,7 +692,7 @@ export def get-last-span [
         | get block
         | from json
         | to yaml
-        | parse -r 'span:\n\s+start:(.*)\n\s+end:(.*)'
+        | parse --regex 'span:\n\s+start:(.*)\n\s+end:(.*)'
         | rename start end
         | into int start end
 
@@ -756,7 +758,7 @@ export def wrap-in-try-catch [
 ]: string -> string {
     if $new_instance {
         quote-for-print
-        | $'($nu.current-exe) -c ($in)'
+        | $'($nu.current-exe) --commands ($in)'
         | pipe-to { complete | if ($in.exit_code != 0) { get stderr } else { get stdout } }
     } else {
         $"try {($in)} catch {|error| $error}"
@@ -806,6 +808,7 @@ export def extract-fence-options []: string -> list<string> {
     # Why: a typo in a fence option is a source-document error. Fail fast naming the
     # fence, rather than warn-and-run — a mistyped safety tag like `N` must stop, not execute.
     let unknown = $options | where $it not-in $fence_options.long
+
     if ($unknown | is-not-empty) {
         error make {
             msg: $"unknown fence option ($unknown | str join ', ') in fence `($fence)`"
@@ -844,15 +847,18 @@ export def check-git-clean [
 
     # Check if we're in a git repo
     let in_git_repo = (do { git rev-parse --git-dir } | complete).exit_code == 0
+
     if not $in_git_repo { return }
 
     # Check if file is tracked by git (untracked files are ok to overwrite)
     let is_tracked = (do { git ls-files --error-unmatch $file } | complete).exit_code == 0
+
     if not $is_tracked { return }
 
     # Check if file has uncommitted changes
     let has_changes = (git diff --name-only $file | str trim) != ''
     let is_staged = (git diff --staged --name-only $file | str trim) != ''
+
     if $has_changes or $is_staged {
         error make --unspanned {
             msg: $"($file_path) has uncommitted changes"
@@ -873,6 +879,7 @@ export def --env load-config [
 
     # Preserve existing $env.numd fields, only update prepend-code
     let base = $env.numd? | default {}
+
     $env.numd = $base | merge {prepend-code: $code}
 }
 

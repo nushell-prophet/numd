@@ -173,7 +173,7 @@ A name with a slash nests the worktree deeper and escapes the symlink, so keep w
 
 ## Configuration
 
-By default, numd runs intermediate scripts with `nu -n` (no config files) for reproducible output across different systems.
+By default, numd runs intermediate scripts with `nu --no-config-file` for reproducible output across different systems.
 Use `--use-host-config` to load host's env, config, and plugin files when needed.
 
 Use `--eval` to prepend Nushell code to the intermediate script:
@@ -182,7 +182,7 @@ Use `--eval` to prepend Nushell code to the intermediate script:
 numd render README.md --eval '$env.numd.table-width = 80'
 
 # From config file
-numd render README.md --eval (open -r z_examples/numd_config_example1.nu)
+numd render README.md --eval (open --raw z_examples/numd_config_example1.nu)
 ```
 
 Example config files: `z_examples/numd_config_example1.nu` sets `$env.config.footer_mode` and a `$env.config.table` record; `z_examples/numd_config_example2.nu` also sets `$env.numd.table-width`, the width passed to `table` when rendering output (default 120).
