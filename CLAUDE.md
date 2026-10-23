@@ -43,7 +43,6 @@ The gate is on the save path only: `--echo` and `clear-outputs` are never blocke
 - **doc.nu**: `doc` command rendering markdown docs for a module or command from `scope` data
 - **parse-help.nu**: `parse-help` command for formatting --help output
 - **parse.nu**: Frontmatter parsing utilities (`parse-frontmatter`, `to md-with-frontmatter`)
-- **live.nu**: helpers for writing a markdown file from a live Nushell session (`h1`..`h6`, `p`, `code`); not re-exported by `mod.nu`
 
 ### Plumbing Commands
 
